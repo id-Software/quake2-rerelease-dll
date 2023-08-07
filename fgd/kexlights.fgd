@@ -1,0 +1,31 @@
+
+
+@PointClass size(-8 -8 -8, 8 8 8) color(255 128 0) base(EditorFlags, Target, Targetable) = dynamic_light : "Dynamic KEX light" [
+	_color(color) : "Light color"
+	shadowlightradius(float) : "Sets the radius of a dynamic shadow light. Becomes a dynamic light if this is bigger than 0" : "0"
+	shadowlightintensity(float) : "Intensity scalar for the light." : "1.0"
+	shadowlightstartfadedistance(float) : "The distance in world units (from player's view position) in which fading begins" : "0"
+	shadowlightendfadedistance(float) : "The distance in world units (from player's view position) in which the light is fully faded out and not rendered" : "0"
+	shadowlightconeangle(float) : "Sets the outer cone angle if this light is a spot light." : "45"
+	shadowlightstyle(choices) : "Appearance" : "0" = [
+		0 : "Normal"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+		// New styles below here
+	]
+    spawnflags(Flags) =
+    [
+        1 : "Start Off" : 0
+    ]
+    shadowlightstyletarget(target_destination) : "Light entity to pick up style ID from"
+	shadowlightresolution(integer) : "Shadow map resolution; leave blank to automatically determine from radius"
+]

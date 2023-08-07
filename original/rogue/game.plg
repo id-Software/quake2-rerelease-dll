@@ -1,0 +1,154 @@
+--------------------Configuration: game - Win32 Debug--------------------
+Begining build with project "E:\quake2\code\game\game.dsp", at root.
+Active configuration is Win32 (x86) Dynamic-Link Library (based on Win32 (x86) Dynamic-Link Library)
+
+Project's tools are:
+			"32-bit C/C++ Compiler for 80x86" with flags "/nologo /G5 /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "BUILDING_REF_GL" /FR"debug/" /Fp"debug/game.pch" /YX /Fo"debug/" /Fd"debug/" /FD /c "
+			"OLE Type Library Maker" with flags "/nologo /D "_DEBUG" /mktyplib203 /win32 "
+			"Win32 Resource Compiler" with flags "/l 0x409 /d "_DEBUG" "
+			"Browser Database Maker" with flags "/nologo /o"..\..\debug/game.bsc" "
+			"COFF Linker for 80x86" with flags "kernel32.lib user32.lib gdi32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows /dll /incremental:no /pdb:"..\..\debug/gamex86.pdb" /map:"debug/gamex86.map" /debug /machine:I386 /def:".\game.def" /out:"..\..\debug\gamex86.dll" /implib:"..\..\debug/gamex86.lib" "
+			"Custom Build" with flags ""
+			"<Component 0xa>" with flags ""
+
+Creating temp file "C:\TEMP\RSP2F.tmp" with contents </nologo /G5 /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "BUILDING_REF_GL" /FR"debug/" /Fp"debug/game.pch" /YX /Fo"debug/" /Fd"debug/" /FD /c 
+"E:\quake2\code\game\g_spawn.c"
+>
+Creating command line "cl.exe @C:\TEMP\RSP2F.tmp" 
+Creating temp file "C:\TEMP\RSP30.tmp" with contents <kernel32.lib user32.lib gdi32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows /dll /incremental:no /pdb:"..\..\debug/gamex86.pdb" /map:"debug/gamex86.map" /debug /machine:I386 /def:".\game.def" /out:"..\..\debug\gamex86.dll" /implib:"..\..\debug/gamex86.lib" 
+.\debug\dm_ball.obj
+.\debug\dm_tag.obj
+.\debug\g_ai.obj
+.\debug\g_chase.obj
+.\debug\g_cmds.obj
+.\debug\g_combat.obj
+.\debug\g_func.obj
+.\debug\g_items.obj
+.\debug\g_main.obj
+.\debug\g_misc.obj
+.\debug\g_monster.obj
+.\debug\g_newai.obj
+.\debug\g_newdm.obj
+.\debug\g_newfnc.obj
+.\debug\g_newtarg.obj
+.\debug\g_newtrig.obj
+.\debug\g_newweap.obj
+.\debug\g_phys.obj
+.\debug\g_save.obj
+.\debug\g_spawn.obj
+.\debug\g_sphere.obj
+.\debug\g_svcmds.obj
+.\debug\g_target.obj
+.\debug\g_trigger.obj
+.\debug\g_turret.obj
+.\debug\g_utils.obj
+.\debug\g_weapon.obj
+.\debug\m_actor.obj
+.\debug\m_berserk.obj
+.\debug\m_boss2.obj
+.\debug\m_boss3.obj
+.\debug\m_boss31.obj
+.\debug\m_boss32.obj
+.\debug\m_brain.obj
+.\debug\m_carrier.obj
+.\debug\m_chick.obj
+.\debug\m_flash.obj
+.\debug\m_flipper.obj
+.\debug\m_float.obj
+.\debug\m_flyer.obj
+.\debug\m_gladiator.obj
+.\debug\m_gunner.obj
+.\debug\m_hover.obj
+.\debug\m_infantry.obj
+.\debug\m_insane.obj
+.\debug\m_medic.obj
+.\debug\m_move.obj
+.\debug\m_mutant.obj
+.\debug\m_parasite.obj
+.\debug\m_soldier.obj
+.\debug\m_stalker.obj
+.\debug\m_supertank.obj
+.\debug\m_tank.obj
+.\debug\m_turret.obj
+.\debug\m_widow.obj
+.\debug\m_widow2.obj
+.\debug\p_client.obj
+.\debug\p_hud.obj
+.\debug\p_trail.obj
+.\debug\p_view.obj
+.\debug\p_weapon.obj
+.\debug\q_shared.obj>
+Creating command line "link.exe @C:\TEMP\RSP30.tmp" 
+Compiling...
+g_spawn.c
+Linking...
+   Creating library ..\..\debug/gamex86.lib and object ..\..\debug/gamex86.exp
+Creating temp file "C:\TEMP\RSP31.tmp" with contents </nologo /o"..\..\debug/game.bsc" 
+.\debug\dm_ball.sbr
+.\debug\dm_tag.sbr
+.\debug\g_ai.sbr
+.\debug\g_chase.sbr
+.\debug\g_cmds.sbr
+.\debug\g_combat.sbr
+.\debug\g_func.sbr
+.\debug\g_items.sbr
+.\debug\g_main.sbr
+.\debug\g_misc.sbr
+.\debug\g_monster.sbr
+.\debug\g_newai.sbr
+.\debug\g_newdm.sbr
+.\debug\g_newfnc.sbr
+.\debug\g_newtarg.sbr
+.\debug\g_newtrig.sbr
+.\debug\g_newweap.sbr
+.\debug\g_phys.sbr
+.\debug\g_save.sbr
+.\debug\g_spawn.sbr
+.\debug\g_sphere.sbr
+.\debug\g_svcmds.sbr
+.\debug\g_target.sbr
+.\debug\g_trigger.sbr
+.\debug\g_turret.sbr
+.\debug\g_utils.sbr
+.\debug\g_weapon.sbr
+.\debug\m_actor.sbr
+.\debug\m_berserk.sbr
+.\debug\m_boss2.sbr
+.\debug\m_boss3.sbr
+.\debug\m_boss31.sbr
+.\debug\m_boss32.sbr
+.\debug\m_brain.sbr
+.\debug\m_carrier.sbr
+.\debug\m_chick.sbr
+.\debug\m_flash.sbr
+.\debug\m_flipper.sbr
+.\debug\m_float.sbr
+.\debug\m_flyer.sbr
+.\debug\m_gladiator.sbr
+.\debug\m_gunner.sbr
+.\debug\m_hover.sbr
+.\debug\m_infantry.sbr
+.\debug\m_insane.sbr
+.\debug\m_medic.sbr
+.\debug\m_move.sbr
+.\debug\m_mutant.sbr
+.\debug\m_parasite.sbr
+.\debug\m_soldier.sbr
+.\debug\m_stalker.sbr
+.\debug\m_supertank.sbr
+.\debug\m_tank.sbr
+.\debug\m_turret.sbr
+.\debug\m_widow.sbr
+.\debug\m_widow2.sbr
+.\debug\p_client.sbr
+.\debug\p_hud.sbr
+.\debug\p_trail.sbr
+.\debug\p_view.sbr
+.\debug\p_weapon.sbr
+.\debug\q_shared.sbr>
+Creating command line "bscmake.exe @C:\TEMP\RSP31.tmp" 
+Creating browse info file...
+
+
+
+gamex86.dll - 0 error(s), 0 warning(s)

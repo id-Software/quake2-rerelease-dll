@@ -1,0 +1,213 @@
+@BaseClass = EWT_base_Worldspawn
+[
+	light(float) : "Ambient light" : "0" : "Set a global minimum light level of 'n' across the whole map. This is an easy way to eliminate completely dark areas of the level, however you may lose some contrast as a result, so use with care. Default 0"
+	_minlight_color(color) : "Minlight color R G B" : "255 255 255" : "Specify red(r), green(g) and blue(b) components for the colour of the minunlight. RGB component values are between 0 and 255 (between 0 and 1 is also accepted). Default is white light (255 255 255)"
+	_minlightMottle(choices) : "Use mottle effect on minlight surfaces" : 1 =
+	[
+		0 : "Off"
+		1 : "On"
+	]
+
+	_dist(float) : "Global light scale" : "1" : "Scales the fade distance of all lights by a factor of n. If n is more than 1 lights fade more quickly with distance and if n is less than 1, lights fade more slowly with distance and light reaches further"
+	_range(float) : "Global light range" : "0.5" : "Scales the brightness range of all lights without affecting their fade discance. Values of n more than 0.5 makes lights brighter and n less than 0.5 makes lights less bright. The same effect can be achieved on individual lights by adjusting both the 'light' and 'wait' attributes"
+	_gamma(float) : "Lightmap gamma" : "1" : "Adjust brightness of final lightmap. Default 1, >1 is brighter, <1 is darker"
+	_anglescale(float) : "Light angle scale" : "0.5" : "Sets a scaling factor for how much influence the angle of incidence of sunlight on a surface has on the brightness of the surface. n must be between 0.0 and 1.0. Smaller values mean less attenuation, with zero meaning that angle of incidence has no effect at all on the brightness. Default 0.5"
+
+	_sunlight(float) : "Sunlight" : "0" : "Set the brightness of the sunlight coming from an unseen sun in the sky. Sky brushes (or more accurately bsp leafs with sky contents) will emit sunlight at an angle specified by the _sun_mangle key. Default 0"
+	_sun_mangle(string) : "Sun mangle (Yaw pitch roll)" : "0 -90 0" : "Specifies the direction of sunlight using yaw(x), pitch(y) and roll(z) in degrees. Yaw specifies the angle around the Z-axis from 0 to 359 degrees and pitch specifies the angle from 90 (straight up) to -90 (straight down). Roll has no effect, so use any value (e.g. 0). Default is straight down (0 -90 0)"
+	_sunlight_penumbra(float) : "Sunlight penumbra in degrees" : "0" : "Specifies the penumbra width, in degrees, of sunlight. Useful values are 3-4 for a gentle soft edge, or 10-20+ for more diffuse sunlight. Default is 0"
+	_sunlight_color(color) : "Sunlight color R G B" : "255 255 255" : "Specify red(r), green(g) and blue(b) components for the colour of the sunlight. RGB component values are between 0 and 255 (between 0 and 1 is also accepted). Default is white light (255 255 255)"
+	_sunlight2(float) : "Sunlight hemisphere brightness" : "0" : "Set the brightness of a large dome of lights positioned around the map (16K unit radius). Useful for simulating higly diffused light (e.g. cloudy skies) in outdoor areas. Default 0"
+	_sunlight2_color(color) : "Sunlight hemisphere color R G B" : "255 255 255" : "Specifies the colour of _sunlight2, same format as _sunlight_color. Default is white light (255 255 255)"
+	_sunlight3(float) : "Sunlight ground brightness" : "0" : "Set the brightness of a large dome of lights positioned around the map (16K unit radius). Useful for simulating higly diffused light (e.g. cloudy skies) in outdoor areas. Default 0"
+	_sunlight3_color(color) : "Sunlight ground color R G B" : "255 255 255" : "Specifies the colour of _sunlight2, same format as _sunlight_color. Default is white light (255 255 255)"
+
+	
+	
+	_dirt(choices) : "Dirt mapping (AO)" : 0 : "1 enables dirtmapping (ambient occlusion) on all lights, borrowed from q3map2. This adds shadows to corners and crevices. You can override the global setting for specific lights with the _dirt light entity key or _sunlight_dirt, _sunlight2_dirt, and _minlight_dirt worldspawn keys. Default is no dirtmapping (-1)" =
+	[
+		-1 : "Force off"
+		0  : "Compiler settings"
+		1  : "Force on"
+	]
+	_sunlight_dirt(choices) : "Sunlight dirt" : 0 : "1 enables dirtmapping (ambient occlusion) on sunlight, -1 to disable (making it illuminate the dirtmapping shadows). Default is to use the value of '_dirt'" =
+	[
+		-1 : "Force off"
+		0  : "Compiler settings"
+		1  : "Force on"
+	]
+	_sunlight2_dirt(choices) : "Sunlight 2 dirt" : 0 : "1 enables dirtmapping (ambient occlusion) on sunlight2, -1 to disable. Default is to use the value of '_dirt'" =
+	[
+		-1 : "Force off"
+		0  : "Compiler settings"
+		1  : "Force on"
+	]
+	_minlight_dirt(choices) : "Minlight dirt" : 0 : "1 enables dirtmapping (ambient occlusion) on minlight, -1 to disable. Default is to use the value of '_dirt'" =
+	[
+		-1 : "Force off"
+		0  : "Compiler settings"
+		1  : "Force on"
+	]
+	_dirtmode(choices) : "Dirt mode" : 0 : "Choose between ordered (0, default) and randomized (1) dirtmapping." = 
+	[ 
+		0 : "Ordered" 
+		1 : "Random" 
+	] 
+	_dirtdepth(float) : "Dirt depth" : "128" : "Maximum depth of occlusion checking for dirtmapping, default 128."
+	_dirtscale(float) : "Dirt scale" : "1" : "Scale factor used in dirt calculations, default 1. Lower values (e.g. 0.5) make the dirt fainter, 2.0 would create much darker shadows"
+	_dirtgain(float) : "Dirt gain" : "1" : "Exponent used in dirt calculation, default 1. Lower values (e.g. 0.5) make the shadows darker and stretch further away from corners"
+	
+	_bounce(float) : "Light bounce" : "0" 
+	_bouncescale(float) : "Light bounce scale" : "1" : "Scales brightness of bounce lighting."
+	_bouncecolorscale(float) : "Light bounce color scale" : "0" : "Weight for bounce lighting to use texture colors from the map: 0=ignore map textures (default), 1=multiply bounce light color by texture color."
+	
+]
+
+@BaseClass = EWT_base_PointLight
+[
+	light(float) : "Brightness" : "300" : "Set the light intensity. Negative values are also allowed and will cause the entity to subtract light cast by other entities."
+	_color(color) : "Light color"
+	wait(float) : "Fade distance multiplier" : "1" : "Scale the fade distance of the light by 'n'. Values of n more than 1 make the light fade more quickly with distance, and values less than 1 make the light fade more slowly (and thus reach further)."
+	delay(choices) : "Attenuation" :  : "Select an attenuation formula for the light"  = [
+		0 : "Linear falloff (Default)"
+		1 : "Inverse distance falloff"
+		2 : "Inverse distance squared"
+		3 : "No falloff"
+		4 : "Local minlight"
+		5 : "Inverse distance 2"
+	]
+	mangle(string) : "Spotlight direction" : "0 -90 0" : "Turns the light into a spotlight and specifies the direction of light using yaw(x), pitch(y) and roll(z) in degrees. Yaw specifies the angle around the Z-axis from 0 to 359 degrees and pitch specifies the angle from 90 (straight up) to -90 (straight down). Roll has no effect, so use any value (e.g. 0). Often easier than the 'target' method"
+	angle(float) : "Spotlight cone angle" : "40" : "Specifies the angle in degrees for a spotlight cone."
+	_dirt(choices) : "Ambient occlusion (override)" : 0 : "Overrides the worldspawn setting of '_dirt' for this particular light." = [
+		0 : "Worldspawn decides"
+		-1 : "Force off"
+		1 : "Force on"
+	]
+	_dirtscale(float) : "AO scale (override)" : "1.0" : "Override the global '_dirtscale' or '_dirtgain' settings to change how this light is affected by dirtmapping (ambient occlusion). See descriptions of these keys in the worldspawn section"
+	_deviance(float) : "Deviance" : "0" : "Split up the light into a sphere of randomly positioned lights within radius 'n' (in world units). Useful to give shadows a wider penumbra. '_samples' specifies the number of lights in the sphere. The 'light' value is automatically scaled down for most lighting formulas (except linear and non-additive minlight) to attempt to keep the brightness equal. Default is 0, do not split up lights"
+	_samples(float) : "No. of Deviance lights" : "16" : "Number of lights to use for '_deviance'. Default 16 (only used if '_deviance' is set)"
+	_surface(string) : "Surface light texture name" :  : "Makes surfaces with the given texture name emit light, by using this light as a template which is copied across those surfaces. Lights are spaced about 128 units (though possibly closer due to bsp splitting) apart and positioned 2 units above the surfaces"
+	_surface_spotlight(choices) : "Surface spotlight" : 0 : "Is this surface light a spotlight? If so, orient it so it points away from the surface normal" = [
+		0 : "No"
+		1 : "Yes"
+	]
+	_surface_offset(float) : "Surface light offset" : "2" : "Controls the offset lights are placed above surfaces for '_surface'. Default 2"
+	_softangle(float) : "Spotlight soft angle" :  : "Specifies the angle in degrees for an inner spotlight cone (must be less than the 'angle' cone. Creates a softer transition between the full brightness of the inner cone to the edge of the outer cone. Default 0 (disabled)"
+	_anglescale(float) : "Light angle scale" :  : "Sets a scaling factor for how much influence the angle of incidence of light on a surface has on the brightness of the surface. n must be between 0.0 and 1.0. Smaller values mean less attenuation, with zero meaning that angle of incidence has no effect at all on the brightness. Default 0.5"
+	_project_texture(string) : "Project a texture"
+	_project_mangle(string) : "Projection texture direction"
+	_project_fov(float) : "Projection texture FOV" : "90"
+
+	_light_channel_mask(flags) = [
+		0 : "Legacy Behavior" : 1
+		1 : "Channel 1"
+		2 : "Channel 2"
+		4 : "Channel 3"
+		8 : "Channel 4"
+		16 : "Channel 5"
+		32 : "Channel 6"
+		64 : "Channel 7"
+		128 : "Channel 8"
+		256 : "Channel 9"
+		512 : "Channel 10"
+		1024 : "Channel 11"
+		2048 : "Channel 12"
+		4096 : "Channel 13"
+		8192 : "Channel 14"
+		16384 : "Channel 15"
+		32768 : "Channel 16"
+		65536 : "Channel 17"
+		131072 : "Channel 18"
+		262144 : "Channel 19"
+		524288 : "Channel 20"
+		1048576 : "Channel 21"
+		2097152 : "Channel 22"
+		4194304 : "Channel 23"
+		8388608 : "Channel 24"
+	]
+
+	_shadow_channel_mask(flags) = [
+		0 : "Legacy Behavior" : 1
+		1 : "Channel 1"
+		2 : "Channel 2"
+		4 : "Channel 3"
+		8 : "Channel 4"
+		16 : "Channel 5"
+		32 : "Channel 6"
+		64 : "Channel 7"
+		128 : "Channel 8"
+		256 : "Channel 9"
+		512 : "Channel 10"
+		1024 : "Channel 11"
+		2048 : "Channel 12"
+		4096 : "Channel 13"
+		8192 : "Channel 14"
+		16384 : "Channel 15"
+		32768 : "Channel 16"
+		65536 : "Channel 17"
+		131072 : "Channel 18"
+		262144 : "Channel 19"
+		524288 : "Channel 20"
+		1048576 : "Channel 21"
+		2097152 : "Channel 22"
+		4194304 : "Channel 23"
+		8388608 : "Channel 24"
+	]
+]
+
+@BaseClass = EWT_base_BModel
+[
+	_dirt(float) : "Dirt mapping (override)"
+	_minlight(float) : "Min light for all surface"
+	_minlight_exclude(string) : "Exclude texture from minlight"
+	_mincolor(color) : "Min light color"
+	_shadow(choices) : "Cast Shadows" = [
+		0 : "Do Nothing"
+		1 : "Cast shadows"
+	]
+	_shadowself(choices) : "Self Shadow" = [
+		0 : "Do Nothing"
+		1 : "Cast shadows on Self"
+	]
+	_phong(choices) : "Phong shading" = [
+		0 : "Disabled"
+		1 : "Smooth shading"
+	]
+	_phong_angle(float) : "Phong smoothing angle" : "89" 
+	_mirrorinside(choices) : "Double sided faces" = [
+		0 : "Disabled"
+		1 : "Double sided"
+	]
+	_object_channel_mask(flags) = [
+		0 : "Legacy Behavior" : 1
+		1 : "Channel 1"
+		2 : "Channel 2"
+		4 : "Channel 3"
+		8 : "Channel 4"
+		16 : "Channel 5"
+		32 : "Channel 6"
+		64 : "Channel 7"
+		128 : "Channel 8"
+		256 : "Channel 9"
+		512 : "Channel 10"
+		1024 : "Channel 11"
+		2048 : "Channel 12"
+		4096 : "Channel 13"
+		8192 : "Channel 14"
+		16384 : "Channel 15"
+		32768 : "Channel 16"
+		65536 : "Channel 17"
+		131072 : "Channel 18"
+		262144 : "Channel 19"
+		524288 : "Channel 20"
+		1048576 : "Channel 21"
+		2097152 : "Channel 22"
+		4194304 : "Channel 23"
+		8388608 : "Channel 24"
+	]
+]
+
+
+@SolidClass base(EWT_base_BModel) color(0 128 204) = func_detail : "func_detail" []
+@SolidClass base(EWT_base_BModel) color(0 128 204) = func_detail_wall : "func_detail_wall" []
+@SolidClass base(EWT_base_BModel) color(0 128 204) = func_detail_illusionary : "func_detail_illusionary" []
