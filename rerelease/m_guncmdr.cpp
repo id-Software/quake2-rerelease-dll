@@ -1326,7 +1326,7 @@ MONSTERINFO_DUCK(guncmdr_duck) (edict_t *self, gtime_t eta) -> bool
 
 	if ((self->monsterinfo.active_move == &guncmdr_move_fire_chain_dodge_left) ||
 		(self->monsterinfo.active_move == &guncmdr_move_fire_chain_dodge_right) ||
-		(self->monsterinfo.active_move == &guncmdr_move_attack_grenade_back_dodge_right) ||
+		(self->monsterinfo.active_move == &guncmdr_move_attack_grenade_back_dodge_left) ||
 		(self->monsterinfo.active_move == &guncmdr_move_attack_grenade_back_dodge_right) ||
 		(self->monsterinfo.active_move == &guncmdr_move_attack_mortar_dodge))
 	{
