@@ -19,7 +19,7 @@ USE(Use_Areaportal) (edict_t *ent, edict_t *other, edict_t *activator) -> void
 /*QUAKED func_areaportal (0 0 0) ?
 
 This is a non-visible object that divides the world into
-areas that are seperated when this portal is not activated.
+areas that are separated when this portal is not activated.
 Usually enclosed in the middle of a door.
 */
 void SP_func_areaportal(edict_t *ent)
