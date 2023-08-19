@@ -35,6 +35,7 @@ The code can compile under both C++17 and C++20. Using C++20 allows you to skip 
 * [jsoncpp](https://github.com/open-source-parsers/jsoncpp): Must be placed inside `json` subdirectory.
 
 Both of these can also be installed via vcpkg: `vcpkg install jsoncpp:x64-windows fmt:x64-windows`
+They can also be installed via NuGet packages: `jsoncpp-vc140-static-64` `fmt`
 
 ### Windows (Visual Studio 2019 / 2022):
 * We recommend placing the source in a subfolder within a mod directory. For example, alongside `baseq2`, make a folder called `mymod`, enter that folder, make a folder called `src`, and copying the contents of the `rerelease` directory into the newly-created `src` subfolder.
