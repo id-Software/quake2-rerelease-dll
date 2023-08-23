@@ -13,6 +13,10 @@ constexpr const char *sb_nums[2][11] =
     }
 };
 
+#if __GLIBC_USE (IEC_60559_BFP_EXT_C2X) //GLIBC defines this as 8
+#undef CHAR_WIDTH
+#endif
+
 constexpr int32_t CHAR_WIDTH    = 16;
 constexpr int32_t CONCHAR_WIDTH = 8;
 

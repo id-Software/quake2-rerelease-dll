@@ -22,7 +22,9 @@
 // - backwards & forwards compatible with this same format
 // - I wrote this initially when the codebase was in C, so it
 //   does have some C-isms in here.
-constexpr size_t SAVE_FORMAT_VERSION = 1;
+
+//constexpr size_t SAVE_FORMAT_VERSION = 1;
+#define SAVE_FORMAT_VERSION 1
 
 #include <unordered_map>
 
@@ -1505,7 +1507,7 @@ void read_save_type_json(const Json::Value &json, void *data, const save_type_t 
 	case ST_FLOAT:
 		if (!json.isDouble())
 			json_print_error(field, "expected number", false);
-		else if (isnan(json.asDouble()))
+		else if (std::isnan(json.asDouble()))
 			*((float *) data) = std::numeric_limits<float>::quiet_NaN();
 		else
 			*((float *) data) = json.asFloat();

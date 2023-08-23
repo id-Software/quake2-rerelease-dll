@@ -1,1 +1,4 @@
 .vscode
+build
+*.dylib
+_deps

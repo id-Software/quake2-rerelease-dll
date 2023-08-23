@@ -765,7 +765,7 @@ void SV_Physics_Step(edict_t *ent)
 		SV_AddRotationalFriction(ent);
 
 	// FIXME: figure out how or why this is happening
-	if (isnan(ent->velocity[0]) || isnan(ent->velocity[1]) || isnan(ent->velocity[2]))
+	if (std::isnan(ent->velocity[0]) || std::isnan(ent->velocity[1]) || std::isnan(ent->velocity[2]))
 		ent->velocity = {};
 
 	// add gravity except:

@@ -1,0 +1,285 @@
+#-----------------------------------------------------------------------------
+# Wedit Makefile for project aq2pg123i3
+#
+# $Id: Makefile.wedit,v 1.1.1.1 2001/05/06 17:23:58 igor_rock Exp $
+#
+#-----------------------------------------------------------------------------
+# $Log: Makefile.wedit,v $
+# Revision 1.1.1.1  2001/05/06 17:23:58  igor_rock
+# This is the PG Bund Edition V1.25 with all stuff laying around here...
+#
+#-----------------------------------------------------------------------------
+
+CC=lcc
+CFLAGS=-o2 -DC_ONLY
+
+OBJS=\
+	a_cmds.obj a_doorkick.obj a_game.obj a_items.obj a_menu.obj \
+	a_radio.obj a_team.obj a_tourney.obj a_vote.obj a_xcmds.obj a_xgame.obj \
+	a_xmenu.obj a_xvote.obj cgf_sfx_glass.obj g_ai.obj g_chase.obj g_cmds.obj \
+	g_combat.obj g_func.obj g_items.obj g_main.obj g_misc.obj g_monster.obj \
+	g_phys.obj g_save.obj g_spawn.obj g_svcmds.obj g_target.obj g_trigger.obj \
+	g_turret.obj g_utils.obj g_weapon.obj g_xmisc.obj m_move.obj p_client.obj \
+	p_hud.obj p_trail.obj p_view.obj p_weapon.obj q_shared.obj lcchack.obj
+
+gamex86.dll:	$(OBJS) game.def
+	lcclnk -subsystem windows -dll -entry DLLMain *.obj game.def -o gamex86.dll
+	dllfix
+
+# Build A_CMDS.C
+a_cmds_c=\
+	g_local.h \
+
+a_cmds.obj: $(A_CMDS_C) a_cmds.c
+	$(CC) $(CFLAGS) a_cmds.c
+
+# Build a_doorkick.c
+a_doorkick_c=\
+	g_local.h \
+
+a_doorkick.obj: $(A_DOORKICK_C) a_doorkick.c
+	$(CC) $(CFLAGS) a_doorkick.c
+
+# Build A_GAME.C
+a_game_c=\
+	cgf_sfx_glass.h \
+	g_local.h \
+
+a_game.obj: $(A_GAME_C) a_game.c
+	$(CC) $(CFLAGS) a_game.c
+
+# Build A_ITEMS.C
+a_items_c=\
+	g_local.h \
+
+a_items.obj: $(A_ITEMS_C) a_items.c
+	$(CC) $(CFLAGS) a_items.c
+
+# Build A_MENU.C
+a_menu_c=\
+	g_local.h \
+
+a_menu.obj: $(A_MENU_C) a_menu.c
+	$(CC) $(CFLAGS) a_menu.c
+
+# Build A_RADIO.C
+a_radio_c=\
+	g_local.h \
+
+a_radio.obj: $(A_RADIO_C) a_radio.c
+	$(CC) $(CFLAGS) a_radio.c
+
+# Build A_TEAM.C
+a_team_c=\
+	cgf_sfx_glass.h \
+	g_local.h \
+
+a_team.obj: $(A_TEAM_C) a_team.c
+	$(CC) $(CFLAGS) a_team.c
+
+# Build a_tourney.c
+a_tourney.obj: a_tourney.c
+	$(CC) $(CFLAGS) a_tourney.c
+
+# Build A_VOTE.C
+a_vote_c=\
+	g_local.h \
+
+a_vote.obj: $(A_VOTE_C) a_vote.c
+	$(CC) $(CFLAGS) a_vote.c
+
+# Build A_XCMDS.C
+a_xcmds_c=\
+	m_player.h \
+	g_local.h \
+
+a_xcmds.obj: $(A_XCMDS_C) a_xcmds.c
+	$(CC) $(CFLAGS) a_xcmds.c
+
+# Build A_XGAME.C
+a_xgame_c=\
+	g_local.h \
+
+a_xgame.obj: $(A_XGAME_C) a_xgame.c
+	$(CC) $(CFLAGS) a_xgame.c
+
+# Build A_XMENU.C
+a_xmenu.obj: a_xmenu.c
+	$(CC) $(CFLAGS) a_xmenu.c
+
+# Build A_XVOTE.C
+a_xvote_c=\
+	g_local.h \
+
+a_xvote.obj: $(A_XVOTE_C) a_xvote.c
+	$(CC) $(CFLAGS) a_xvote.c
+
+# Build cgf_sfx_glass.c
+cgf_sfx_glass.obj: cgf_sfx_glass.c
+	$(CC) $(CFLAGS) cgf_sfx_glass.c
+
+# Build G_AI.C
+g_ai_c=\
+	g_local.h \
+
+g_ai.obj: $(G_AI_C) g_ai.c
+	$(CC) $(CFLAGS) g_ai.c
+
+# Build G_CHASE.C
+g_chase_c=\
+	g_local.h \
+
+g_chase.obj: $(G_CHASE_C) g_chase.c
+	$(CC) $(CFLAGS) g_chase.c
+
+# Build G_CMDS.C
+g_cmds_c=\
+	m_player.h \
+
+g_cmds.obj: $(G_CMDS_C) g_cmds.c
+	$(CC) $(CFLAGS) g_cmds.c
+
+# Build G_COMBAT.C
+g_combat_c=\
+	cgf_sfx_glass.h \
+	g_local.h \
+
+g_combat.obj: $(G_COMBAT_C) g_combat.c
+	$(CC) $(CFLAGS) g_combat.c
+
+# Build G_FUNC.C
+g_func.obj: g_func.c
+	$(CC) $(CFLAGS) g_func.c
+
+# Build G_ITEMS.C
+g_items.obj: g_items.c
+	$(CC) $(CFLAGS) g_items.c
+
+# Build G_MAIN.C
+g_main_c=\
+	g_local.h \
+
+g_main.obj: $(G_MAIN_C) g_main.c
+	$(CC) $(CFLAGS) g_main.c
+
+# Build G_MISC.C
+g_misc_c=\
+	cgf_sfx_glass.h \
+	g_local.h \
+
+g_misc.obj: $(G_MISC_C) g_misc.c
+	$(CC) $(CFLAGS) g_misc.c
+
+# Build g_monster.c
+g_monster.obj: g_monster.c
+	$(CC) $(CFLAGS) g_monster.c
+
+# Build G_PHYS.C
+g_phys_c=\
+	cgf_sfx_glass.h \
+	g_local.h \
+
+g_phys.obj: $(G_PHYS_C) g_phys.c
+	$(CC) $(CFLAGS) g_phys.c
+
+# Build G_SAVE.C
+g_save_c=\
+	cgf_sfx_glass.h \
+
+g_save.obj: $(G_SAVE_C) g_save.c
+	$(CC) $(CFLAGS) g_save.c
+
+# Build G_SPAWN.C
+g_spawn_c=\
+	g_local.h \
+
+g_spawn.obj: $(G_SPAWN_C) g_spawn.c
+	$(CC) $(CFLAGS) g_spawn.c
+
+# Build G_SVCMDS.C
+g_svcmds.obj: g_svcmds.c
+	$(CC) $(CFLAGS) g_svcmds.c
+
+# Build G_TARGET.C
+g_target.obj: g_target.c
+	$(CC) $(CFLAGS) g_target.c
+
+# Build g_trigger.c
+g_trigger.obj: g_trigger.c
+	$(CC) $(CFLAGS) g_trigger.c
+
+# Build G_TURRET.C
+g_turret_c=\
+	g_local.h \
+
+g_turret.obj: $(G_TURRET_C) g_turret.c
+	$(CC) $(CFLAGS) g_turret.c
+
+# Build G_UTILS.C
+g_utils_c=\
+	g_local.h \
+
+g_utils.obj: $(G_UTILS_C) g_utils.c
+	$(CC) $(CFLAGS) g_utils.c
+
+# Build G_WEAPON.C
+g_weapon_c=\
+	a_game.h \
+	cgf_sfx_glass.h \
+
+g_weapon.obj: $(G_WEAPON_C) g_weapon.c
+	$(CC) $(CFLAGS) g_weapon.c
+
+# Build G_XMISC.C
+g_xmisc_c=\
+	m_player.h \
+	g_local.h \
+
+g_xmisc.obj: $(G_XMISC_C) g_xmisc.c
+	$(CC) $(CFLAGS) g_xmisc.c
+
+# Build Lcchack.c
+lcchack.obj: lcchack.c
+	$(CC) $(CFLAGS) lcchack.c
+
+# Build M_MOVE.C
+m_move_c=\
+	g_local.h \
+
+m_move.obj: $(M_MOVE_C) m_move.c
+	$(CC) $(CFLAGS) m_move.c
+
+# Build P_CLIENT.C
+p_client_c=\
+	cgf_sfx_glass.h \
+	m_player.h \
+
+p_client.obj: $(P_CLIENT_C) p_client.c
+	$(CC) $(CFLAGS) p_client.c
+
+# Build c:\spiele\quake2\pgbund.igor\P_HUD.C
+p_hud.obj: p_hud.c
+	$(CC) $(CFLAGS) p_hud.c
+
+# Build P_TRAIL.C
+p_trail.obj: p_trail.c
+	$(CC) $(CFLAGS) p_trail.c
+
+# Build P_VIEW.C
+p_view_c=\
+	m_player.h \
+
+p_view.obj: $(P_VIEW_C) p_view.c
+	$(CC) $(CFLAGS) p_view.c
+
+# Build P_WEAPON.C
+p_weapon_c=\
+	m_player.h \
+	g_local.h \
+
+p_weapon.obj: $(P_WEAPON_C) p_weapon.c
+	$(CC) $(CFLAGS) p_weapon.c
+
+# Build Q_SHARED.C
+q_shared.obj: q_shared.c
+	$(CC) $(CFLAGS) q_shared.c

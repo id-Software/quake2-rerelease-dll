@@ -1192,7 +1192,7 @@ bool M_CalculatePitchToFire(edict_t *self, const vec3_t &target, const vec3_t &s
 		}
 	}
 
-	if (!isinf(best_dist))
+	if (!std::isinf(best_dist))
 	{
 		pitched_aim[PITCH] = best_pitch;
 		aim = AngleVectors(pitched_aim).forward;

@@ -1,0 +1,182 @@
+#-----------------------------------------------------------------------------
+# LCC-Win32 makefile Version 1.6 25/01/98 by Simon Byrnand, based on the
+# linux makefile by Robert "Arras" LeBlanc, this version now fully checks
+# header file dependencies.
+#
+# $Id: Makefile.lcc,v 1.1.1.1 2001/05/06 17:24:26 igor_rock Exp $
+#
+#-----------------------------------------------------------------------------
+# $Log: Makefile.lcc,v $
+# Revision 1.1.1.1  2001/05/06 17:24:26  igor_rock
+# This is the PG Bund Edition V1.25 with all stuff laying around here...
+#
+#-----------------------------------------------------------------------------
+
+CC=lcc
+CFLAGS=-DC_ONLY -o2 -DAQTION_EXTENSION
+OBJS= g_ai.obj g_cmds.obj g_combat.obj g_func.obj g_items.obj g_main.obj g_ext.obj \
+g_misc.obj g_monster.obj g_phys.obj g_save.obj g_spawn.obj g_target.obj \
+g_trigger.obj g_turret.obj g_utils.obj g_weapon.obj m_actor.obj \
+m_berserk.obj m_boss2.obj m_boss3.obj m_boss31.obj m_boss32.obj \
+m_brain.obj m_chick.obj m_flash.obj m_flipper.obj m_float.obj \
+m_flyer.obj m_gladiator.obj m_gunner.obj m_hover.obj m_infantry.obj \
+m_insane.obj m_medic.obj m_move.obj m_mutant.obj m_parasite.obj \
+m_soldier.obj m_supertank.obj m_tank.obj p_client.obj p_hud.obj \
+p_trail.obj p_view.obj p_weapon.obj q_shared.obj lcchack.obj\
+
+all:	gamex86.dll
+
+gamex86.dll:	$(OBJS) game.def
+	lcclnk -subsystem windows -dll -entry DLLMain *.obj game.def -o gamex86.dll
+
+q_shared.obj:	q_shared.c q_shared.h
+	$(CC) $(CFLAGS) q_shared.c
+
+p_client.obj:	p_client.c m_player.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) p_client.c
+
+p_hud.obj:	p_hud.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) p_hud.c
+
+p_trail.obj:	p_trail.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) p_trail.c
+
+p_view.obj:	p_view.c m_player.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) p_view.c
+
+p_weapon.obj:	p_weapon.c m_player.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) p_weapon.c
+
+g_ai.obj:		g_ai.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_ai.c
+
+g_cmds.obj:	g_cmds.c m_player.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_cmds.c
+
+g_combat.obj:	g_combat.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_combat.c
+
+g_func.obj:	g_func.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_func.c
+
+g_items.obj:	g_items.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_items.c
+
+g_main.obj:	g_main.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_main.c
+
+g_ext.obj:	g_ext.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_ext.c
+
+g_misc.obj:	g_misc.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_misc.c
+
+g_monster.obj:	g_monster.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_monster.c
+
+g_phys.obj:	g_phys.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_phys.c
+
+g_save.obj:	g_save.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_save.c
+
+g_spawn.obj:	g_spawn.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_spawn.c
+
+g_target.obj:	g_target.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_target.c
+
+g_trigger.obj:	g_trigger.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_trigger.c
+
+g_turret.obj:	g_turret.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_turret.c
+
+g_utils.obj:	g_utils.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_utils.c
+
+g_weapon.obj:	g_weapon.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) g_weapon.c
+
+m_actor.obj:	m_actor.c m_actor.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_actor.c
+
+m_berserk.obj:	m_berserk.c m_berserk.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_berserk.c
+
+m_boss2.obj:	m_boss2.c m_boss2.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_boss2.c
+
+m_boss3.obj:	m_boss3.c m_boss32.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_boss3.c
+
+m_boss31.obj:	m_boss31.c m_boss31.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_boss31.c
+
+m_boss32.obj:	m_boss32.c m_boss32.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_boss32.c
+
+m_brain.obj:	m_brain.c m_brain.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_brain.c
+
+m_chick.obj:	m_chick.c m_chick.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_chick.c
+
+m_flash.obj:	m_flash.c q_shared.h
+	$(CC) $(CFLAGS) m_flash.c
+
+m_flipper.obj:	m_flipper.c m_flipper.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_flipper.c
+
+m_float.obj:	m_float.c m_float.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_float.c
+
+m_flyer.obj:	m_flyer.c m_flyer.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_flyer.c
+
+m_gladiator.obj:	m_gladiator.c m_gladiator.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_gladiator.c
+
+m_gunner.obj:	m_gunner.c m_gunner.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_gunner.c
+
+m_hover.obj:	m_hover.c m_hover.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_hover.c
+
+m_infantry.obj:	m_infantry.c m_infantry.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_infantry.c
+
+m_insane.obj:	m_insane.c m_insane.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_insane.c
+
+m_medic.obj:	m_medic.c m_medic.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_medic.c
+
+m_move.obj:	m_move.c g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_move.c
+
+m_mutant.obj:	m_mutant.c m_mutant.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_mutant.c
+
+m_parasite.obj:	m_parasite.c m_parasite.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_parasite.c
+
+m_soldier.obj:	m_soldier.c m_soldier.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_soldier.c
+
+m_supertank.obj:	m_supertank.c m_supertank.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_supertank.c
+
+m_tank.obj:	m_tank.c m_tank.h g_local.h q_shared.h game.h
+	$(CC) $(CFLAGS) m_tank.c
+
+#hack for LCC - this file contains our entry point function only required for LCC
+
+lcchack.obj:	lcchack.c
+	$(CC) $(CFLAGS) lcchack.c
+
+#clean function, use "make clean" to delete all object files and game dll.
+
+clean:
+	del *.obj
+	del *.dll

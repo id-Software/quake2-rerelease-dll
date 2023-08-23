@@ -101,11 +101,15 @@ template<size_t n>
 constexpr bit_t<n> bit_v = 1ull << n;
 
 #if defined(KEX_Q2GAME_EXPORTS)
+    #if (__APPLE__) || (__linux__)
+    #define Q2GAME_API extern "C"
+    #else
     #define Q2GAME_API extern "C" __declspec( dllexport )
+    #endif
 #elif defined(KEX_Q2GAME_IMPORTS)
     #define Q2GAME_API extern "C" __declspec( dllimport )
 #else
-    #define Q2GAME_API
+    #define Q2GAME_API extern "C"
 #endif
 
 // game.h -- game dll information visible to server

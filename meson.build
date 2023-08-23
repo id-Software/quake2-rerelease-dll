@@ -1,9 +1,17 @@
-project('q2-rerelease', 'cpp',
-  version : '0.1',
-  default_options : ['warning_level=3',
-                     'cpp_std=c++14'])
+project('q2-rerelease', 'cpp', 'c', version : '0.1', default_options : ['warning_level=3','cpp_std=c++17'], license: 'GPLv2')
 
-add_global_arguments('-DKEX_Q2GAME_EXPORTS -DKEX_Q2GAME_DYNAMIC -DGAME_INCLUDE -DNO_FMT_SOURCE', language : 'cpp')
+add_global_arguments('-DKEX_Q2GAME_EXPORTS -DKEX_Q2GAME_DYNAMIC -DGAME_INCLUDE -DNO_FMT_SOURCE', 
+'-Wno-unused-result', 
+'-lm', 
+'-fno-strict-aliasing', 
+'-DC_ONLY', 
+'-Wno-strict-prototypes', 
+language : 'cpp')
+
+cpp = meson.get_compiler('cpp')
+c = meson.get_compiler('cpp')
+
+m_dep = c.find_library('m', required : true)
 
 common_src = [
   'rerelease/bots/bot_debug.cpp', 
@@ -106,6 +114,78 @@ xatrix_src = [
   'rerelease/xatrix/p_xatrix_weapon.cpp',
 ]
 
+action_src = [
+  'rerelease/action/a_cmds.c',
+  'rerelease/action/a_ctf.c',
+  'rerelease/action/a_ctf.h',
+  'rerelease/action/a_dom.c',
+  'rerelease/action/a_dom.h',
+  'rerelease/action/a_doorkick.c',
+  'rerelease/action/a_game.c',
+  'rerelease/action/a_game.h',
+  'rerelease/action/a_items.c',
+  'rerelease/action/a_match.c',
+  'rerelease/action/a_match.h',
+  'rerelease/action/a_menu.c',
+  'rerelease/action/a_menu.h',
+  'rerelease/action/a_radio.c',
+  'rerelease/action/a_radio.h',
+  'rerelease/action/a_team.c',
+  'rerelease/action/a_team.h',
+  'rerelease/action/a_tourney.c',
+  'rerelease/action/a_tourney.h',
+  'rerelease/action/a_vote.c',
+  'rerelease/action/a_vote.h',
+  'rerelease/action/a_xcmds.c',
+  'rerelease/action/a_xcmds.h',
+  'rerelease/action/a_xgame.c',
+  'rerelease/action/a_xgame.h',
+  'rerelease/action/a_xmenu.c',
+  'rerelease/action/a_xmenu.h',
+  'rerelease/action/a_xvote.c',
+  'rerelease/action/a_xvote.h',
+  'rerelease/action/cgf_sfx_glass.c',
+  'rerelease/action/cgf_sfx_glass.h',
+  'rerelease/action/game.h',
+  'rerelease/action/g_chase.c',
+  'rerelease/action/g_cmds.c',
+  'rerelease/action/g_combat.c',
+  'rerelease/action/g_func.c',
+  'rerelease/action/g_grapple.c',
+  'rerelease/action/g_grapple.h',
+  'rerelease/action/g_items.c',
+  'rerelease/action/g_local.h',
+  'rerelease/action/g_main.c',
+  'rerelease/action/g_misc.c',
+  'rerelease/action/g_phys.c',
+  'rerelease/action/g_save.c',
+  'rerelease/action/g_spawn.c',
+  'rerelease/action/g_svcmds.c',
+  'rerelease/action/g_target.c',
+  'rerelease/action/g_trigger.c',
+  'rerelease/action/g_utils.c',
+  'rerelease/action/g_weapon.c',
+  'rerelease/action/m_player.h',
+  'rerelease/action/p_antilag.c',
+  'rerelease/action/p_antilag.h',
+  'rerelease/action/p_client.c',
+  'rerelease/action/p_hud.c',
+  'rerelease/action/p_view.c',
+  'rerelease/action/p_weapon.c',
+  'rerelease/action/q_ghud.h',
+  'rerelease/action/q_shared.c',
+  'rerelease/action/q_shared.h',
+  'rerelease/action/tng_balancer.c',
+  'rerelease/action/tng_balancer.h',
+  'rerelease/action/tng_flashlight.c',
+  'rerelease/action/tng_ini.c',
+  'rerelease/action/tng_ini.h',
+  'rerelease/action/tng_jump.c',
+  'rerelease/action/tng_jump.h',
+  'rerelease/action/tng_stats.c',
+  'rerelease/action/tng_stats.h',
+]
+
 win32 = host_machine.system() == 'windows'
 x86 = host_machine.cpu_family() == 'x86'
 
@@ -119,13 +199,59 @@ if cpu in cpuremap
   cpu = cpuremap[cpu]
 endif
 
-shared_library('game' + cpu, common_src,
-  name_prefix:           '',
-  #include_directories:   'inc',
-  gnu_symbol_visibility: 'hidden',
+common_args = ['-DHAVE_CONFIG_H']
+if not win32
+  common_args += '-D_GNU_SOURCE'
+endif
+
+engine_args = []
+if win32
+  engine_args += '-D_WIN32_WINNT=0x0601'
+endif
+
+common_link_args = []
+exe_link_args = []
+dll_link_args = []
+
+if c.get_argument_syntax() == 'gcc'
+  if x86
+    add_global_arguments('-msse2', '-mfpmath=sse', language: 'c')
+  endif
+
+  test_args = [
+    '-fsigned-char',
+    '-Wpointer-arith',
+    '-Wformat-security',
+    '-Werror=vla',
+    '-Wstrict-prototypes',
+  ]
+
+  common_args += c.get_supported_arguments(test_args)
+  engine_args += c.get_supported_arguments(['-Wmissing-prototypes'])
+
+  if win32
+    common_args += '-D__USE_MINGW_ANSI_STDIO=1'
+    common_link_args += '-Wl,--nxcompat,--dynamicbase'
+
+    if cpu == 'x86_64'
+      exe_link_args += '-Wl,--high-entropy-va,--image-base=0x140000000'
+      dll_link_args += '-Wl,--high-entropy-va,--image-base=0x180000000'
+    endif
+
+    dll_link_args += '-static-libgcc'
+  endif
+elif c.get_id() == 'msvc'
+  common_args += ['/D_USE_MATH_DEFINES', '/wd4146', '/wd4244', '/wd4305']
+endif
+
+
+add_project_arguments(common_args, language: 'c')
+add_project_link_arguments(common_link_args, language: 'c')
+
+fallback_opt = ['default_library=static']
+
+shared_library('game' + cpu, action_src,
+  name_prefix:            '',
+  gnu_symbol_visibility:  'hidden',
+  dependencies:           m_dep,
 )
-
-# exe = executable('q2_rerelease', 'q2_rerelease.cpp',
-#   install : true)
-
-# test('basic', exe)

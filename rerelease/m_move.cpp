@@ -230,7 +230,7 @@ static bool SV_alternate_flystep(edict_t *ent, vec3_t move, bool relink, edict_t
 	vec3_t dir = ent->velocity.normalized(current_speed);
 
 	// FIXME
-	if (isnan(dir[0]) || isnan(dir[1]) || isnan(dir[2]))
+	if (std::isnan(dir[0]) || std::isnan(dir[1]) || std::isnan(dir[2]))
 	{
 #if defined(_DEBUG) && defined(_WIN32)
 		__debugbreak();
@@ -347,7 +347,7 @@ static bool SV_alternate_flystep(edict_t *ent, vec3_t move, bool relink, edict_t
 	vec3_t final_dir = dir ? dir : wanted_dir;
 
 	// FIXME
-	if (isnan(final_dir[0]) || isnan(final_dir[1]) || isnan(final_dir[2]))
+	if (std::isnan(final_dir[0]) || std::isnan(final_dir[1]) || std::isnan(final_dir[2]))
 	{
 #if defined(_DEBUG) && defined(_WIN32)
 		__debugbreak();
@@ -414,8 +414,8 @@ static bool SV_alternate_flystep(edict_t *ent, vec3_t move, bool relink, edict_t
 		current_speed = min(wanted_speed, current_speed + accel);
 
 	// FIXME
-	if (isnan(final_dir[0]) || isnan(final_dir[1]) || isnan(final_dir[2]) ||
-		isnan(current_speed))
+	if (std::isnan(final_dir[0]) || std::isnan(final_dir[1]) || std::isnan(final_dir[2]) ||
+		std::isnan(current_speed))
 	{
 #if defined(_DEBUG) && defined(_WIN32)
 		__debugbreak();
