@@ -12,6 +12,17 @@ Because the game export interface has changed, existing mods may be able to be m
 
 The API changes discussed here are written from the perspective of the game DLL.
 
+## Compiling (using Visual Studio 2022)
+
+1. install [vcpkg (click here)](https://vcpkg.io/en/getting-started.html)
+2. navigate into `/rerelease` folder (`cd rerelease`)
+3. install dependencies `vcpkg integrate install`
+4. open `/rerelease/game.sln` in Visual Studio 2022
+5. configure your compiled `game_x64.dll`'s location in `game` project's properties: `game Property Pages > Configuration Properties > Linker > General > Output File > [<PATH_TO_QUAKE_2>\Quake 2\rerelease\<YOUR_MOD_NAME>\game_x64.dll`
+6. build `game` project
+
+If everything went well, your Build will succeed. _(1 succeeded, 0 failed, 0 up-to-date, 0 skipped)_
+
 ## Compiling
 
 The game DLL has only been tested with Clang, VS2019 and VS2022.
