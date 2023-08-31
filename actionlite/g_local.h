@@ -631,7 +631,13 @@ enum weaponstate_t
 	WEAPON_READY,
 	WEAPON_ACTIVATING,
 	WEAPON_DROPPING,
-	WEAPON_FIRING
+	WEAPON_FIRING,
+	// Action Add
+	WEAPON_END_MAG,
+	WEAPON_RELOADING,
+	WEAPON_BURSTING,
+	WEAPON_BUSY,			// used by sniper rifle when engaging zoom, if I want to make laser sight toggle on/off  this could be used for that too...
+	WEAPON_BANDAGING
 };
 
 // gib flags
@@ -1630,6 +1636,16 @@ extern spawn_temp_t	  st;
 extern int sm_meat_index;
 extern int snd_fry;
 
+// Action Add
+extern int snd_silencer;
+extern int snd_headshot;
+extern int snd_vesthit;
+extern int snd_knifethrow;
+extern int snd_kick;
+extern int snd_noammo;
+
+// Action Add end
+
 extern edict_t *g_edicts;
 
 #include <random>
@@ -1895,6 +1911,16 @@ extern gitem_t itemlist[IT_TOTAL];
 #define ENHANCED_BANDAGE_TIME		10
 #define BLEED_TIME      			10	// 10 = 1 second is time for losing 1 health at slowest bleed rate
 
+// Firing styles (where shots originate from)
+#define ACTION_FIRING_CENTER		0
+#define ACTION_FIRING_CLASSIC		1
+#define ACTION_FIRING_CLASSIC_HIGH	2
+
+// maxs[2] of a player when crouching (we modify it from the normal 4)
+// ...also the modified viewheight -FB 7/18/99
+#define CROUCHING_MAXS2                 16
+#define CROUCHING_VIEWHEIGHT		8
+#define STANDING_VIEWHEIGHT			22
 
 int32_t gameSettings;  // Round based, deathmatch, etc?
 
@@ -1911,6 +1937,14 @@ void LaserSightThink (edict_t * self);
 void SP_LaserSight (edict_t * self, gitem_t * item);
 void Cmd_Reload_f (edict_t * ent);
 void Cmd_New_Reload_f (edict_t * ent);
+
+constexpr item_id_t weap_ids[] = { 
+	IT_WEAPON_MP5,
+	IT_WEAPON_M4,
+	IT_WEAPON_M3,
+	IT_WEAPON_HANDCANNON,
+	IT_WEAPON_SNIPER
+	};
 
 //======================================================================
 // Action Add End
@@ -1949,8 +1983,8 @@ void      Compass_Update(edict_t *ent, bool first);
 
 // ACTION
 #define ITEM_INDEX(x) ((x)-itemlist)
-#define INV_AMMO(ent, num) ((ent)->client->pers.inventory[items[(num)].index])
-#define GET_ITEM(num) (&itemlist[items[(num)].index])
+#define INV_AMMO(ent, num) ((ent)->client->pers.inventory[num])
+#define GET_ITEM(num) (&itemlist[num])
 
 //
 // g_utils.c
@@ -2371,7 +2405,7 @@ void NoAmmoWeaponChange(edict_t *ent, bool sound);
 void G_RemoveAmmo(edict_t *ent);
 void G_RemoveAmmo(edict_t *ent, int32_t quantity);
 void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST,
-					int FRAME_DEACTIVATE_LAST, const int *pause_frames, const int *fire_frames,
+					int FRAME_DEACTIVATE_LAST, int FRAME_RELOAD_LAST, int FRAME_LASTRD_LAST, const int *pause_frames, const int *fire_frames,
 					void (*fire)(edict_t *ent));
 void Weapon_Repeating(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST,
 					  int FRAME_DEACTIVATE_LAST, const int *pause_frames, void (*fire)(edict_t *ent));
@@ -2725,7 +2759,7 @@ struct client_persistant_t
 	int32_t	id;			// id command on or off
 	int32_t	irvision;			// ir on or off (only matters if player has ir device, currently bandolier)
 
-
+	int32_t	firing_style;
 	// Action Add End
 };
 
@@ -2753,6 +2787,9 @@ struct client_respawn_t
 	bool	 admin;
 	ghost_t *ghost; // for ghost codes
 					// ZOID
+
+	// Action Add
+	int32_t	sniper_mode;
 };
 
 // [Paril-KEX] seconds until we are fully invisible after
@@ -2829,6 +2866,7 @@ struct gclient_t
 	} kick;
 	gtime_t		  quake_time;
 	vec3_t		  kick_origin;
+	vec3_t	      kick_angles;
 	float		  v_dmg_roll, v_dmg_pitch;
 	gtime_t		  v_dmg_time; // damage kicks
 	gtime_t		  fall_time;
@@ -2989,6 +3027,39 @@ struct gclient_t
 	int32_t			knife_max;
 	int32_t			grenade_max;
 
+	bool			bandaging;
+	bool			bandage_stopped;
+	bool			weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
+	int32_t			push_timeout;	// timeout for how long an attacker will get fall death credit
+	edict_t			*lasersight; // laser
+	edict_t			*flashlight; // Flashlight
+	int32_t			leg_damage;
+	int32_t			leg_dam_count;
+	int32_t			leg_noise;
+	int32_t			leghits;
+
+	int32_t			bleeding;			//remaining points to bleed away
+	int32_t			bleed_remain;
+	vec3_t			bleedloc_offset;	// location of bleeding (from origin)
+	int32_t			bleeddelay;			// how long until we bleed again
+
+	int32_t			doortoggle;			// set by player with opendoor command
+	int32_t			burst;			// remember if player is bursting or not
+	int32_t			fired;			// keep track of semi auto
+	int32_t			fast_reload;	// for shotgun/sniper rifle
+	int32_t			idle_weapon;	// how many frames to keep our weapon idle
+	int32_t			desired_fov;	// what fov does the player want? (via zooming)
+	int32_t			desired_zoom;	// either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
+	int32_t			drop_knife;
+	int32_t			knife_sound;		// we attack several times when slashing but only want 1 sound
+	int32_t			punch_framenum;
+	bool			punch_desired;	//controlled in ClientThink
+	int32_t			reload_attempts;
+	int32_t			weapon_attempts;
+	bool			autoreloading;	//used for dual -> mk23 change with reloading
+	int32_t			took_damage;		//Took damage from multihit weapons
+	int32_t			no_sniper_display;
+	
 	// Action Add End
 };
 

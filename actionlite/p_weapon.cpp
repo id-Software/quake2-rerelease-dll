@@ -863,7 +863,7 @@ inline void Weapon_HandleFiring(edict_t *ent, int32_t FRAME_IDLE_FIRST, std::fun
 	ent->client->weapon_think_time = level.time + Weapon_AnimationTime(ent);
 }
 
-void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, const int *pause_frames, const int *fire_frames, void (*fire)(edict_t *ent))
+void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, int FRAME_RELOAD_LAST, int FRAME_LASTRD_LAST, const int *pause_frames, const int *fire_frames, void (*fire)(edict_t *ent))
 {
 	int FRAME_FIRE_FIRST = (FRAME_ACTIVATE_LAST + 1);
 	int FRAME_IDLE_FIRST = (FRAME_FIRE_LAST + 1);
@@ -1903,51 +1903,100 @@ void Weapon_Beta_Disintegrator(edict_t *ent)
 // Action Add
 //======================================================================
 
+#define MK23_SPREAD		140
+#define MP5_SPREAD		250 // DW: Changed this back to original from Edition's 240
+#define M4_SPREAD			300
+#define SNIPER_SPREAD 425
+#define DUAL_SPREAD   300 // DW: Changed this back to original from Edition's 275
+
+int AdjustSpread(edict_t* ent, int spread)
+{
+	int running = 225;		// minimum speed for running
+	int walking = 10;		// minimum speed for walking
+	int laser = 0;
+	float factor[] = { .7f, 1, 2, 6 };
+	int stage = 0;
+
+	// 225 is running
+	// < 10 will be standing
+	float xyspeed = (ent->velocity[0] * ent->velocity[0] +
+		ent->velocity[1] * ent->velocity[1]);
+
+	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)	// crouching
+		return (spread * .65);
+
+	if (INV_AMMO(ent, POWERUP_LASERSIGHT) && (ent->client->pers.weapon->id == IT_WEAPON_MK23
+		|| ent->client->pers.weapon->id == IT_WEAPON_MP5 || ent->client->pers.weapon->id == IT_WEAPON_M4))
+		laser = 1;
+
+
+	// running
+	if (xyspeed > running* running)
+		stage = 3;
+	// walking
+	else if (xyspeed >= walking * walking)
+		stage = 2;
+	// standing
+	else
+		stage = 1;
+
+	// laser advantage
+	if (laser)
+	{
+		if (stage == 1)
+			stage = 0;
+		else
+			stage = 1;
+	}
+
+	return (int)(spread * factor[stage]);
+}
+
 // used for when we want to force a player to drop an extra special weapon
 // for when they drop the bandolier and they are over the weapon limit
 void DropExtraSpecial(edict_t* ent)
 {
 	int itemNum;
 
-	itemNum = ent->client->weapon ? ent->client->weapon->typeNum : 0;
-	if (itemNum >= MP5_NUM && itemNum <= SNIPER_NUM)
+	itemNum = ent->client->pers.weapon->id ? ent->client->pers.weapon->id : 0;
+	if (itemNum >= IT_WEAPON_MP5 && itemNum <= IT_WEAPON_SNIPER)
 	{
 		// if they have more than 1 then they are willing to drop one           
 		if (INV_AMMO(ent, itemNum) > 1) {
-			Drop_Weapon(ent, ent->client->weapon);
+			Drop_Weapon(ent, ent->client->pers.weapon);
 			return;
 		}
 	}
 	// otherwise drop some weapon they aren't using
-	if (INV_AMMO(ent, SNIPER_NUM) > 0 && SNIPER_NUM != itemNum)
-		Drop_Weapon(ent, GET_ITEM(SNIPER_NUM));
-	else if (INV_AMMO(ent, HC_NUM) > 0 && HC_NUM != itemNum)
-		Drop_Weapon(ent, GET_ITEM(HC_NUM));
-	else if (INV_AMMO(ent, M3_NUM) > 0 && M3_NUM != itemNum)
-		Drop_Weapon(ent, GET_ITEM(M3_NUM));
-	else if (INV_AMMO(ent, MP5_NUM) > 0 && MP5_NUM != itemNum)
-		Drop_Weapon(ent, GET_ITEM(MP5_NUM));
-	else if (INV_AMMO(ent, M4_NUM) > 0 && M4_NUM != itemNum)
-		Drop_Weapon(ent, GET_ITEM(M4_NUM));
+	if (INV_AMMO(ent, IT_AMMO_SLUGS) > 0 && IT_WEAPON_SNIPER != itemNum)
+		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_SNIPER));
+	else if (INV_AMMO(ent, IT_AMMO_SHELLS) > 0 && IT_WEAPON_HANDCANNON != itemNum)
+		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_HANDCANNON));
+	else if (INV_AMMO(ent, IT_AMMO_SHELLS) > 0 && IT_WEAPON_M3 != itemNum)
+		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_M3));
+	else if (INV_AMMO(ent, IT_AMMO_ROCKETS) > 0 && IT_WEAPON_MP5 != itemNum)
+		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_MP5));
+	else if (INV_AMMO(ent, IT_AMMO_CELLS) > 0 && IT_WEAPON_M4 != itemNum)
+		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_M4));
 	else
-		gi.dprintf("Couldn't find the appropriate weapon to drop.\n");
+		gi.Com_Print("Couldn't find the appropriate weapon to drop.\n");
 }
 
 //zucc ready special weapon
 void ReadySpecialWeapon(edict_t* ent)
 {
-	int weapons[5] = { MP5_NUM, M4_NUM, M3_NUM, HC_NUM, SNIPER_NUM };
+	//int weapons[5] = weap_ids;
 	int curr, i;
 	int last;
 
 
-	if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging == 1)
+	if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging)
 		return;
 
 
 	for (curr = 0; curr < 5; curr++)
 	{
-		if (ent->client->curr_weap == weapons[curr])
+		if (ent->client->pers.weapon->id == weap_ids[curr])
 			break;
 	}
 	if (curr >= 5)
@@ -1962,9 +2011,9 @@ void ReadySpecialWeapon(edict_t* ent)
 
 	for (i = (curr + 1); i != last; i = (i + 1))
 	{
-		if (INV_AMMO(ent, weapons[i % 5]))
+		if (INV_AMMO(ent, weap_ids[i % 5]))
 		{
-			ent->client->newweapon = GET_ITEM(weapons[i % 5]);
+			ent->client->newweapon = GET_ITEM(weap_ids[i % 5]);
 			return;
 		}
 	}
@@ -1976,7 +2025,7 @@ void MuzzleFlash(edict_t* ent, int mz)
 	gi.WriteByte(svc_muzzleflash);
 	gi.WriteShort(ent - g_edicts);
 	gi.WriteByte(mz);
-	gi.multicast(ent->s.origin, MULTICAST_PVS);
+	gi.multicast(ent->s.origin, MULTICAST_PVS, false);
 
 	PlayerNoise(ent, ent->s.origin, PNOISE_WEAPON);
 }
@@ -1987,15 +2036,6 @@ void PlayWeaponSound(edict_t* ent)
 	if (!ent->client->weapon_sound)
 		return;
 
-	// Synchronize weapon sounds so any framerate sounds like 10fps.
-	if ((sync_guns->value == 2) && !FRAMESYNC)
-		return;
-	if (sync_guns->value
-		&& (level.framenum > level.weapon_sound_framenum)
-		&& (level.framenum < level.weapon_sound_framenum + game.framediv))
-		return;
-
-
 	// Because MZ_BLASTER is 0, use this stupid workaround.
 	if ((ent->client->weapon_sound & ~MZ_SILENCED) == MZ_BLASTER2)
 		ent->client->weapon_sound &= ~MZ_BLASTER2;
@@ -2003,27 +2043,24 @@ void PlayWeaponSound(edict_t* ent)
 
 	if (ent->client->weapon_sound & MZ_SILENCED)
 		// Silencer suppresses both sound and muzzle flash.
-		gi.sound(ent, CHAN_WEAPON, level.snd_silencer, 1, ATTN_NORM, 0);
-
-	else if (llsound->value)
-		MuzzleFlash(ent, ent->client->weapon_sound);
+		gi.sound(ent, CHAN_WEAPON, snd_silencer, 1, ATTN_NORM, 0);
 
 	else switch (ent->client->weapon_sound)
 	{
 	case MZ_BLASTER:
-		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/mk23fire.wav"), 1, ATTN_LOUD, 0);
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/mk23fire.wav"), 1, ATTN_NORM, 0);
 		MuzzleFlash(ent, MZ_MACHINEGUN);
 		break;
 	case MZ_MACHINEGUN:
-		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/mp5fire.wav"), 1, ATTN_LOUD, 0);
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/mp5fire.wav"), 1, ATTN_NORM, 0);
 		MuzzleFlash(ent, MZ_MACHINEGUN);
 		break;
 	case MZ_ROCKET:
-		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/m4a1fire.wav"), 1, ATTN_LOUD, 0);
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/m4a1fire.wav"), 1, ATTN_NORM, 0);
 		MuzzleFlash(ent, MZ_MACHINEGUN);
 		break;
 	case MZ_SHOTGUN:
-		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/shotgf1b.wav"), 1, ATTN_LOUD, 0);
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/shotgf1b.wav"), 1, ATTN_NORM, 0);
 		MuzzleFlash(ent, MZ_SHOTGUN);
 		break;
 	case MZ_SSHOTGUN:
@@ -2034,7 +2071,7 @@ void PlayWeaponSound(edict_t* ent)
 		MuzzleFlash(ent, MZ_SSHOTGUN);
 		break;
 	case MZ_HYPERBLASTER:
-		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/ssgfire.wav"), 1, ATTN_LOUD, 0);
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/ssgfire.wav"), 1, ATTN_NORM, 0);
 		MuzzleFlash(ent, MZ_MACHINEGUN);
 		break;
 	default:
@@ -2042,14 +2079,14 @@ void PlayWeaponSound(edict_t* ent)
 	}
 
 	ent->client->weapon_sound = 0;
-	level.weapon_sound_framenum = level.framenum;
+	//level.weapon_sound_framenum = level.framenum;
 }
 
 
 //======================================================================
 // mk23 derived from tutorial by GreyBear
 
-void Pistol_Fire(edict_t* ent)
+void Pistol_Fire(edict_t* ent, player_state_t *ps)
 {
 	int i;
 	vec3_t start;
@@ -2082,32 +2119,29 @@ void Pistol_Fire(edict_t* ent)
 		if (level.framenum >= ent->pain_debounce_framenum)
 		{
 			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
-			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
+			ent->pain_debounce_framenum = level.time + 10_ms;
 		}
 		return;
 	}
 
-
+	
+	
 	//Calculate the kick angles
-	for (i = 1; i < 3; i++)
-	{
-		ent->client->kick_origin[i] = crandom() * 0.35;
-		ent->client->kick_angles[i] = crandom() * 0.7;
-	}
-	ent->client->kick_origin[0] = crandom() * 0.35;
-	ent->client->kick_angles[0] = ent->client->machinegun_shots * -1.5;
+	vec3_t kick_origin {}, kick_angles {};
+		for (i = 0; i < 3; i++)
+		{
+			kick_origin[i] = crandom() * 0.35;
+			kick_angles[i] = crandom() * 0.7;
+		}
+		P_AddWeaponKick(ent, kick_origin, kick_angles);
+	kick_origin[0] = crandom() * 0.35;
+	kick_angles[0] = ent->client->machinegun_shots * -1.5;
 
 	// get start / end positions
-	VectorAdd(ent->client->v_angle, ent->client->kick_angles, angles);
+	VectorAdd(ent->client->v_angle, kick_angles, angles);
 	AngleVectors(angles, forward, right, NULL);
 	VectorSet(offset, 0, 8, ent->viewheight - height);
 	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
-	if (!sv_shelloff->value)
-	{
-		vec3_t result;
-		Old_ProjectSource(ent->client, ent->s.origin, offset, forward, right, result);
-		EjectShell(ent, result, 0);
-	}
 
 	spread = AdjustSpread(ent, spread);
 
@@ -2125,14 +2159,14 @@ void Pistol_Fire(edict_t* ent)
 
 	fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_MK23);
 
-	Stats_AddShot(ent, MOD_MK23);
+	//Stats_AddShot(ent, MOD_MK23);
 
 	ent->client->mk23_rds--;
 	ent->client->dual_rds--;
 
 
 	ent->client->weapon_sound = MZ_BLASTER2;  // Becomes MZ_BLASTER.
-	if (INV_AMMO(ent, SIL_NUM))
+	if (INV_AMMO(ent, IT_ITEM_QUIET))
 		ent->client->weapon_sound |= MZ_SILENCED;
 	PlayWeaponSound(ent);
 }
@@ -2213,33 +2247,27 @@ void MP5_Fire(edict_t* ent)
 
 
 	//Calculate the kick angles
-	for (i = 1; i < 3; i++)
-	{
-		ent->client->kick_origin[i] = crandom() * 0.25;
-		ent->client->kick_angles[i] = crandom() * 0.5;
-	}
-	ent->client->kick_origin[0] = crandom() * 0.35;
-	ent->client->kick_angles[0] = ent->client->machinegun_shots * -1.5;
+	vec3_t kick_origin {}, kick_angles {};
+		for (i = 0; i < 3; i++)
+		{
+			kick_origin[i] = crandom() * 0.25;
+			kick_angles[i] = crandom() * 0.5;
+		}
+		P_AddWeaponKick(ent, kick_origin, kick_angles);
+
+	kick_origin[0] = crandom() * 0.35;
+	kick_angles[0] = ent->client->machinegun_shots * -1.5;
 
 	// get start / end positions
-	VectorAdd(ent->client->v_angle, ent->client->kick_angles, angles);
+	VectorAdd(ent->client->v_angle, kick_angles, angles);
 	AngleVectors(angles, forward, right, NULL);
 	VectorSet(offset, 0, 8, ent->viewheight - height);
 	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
-	fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_MP5);
-	Stats_AddShot(ent, MOD_MP5);
+	fire_bullet(ent, start, forward, damage, kick, spread, spread, IT_WEAPON_MP5);
+	//Stats_AddShot(ent, MOD_MP5);
 
 	ent->client->mp5_rds--;
-
-	if (!sv_shelloff->value)
-	{
-		vec3_t result;
-		Old_ProjectSource(ent->client, ent->s.origin, offset, forward, right, result);
-		EjectShell(ent, result, 0);
-	}
-
-
 
 	// zucc vwep
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
@@ -2250,7 +2278,7 @@ void MP5_Fire(edict_t* ent)
 
 
 	ent->client->weapon_sound = MZ_MACHINEGUN;
-	if (INV_AMMO(ent, SIL_NUM))
+	if (INV_AMMO(ent, IT_ITEM_QUIET))
 		ent->client->weapon_sound |= MZ_SILENCED;
 	PlayWeaponSound(ent);
 }
@@ -2346,16 +2374,18 @@ void M4_Fire(edict_t* ent)
 
 
 	//Calculate the kick angles
-	for (i = 1; i < 3; i++)
-	{
-		ent->client->kick_origin[i] = crandom() * 0.25;
-		ent->client->kick_angles[i] = crandom() * 0.5;
-	}
-	ent->client->kick_origin[0] = crandom() * 0.35;
-	ent->client->kick_angles[0] = ent->client->machinegun_shots * -.7;
+	vec3_t kick_origin {}, kick_angles {};
+		for (i = 0; i < 3; i++)
+		{
+			kick_origin[i] = crandom() * 0.25;
+			kick_angles[i] = crandom() * 0.5;
+		}
+		P_AddWeaponKick(ent, kick_origin, kick_angles);
+	kick_origin[0] = crandom() * 0.35;
+	kick_angles[0] = ent->client->machinegun_shots * -.7;
 
 	// get start / end positions
-	VectorAdd(ent->client->v_angle, ent->client->kick_angles, angles);
+	VectorAdd(ent->client->v_angle, kick_angles, angles);
 	AngleVectors(angles, forward, right, NULL);
 	VectorSet(offset, 0, 8, ent->viewheight - height);
 	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
@@ -2363,17 +2393,10 @@ void M4_Fire(edict_t* ent)
 	if (is_quad)
 		damage *= 1.5f;
 
-	fire_bullet_sparks(ent, start, forward, damage, kick, spread, spread, MOD_M4);
-	Stats_AddShot(ent, MOD_M4);
+	fire_bullet_sparks(ent, start, forward, damage, kick, spread, spread, IT_WEAPON_M4);
+	//Stats_AddShot(ent, MOD_M4);
 
 	ent->client->m4_rds--;
-
-	if (!sv_shelloff->value)
-	{
-		vec3_t result;
-		Old_ProjectSource(ent->client, ent->s.origin, offset, forward, right, result);
-		EjectShell(ent, result, 0);
-	}
 
 
 	// zucc vwep
@@ -2421,9 +2444,10 @@ void M3_Fire(edict_t* ent)
 
 
 	AngleVectors(ent->client->v_angle, forward, right, NULL);
-
+	
+	vec3_t kick_angles {};
 	VectorScale(forward, -2, ent->client->kick_origin);
-	ent->client->kick_angles[0] = -2;
+	kick_angles[0] = -2;
 
 	VectorSet(offset, 0, 8, ent->viewheight - height);
 
@@ -2431,13 +2455,6 @@ void M3_Fire(edict_t* ent)
 
 	if (ent->client->ps.gunframe == 14)
 	{
-		if (!sv_shelloff->value)
-		{
-			vec3_t result;
-			Old_ProjectSource(ent->client, ent->s.origin, offset, forward,
-				right, result);
-			EjectShell(ent, result, 0);
-		}
 		ent->client->ps.gunframe++;
 		return;
 	}
@@ -2457,7 +2474,7 @@ void M3_Fire(edict_t* ent)
 	fire_shotgun(ent, start, forward, damage, kick, 800, 800,
 		12 /*DEFAULT_DEATHMATCH_SHOTGUN_COUNT */, MOD_M3);
 
-	Stats_AddShot(ent, MOD_M3);
+	//Stats_AddShot(ent, MOD_M3);
 
 	ProduceShotgunDamageReport(ent);	//FB 6/3/99
 
@@ -2501,7 +2518,9 @@ void HC_Fire(edict_t* ent)
 	AngleVectors(ent->client->v_angle, forward, right, NULL);
 
 	VectorScale(forward, -2, ent->client->kick_origin);
-	ent->client->kick_angles[0] = -2;
+
+	vec3_t kick_angles {};
+	kick_angles[0] = -2;
 
 	VectorSet(offset, 0, 8, ent->viewheight - height);
 	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
@@ -2549,7 +2568,7 @@ void HC_Fire(edict_t* ent)
 		ent->client->cannon_rds -= 2;
 	}
 
-	Stats_AddShot(ent, MOD_HC);
+	//Stats_AddShot(ent, MOD_HC);
 	ProduceShotgunDamageReport(ent);	//FB 6/3/99
 
 	ent->client->ps.gunframe++;
@@ -2591,7 +2610,6 @@ void Sniper_Fire(edict_t* ent)
 
 		P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
-		EjectShell(ent, start, 0);
 		return;
 	}
 
@@ -2663,18 +2681,18 @@ void Sniper_Fire(edict_t* ent)
 
 
 	//If no reload, fire normally.
-	fire_bullet_sniper(ent, start, forward, damage, kick, spread, spread, MOD_SNIPER);
-	Stats_AddShot(ent, MOD_SNIPER);
+	fire_bullet_sniper(ent, start, forward, damage, kick, spread, spread, IT_WEAPON_SNIPER);
+	//Stats_AddShot(ent, MOD_SNIPER);
 
 	ent->client->sniper_rds--;
 	ent->client->ps.fov = 90;	// so we can watch the next round get chambered
 	ent->client->ps.gunindex =
-		gi.modelindex(ent->client->weapon->view_model);
+		gi.modelindex(ent->client->pers.weapon->view_model);
 	ent->client->no_sniper_display = 1;
 
 
 	ent->client->weapon_sound = MZ_HYPERBLASTER;
-	if (INV_AMMO(ent, SIL_NUM))
+	if (INV_AMMO(ent, IT_ITEM_QUIET))
 		ent->client->weapon_sound |= MZ_SILENCED;
 	PlayWeaponSound(ent);
 }
@@ -2737,15 +2755,8 @@ void Dual_Fire(edict_t* ent)
 		if (ent->client->dual_rds > 1)
 		{
 
-			fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_DUAL);
-			Stats_AddShot(ent, MOD_DUAL);
-
-			if (!sv_shelloff->value)
-			{
-				vec3_t result;
-				Old_ProjectSource(ent->client, ent->s.origin, offset, forward, right, result);
-				EjectShell(ent, result, 2);
-			}
+			fire_bullet(ent, start, forward, damage, kick, spread, spread, IT_WEAPON_DUALMK23);
+			//Stats_AddShot(ent, MOD_DUAL);
 
 			if (ent->client->dual_rds > ent->client->mk23_max + 1)
 			{
@@ -2827,18 +2838,10 @@ void Dual_Fire(edict_t* ent)
 	VectorSet(offset, 0, -20, ent->viewheight - height);
 	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
-	if (!sv_shelloff->value)
-	{
-		vec3_t result;
-		Old_ProjectSource(ent->client, ent->s.origin, offset, forward, right, result);
-		EjectShell(ent, result, 1);
-	}
-
-
 
 	//If no reload, fire normally.
-	fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_DUAL);
-	Stats_AddShot(ent, MOD_DUAL);
+	fire_bullet(ent, start, forward, damage, kick, spread, spread, IT_WEAPON_DUALMK23);
+	//Stats_AddShot(ent, MOD_DUAL);
 
 
 	ent->client->weapon_sound = MZ_BLASTER2;  // Becomes MZ_BLASTER.

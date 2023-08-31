@@ -25,6 +25,16 @@ spawn_temp_t   st;
 int	  sm_meat_index;
 int	  snd_fry;
 
+// Action Add
+int snd_silencer;
+int snd_headshot;
+int snd_vesthit;
+int snd_knifethrow;
+int snd_kick;
+int snd_noammo;
+
+// Action Add end
+
 edict_t *g_edicts;
 
 cvar_t *deathmatch;

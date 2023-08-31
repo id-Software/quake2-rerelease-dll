@@ -3790,3 +3790,13 @@ void RemoveAttackingPainDaemons(edict_t *self)
 	if (self->client)
 		self->client->tracker_pain_time = 0_ms;
 }
+
+// Action Add
+
+void ClientFixLegs(edict_t *ent)
+{
+	ent->client->leg_noise = 0;
+	ent->client->leg_damage = 0;
+	ent->client->leghits = 0;
+	ent->client->leg_dam_count = 0;
+}

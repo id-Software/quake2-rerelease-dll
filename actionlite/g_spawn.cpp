@@ -1545,9 +1545,15 @@ void SP_worldspawn(edict_t *ent)
 	}
 
 	snd_fry = gi.soundindex("player/fry.wav"); // standing in lava / slime
-	
-	PrecacheItem(GetItemByIndex(IT_ITEM_COMPASS));
-	PrecacheItem(GetItemByIndex(IT_WEAPON_BLASTER));
+	// Action Add
+	snd_silencer = gi.soundindex("misc/silencer.wav");	// all silencer weapons
+	snd_headshot = gi.soundindex("misc/headshot.wav");	// headshot sound
+	snd_vesthit = gi.soundindex("misc/vest.wav");		// kevlar hit
+	snd_knifethrow = gi.soundindex("misc/flyloop.wav");	// throwing knife
+	snd_kick = gi.soundindex("weapons/kick.wav");	// not loaded by any item, kick sound
+	snd_noammo = gi.soundindex("weapons/noammo.wav");
+
+	PrecacheItem(GetItemByIndex(IT_WEAPON_MK23));
 
 	if (g_dm_random_items->integer)
 		for (item_id_t i = static_cast<item_id_t>(IT_NULL + 1); i < IT_TOTAL; i = static_cast<item_id_t>(i + 1))

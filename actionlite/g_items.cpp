@@ -1349,14 +1349,6 @@ static void Use_Compass(edict_t *ent, gitem_t *inv)
 #define SPEC_RESPAWN_TIME       60
 // time before they will get respawned
 #define SPEC_TECH_TIMEOUT       60
-constexpr item_id_t weap_ids[] = { 
-	IT_WEAPON_MP5,
-	IT_WEAPON_M4,
-	IT_WEAPON_M3,
-	IT_WEAPON_HANDCANNON,
-	IT_WEAPON_SNIPER,
-	IT_WEAPON_KNIFE,
-	};
 
 static edict_t *FindSpecSpawn()
 {
@@ -1525,8 +1517,8 @@ bool Pickup_Special (edict_t * ent, edict_t * other)
 
 	AddItem(other, ent->item);
 
-	if(!(ent->spawnflags & (SPAWNFLAG_ITEM_DROPPED | SPAWNFLAG_ITEM_DROPPED_PLAYER)) && item_respawnmode->value)
-		SetRespawn (ent, item_respawn->value);
+	if(!(ent->spawnflags & (SPAWNFLAG_ITEM_DROPPED | SPAWNFLAG_ITEM_DROPPED_PLAYER)))
+		SetRespawn (ent, 60_sec);
 
 	return true;
 }
