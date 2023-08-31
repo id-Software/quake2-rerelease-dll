@@ -137,6 +137,24 @@ cvar_t *ai_model_scale;
 cvar_t *ai_allow_dm_spawn;
 cvar_t *ai_movement_disabled;
 
+//======================================================================
+// Action Add
+//======================================================================
+
+cvar_t	*allitem;
+cvar_t	*allweapon;
+cvar_t	*unique_items;
+cvar_t	*unique_weapons;
+cvar_t	*allow_hoarding;
+cvar_t	*item_respawn;
+cvar_t	*weapon_respawn;
+cvar_t	*ammo_respawn;
+
+//======================================================================
+// Action Add End
+//======================================================================
+
+
 static cvar_t *g_frames_per_frame;
 
 void SpawnEntities(const char *mapname, const char *entities, const char *spawnpoint);
@@ -351,6 +369,23 @@ void InitGame()
 	g_map_list = gi.cvar("g_map_list", "", CVAR_NOFLAGS);
 	g_map_list_shuffle = gi.cvar("g_map_list_shuffle", "0", CVAR_NOFLAGS);
 	g_lag_compensation = gi.cvar("g_lag_compensation", "1", CVAR_NOFLAGS);
+
+//======================================================================
+// Action Add
+//======================================================================
+
+	allitem = gi.cvar("allitem", "0", CVAR_NOFLAGS);
+	allweapon = gi.cvar("allweapon", "0", CVAR_NOFLAGS);
+	unique_items = gi.cvar("unique_items", "1", CVAR_NOFLAGS);
+	unique_weapons = gi.cvar("unique_weapons", "1", CVAR_NOFLAGS);
+	allow_hoarding = gi.cvar("allow_hoarding", "0", CVAR_NOFLAGS);
+	item_respawn = gi.cvar("item_respawn", "59", CVAR_NOFLAGS);
+	weapon_respawn = gi.cvar("weapon_respawn", "74", CVAR_NOFLAGS);
+	ammo_respawn = gi.cvar("ammo_respawn", "30", CVAR_NOFLAGS);
+	
+//======================================================================
+// Action Add
+//======================================================================
 
 	// items
 	InitItems();

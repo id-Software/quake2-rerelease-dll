@@ -1861,6 +1861,52 @@ extern gitem_t itemlist[IT_TOTAL];
 // Action Add
 //======================================================================
 
+#define IS_ALIVE(ent) ((ent)->solid != SOLID_NOT && (ent)->deadflag)
+
+#define GS_DEATHMATCH	1
+#define GS_TEAMPLAY		2
+#define GS_MATCHMODE	4
+#define GS_ROUNDBASED	8
+#define GS_WEAPONCHOOSE 16
+
+// sniper modes
+#define SNIPER_1X		0
+#define SNIPER_2X		1
+#define SNIPER_4X		2
+#define SNIPER_6X		3
+#define SNIPER_MODE_MAX	4
+
+//TempFile sniper zoom moved to constants
+#define SNIPER_FOV1		90
+#define SNIPER_FOV2		45
+#define SNIPER_FOV4		20
+#define SNIPER_FOV6		10
+
+#define GRENADE_IDLE_FIRST  40
+#define GRENADE_IDLE_LAST   69
+#define GRENADE_THROW_FIRST 4
+#define GRENADE_THROW_LAST  9	// throw it on frame 8?
+// Igor's back in Time to hard grenades :-)
+#define GRENADE_DAMRAD_CLASSIC  	170
+#define GRENADE_DAMRAD          	250
+
+#define SPEC_WEAPON_RESPAWN 		1
+#define BANDAGE_TIME    			27	// 10 = 1 second
+#define ENHANCED_BANDAGE_TIME		10
+#define BLEED_TIME      			10	// 10 = 1 second is time for losing 1 health at slowest bleed rate
+
+
+int32_t gameSettings;  // Round based, deathmatch, etc?
+
+extern cvar_t *allitem;
+extern cvar_t *allweapon;
+extern cvar_t *unique_items;
+extern cvar_t *unique_weapons;
+extern cvar_t *allow_hoarding;
+extern cvar_t *item_respawn;
+extern cvar_t *weapon_respawn;
+extern cvar_t *ammo_respawn;
+
 void LaserSightThink (edict_t * self);
 void SP_LaserSight (edict_t * self, gitem_t * item);
 void Cmd_Reload_f (edict_t * ent);
@@ -1903,7 +1949,7 @@ void      Compass_Update(edict_t *ent, bool first);
 
 // ACTION
 #define ITEM_INDEX(x) ((x)-itemlist)
-#define INV_AMMO(ent, num) ((ent)->client->inventory[items[(num)].index])
+#define INV_AMMO(ent, num) ((ent)->client->pers.inventory[items[(num)].index])
 #define GET_ITEM(num) (&itemlist[items[(num)].index])
 
 //
@@ -2665,6 +2711,22 @@ struct client_persistant_t
 	int32_t lives; // player lives left (1 = no respawns remaining)
 	uint8_t n64_crouch_warn_times;
 	gtime_t n64_crouch_warning;
+
+	// Action Add
+
+	gitem_t *chosenItem;		// item for teamplay
+	gitem_t *chosenWeapon;		// weapon for teamplay
+	int32_t	mk23_mode;		// firing mode, semi or auto
+	int32_t	mp5_mode;
+	int32_t	m4_mode;
+	int32_t	knife_mode;
+	int32_t	grenade_mode;
+	int32_t	hc_mode;
+	int32_t	id;			// id command on or off
+	int32_t	irvision;			// ir on or off (only matters if player has ir device, currently bandolier)
+
+
+	// Action Add End
 };
 
 // client data that stays across deathmatch respawns
@@ -2898,6 +2960,36 @@ struct gclient_t
 	height_fog_t heightfog;
 
 	gtime_t	 last_attacker_time;
+
+	// Action Add
+	int32_t			unique_item_total;
+	int32_t			unique_weapon_total;
+
+	int				inventory[MAX_ITEMS];
+	// ammo capacities
+	int32_t			max_pistolmags;
+	int32_t			max_shells;
+	int32_t			max_mp5mags;
+	int32_t			max_m4mags;
+	int32_t			max_sniper_rnds;
+	int32_t			mk23_max;
+	int32_t			mk23_rds;
+	int32_t			dual_max;
+	int32_t			dual_rds;
+	int32_t			shot_max;
+	int32_t			shot_rds;
+	int32_t			sniper_max;
+	int32_t			sniper_rds;
+	int32_t			mp5_max;
+	int32_t			mp5_rds;
+	int32_t			m4_max;
+	int32_t			m4_rds;
+	int32_t			cannon_max;
+	int32_t			cannon_rds;
+	int32_t			knife_max;
+	int32_t			grenade_max;
+
+	// Action Add End
 };
 
 // ==========================================

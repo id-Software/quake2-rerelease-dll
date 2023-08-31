@@ -1349,20 +1349,34 @@ static void Use_Compass(edict_t *ent, gitem_t *inv)
 #define SPEC_RESPAWN_TIME       60
 // time before they will get respawned
 #define SPEC_TECH_TIMEOUT       60
+constexpr item_id_t weap_ids[] = { 
+	IT_WEAPON_MP5,
+	IT_WEAPON_M4,
+	IT_WEAPON_M3,
+	IT_WEAPON_HANDCANNON,
+	IT_WEAPON_SNIPER,
+	IT_WEAPON_KNIFE,
+	};
 
-void SpecThink(edict_t * spec);
-
-static edict_t *FindSpecSpawn(void)
+static edict_t *FindSpecSpawn()
 {
-	edict_t *spot = NULL;
-	int i = rand() % 16;
+	return SelectDeathmatchSpawnPoint(false, true, true).spot;
+}
 
-	while (i--)
-		spot = G_Find(spot, FOFS(classname), "info_player_deathmatch");
-	if (!spot)
-		spot = G_Find(spot, FOFS(classname), "info_player_deathmatch");
+THINK(SpecThink) (edict_t *special) -> void
+{
+	edict_t *spot;
 
-	return spot;
+	if ((spot = FindSpecSpawn()) != nullptr)
+	{
+		SpawnSpec(special->item, spot);
+		G_FreeEdict(special);
+	}
+	else
+	{
+		special->nextthink = level.time + 10_ms;
+		special->think = SpecThink;
+	}
 }
 
 static void SpawnSpec(gitem_t * item, edict_t * spot)
@@ -1372,15 +1386,14 @@ static void SpawnSpec(gitem_t * item, edict_t * spot)
 
 	ent = G_Spawn();
 	ent->classname = item->classname;
-	ent->typeNum = item->typeNum;
 	ent->item = item;
-	ent->spawnflags = DROPPED_ITEM;
+	ent->spawnflags = SPAWNFLAG_ITEM_DROPPED;
 	ent->s.effects = item->world_model_flags;
 	ent->s.renderfx = RF_GLOW;
 	VectorSet(ent->mins, -15, -15, -15);
 	VectorSet(ent->maxs, 15, 15, 15);
 	// zucc dumb hack to make laser look like it is on the ground
-	if (item->typeNum == LASER_NUM) {
+	if (item->tag == POWERUP_LASERSIGHT) {
 		VectorSet(ent->mins, -15, -15, -1);
 		VectorSet(ent->maxs, 15, 15, 1);
 	}
@@ -1394,52 +1407,18 @@ static void SpawnSpec(gitem_t * item, edict_t * spot)
 	angles[1] = rand() % 360;
 	angles[2] = 0;
 
-	AngleVectors(angles, forward, right, NULL);
-	VectorCopy(spot->s.origin, ent->s.origin);
+	AngleVectors(angles, forward, right, nullptr);
+	ent->s.origin = spot->s.origin;
 	ent->s.origin[2] += 16;
-	VectorCopy(ent->s.origin, ent->old_origin);
-	VectorScale(forward, 100, ent->velocity);
+	ent->velocity = forward * 100;
 	ent->velocity[2] = 300;
 
-	ent->nextthink = level.framenum + SPEC_RESPAWN_TIME * HZ;
+	ent->nextthink = level.time + 60_ms;
 	ent->think = SpecThink;
 
 	gi.linkentity(ent);
 }
 
-void SpawnSpecs(edict_t * ent)
-{
-	gitem_t *spec;
-	edict_t *spot;
-	int i, itemNum;
-
-	G_FreeEdict(ent);
-
-	// if(item_respawnmode->value)
-	// 	return;
-
-	for(i = 0; i<ITEM_COUNT; i++)
-	{
-		itemNum = ITEM_FIRST + i;
-
-		if ((spec = GET_ITEM(itemNum)) != NULL && (spot = FindSpecSpawn()) != NULL) {
-			//gi.dprintf("Spawning special item '%s'.\n", tnames[i]);
-			SpawnSpec(spec, spot);
-		}
-	}
-}
-
-void SpecThink(edict_t * spec)
-{
-	edict_t *spot;
-
-	spot = FindSpecSpawn();
-	if (spot) {
-		SpawnSpec(spec->item, spot);
-	}
-
-	G_FreeEdict(spec);
-}
 
 static void MakeTouchSpecThink(edict_t * ent)
 {
@@ -1447,31 +1426,26 @@ static void MakeTouchSpecThink(edict_t * ent)
 	ent->touch = Touch_Item;
 
 	if (allitem->value) {
-		ent->nextthink = level.framenum + 1 * HZ;
+		ent->nextthink = level.time + 10_ms;
 		ent->think = G_FreeEdict;
 		return;
 	}
 
 	if (gameSettings & GS_ROUNDBASED) {
-		ent->nextthink = level.framenum + 60 * HZ; //FIXME: should this be roundtime left
+		ent->nextthink = level.time + 60_ms; //FIXME: should this be roundtime left
 		ent->think = G_FreeEdict;
 		return;
 	}
 
 	if (gameSettings & GS_WEAPONCHOOSE) {
-		ent->nextthink = level.framenum + 6 * HZ;
+		ent->nextthink = level.time + 60_ms;
 		ent->think = G_FreeEdict;
 		return;
 	}
 
-	if(item_respawnmode->value) {
-		ent->nextthink = level.framenum + (item_respawn->value*0.5f) * HZ;
-		ent->think = G_FreeEdict;
-	}
-	else {
-		ent->nextthink = level.framenum + item_respawn->value * HZ;
-		ent->think = SpecThink;
-	}
+	// All else..
+	ent->nextthink = level.time + 60_ms;
+	ent->think = SpecThink;
 }
 
 void Drop_Spec(edict_t * ent, gitem_t * item)
@@ -1480,11 +1454,11 @@ void Drop_Spec(edict_t * ent, gitem_t * item)
 
 	spec = Drop_Item(ent, item);
 	//gi.cprintf(ent, PRINT_HIGH, "Dropping special item.\n");
-	spec->nextthink = level.framenum + 1 * HZ;
+	spec->nextthink = level.time + 10_ms;
 	spec->think = MakeTouchSpecThink;
 	//zucc this and the one below should probably be -- not = 0, if
 	// a server turns on multiple item pickup.
-	ent->client->inventory[ITEM_INDEX(item)]--;
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
 }
 
 void DeadDropSpec(edict_t * ent)
@@ -1493,56 +1467,34 @@ void DeadDropSpec(edict_t * ent)
 	edict_t *dropped;
 	int i, itemNum;
 
-	for(i = 0; i<ITEM_COUNT; i++)
+	i = 0;
+	for (; i < q_countof(weap_ids); i++)
 	{
-		itemNum = ITEM_FIRST + i;
-		if (INV_AMMO(ent, itemNum) > 0) {
-			spec = GET_ITEM(itemNum);
-			dropped = Drop_Item(ent, spec);
+		if (ent->client->pers.inventory[weap_ids[i]])
+		{
+			dropped = Drop_Item(ent, GetItemByIndex(weap_ids[i]));
 			// hack the velocity to make it bounce random
 			dropped->velocity[0] = (rand() % 600) - 300;
 			dropped->velocity[1] = (rand() % 600) - 300;
-			dropped->nextthink = level.framenum + 1 * HZ;
+			dropped->nextthink = level.time + 10_ms;
 			dropped->think = MakeTouchSpecThink;
-			dropped->owner = NULL;
-			dropped->spawnflags = DROPPED_PLAYER_ITEM;
-			ent->client->inventory[ITEM_INDEX(spec)] = 0;
+			dropped->owner = nullptr;
+			dropped->spawnflags = SPAWNFLAG_ITEM_DROPPED_PLAYER;
+			ent->client->pers.inventory[weap_ids[i]] = 0;
 		}
 	}
 }
 
-// frees the passed edict!
-void RespawnSpec(edict_t * ent)
-{
-	edict_t *spot;
-
-	if ((spot = FindSpecSpawn()) != NULL)
-		SpawnSpec(ent->item, spot);
-	G_FreeEdict(ent);
-}
-
-void SetupSpecSpawn(void)
-{
-	edict_t *ent;
-
-	if (level.specspawn)
-		return;
-
-	ent = G_Spawn();
-	ent->nextthink = level.framenum + 4 * HZ;
-	ent->think = SpawnSpecs;
-	level.specspawn = 1;
-}
-
 void AddItem(edict_t *ent, gitem_t *item)
 {
-	ent->client->inventory[ITEM_INDEX (item)]++;
+	ent->client->pers.inventory[ITEM_INDEX (item)]++;
 	ent->client->unique_item_total++;
-	if (item->typeNum == LASER_NUM)
+
+	if (item->tag == POWERUP_LASERSIGHT)
 	{
 		SP_LaserSight(ent, item);	//ent->item->use(other, ent->item);
 	}
-	else if (item->typeNum == BAND_NUM)
+	else if (item->tag == POWERUP_BANDOLIER)
 	{
 
 		if (ent->client->max_pistolmags < 4)
@@ -1578,12 +1530,14 @@ bool Pickup_Special (edict_t * ent, edict_t * other)
 
 	return true;
 }
-void Drop_Special (edict_t * ent, gitem_t * item)
+
+
+void Drop_Special (edict_t *ent, gitem_t *item)
 {
 	int count;
 
 	ent->client->unique_item_total--;
-	if (item->typeNum == BAND_NUM && INV_AMMO(ent, BAND_NUM) <= 1)
+	if (item->tag == POWERUP_BANDOLIER && INV_AMMO(ent, IT_ITEM_BANDOLIER) <= 1)
 	{
 		if (gameSettings & GS_DEATHMATCH)
 			count = 2;
@@ -1591,11 +1545,11 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 			count = 1;
 
 		ent->client->max_pistolmags = count;
-		if (INV_AMMO(ent, MK23_ANUM) > count)
-			INV_AMMO(ent, MK23_ANUM) = count;
+		if (INV_AMMO(ent, IT_AMMO_BULLETS) > count)
+			INV_AMMO(ent, IT_AMMO_BULLETS) = count;
 
 		if (!(gameSettings & GS_DEATHMATCH)) {
-			if(ent->client->pers.chosenWeapon->typeNum == HC_NUM)
+			if(ent->client->pers.chosenWeapon->id == IT_WEAPON_HANDCANNON)
 				count = 12;
 			else
 				count = 7;
@@ -1603,52 +1557,36 @@ void Drop_Special (edict_t * ent, gitem_t * item)
 			count = 14;
 		}
 		ent->client->max_shells = count;
-		if (INV_AMMO(ent, SHELL_ANUM) > count)
-			INV_AMMO(ent, SHELL_ANUM) = count;
+		if (INV_AMMO(ent, IT_AMMO_SHELLS) > count)
+			INV_AMMO(ent, IT_AMMO_SHELLS) = count;
 
 		ent->client->max_m4mags = 1;
-		if (INV_AMMO(ent, M4_ANUM) > 1)
-			INV_AMMO(ent, M4_ANUM) = 1;
+		if (INV_AMMO(ent, IT_AMMO_CELLS) > 1)
+			INV_AMMO(ent, IT_AMMO_CELLS) = 1;
 
 		ent->client->grenade_max = 2;
-		if (use_buggy_bandolier->value == 0) {
-			if ((gameSettings & GS_DEATHMATCH) && INV_AMMO(ent, GRENADE_NUM) > 2)
-				INV_AMMO(ent, GRENADE_NUM) = 2;
-			else if (teamplay->value) {
-				if (ent->client->curr_weap == GRENADE_NUM)
-					INV_AMMO(ent, GRENADE_NUM) = 1;
-				else
-					INV_AMMO(ent, GRENADE_NUM) = 0;
-			}
-		} else {
-			if (INV_AMMO(ent, GRENADE_NUM) > 2)
-				INV_AMMO(ent, GRENADE_NUM) = 2;
+		if (INV_AMMO(ent, IT_WEAPON_GRENADES) > 2)
+			INV_AMMO(ent, IT_WEAPON_GRENADES) = 2;
 		}
 		if (gameSettings & GS_DEATHMATCH)
 			count = 2;
 		else
 			count = 1;
 		ent->client->max_mp5mags = count;
-		if (INV_AMMO(ent, MP5_ANUM) > count)
-			INV_AMMO(ent, MP5_ANUM) = count;
+		if (INV_AMMO(ent, IT_AMMO_ROCKETS) > count)
+			INV_AMMO(ent, IT_AMMO_ROCKETS) = count;
 
 		ent->client->knife_max = 10;
-		if (INV_AMMO(ent, KNIFE_NUM) > 10)
-			INV_AMMO(ent, KNIFE_NUM) = 10;
+		if (INV_AMMO(ent, IT_WEAPON_KNIFE) > 10)
+			INV_AMMO(ent, IT_WEAPON_KNIFE) = 10;
 
 		if (gameSettings & GS_DEATHMATCH)
 			count = 20;
 		else
 			count = 10;
 		ent->client->max_sniper_rnds = count;
-		if (INV_AMMO(ent, SNIPER_ANUM) > count)
-			INV_AMMO(ent, SNIPER_ANUM) = count;
-
-		if (ent->client->unique_weapon_total > unique_weapons->value && !allweapon->value)
-		{
-			DropExtraSpecial (ent);
-			gi.cprintf (ent, PRINT_HIGH, "One of your guns is dropped with the bandolier.\n");
-		}
+		if (INV_AMMO(ent, IT_AMMO_SLUGS) > count)
+			INV_AMMO(ent, IT_AMMO_SLUGS) = count;
 	}
 	Drop_Spec(ent, item);
 	ValidateSelectedItem(ent);
@@ -2215,7 +2153,7 @@ model="models/items/ammo/rockets/medium/tris.md2"
 /*QUAKED item_helmet (.3 .3 1) (-16 -16 -16) (16 16 16)
 */
 	{
-		/* id */ IT_ITEM_LASERSIGHT,
+		/* id */ IT_ITEM_HELM,
 		/* classname */ "item_helmet", 
 		/* pickup */ Pickup_Special,
 		/* use */ nullptr,
