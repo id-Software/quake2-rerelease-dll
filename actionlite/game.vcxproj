@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{c994b5ea-3058-403c-953d-3673c2c4d64e}</ProjectGuid>
+    <RootNamespace>game</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>../</OutDir>
+    <TargetName>$(ProjectName)_x64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>../</OutDir>
+    <TargetName>$(ProjectName)_x64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>KEX_Q2_GAME;KEX_Q2GAME_EXPORTS;NO_FMT_SOURCE;KEX_Q2GAME_DYNAMIC;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4267;4244</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>NotSet</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>KEX_Q2_GAME;KEX_Q2GAME_EXPORTS;NO_FMT_SOURCE;KEX_Q2GAME_DYNAMIC;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4267;4244</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>NotSet</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="bg_local.h" />
+    <ClInclude Include="bots\bot_debug.h" />
+    <ClInclude Include="bots\bot_exports.h" />
+    <ClInclude Include="bots\bot_includes.h" />
+    <ClInclude Include="bots\bot_think.h" />
+    <ClInclude Include="bots\bot_utils.h" />
+    <ClInclude Include="cg_local.h" />
+    <ClInclude Include="ctf\g_ctf.h" />
+    <ClInclude Include="ctf\p_ctf_menu.h" />
+    <ClInclude Include="game.h" />
+    <ClInclude Include="g_local.h" />
+    <ClInclude Include="g_statusbar.h" />
+    <ClInclude Include="m_actor.h" />
+    <ClInclude Include="m_arachnid.h" />
+    <ClInclude Include="m_berserk.h" />
+    <ClInclude Include="m_boss2.h" />
+    <ClInclude Include="m_boss31.h" />
+    <ClInclude Include="m_boss32.h" />
+    <ClInclude Include="m_brain.h" />
+    <ClInclude Include="m_chick.h" />
+    <ClInclude Include="m_flash.h" />
+    <ClInclude Include="m_flipper.h" />
+    <ClInclude Include="m_float.h" />
+    <ClInclude Include="m_flyer.h" />
+    <ClInclude Include="m_gladiator.h" />
+    <ClInclude Include="m_guardian.h" />
+    <ClInclude Include="m_gunner.h" />
+    <ClInclude Include="m_hover.h" />
+    <ClInclude Include="m_infantry.h" />
+    <ClInclude Include="m_insane.h" />
+    <ClInclude Include="m_medic.h" />
+    <ClInclude Include="m_mutant.h" />
+    <ClInclude Include="m_parasite.h" />
+    <ClInclude Include="m_player.h" />
+    <ClInclude Include="m_rider.h" />
+    <ClInclude Include="m_shambler.h" />
+    <ClInclude Include="m_soldier.h" />
+    <ClInclude Include="m_supertank.h" />
+    <ClInclude Include="m_tank.h" />
+    <ClInclude Include="q_std.h" />
+    <ClInclude Include="q_vec3.h" />
+    <ClInclude Include="rogue\m_rogue_carrier.h" />
+    <ClInclude Include="rogue\m_rogue_stalker.h" />
+    <ClInclude Include="rogue\m_rogue_turret.h" />
+    <ClInclude Include="rogue\m_rogue_widow.h" />
+    <ClInclude Include="rogue\m_rogue_widow2.h" />
+    <ClInclude Include="xatrix\m_xatrix_fixbot.h" />
+    <ClInclude Include="xatrix\m_xatrix_gekk.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bots\bot_debug.cpp" />
+    <ClCompile Include="bots\bot_exports.cpp" />
+    <ClCompile Include="bots\bot_think.cpp" />
+    <ClCompile Include="bots\bot_utils.cpp" />
+    <ClCompile Include="cg_main.cpp" />
+    <ClCompile Include="cg_screen.cpp" />
+    <ClCompile Include="ctf\g_ctf.cpp" />
+    <ClCompile Include="ctf\p_ctf_menu.cpp" />
+    <ClCompile Include="g_ai.cpp" />
+    <ClCompile Include="g_chase.cpp" />
+    <ClCompile Include="g_cmds.cpp" />
+    <ClCompile Include="g_combat.cpp" />
+    <ClCompile Include="g_func.cpp" />
+    <ClCompile Include="g_items.cpp" />
+    <ClCompile Include="g_main.cpp" />
+    <ClCompile Include="g_misc.cpp" />
+    <ClCompile Include="g_monster.cpp" />
+    <ClCompile Include="g_phys.cpp" />
+    <ClCompile Include="g_save.cpp" />
+    <ClCompile Include="g_spawn.cpp" />
+    <ClCompile Include="g_svcmds.cpp" />
+    <ClCompile Include="g_target.cpp" />
+    <ClCompile Include="g_trigger.cpp" />
+    <ClCompile Include="g_turret.cpp" />
+    <ClCompile Include="g_utils.cpp" />
+    <ClCompile Include="g_weapon.cpp" />
+    <ClCompile Include="m_actor.cpp" />
+    <ClCompile Include="m_arachnid.cpp" />
+    <ClCompile Include="m_berserk.cpp" />
+    <ClCompile Include="m_boss2.cpp" />
+    <ClCompile Include="m_boss3.cpp" />
+    <ClCompile Include="m_boss31.cpp" />
+    <ClCompile Include="m_boss32.cpp" />
+    <ClCompile Include="m_brain.cpp" />
+    <ClCompile Include="m_chick.cpp" />
+    <ClCompile Include="m_flipper.cpp" />
+    <ClCompile Include="m_float.cpp" />
+    <ClCompile Include="m_flyer.cpp" />
+    <ClCompile Include="m_gladiator.cpp" />
+    <ClCompile Include="m_guardian.cpp" />
+    <ClCompile Include="m_guncmdr.cpp" />
+    <ClCompile Include="m_gunner.cpp" />
+    <ClCompile Include="m_hover.cpp" />
+    <ClCompile Include="m_infantry.cpp" />
+    <ClCompile Include="m_insane.cpp" />
+    <ClCompile Include="m_medic.cpp" />
+    <ClCompile Include="m_move.cpp" />
+    <ClCompile Include="m_mutant.cpp" />
+    <ClCompile Include="m_parasite.cpp" />
+    <ClCompile Include="m_shambler.cpp" />
+    <ClCompile Include="m_soldier.cpp" />
+    <ClCompile Include="m_supertank.cpp" />
+    <ClCompile Include="m_tank.cpp" />
+    <ClCompile Include="p_client.cpp" />
+    <ClCompile Include="p_hud.cpp" />
+    <ClCompile Include="p_move.cpp" />
+    <ClCompile Include="p_trail.cpp" />
+    <ClCompile Include="p_view.cpp" />
+    <ClCompile Include="p_weapon.cpp" />
+    <ClCompile Include="q_std.cpp" />
+    <ClCompile Include="rogue\g_rogue_combat.cpp" />
+    <ClCompile Include="rogue\g_rogue_func.cpp" />
+    <ClCompile Include="rogue\g_rogue_items.cpp" />
+    <ClCompile Include="rogue\g_rogue_misc.cpp" />
+    <ClCompile Include="rogue\g_rogue_monster.cpp" />
+    <ClCompile Include="rogue\g_rogue_newai.cpp" />
+    <ClCompile Include="rogue\g_rogue_newdm.cpp" />
+    <ClCompile Include="rogue\g_rogue_newfnc.cpp" />
+    <ClCompile Include="rogue\g_rogue_newtarg.cpp" />
+    <ClCompile Include="rogue\g_rogue_newtrig.cpp" />
+    <ClCompile Include="rogue\g_rogue_newweap.cpp" />
+    <ClCompile Include="rogue\g_rogue_phys.cpp" />
+    <ClCompile Include="rogue\g_rogue_spawn.cpp" />
+    <ClCompile Include="rogue\g_rogue_sphere.cpp" />
+    <ClCompile Include="rogue\g_rogue_utils.cpp" />
+    <ClCompile Include="rogue\m_rogue_carrier.cpp" />
+    <ClCompile Include="rogue\m_rogue_stalker.cpp" />
+    <ClCompile Include="rogue\m_rogue_turret.cpp" />
+    <ClCompile Include="rogue\m_rogue_widow.cpp" />
+    <ClCompile Include="rogue\m_rogue_widow2.cpp" />
+    <ClCompile Include="rogue\p_rogue_weapon.cpp" />
+    <ClCompile Include="rogue\rogue_dm_ball.cpp" />
+    <ClCompile Include="rogue\rogue_dm_tag.cpp" />
+    <ClCompile Include="xatrix\g_xatrix_func.cpp" />
+    <ClCompile Include="xatrix\g_xatrix_items.cpp" />
+    <ClCompile Include="xatrix\g_xatrix_misc.cpp" />
+    <ClCompile Include="xatrix\g_xatrix_monster.cpp" />
+    <ClCompile Include="xatrix\g_xatrix_target.cpp" />
+    <ClCompile Include="xatrix\g_xatrix_weapon.cpp" />
+    <ClCompile Include="xatrix\m_xatrix_fixbot.cpp" />
+    <ClCompile Include="xatrix\m_xatrix_gekk.cpp" />
+    <ClCompile Include="xatrix\p_xatrix_weapon.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
