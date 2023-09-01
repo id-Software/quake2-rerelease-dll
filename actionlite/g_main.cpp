@@ -151,14 +151,21 @@ cvar_t *ai_movement_disabled;
 // Action Add
 //======================================================================
 
-cvar_t	*allitem;
-cvar_t	*allweapon;
-cvar_t	*unique_items;
-cvar_t	*unique_weapons;
-cvar_t	*allow_hoarding;
-cvar_t	*item_respawn;
-cvar_t	*weapon_respawn;
-cvar_t	*ammo_respawn;
+cvar_t *allitem;
+cvar_t *allweapon;
+cvar_t *unique_items;
+cvar_t *unique_weapons;
+cvar_t *allow_hoarding;
+cvar_t *item_respawn;
+cvar_t *weapon_respawn;
+cvar_t *ammo_respawn;
+cvar_t *hc_single;
+cvar_t *use_punch;
+cvar_t *radio_max;
+cvar_t *radio_time;
+cvar_t *radio_ban;
+cvar_t *radio_repeat;
+cvar_t *radio_repeat_time;
 
 //======================================================================
 // Action Add End
@@ -392,6 +399,13 @@ void InitGame()
 	item_respawn = gi.cvar("item_respawn", "59", CVAR_NOFLAGS);
 	weapon_respawn = gi.cvar("weapon_respawn", "74", CVAR_NOFLAGS);
 	ammo_respawn = gi.cvar("ammo_respawn", "30", CVAR_NOFLAGS);
+	hc_single = gi.cvar("hc_single", "0", CVAR_NOFLAGS);
+	use_punch = gi.cvar("use_punch", "1", CVAR_NOFLAGS);
+	radio_max = gi.cvar("radio_max", "3", CVAR_NOFLAGS);
+	radio_time = gi.cvar("radio_time", "2", CVAR_NOFLAGS);
+	radio_ban = gi.cvar("radio_ban", "15", CVAR_NOFLAGS);
+	radio_repeat = gi.cvar("radio_repeat", "2", CVAR_NOFLAGS);
+	radio_repeat_time = gi.cvar("radio_repeat_time", "1", CVAR_NOFLAGS);
 	
 //======================================================================
 // Action Add

@@ -7,7 +7,7 @@
 #include "bg_local.h"
 
 // the "gameversion" client command will print this plus compile date
-constexpr const char *GAMEVERSION = "baseq2";
+constexpr const char *GAMEVERSION = "action";
 
 //==================================================================
 
@@ -1935,6 +1935,14 @@ extern cvar_t *allow_hoarding;
 extern cvar_t *item_respawn;
 extern cvar_t *weapon_respawn;
 extern cvar_t *ammo_respawn;
+extern cvar_t *hc_single;
+extern cvar_t *use_punch;
+extern cvar_t *radio_max;
+extern cvar_t *radio_time;
+extern cvar_t *radio_ban;
+extern cvar_t *radio_repeat;
+//SLIC2
+extern cvar_t *radio_repeat_time;
 
 void LaserSightThink (edict_t * self);
 void SP_LaserSight (edict_t * self, gitem_t * item);

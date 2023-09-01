@@ -87,7 +87,7 @@ void LaserSightThink(edict_t * self)
 		viewheight -= 8;
 
 	VectorSet(offset, 24, 8, viewheight);
-	P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
+	P_ProjectSource(self, self->owner->s.origin, offset, forward, right, start);
 	VectorMA(start, 8192, forward, end);
 
 	PRETRACE();
@@ -105,7 +105,7 @@ void LaserSightThink(edict_t * self)
 	self->s.modelindex = (tr.surface && (tr.surface->flags & SURF_SKY)) ? level.model_null : level.model_lsight;
 
 	gi.linkentity(self);
-	self->nextthink = level.framenum + 1;
+	self->nextthink = level.time + 1_ms;
 }
 
 void Cmd_New_Reload_f(edict_t * ent)
@@ -120,7 +120,7 @@ void Cmd_New_Reload_f(edict_t * ent)
 void Cmd_Reload_f(edict_t * ent)
 {
 	//+BD - If the player is dead, don't bother
-	if (!IS_ALIVE(ent) || !ent->client->weapon)
+	if (!IS_ALIVE(ent) || !ent->client->pers.weapon)
 		return;
 
 	if (ent->client->weaponstate == WEAPON_BANDAGING ||
@@ -139,68 +139,68 @@ void Cmd_Reload_f(edict_t * ent)
 	//First, grab the current magazine max count...
 
 	//Set the weaponstate...
-	switch(ent->client->weapon->typeNum) {
-	case M3_NUM:
+	switch(ent->client->pers.weapon->id) {
+	case IT_WEAPON_M3:
 		if (ent->client->shot_rds >= ent->client->shot_max)
 			return;
 
-		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
-			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
+		if(ent->client->inventory[ent->client->pers.weapon->ammo] <= 0) {
+			gi.LocClient_Print(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
 		// already in the process of reloading!
 		if (ent->client->weaponstate == WEAPON_RELOADING &&
 		    (ent->client->shot_rds < (ent->client->shot_max - 1)) &&
 		    !(ent->client->fast_reload) &&
-		    ((ent->client->inventory[ent->client->ammo_index] - 1) > 0)) {
+		    ((ent->client->pers.weapon->ammo - 1) > 0)) {
 			// don't let them start fast reloading until far enough into the firing sequence
 			// this gives them a chance to break off from reloading to fire the weapon - zucc
 			if (ent->client->ps.gunframe >= 48) {
 				ent->client->fast_reload = 1;
-				(ent->client->inventory[ent->client->ammo_index])--;
+				(ent->client->pers.weapon->ammo)--;
 			} else {
 				ent->client->reload_attempts++;
 			}
 		}
 		break;
-	case HC_NUM:
+	case IT_WEAPON_HANDCANNON:
 		if (ent->client->cannon_rds >= ent->client->cannon_max)
 			return;
 
-		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
-			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
+		if(ent->client->inventory[ent->client->pers.weapon->ammo] <= 0) {
+			gi.LocClient_Print(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
 		if(hc_single->value)
 		{
 			if(ent->client->pers.hc_mode || ent->client->cannon_rds == 1)
-			{	if(ent->client->inventory[ent->client->ammo_index] < 1)
+			{	if(ent->client->pers.weapon->ammo < 1)
 					return;
 			}
-			else if(ent->client->inventory[ent->client->ammo_index] < 2)
+			else if(ent->client->pers.weapon->ammo < 2)
 				return;
 		}
-		else if (ent->client->inventory[ent->client->ammo_index] < 2)
+		else if (ent->client->pers.weapon->ammo < 2)
 			return;
 		break;
-	case SNIPER_NUM:
+	case IT_WEAPON_SNIPER:
 		if (ent->client->sniper_rds >= ent->client->sniper_max)
 			return;
 
-		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
-			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
+		if(ent->client->inventory[ent->client->pers.weapon->ammo] <= 0) {
+			gi.LocClient_Print(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
 		// already in the process of reloading!
 		if (ent->client->weaponstate == WEAPON_RELOADING
 		    && (ent->client->sniper_rds < (ent->client->sniper_max - 1))
 		    && !(ent->client->fast_reload)
-		    && ((ent->client->inventory[ent->client->ammo_index] - 1) > 0)) {
+		    && ((ent->client->pers.weapon->ammo - 1) > 0)) {
 			// don't let them start fast reloading until far enough into the firing sequence
 			// this gives them a chance to break off from reloading to fire the weapon - zucc
 			if (ent->client->ps.gunframe >= 72) {
 				ent->client->fast_reload = 1;
-				(ent->client->inventory[ent->client->ammo_index])--;
+				(ent->client->inventory[ent->client->pers.weapon->ammo])--;
 			} else {
 				ent->client->reload_attempts++;
 			}
@@ -209,16 +209,16 @@ void Cmd_Reload_f(edict_t * ent)
 		if (ent->client->weapon)
 			ent->client->ps.gunindex = gi.modelindex(ent->client->weapon->view_model);
 		break;
-	case DUAL_NUM:
+	case IT_WEAPON_DUALMK23:
 		if (ent->client->dual_rds == ent->client->dual_max)
 			return;
 
-		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
-			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
+		if(ent->client->pers.weapon->ammo <= 0) {
+			gi.LocClient_Print(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
 		//TempFile change to pistol, then reload
-		if (ent->client->inventory[ent->client->ammo_index] == 1) {
+		if (ent->client->pers.weapon->ammo == 1) {
 			gitem_t *it;
 
 			it = GET_ITEM(MK23_NUM);
@@ -228,27 +228,27 @@ void Cmd_Reload_f(edict_t * ent)
 		}
 
 		break;
-	case MP5_NUM:
+	case IT_WEAPON_MP5:
 		if (ent->client->mp5_rds == ent->client->mp5_max)
 			return;
-		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
-			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
+		if(ent->client->pers.weapon->ammo <= 0) {
+			gi.LocClient_Print(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
 		break;
-	case M4_NUM:
+	case IT_WEAPON_M4:
 		if (ent->client->m4_rds == ent->client->m4_max)
 			return;
-		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
-			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
+		if(ent->client->pers.weapon->ammo <= 0) {
+			gi.LocClient_Print(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
 		break;
-	case MK23_NUM:
+	case IT_WEAPON_MK23:
 		if (ent->client->mk23_rds == ent->client->mk23_max)
 			return;
-		if(ent->client->inventory[ent->client->ammo_index] <= 0) {
-			gi.cprintf(ent, PRINT_HIGH, "Out of ammo\n");
+		if(ent->client->pers.weapon->ammo <= 0) {
+			gi.LocClient_Print(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
 		break;
@@ -449,9 +449,6 @@ void Cmd_Give_f(edict_t *ent)
 
 	if (give_all || Q_strcasecmp(name, "ammo") == 0)
 	{
-		if (give_all)
-			SpawnAndGiveItem(ent, IT_ITEM_PACK);
-
 		for (i = 0; i < IT_TOTAL; i++)
 		{
 			it = itemlist + i;
@@ -467,18 +464,13 @@ void Cmd_Give_f(edict_t *ent)
 
 	if (give_all || Q_strcasecmp(name, "armor") == 0)
 	{
-		ent->client->pers.inventory[IT_ARMOR_JACKET] = 0;
-		ent->client->pers.inventory[IT_ARMOR_COMBAT] = 0;
-		ent->client->pers.inventory[IT_ARMOR_BODY] = GetItemByIndex(IT_ARMOR_BODY)->armor_info->max_count;
-
+		return;
 		if (!give_all)
 			return;
 	}
 
 	if (give_all)
 	{
-		SpawnAndGiveItem(ent, IT_ITEM_POWER_SHIELD);
-
 		if (!give_all)
 			return;
 	}
