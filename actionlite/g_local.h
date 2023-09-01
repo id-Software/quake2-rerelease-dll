@@ -1189,6 +1189,9 @@ struct level_locals_t
 	bool story_active;
 	gtime_t next_auto_save;
 	gtime_t next_match_report;
+
+	// Action add
+	int32_t model_lsight;
 };
 
 struct shadow_light_temp_t

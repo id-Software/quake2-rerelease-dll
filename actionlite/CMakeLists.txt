@@ -68,6 +68,9 @@ set(GAME_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/p_weapon.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/q_std.cpp 
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/a_team.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/cgf_sfx_glass.cpp 
+
     ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_combat.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_func.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_items.cpp 

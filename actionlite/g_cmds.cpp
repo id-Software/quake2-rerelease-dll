@@ -17,7 +17,7 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 {
 	edict_t *lasersight = self->client->lasersight;
 
-	if (!INV_AMMO(self, LASER_NUM) || !self->client->weapon) {
+	if (!INV_AMMO(self, IT_ITEM_LASERSIGHT) || !self->client->pers.weapon) {
 		if (lasersight) {  // laser is on
 			G_FreeEdict(lasersight);
 			self->client->lasersight = NULL;
@@ -26,10 +26,10 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	}
 	//zucc code to make it be used with the right weapons
 
-	switch (self->client->weapon->typeNum) {
-	case MK23_NUM:
-	case MP5_NUM:
-	case M4_NUM:
+	switch (self->client->pers.weapon->id) {
+	case IT_WEAPON_MK23:
+	case IT_WEAPON_MP5:
+	case IT_WEAPON_M4:
 		break;
 	default:
 		// laser is on but we want it off
@@ -55,7 +55,7 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	lasersight->ideal_yaw = self->viewheight;
 	lasersight->count = 0;
 	lasersight->think = LaserSightThink;
-	lasersight->nextthink = level.framenum + 1;
+	lasersight->nextthink = level.time + 1_ms;
 	LaserSightThink( lasersight );
 	VectorCopy( lasersight->s.origin, lasersight->s.old_origin );
 	VectorCopy( lasersight->s.origin, lasersight->old_origin );
@@ -82,29 +82,6 @@ void LaserSightThink(edict_t * self)
 	if (self->owner->client->lasersight != self) {
 		self->think = G_FreeEdict;
 	}
-
-#ifndef NO_FPS
-	// Raptor007: Smooth laser viewheight changes (crouch/stand) with sv_fps.
-	// I borrowed ideal_yaw and yaw_speed because I needed two entity floats
-	// that wouldn't otherwise be used for the lasersight.
-	if( FRAMEDIV > 1 )
-	{
-		if( self->count )
-		{
-			self->ideal_yaw += self->yaw_speed;
-			self->count --;
-		}
-
-		if( FRAMESYNC && ! self->count )
-		{
-			self->yaw_speed = (self->owner->viewheight - self->ideal_yaw) / (float) FRAMEDIV;
-			self->ideal_yaw += self->yaw_speed;
-			self->count = FRAMEDIV - 1;
-		}
-
-		viewheight = self->ideal_yaw;
-	}
-#endif
 
 	if (self->owner->client->pers.firing_style == ACTION_FIRING_CLASSIC)
 		viewheight -= 8;
