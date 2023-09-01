@@ -25,11 +25,11 @@ enum aqteam_t
 // too, for better shot areas. (there has to be a better way to do this?)
 
 #define PRETRACE() \
-        if (transparent_list && (((int)teamplay->value && !lights_camera_action) || jump->value)) \
+        if (transparent_list && (((int)teamplay->value && !lights_camera_action))) \
                 TransparentListSet(SOLID_BBOX)
 
 #define POSTTRACE() \
-        if (transparent_list && (((int)teamplay->value && !lights_camera_action) || jump->value)) \
+        if (transparent_list && (((int)teamplay->value && !lights_camera_action))) \
                 TransparentListSet(SOLID_TRIGGER)
 
 edict_t *SelectTeamplaySpawnPoint (edict_t *);

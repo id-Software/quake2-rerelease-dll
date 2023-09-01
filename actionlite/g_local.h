@@ -8,6 +8,7 @@
 
 #include "a_team.h"
 #include "a_game.h"
+#include "cgf_sfx_glass.h"
 
 // the "gameversion" client command will print this plus compile date
 constexpr const char *GAMEVERSION = "action";
@@ -956,22 +957,22 @@ struct gitem_t
 enum mod_id_t : uint8_t
 {
 	MOD_UNKNOWN,
-	MOD_BLASTER,
-	MOD_SHOTGUN,
-	MOD_SSHOTGUN,
-	MOD_MACHINEGUN,
-	MOD_CHAINGUN,
-	MOD_GRENADE,
-	MOD_G_SPLASH,
-	MOD_ROCKET,
-	MOD_R_SPLASH,
-	MOD_HYPERBLASTER,
-	MOD_RAILGUN,
-	MOD_BFG_LASER,
-	MOD_BFG_BLAST,
-	MOD_BFG_EFFECT,
-	MOD_HANDGRENADE,
-	MOD_HG_SPLASH,
+    MOD_MK23,
+    MOD_MP5,
+    MOD_M4,
+    MOD_M3,
+    MOD_HC,
+    MOD_SNIPER,
+    MOD_DUAL,
+    MOD_KNIFE,
+    MOD_KNIFE_THROWN,
+    MOD_GRENADE,
+    MOD_G_SPLASH,
+    MOD_HANDGRENADE,
+    MOD_HG_SPLASH,
+    MOD_PUNCH,
+    MOD_BLASTER,
+    MOD_HYPERBLASTER,
 	MOD_WATER,
 	MOD_SLIME,
 	MOD_LAVA,
@@ -990,36 +991,11 @@ enum mod_id_t : uint8_t
 	MOD_TRIGGER_HURT,
 	MOD_HIT,
 	MOD_TARGET_BLASTER,
-	// RAFAEL 14-APR-98
-	MOD_RIPPER,
-	MOD_PHALANX,
-	MOD_BRAINTENTACLE,
-	MOD_BLASTOFF,
-	MOD_GEKK,
-	MOD_TRAP,
-	// END 14-APR-98
-	//========
-	// ROGUE
-	MOD_CHAINFIST,
-	MOD_DISINTEGRATOR,
-	MOD_ETF_RIFLE,
-	MOD_BLASTER2,
-	MOD_HEATBEAM,
-	MOD_TESLA,
-	MOD_PROX,
-	MOD_NUKE,
-	MOD_VENGEANCE_SPHERE,
-	MOD_HUNTER_SPHERE,
-	MOD_DEFENDER_SPHERE,
-	MOD_TRACKER,
-	MOD_DBALL_CRUSH,
-	MOD_DOPPLE_EXPLODE,
-	MOD_DOPPLE_VENGEANCE,
-	MOD_DOPPLE_HUNTER,
-	// ROGUE
-	//========
+	MOD_BLEEDING,
+	MOD_KICK,
 	MOD_GRAPPLE,
-	MOD_BLUEBLASTER
+	MOD_TOTAL,
+	MOD_FRIENDLY_FIRE = 0x8000000
 };
 
 struct mod_t
@@ -1651,7 +1627,13 @@ extern int snd_vesthit;
 extern int snd_knifethrow;
 extern int snd_kick;
 extern int snd_noammo;
+extern int meansOfDeath;
+// zucc for hitlocation of death
+extern int locOfDeath;
+// stop an armor piercing round that hits a vest
+extern int stopAP;
 
+void TransparentListSet (solid_t solid_type);
 // Action Add end
 
 extern edict_t *g_edicts;
@@ -2309,6 +2291,18 @@ void fire_disintegrator(edict_t *self, const vec3_t &start, const vec3_t &dir, i
 vec3_t P_CurrentKickAngles(edict_t *ent);
 vec3_t P_CurrentKickOrigin(edict_t *ent);
 void P_AddWeaponKick(edict_t *ent, const vec3_t &origin, const vec3_t &angles);
+// ACTION
+void ProduceShotgunDamageReport(edict_t*);
+void kick_attack(edict_t *ent);
+void punch_attack(edict_t *ent);
+int knife_attack(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick);
+void knife_throw(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed);
+void knife_touch(edict_t* ent, edict_t* other, cplane_t* plane, csurface_t* surf);
+void fire_bullet_sparks(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod);
+void fire_bullet_sniper(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod);
+void setFFState(edict_t* ent);
+
+// ACTION
 
 // we won't ever pierce more than this many entities for a single trace.
 constexpr size_t MAX_PIERCE = 16;
@@ -2444,6 +2438,10 @@ extern player_muzzle_t is_silenced;
 // ROGUE
 extern byte damage_multiplier;
 // ROGUE
+// ACTION
+void InitTookDamage(void);
+void Bandage(edict_t * ent);
+//ACTION
 
 //
 // m_move.c
@@ -2596,6 +2594,9 @@ void	 fire_doppleganger(edict_t *ent, const vec3_t &start, const vec3_t &aimdir)
 void RemoveAttackingPainDaemons(edict_t *self);
 bool G_ShouldPlayersCollide(bool weaponry);
 bool P_UseCoopInstancedItems();
+// ACTION
+void ClientFixLegs(edict_t *ent);
+// ACTION
 
 constexpr spawnflags_t SPAWNFLAG_LANDMARK_KEEP_Z = 1_spawnflag;
 
@@ -2796,6 +2797,7 @@ struct client_respawn_t
 	gtime_t	 ctf_lastreturnedflag;
 	gtime_t	 ctf_flagsince;
 	gtime_t	 ctf_lastfraggedcarrier;
+	int32_t  ctf_capstreak;
 	bool	 id_state;
 	gtime_t	 lastidtime;
 	bool	 voted; // for elections
@@ -2805,12 +2807,30 @@ struct client_respawn_t
 					// ZOID
 
 	// Action Add
+	// Number of team kills this game
+	int32_t team_kills;
+	int32_t team_wounds;
+	
 	aqteam_t team;
 	int32_t	sniper_mode;
 };
 
 // Action Add
+#define MAX_SKINLEN				32
+#define MAX_TEAMNAMELEN			32
+#define MAX_GUNSTAT MOD_GRENADE
+
 #define MAX_LOCATIONS_IN_BASE		256	// Max amount of locations
+struct placedata_t
+{
+  int x;
+  int y;
+  int z;
+  int rx;
+  int ry;
+  int rz;
+  char desc[128];
+};
 extern int ml_count;
 extern placedata_t locationbase[];
 extern char ml_creator[101];
@@ -2820,9 +2840,9 @@ struct team_t
 	char name[20];
 	char skin[MAX_SKINLEN];
 	char skin_index[MAX_QPATH];
-	int23_t score, total;
-	int23_t ready, locked;
-	int23_t pauses_used, wantReset;
+	int32_t score, total;
+	int32_t ready, locked;
+	int32_t pauses_used, wantReset;
 	cvar_t	*teamscore;
 };
 
@@ -3039,8 +3059,9 @@ struct gclient_t
 	int32_t			unique_item_total;
 	int32_t			unique_weapon_total;
 
-	int				inventory[MAX_ITEMS];
+	int32_t				inventory[MAX_ITEMS];
 	// ammo capacities
+	int32_t			ammo_index;
 	int32_t			max_pistolmags;
 	int32_t			max_shells;
 	int32_t			max_mp5mags;
@@ -3066,7 +3087,24 @@ struct gclient_t
 	bool			bandaging;
 	bool			bandage_stopped;
 	bool			weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
+
+	edict_t			*attacker;		// keep track of the last person to hit us
+	int32_t			attacker_mod;	// and how they hit us
+	int32_t			attacker_loc;	// location of the hit
+
 	int32_t			push_timeout;	// timeout for how long an attacker will get fall death credit
+
+	int32_t			team_wounds_before;
+	int32_t			ff_warning;
+
+	int32_t			radio_num_kills;
+
+	int32_t			last_damaged_part;
+	char			last_damaged_players[256];
+	edict_t			*last_killed_target[MAX_LAST_KILLED];
+
+	int32_t			uvTime;
+
 	edict_t			*lasersight; // laser
 	edict_t			*flashlight; // Flashlight
 	int32_t			leg_damage;

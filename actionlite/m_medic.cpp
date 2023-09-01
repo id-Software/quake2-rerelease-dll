@@ -562,7 +562,7 @@ PAIN(medic_pain) (edict_t *self, edict_t *other, float kick, int damage, const m
 		{
 			gi.sound(self, CHAN_VOICE, commander_sound_pain1, 1, ATTN_NORM, 0);
 
-			if (mod.id != MOD_CHAINFIST)
+			if (mod.id != MOD_UNKNOWN)
 				return;
 		}
 
@@ -577,7 +577,7 @@ PAIN(medic_pain) (edict_t *self, edict_t *other, float kick, int damage, const m
 		return; // no pain anims in nightmare
 
 	// if we're healing someone, we ignore pain
-	if (mod.id != MOD_CHAINFIST && (self->monsterinfo.aiflags & AI_MEDIC))
+	if (mod.id != MOD_UNKNOWN && (self->monsterinfo.aiflags & AI_MEDIC))
 		return;
 
 	if (self->mass > 400)

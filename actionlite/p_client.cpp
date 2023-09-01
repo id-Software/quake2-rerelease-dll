@@ -4,6 +4,339 @@
 #include "m_player.h"
 #include "bots/bot_includes.h"
 
+// Action Add
+
+static void FreeClientEdicts(gclient_t *client)
+{
+	//remove lasersight
+	if (client->lasersight) {
+		G_FreeEdict(client->lasersight);
+		client->lasersight = NULL;
+	}
+
+	//Turn Flashlight off
+	if (client->flashlight) {
+		G_FreeEdict(client->flashlight);
+		client->flashlight = NULL;
+	}
+
+	//Remove grapple
+	if (client->ctf_grapple) {
+		G_FreeEdict(client->ctf_grapple);
+		client->ctf_grapple = NULL;
+	}
+
+#ifdef AQTION_EXTENSION
+	//remove arrow
+	if (client->arrow) {
+		G_FreeEdict(client->arrow);
+		client->arrow = NULL;
+	}
+#endif
+}
+
+void Announce_Reward(edict_t *ent, int rewardType){
+	char buf[256];
+
+	if (rewardType == IMPRESSIVE) {
+		sprintf(buf, "IMPRESSIVE %s!", ent->client->pers.netname);
+		CenterPrintAll(buf);
+		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
+	} else if (rewardType == EXCELLENT) {
+		sprintf(buf, "EXCELLENT %s (%dx)!", ent->client->pers.netname,ent->client->resp.streakKills/12);
+		CenterPrintAll(buf);
+		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
+	} else if (rewardType == ACCURACY) {
+		sprintf(buf, "ACCURACY %s!", ent->client->pers.netname);
+		CenterPrintAll(buf);
+		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
+	}
+
+	#ifdef USE_AQTION
+	if (stat_logs->value)
+		LogAward(ent, rewardType);
+	#endif
+}
+
+void Add_Frag(edict_t * ent, int mod)
+{
+	int frags = 0;
+
+	if (in_warmup)
+		return;
+
+	ent->client->resp.kills++;
+	// All normal weapon damage
+	if (mod > 0 && mod < MAX_GUNSTAT) {
+		ent->client->resp.gunstats[mod].kills++;
+	}
+	// Grenade splash, kicks and punch damage
+	if (mod > 0 && ((mod == MOD_HG_SPLASH) || (mod == MOD_KICK) || (mod == MOD_PUNCH))) {
+		ent->client->resp.gunstats[mod].kills++;
+	}
+
+	if (IS_ALIVE(ent))
+	{
+		ent->client->resp.streakKills++;
+		ent->client->resp.roundStreakKills++;
+		if (ent->client->resp.streakKills > ent->client->resp.streakKillsHighest)
+			ent->client->resp.streakKillsHighest = ent->client->resp.streakKills;
+
+		if (ent->client->resp.streakKills % 5 == 0 && use_rewards->value)
+		{
+			Announce_Reward(ent, IMPRESSIVE);
+		}
+		else if (ent->client->resp.streakKills % 12 == 0 && use_rewards->value)
+		{
+			Announce_Reward(ent, EXCELLENT);
+		}
+	}
+
+	// Regular frag for teamplay/matchmode
+	if (teamplay->value && teamdm->value != 2)
+		ent->client->resp.score++;	// just 1 normal kill
+
+	// Increment team score if TeamDM is enabled
+	if(teamdm->value)
+		teams[ent->client->resp.team].score++;
+
+	// Streak kill rewards in Deathmatch mode
+	if (deathmatch->value && !teamplay->value) {
+		if (ent->client->resp.streakKills < 4 || ! use_rewards->value)
+			frags = 1;
+		else if (ent->client->resp.streakKills < 8)
+			frags = 2;
+		else if (ent->client->resp.streakKills < 16)
+			frags = 4;
+		else if (ent->client->resp.streakKills < 32)
+			frags = 8;
+		else
+			frags = 16;
+
+		if(frags > 1)
+		{
+			gi.LocBroadcast_Print(PRINT_MEDIUM,
+				"%s has %d kills in a row and receives %d frags for the kill!\n",
+				ent->client->pers.netname, ent->client->resp.streakKills, frags );
+			IRC_printf(IRC_T_GAME,
+				"%n has %k kills in a row and receives %k frags for the kill!",
+				ent->client->pers.netname, ent->client->resp.streakKills, frags );
+		}
+		ent->client->resp.score += frags;
+
+		// Award team with appropriate streak reward count
+		if(teamdm->value)
+			teams[ent->client->resp.team].score += frags;
+
+		// AQ:TNG Igor[Rock] changing sound dir
+		if (fraglimit->value && use_warnings->value) {
+			if (ent->client->resp.score == fraglimit->value - 1) {
+				if (fragwarning < 3) {
+					CenterPrintAll("1 FRAG LEFT...");
+					gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
+						gi.soundindex("tng/1_frag.wav"), 1.0, ATTN_NONE, 0.0);
+					fragwarning = 3;
+				}
+			} else if (ent->client->resp.score == fraglimit->value - 2) {
+				if (fragwarning < 2) {
+					CenterPrintAll("2 FRAGS LEFT...");
+					gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
+						gi.soundindex("tng/2_frags.wav"), 1.0, ATTN_NONE, 0.0);
+					fragwarning = 2;
+				}
+			} else if (ent->client->resp.score == fraglimit->value - 3) {
+				if (fragwarning < 1) {
+					CenterPrintAll("3 FRAGS LEFT...");
+					gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
+						gi.soundindex("tng/3_frags.wav"), 1.0, ATTN_NONE, 0.0);
+					fragwarning = 1;
+				}
+			}
+		}
+		// end of changing sound dir
+	}
+
+	// Announce kill streak to player if use_killcounts is enabled on server
+	if (use_killcounts->value) {
+		// Report only killstreak during that round
+		if(ent->client->resp.roundStreakKills)
+			gi.LocClient_Print(ent, PRINT_HIGH, "Kill count: %d\n", ent->client->resp.roundStreakKills);
+	} else {
+		// Report total killstreak across previous rounds
+		if(ent->client->resp.streakKills)
+			gi.LocClient_Print(ent, PRINT_HIGH, "Kill count: %d\n", ent->client->resp.streakKills);
+	}
+}
+
+void Subtract_Frag(edict_t * ent)
+{
+	if( in_warmup )
+		return;
+
+	ent->client->resp.kills--;
+	ent->client->resp.score--;
+	ent->client->resp.streakKills = 0;
+	ent->client->resp.roundStreakKills = 0;
+	if(teamdm->value)
+		teams[ent->client->resp.team].score--;
+}
+
+void Add_Death( edict_t *ent, qboolean end_streak )
+{
+	if( in_warmup )
+		return;
+
+	ent->client->resp.deaths ++;
+	if( end_streak ) {
+		ent->client->resp.streakKills = 0;
+		ent->client->resp.roundStreakKills = 0;
+	}
+}
+
+// FRIENDLY FIRE functions
+
+void Add_TeamWound(edict_t * attacker, edict_t * victim, int mod)
+{
+	if (!teamplay->value || !attacker->client || !victim->client) {
+		return;
+	}
+
+	attacker->client->resp.team_wounds++;
+
+	// Warn both parties that they are teammates. Since shotguns are pellet based,
+	// make sure we don't overflow the client when using MOD_HC or MOD_SHOTGUN. The
+	// ff_warning flag should have been reset before each attack.
+	if (attacker->client->ff_warning == 0) {
+		attacker->client->ff_warning++;
+		gi.LocClient_Print(victim, PRINT_HIGH, "You were hit by %s, your TEAMMATE!\n", attacker->client->pers.netname);
+		gi.LocClient_Print(attacker, PRINT_HIGH, "You hit your TEAMMATE %s!\n", victim->client->pers.netname);
+	}
+	// We want team_wounds to increment by one for each ATTACK, not after each 
+	// bullet or pellet does damage. With the HAND CANNON this means 2 attacks
+	// since it is double barreled and we don't want to go into p_weapon.c...
+	attacker->client->resp.team_wounds = (attacker->client->team_wounds_before + 1);
+
+	// If count is less than MAX_TEAMKILLS*3, return. If count is greater than
+	// MAX_TEAMKILLS*3 but less than MAX_TEAMKILLS*4, print off a ban warning. If
+	// count equal (or greater than) MAX_TEAMKILLS*4, ban and kick the client.
+	if ((int) maxteamkills->value < 1)	//FB
+		return;
+	if (attacker->client->resp.team_wounds < ((int)maxteamkills->value * 3)) {
+		return;
+	} else if (attacker->client->resp.team_wounds < ((int) maxteamkills->value * 4)) {
+		// Print a note to console, and issue a warning to the player.
+		gi.LocClient_Print(NULL, PRINT_MEDIUM,
+			   "%s is in danger of being banned for wounding teammates\n", attacker->client->pers.netname);
+		gi.LocClient_Print(attacker, PRINT_HIGH,
+			   "WARNING: You'll be temporarily banned if you continue wounding teammates!\n");
+		return;
+	} else {
+		if (attacker->client->pers.ip[0]) {
+			if (Ban_TeamKiller(attacker, (int) twbanrounds->value)) {
+				gi.LocClient_Print(NULL, PRINT_MEDIUM,
+					   "Banning %s@%s for team wounding\n",
+					   attacker->client->pers.netname, attacker->client->pers.ip);
+
+				gi.LocClient_Print(attacker, PRINT_HIGH,
+					   "You've wounded teammates too many times, and are banned for %d %s.\n",
+					   (int) twbanrounds->value,
+					   (((int) twbanrounds->value > 1) ? "games" : "game"));
+			} else {
+				gi.LocClient_Print(NULL, PRINT_MEDIUM,
+					   "Error banning %s: unable to get ip address\n", attacker->client->pers.netname);
+			}
+			Kick_Client(attacker);
+		}
+	}
+
+	return;
+}
+
+void Add_TeamKill(edict_t * attacker)
+{
+	if (!teamplay->value || !attacker->client || !team_round_going) {
+		return;
+	}
+
+	attacker->client->resp.team_kills++;
+	// Because the stricter team kill was incremented, lower team_wounds
+	// by amount inflicted in last attack (i.e., no double penalty).
+	if (attacker->client->resp.team_wounds > attacker->client->team_wounds_before) {
+		attacker->client->resp.team_wounds = attacker->client->team_wounds_before;
+	}
+	// If count is less than 1/2 MAX_TEAMKILLS, print off simple warning. If
+	// count is greater than 1/2 MAX_TEAMKILLS but less than MAX_TEAMKILLS,
+	// print off a ban warning. If count equal or greater than MAX_TEAMKILLS,
+	// ban and kick the client.
+	if (((int) maxteamkills->value < 1) ||
+		(attacker->client->resp.team_kills < (((int)maxteamkills->value % 2) + (int)maxteamkills->value / 2))) {
+		gi.LocClient_Print(attacker, PRINT_HIGH, "You killed your TEAMMATE!\n");
+		return;
+	} else if (attacker->client->resp.team_kills < (int) maxteamkills->value) {
+		// Show this on the console
+		gi.LocClient_Print(NULL, PRINT_MEDIUM,
+			   "%s is in danger of being banned for killing teammates\n", attacker->client->pers.netname);
+		// Issue a warning to the player
+		gi.LocClient_Print(attacker, PRINT_HIGH, "WARNING: You'll be banned if you continue killing teammates!\n");
+		return;
+	} else {
+		// They've killed too many teammates this game - kick 'em for a while
+		if (attacker->client->pers.ip[0]) {
+			if (Ban_TeamKiller(attacker, (int) tkbanrounds->value)) {
+				gi.LocClient_Print(NULL, PRINT_MEDIUM,
+					   "Banning %s@%s for team killing\n",
+					   attacker->client->pers.netname, attacker->client->pers.ip);
+				gi.LocClient_Print(attacker, PRINT_HIGH,
+					   "You've killed too many teammates, and are banned for %d %s.\n",
+					   (int) tkbanrounds->value,
+					   (((int) tkbanrounds->value > 1) ? "games" : "game"));
+			} else {
+				gi.LocClient_Print(NULL, PRINT_MEDIUM,
+					   "Error banning %s: unable to get ip address\n", attacker->client->pers.netname);
+			}
+		}
+		Kick_Client(attacker);
+	}
+}
+
+
+// PrintDeathMessage: moved the actual printing of the death messages to here, to handle
+//  the fact that live players shouldn't receive them in teamplay.  -FB
+void PrintDeathMessage(char *msg, edict_t * gibee)
+{
+	int j;
+	edict_t *other;
+
+	if (!teamplay->value || in_warmup) {
+		gi.LocBroadcast_Print(PRINT_MEDIUM, "%s", msg);
+		return;
+	}
+
+	if (dedicated->value)
+		gi.LocClient_Print(NULL, PRINT_MEDIUM, "%s", msg);
+
+	// First, let's print the message for gibee and its attacker. -TempFile
+	gi.LocClient_Print(gibee, PRINT_MEDIUM, "%s", msg);
+	if (gibee->client->attacker && gibee->client->attacker != gibee)
+		gi.LocClient_Print(gibee->client->attacker, PRINT_MEDIUM, "%s", msg);
+
+	if(!team_round_going)
+		return;
+
+	for (j = 1; j <= game.maxclients; j++) {
+		other = &g_edicts[j];
+		if (!other->inuse || !other->client)
+			continue;
+
+		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
+		if (other != gibee && other != gibee->client->attacker && other->solid == SOLID_NOT)
+			gi.LocClient_Print(other, PRINT_MEDIUM, "%s", msg);
+	}
+}
+
+
+// Action Add end
+
 void SP_misc_teleporter_dest(edict_t *ent);
 
 THINK(info_player_start_drop) (edict_t *self) -> void
@@ -98,92 +431,711 @@ bool P_UseCoopInstancedItems()
 
 void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t mod)
 {
+	int loc;
+	char *message;
+	char *message2;
+	char death_msg[1024];	// enough in all situations? -FB
+	bool friendlyFire;
+	char *special_message = NULL;
+	int n;
+
 	const char *base = nullptr;
 
 	if (coop->integer && attacker->client)
 		mod.friendly_fire = true;
 
-	switch (mod.id)
-	{
-	case MOD_SUICIDE:
-		base = "$g_mod_generic_suicide";
-		break;
-	case MOD_FALLING:
-		base = "$g_mod_generic_falling";
-		break;
-	case MOD_CRUSH:
-		base = "$g_mod_generic_crush";
-		break;
-	case MOD_WATER:
-		base = "$g_mod_generic_water";
-		break;
-	case MOD_SLIME:
-		base = "$g_mod_generic_slime";
-		break;
-	case MOD_LAVA:
-		base = "$g_mod_generic_lava";
-		break;
-	case MOD_EXPLOSIVE:
-	case MOD_BARREL:
-		base = "$g_mod_generic_explosive";
-		break;
-	case MOD_EXIT:
-		base = "$g_mod_generic_exit";
-		break;
-	case MOD_TARGET_LASER:
-		base = "$g_mod_generic_laser";
-		break;
-	case MOD_TARGET_BLASTER:
-		base = "$g_mod_generic_blaster";
-		break;
-	case MOD_BOMB:
-	case MOD_SPLASH:
-	case MOD_TRIGGER_HURT:
-		base = "$g_mod_generic_hurt";
-		break;
-	// RAFAEL
-	case MOD_GEKK:
-	case MOD_BRAINTENTACLE:
-		base = "$g_mod_generic_gekk";
-		break;
-	// RAFAEL
-	default:
-		base = nullptr;
-		break;
+	self->client->resp.ctf_capstreak = 0;
+
+	friendlyFire = meansOfDeath & MOD_FRIENDLY_FIRE;
+	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
+	loc = locOfDeath;	// useful for location based hits
+	message = NULL;
+	message2 = "";
+
+	// Reki: Print killfeed to spectators who ask for easily parsable stuff
+	edict_t *other;
+	int j;
+	for (j = 1; j <= game.maxclients; j++) {
+		other = &g_edicts[j];
+		if (!other->inuse || !other->client || !teamplay->value)
+			continue;
+
+		if (other->client->resp.team) // we only want team 0 (spectators)
+			continue;
+
+		if (!(other->client->pers.spec_flags & SPECFL_KILLFEED)) // only print to spectators who want it
+			continue;
+
+		if (attacker == world || !attacker->client)
+			sprintf(death_msg, "--KF %i %s, MOD %i\n",
+				self->client->resp.team, self->client->pers.netname, mod);
+		else
+			sprintf(death_msg, "--KF %i %s, MOD %i, %i %s\n",
+				attacker->client->resp.team, attacker->client->pers.netname, mod, self->client->resp.team, self->client->pers.netname);
+		gi.LocClient_Print(other, PRINT_MEDIUM, "%s", death_msg);
 	}
+	//
 
 	if (attacker == self)
 	{
-		switch (mod.id)
-		{
+		switch (mod.id) {
 		case MOD_HELD_GRENADE:
-			base = "$g_mod_self_held_grenade";
+			message = "tried to put the pin back in";
 			break;
 		case MOD_HG_SPLASH:
+			if (self->client->pers.gender == GENDER_MALE)
+				message = "didn't throw his grenade far enough";
+			else if (self->client->pers.gender == GENDER_FEMALE)
+				message = "didn't throw her grenade far enough";
+			else
+				message = "didn't throw its grenade far enough";
+			break;
 		case MOD_G_SPLASH:
-			base = "$g_mod_self_grenade_splash";
+			if (self->client->pers.gender == GENDER_MALE)
+				message = "tripped on his own grenade";
+			else if (self->client->pers.gender == GENDER_FEMALE)
+				message = "tripped on her own grenade";
+			else
+				message = "tripped on its own grenade";
 			break;
-		case MOD_R_SPLASH:
-			base = "$g_mod_self_rocket_splash";
-			break;
-		case MOD_BFG_BLAST:
-			base = "$g_mod_self_bfg_blast";
-			break;
-		// RAFAEL 03-MAY-98
-		case MOD_TRAP:
-			base = "$g_mod_self_trap";
-			break;
-			// RAFAEL
-			// ROGUE
-		case MOD_DOPPLE_EXPLODE:
-			base = "$g_mod_self_dopple_explode";
-			break;
-			// ROGUE
 		default:
-			base = "$g_mod_self_default";
+			if (self->client->pers.gender == GENDER_MALE)
+				message = "killed himself";
+			else if (self->client->pers.gender == GENDER_FEMALE)
+				message = "killed herself";
+			else
+				message = "killed itself";
 			break;
 		}
 	}
+
+	if (!message) {
+		switch (mod) {
+		case MOD_BREAKINGGLASS:
+			if( self->client->push_timeout > 40 )
+				special_message = "was thrown through a window by";
+			message = "ate too much glass";
+			break;
+		case MOD_SUICIDE:
+			message = "is done with the world";
+			break;
+		case MOD_FALLING:
+			if( self->client->push_timeout )
+				special_message = "was taught how to fly by";
+			//message = "hit the ground hard, real hard";
+			if (self->client->pers.gender == GENDER_MALE)
+				message = "plummets to his death";
+			else if (self->client->pers.gender == GENDER_FEMALE)
+				message = "plummets to her death";
+			else
+				message = "plummets to its death";
+			break;
+		case MOD_CRUSH:
+			message = "was flattened";
+			break;
+		case MOD_WATER:
+			message = "sank like a rock";
+			break;
+		case MOD_SLIME:
+			if( self->client->push_timeout )
+				special_message = "melted thanks to";
+			message = "melted";
+			break;
+		case MOD_LAVA:
+			if( self->client->push_timeout )
+				special_message = "was drop-kicked into the lava by";
+			message = "does a back flip into the lava";
+			break;
+		case MOD_EXPLOSIVE:
+		case MOD_BARREL:
+			message = "blew up";
+			break;
+		case MOD_EXIT:
+			message = "found a way out";
+			break;
+		case MOD_TARGET_LASER:
+			message = "saw the light";
+			break;
+		case MOD_TARGET_BLASTER:
+			message = "got blasted";
+			break;
+		case MOD_BOMB:
+		case MOD_SPLASH:
+		case MOD_TRIGGER_HURT:
+			if( self->client->push_timeout )
+				special_message = "was shoved off the edge by";
+			message = "was in the wrong place";
+			break;
+		}
+	}
+
+	if (message)
+	{
+		// handle falling with an attacker set
+		if (special_message && self->client->attacker && self->client->attacker->client
+		&& (self->client->attacker->client != self->client))
+		{
+			sprintf(death_msg, "%s %s %s\n",
+				self->client->pers.netname, special_message, self->client->attacker->client->pers.netname);
+			PrintDeathMessage(death_msg, self);
+			IRC_printf(IRC_T_KILL, death_msg);
+			AddKilledPlayer(self->client->attacker, self);
+
+			#if USE_AQTION
+			if (stat_logs->value) { // Only create stats logs if stat_logs is 1
+				LogKill(self, inflictor, self->client->attacker);
+			}
+			#endif
+
+			self->client->attacker->client->radio_num_kills++;
+
+			//MODIFIED FOR FF -FB
+			if (OnSameTeam(self, self->client->attacker))
+			{
+				if (!DMFLAGS(DF_NO_FRIENDLY_FIRE) && (!teamplay->value || team_round_going || !ff_afterround->value)) {
+					self->enemy = self->client->attacker;
+					Add_TeamKill(self->client->attacker);
+					Subtract_Frag(self->client->attacker);	//attacker->client->resp.score--;
+					Add_Death( self, false );
+				}
+			}
+			else
+			{
+				Add_Frag(self->client->attacker, MOD_UNKNOWN);
+				Add_Death( self, true );
+			}
+
+		}
+		else
+		{
+			sprintf( death_msg, "%s %s\n", self->client->pers.netname, message );
+			PrintDeathMessage(death_msg, self );
+			IRC_printf( IRC_T_DEATH, death_msg );
+
+			if (!teamplay->value || team_round_going || !ff_afterround->value)  {
+				Subtract_Frag( self );
+				Add_Death( self, true );
+			}
+
+			self->enemy = NULL;
+      
+			#if USE_AQTION
+			if (stat_logs->value) { // Only create stats logs if stat_logs is 1
+				LogWorldKill(self);
+			}
+			#endif
+		}
+		return;
+	}
+#if 0
+		// handle bleeding, not used because bleeding doesn't get set
+		if (mod == MOD_BLEEDING) {
+			sprintf(death_msg, "%s bleeds to death\n", self->client->pers.netname);
+			PrintDeathMessage(death_msg, self);
+			return;
+		}
+#endif
+
+	self->enemy = attacker;
+	if (attacker && attacker->client)
+	{
+		switch (mod) {
+		case MOD_MK23:	// zucc
+			switch (loc) {
+			case LOC_HDAM:
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " has a hole in his head from";
+				else if (self->client->pers.gender == GENDER_FEMALE)
+					message = " has a hole in her head from";
+				else
+					message = " has a hole in its head from";
+				message2 = "'s Mark 23 pistol";
+				break;
+			case LOC_CDAM:
+				message = " loses a vital chest organ thanks to";
+				message2 = "'s Mark 23 pistol";
+				break;
+			case LOC_SDAM:
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " loses his lunch to";
+				else if (self->client->pers.gender == GENDER_FEMALE)
+					message = " loses her lunch to";
+				else
+					message = " loses its lunch to";
+				message2 = "'s .45 caliber pistol round";
+				break;
+			case LOC_LDAM:
+				message = " is legless because of";
+				message2 = "'s .45 caliber pistol round";
+				break;
+			default:
+				message = " was shot by";
+				message2 = "'s Mark 23 Pistol";
+			}
+			break;
+		case MOD_MP5:
+			switch (loc) {
+			case LOC_HDAM:
+				message = "'s brains are on the wall thanks to";
+				message2 = "'s 10mm MP5/10 round";
+				break;
+			case LOC_CDAM:
+				message = " feels some chest pain via";
+				message2 = "'s MP5/10 Submachinegun";
+				break;
+			case LOC_SDAM:
+				message = " needs some Pepto Bismol after";
+				message2 = "'s 10mm MP5 round";
+				break;
+			case LOC_LDAM:
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " had his legs blown off thanks to";
+				else if (self->client->pers.gender == GENDER_FEMALE)
+					message = " had her legs blown off thanks to";
+				else
+					message = " had its legs blown off thanks to";
+				message2 = "'s MP5/10 Submachinegun";
+				break;
+			default:
+				message = " was shot by";
+				message2 = "'s MP5/10 Submachinegun";
+			}
+			break;
+		case MOD_M4:
+			switch (loc) {
+			case LOC_HDAM:
+				message = " had a makeover by";
+				message2 = "'s M4 Assault Rifle";
+				break;
+			case LOC_CDAM:
+				message = " feels some heart burn thanks to";
+				message2 = "'s M4 Assault Rifle";
+				break;
+			case LOC_SDAM:
+				message = " has an upset stomach thanks to";
+				message2 = "'s M4 Assault Rifle";
+				break;
+			case LOC_LDAM:
+				message = " is now shorter thanks to";
+				message2 = "'s M4 Assault Rifle";
+				break;
+			default:
+				message = " was shot by";
+				message2 = "'s M4 Assault Rifle";
+			}
+			break;
+		case MOD_M3:
+			n = rand() % 2 + 1;
+			if (n == 1) {
+				message = " accepts";
+				message2 = "'s M3 Super 90 Assault Shotgun in hole-y matrimony";
+			} else {
+				message = " is full of buckshot from";
+				message2 = "'s M3 Super 90 Assault Shotgun";
+			}
+			break;
+		case MOD_HC:
+			n = rand() % 3 + 1;
+			if (n == 1) {
+				if (attacker->client->pers.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
+				{
+					message = " underestimated";
+					message2 = "'s single barreled handcannon shot";
+				} else {
+					message = " ate";
+					message2 = "'s sawed-off 12 gauge";
+				}
+			} else if (n == 2 ){
+				if (attacker->client->pers.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
+				{
+					message = " won't be able to pass a metal detector anymore thanks to";
+					message2 = "'s single barreled handcannon shot";
+				} else {
+					message = " is full of buckshot from";
+					message2 = "'s sawed off shotgun";
+				} 
+			} else {
+				// minch <3
+				message = " was minched by";
+			}
+			break;
+		case MOD_SNIPER:
+			switch (loc) {
+			case LOC_HDAM:
+				if (self->client->ps.fov < 90) {
+					if (self->client->pers.gender == GENDER_MALE)
+						message = " saw the sniper bullet go through his scope thanks to";
+					else if (self->client->pers.gender == GENDER_FEMALE)
+						message = " saw the sniper bullet go through her scope thanks to";
+					else
+						message = " saw the sniper bullet go through its scope thanks to";
+				} else
+					message = " caught a sniper bullet between the eyes from";
+				break;
+			case LOC_CDAM:
+				message = " was picked off by";
+				break;
+			case LOC_SDAM:
+				message = " was sniped in the stomach by";
+				break;
+			case LOC_LDAM:
+				message = " was shot in the legs by";
+				break;
+			default:
+				message = " was sniped by";
+				//message2 = "'s Sniper Rifle";
+			}
+			break;
+		case MOD_DUAL:
+			switch (loc) {
+			case LOC_HDAM:
+				message = " was trepanned by";
+				message2 = "'s akimbo Mark 23 pistols";
+				break;
+			case LOC_CDAM:
+				message = " was John Woo'd by";
+				//message2 = "'s .45 caliber pistol round";
+				break;
+			case LOC_SDAM:
+				message = " needs some new kidneys thanks to";
+				message2 = "'s akimbo Mark 23 pistols";
+				break;
+			case LOC_LDAM:
+				message = " was shot in the legs by";
+				message2 = "'s akimbo Mark 23 pistols";
+				break;
+			default:
+				message = " was shot by";
+				message2 = "'s pair of Mark 23 Pistols";
+			}
+			break;
+		case MOD_KNIFE:
+			switch (loc) {
+			case LOC_HDAM:
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " had his throat slit by";
+				else if (self->client->pers.gender == GENDER_FEMALE)
+					message = " had her throat slit by";
+				else
+					message = " had its throat slit by";
+				break;
+			case LOC_CDAM:
+				message = " had open heart surgery, compliments of";
+				break;
+			case LOC_SDAM:
+				message = " was gutted by";
+				break;
+			case LOC_LDAM:
+				message = " was stabbed repeatedly in the legs by";
+				break;
+			default:
+				message = " was slashed apart by";
+				message2 = "'s Combat Knife";
+			}
+			break;
+		case MOD_KNIFE_THROWN:
+			switch (loc) {
+				case LOC_HDAM:
+				message = " caught";
+				if (self->client->pers.gender == GENDER_MALE)
+					message2 = "'s flying knife with his forehead";
+				else if (self->client->pers.gender == GENDER_FEMALE)
+					message2 = "'s flying knife with her forehead";
+				else
+					message2 = "'s flying knife with its forehead";
+				break;
+			case LOC_CDAM:
+				message = "'s ribs don't help against";
+				message2 = "'s flying knife";
+				break;
+			case LOC_SDAM:
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " sees the contents of his own stomach thanks to";
+				else if (self->client->pers.gender == GENDER_FEMALE)
+					message = " sees the contents of her own stomach thanks to";
+				else
+					message = " sees the contents of its own stomach thanks to";
+				message2 = "'s flying knife";
+				break;
+			case LOC_LDAM:
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " had his legs cut off thanks to";
+				else if (self->client->pers.gender == GENDER_FEMALE)
+					message = " had her legs cut off thanks to";
+				else
+					message = " had its legs cut off thanks to";
+				message2 = "'s flying knife";
+				break;
+			default:
+				message = " was hit by";
+				message2 = "'s flying Combat Knife";
+			}
+			break;
+		case MOD_KICK:
+			n = rand() % 3 + 1;
+			if (n == 1) {
+				if (self->client->pers.gender == GENDER_MALE)
+					message = " got his ass kicked by";
+				else if (self->client->pers.gender == GENDER_FEMALE)
+					message = " got her ass kicked by";
+				else
+					message = " got its ass kicked by";
+			} else if (n == 2) {
+				if (self->client->pers.gender == GENDER_MALE) {
+					message = " couldn't remove";
+					message2 = "'s boot from his ass";
+				} else if (self->client->pers.gender == GENDER_FEMALE) {
+					message = " couldn't remove";
+					message2 = "'s boot from her ass";
+				} else {
+					message = " couldn't remove";
+					message2 = "'s boot from its ass";
+				}
+			} else {
+				if (self->client->pers.gender == GENDER_MALE) {
+					message = " had a Bruce Lee put on him by";
+					message2 = ", with a quickness";
+				} else if (self->client->pers.gender == GENDER_FEMALE) {
+					message = " had a Bruce Lee put on her by";
+					message2 = ", with a quickness";
+				} else {
+					message = " had a Bruce Lee put on it by";
+					message2 = ", with a quickness";
+				}
+			}
+			break;
+		case MOD_PUNCH:
+			n = rand() % 3 + 1;
+			if (n == 1) {
+				message = " got a free facelift by";
+			} else if (n == 2) {
+				message = " was knocked out by";
+			} else {
+				message = " caught";
+				message2 = "'s iron fist";
+			}
+			break;
+		case MOD_BLASTER:
+			message = "was blasted by";
+			break;
+		case MOD_GRENADE:
+			message = "was popped by";
+			message2 = "'s grenade";
+			break;
+		case MOD_G_SPLASH:
+			message = "was shredded by";
+			message2 = "'s shrapnel";
+			break;
+		case MOD_HYPERBLASTER:
+			message = "was melted by";
+			message2 = "'s hyperblaster";
+			break;
+		case MOD_HANDGRENADE:
+			message = " caught";
+			message2 = "'s handgrenade";
+			break;
+		case MOD_HG_SPLASH:
+			message = " didn't see";
+			message2 = "'s handgrenade";
+			break;
+		case MOD_HELD_GRENADE:
+			message = " feels";
+			message2 = "'s pain";
+			break;
+		case MOD_TELEFRAG:
+			message = " tried to invade";
+			message2 = "'s personal space";
+			break;
+		case MOD_GRAPPLE:
+			message = " was caught by";
+			message2 = "'s grapple";
+			break;
+		}	//end of case (mod)
+
+		if (message)
+		{
+			sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname,
+			message, attacker->client->pers.netname, message2);
+			PrintDeathMessage(death_msg, self);
+			IRC_printf(IRC_T_KILL, death_msg);
+			AddKilledPlayer(attacker, self);
+
+			#if USE_AQTION
+			if (stat_logs->value) {
+				LogKill(self, inflictor, attacker);
+			}
+			#endif
+
+			if (friendlyFire) {
+				if (!teamplay->value || team_round_going || !ff_afterround->value)
+				{
+					self->enemy = attacker; //tkok
+					Add_TeamKill(attacker);
+					Subtract_Frag(attacker);	//attacker->client->resp.score--;
+					Add_Death( self, false );
+				}
+			} else {
+				if (!teamplay->value || mod != MOD_TELEFRAG) {
+					Add_Frag(attacker, mod);
+					attacker->client->radio_num_kills++;
+					Add_Death( self, true );
+				}
+			}
+
+			return;
+		}	// if(message)
+	}
+
+	sprintf(death_msg, "%s died\n", self->client->pers.netname);
+	PrintDeathMessage(death_msg, self);
+	IRC_printf(IRC_T_DEATH, death_msg);
+
+	#if USE_AQTION
+	if (stat_logs->value) { // Only create stats logs if stat_logs is 1
+		LogWorldKill(self);
+	}
+	#endif
+
+	Subtract_Frag(self);	//self->client->resp.score--;
+	Add_Death( self, true );
+}
+
+// zucc used to toss an item on death
+void EjectItem(edict_t * ent, gitem_t * item)
+{
+	edict_t *drop;
+	float spread;
+
+	if (item) {
+		spread = 300.0 * crandom();
+		ent->client->v_angle[YAW] -= spread;
+		drop = Drop_Item(ent, item);
+		ent->client->v_angle[YAW] += spread;
+		drop->spawnflags = DROPPED_PLAYER_ITEM;
+	}
+
+}
+
+// unique weapons need to be specially treated so they respawn properly
+void EjectWeapon(edict_t * ent, gitem_t * item)
+{
+	edict_t *drop;
+	float spread;
+
+	if (item) {
+		spread = 300.0 * crandom();
+		ent->client->v_angle[YAW] -= spread;
+		drop = Drop_Item(ent, item);
+		ent->client->v_angle[YAW] += spread;
+		drop->spawnflags = DROPPED_PLAYER_ITEM;
+		if (!in_warmup)
+			drop->think = temp_think_specweap;
+	}
+
+}
+
+void EjectMedKit( edict_t *ent, int medkit )
+{
+	gitem_t *item = FindItem("Health");
+	float spread = 300.0 * crandom();
+	edict_t *drop = NULL;
+
+	if( ! item )
+		return;
+
+	item->world_model = "models/items/healing/medium/tris.md2";
+	ent->client->v_angle[YAW] -= spread;
+	drop = Drop_Item( ent, item );
+	ent->client->v_angle[YAW] += spread;
+	drop->model = item->world_model;
+	drop->classname = "medkit";
+	drop->count = medkit;
+
+	if( ! medkit_instant->value )
+		drop->style = 4; // HEALTH_MEDKIT (g_items.c)
+}
+
+//zucc toss items on death
+void TossItemsOnDeath(edict_t * ent)
+{
+	gitem_t *item;
+	qboolean quad = false;
+	int i;
+
+	// don't bother dropping stuff when allweapons/items is active
+	if (allitem->value) {
+		// remove the lasersight because then the observer might have it
+		item = GET_ITEM(LASER_NUM);
+		ent->client->inventory[ITEM_INDEX(item)] = 0;
+	} else {
+		DeadDropSpec(ent);
+	}
+
+	if( medkit_drop->value > 0 )
+		EjectMedKit( ent, medkit_drop->value );
+
+	if (allweapon->value)// don't drop weapons if allweapons is on
+		return;
+
+	if (WPF_ALLOWED(MK23_NUM) && WPF_ALLOWED(DUAL_NUM)) {
+		// give the player a dual pistol so they can be sure to drop one
+		item = GET_ITEM(DUAL_NUM);
+		ent->client->inventory[ITEM_INDEX(item)]++;
+		EjectItem(ent, item);
+	}
+
+	// check for every item we want to drop when a player dies
+	for (i = MP5_NUM; i < DUAL_NUM; i++) {
+		item = GET_ITEM( i );
+		while (ent->client->inventory[ITEM_INDEX( item )] > 0) {
+			ent->client->inventory[ITEM_INDEX( item )]--;
+			EjectWeapon( ent, item );
+		}
+	}
+
+	item = GET_ITEM(KNIFE_NUM);
+	if (ent->client->inventory[ITEM_INDEX(item)] > 0) {
+		EjectItem(ent, item);
+	}
+// special items
+
+	if (!DMFLAGS(DF_QUAD_DROP))
+		quad = false;
+	else
+		quad = (ent->client->quad_framenum > (level.framenum + HZ));
+}
+
+void TossClientWeapon(edict_t * self)
+{
+	gitem_t *item;
+	edict_t *drop;
+	qboolean quad;
+	float spread;
+
+	item = self->client->weapon;
+	if (!self->client->inventory[self->client->ammo_index])
+		item = NULL;
+	if (item && (strcmp(item->pickup_name, "Blaster") == 0))
+		item = NULL;
+
+	if (!DMFLAGS(DF_QUAD_DROP))
+		quad = false;
+	else
+		quad = (self->client->quad_framenum > (level.framenum + HZ));
+
+	if (item && quad)
+		spread = 22.5;
+	else
+		spread = 0.0;
+
+	if (item) {
+		self->client->v_angle[YAW] -= spread;
+		drop = Drop_Item(self, item);
+		self->client->v_angle[YAW] += spread;
+		drop->spawnflags = DROPPED_PLAYER_ITEM;
+	}
+}
+	
 
 	// send generic/self
 	if (base)
@@ -209,16 +1161,16 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		case MOD_BLASTER:
 			base = "$g_mod_kill_blaster";
 			break;
-		case MOD_SHOTGUN:
+		case MOD_M3:
 			base = "$g_mod_kill_shotgun";
 			break;
-		case MOD_SSHOTGUN:
+		case MOD_HC:
 			base = "$g_mod_kill_sshotgun";
 			break;
-		case MOD_MACHINEGUN:
+		case MOD_MP5:
 			base = "$g_mod_kill_machinegun";
 			break;
-		case MOD_CHAINGUN:
+		case MOD_M4:
 			base = "$g_mod_kill_chaingun";
 			break;
 		case MOD_GRENADE:
@@ -227,26 +1179,23 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		case MOD_G_SPLASH:
 			base = "$g_mod_kill_grenade_splash";
 			break;
-		case MOD_ROCKET:
+		case MOD_SNIPER:
 			base = "$g_mod_kill_rocket";
 			break;
-		case MOD_R_SPLASH:
+		case MOD_KNIFE:
 			base = "$g_mod_kill_rocket_splash";
 			break;
 		case MOD_HYPERBLASTER:
 			base = "$g_mod_kill_hyperblaster";
 			break;
-		case MOD_RAILGUN:
+		case MOD_KNIFE_THROWN:
 			base = "$g_mod_kill_railgun";
 			break;
-		case MOD_BFG_LASER:
+		case MOD_MK23:
 			base = "$g_mod_kill_bfg_laser";
 			break;
-		case MOD_BFG_BLAST:
+		case MOD_DUAL:
 			base = "$g_mod_kill_bfg_blast";
-			break;
-		case MOD_BFG_EFFECT:
-			base = "$g_mod_kill_bfg_effect";
 			break;
 		case MOD_HANDGRENADE:
 			base = "$g_mod_kill_handgrenade";
@@ -261,64 +1210,6 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		case MOD_TELEFRAG_SPAWN:
 			base = "$g_mod_kill_telefrag";
 			break;
-		// RAFAEL 14-APR-98
-		case MOD_RIPPER:
-			base = "$g_mod_kill_ripper";
-			break;
-		case MOD_PHALANX:
-			base = "$g_mod_kill_phalanx";
-			break;
-		case MOD_TRAP:
-			base = "$g_mod_kill_trap";
-			break;
-			// RAFAEL
-			//===============
-			// ROGUE
-		case MOD_CHAINFIST:
-			base = "$g_mod_kill_chainfist";
-			break;
-		case MOD_DISINTEGRATOR:
-			base = "$g_mod_kill_disintegrator";
-			break;
-		case MOD_ETF_RIFLE:
-			base = "$g_mod_kill_etf_rifle";
-			break;
-		case MOD_HEATBEAM:
-			base = "$g_mod_kill_heatbeam";
-			break;
-		case MOD_TESLA:
-			base = "$g_mod_kill_tesla";
-			break;
-		case MOD_PROX:
-			base = "$g_mod_kill_prox";
-			break;
-		case MOD_NUKE:
-			base = "$g_mod_kill_nuke";
-			break;
-		case MOD_VENGEANCE_SPHERE:
-			base = "$g_mod_kill_vengeance_sphere";
-			break;
-		case MOD_DEFENDER_SPHERE:
-			base = "$g_mod_kill_defender_sphere";
-			break;
-		case MOD_HUNTER_SPHERE:
-			base = "$g_mod_kill_hunter_sphere";
-			break;
-		case MOD_TRACKER:
-			base = "$g_mod_kill_tracker";
-			break;
-		case MOD_DOPPLE_EXPLODE:
-			base = "$g_mod_kill_dopple_explode";
-			break;
-		case MOD_DOPPLE_VENGEANCE:
-			base = "$g_mod_kill_dopple_vengeance";
-			break;
-		case MOD_DOPPLE_HUNTER:
-			base = "$g_mod_kill_dopple_hunter";
-			break;
-			// ROGUE
-			//===============
-			// ZOID
 		case MOD_GRAPPLE:
 			base = "$g_mod_kill_grapple";
 			break;
@@ -462,34 +1353,34 @@ void TossClientWeapon(edict_t *self)
 		drop->svflags &= ~SVF_INSTANCED;
 	}
 
-	if (quad)
-	{
-		self->client->v_angle[YAW] += spread;
-		drop = Drop_Item(self, GetItemByIndex(IT_ITEM_QUAD));
-		self->client->v_angle[YAW] -= spread;
-		drop->spawnflags |= SPAWNFLAG_ITEM_DROPPED_PLAYER;
-		drop->spawnflags &= ~SPAWNFLAG_ITEM_DROPPED;
-		drop->svflags &= ~SVF_INSTANCED;
+	// if (quad)
+	// {
+	// 	self->client->v_angle[YAW] += spread;
+	// 	drop = Drop_Item(self, GetItemByIndex(IT_ITEM_QUAD));
+	// 	self->client->v_angle[YAW] -= spread;
+	// 	drop->spawnflags |= SPAWNFLAG_ITEM_DROPPED_PLAYER;
+	// 	drop->spawnflags &= ~SPAWNFLAG_ITEM_DROPPED;
+	// 	drop->svflags &= ~SVF_INSTANCED;
 
-		drop->touch = Touch_Item;
-		drop->nextthink = self->client->quad_time;
-		drop->think = G_FreeEdict;
-	}
+	// 	drop->touch = Touch_Item;
+	// 	drop->nextthink = self->client->quad_time;
+	// 	drop->think = G_FreeEdict;
+	// }
 
 	// RAFAEL
-	if (quadfire)
-	{
-		self->client->v_angle[YAW] += spread;
-		drop = Drop_Item(self, GetItemByIndex(IT_ITEM_QUADFIRE));
-		self->client->v_angle[YAW] -= spread;
-		drop->spawnflags |= SPAWNFLAG_ITEM_DROPPED_PLAYER;
-		drop->spawnflags &= ~SPAWNFLAG_ITEM_DROPPED;
-		drop->svflags &= ~SVF_INSTANCED;
+	// if (quadfire)
+	// {
+	// 	self->client->v_angle[YAW] += spread;
+	// 	drop = Drop_Item(self, GetItemByIndex(IT_ITEM_QUADFIRE));
+	// 	self->client->v_angle[YAW] -= spread;
+	// 	drop->spawnflags |= SPAWNFLAG_ITEM_DROPPED_PLAYER;
+	// 	drop->spawnflags &= ~SPAWNFLAG_ITEM_DROPPED;
+	// 	drop->svflags &= ~SVF_INSTANCED;
 
-		drop->touch = Touch_Item;
-		drop->nextthink = self->client->quadfire_time;
-		drop->think = G_FreeEdict;
-	}
+	// 	drop->touch = Touch_Item;
+	// 	drop->nextthink = self->client->quadfire_time;
+	// 	drop->think = G_FreeEdict;
+	// }
 	// RAFAEL
 }
 
@@ -628,22 +1519,11 @@ DIE(player_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 		sphere->die(sphere, self, self, 0, vec3_origin, mod);
 	}
 
-	// if we've been killed by the tracker, GIB!
-	if (mod.id == MOD_TRACKER)
-	{
-		self->health = -100;
-		damage = 400;
-	}
-
 	// make sure no trackers are still hurting us.
 	if (self->client->tracker_pain_time)
 	{
 		RemoveAttackingPainDaemons(self);
 	}
-
-	// if we got obliterated by the nuke, don't gib
-	if ((self->health < -80) && (mod.id == MOD_NUKE))
-		self->flags |= FL_NOGIB;
 
 	// ROGUE
 	//==============
@@ -858,24 +1738,24 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
 			client->pers.max_ammo[AMMO_TESLA] = 5;
 			// ROGUE
 
-			if (!g_instagib->integer)
-				client->pers.inventory[IT_WEAPON_BLASTER] = 1;
+			// if (!g_instagib->integer)
+			// 	client->pers.inventory[IT_WEAPON_BLASTER] = 1;
 
 			// [Kex]
 			// start items!
 			if (*g_start_items->string)
 				Player_GiveStartItems(ent, g_start_items->string);
-			else if (g_instagib->integer)
-			{
-				client->pers.inventory[IT_WEAPON_RAILGUN] = 1;
-				client->pers.inventory[IT_AMMO_SLUGS] = 99;
-			}
+			// else if (g_instagib->integer)
+			// {
+			// 	client->pers.inventory[IT_WEAPON_RAILGUN] = 1;
+			// 	client->pers.inventory[IT_AMMO_SLUGS] = 99;
+			// }
 
 			if (level.start_items && *level.start_items)
 				Player_GiveStartItems(ent, level.start_items);
 
-			if (!deathmatch->integer)
-				client->pers.inventory[IT_ITEM_COMPASS] = 1;
+			// if (!deathmatch->integer)
+			// 	client->pers.inventory[IT_ITEM_COMPASS] = 1;
 
 			// ZOID
 			bool give_grapple = (!strcmp(g_allow_grapple->string, "auto")) ?
@@ -2256,8 +3136,8 @@ void PutClientInServer(edict_t *ent)
 	{
 		// if you get on to rboss in single player or coop, ensure
 		// the player has the nuke key. (not in DM)
-		if (!deathmatch->integer)
-			client->pers.inventory[IT_KEY_NUKE] = 1;
+		// if (!deathmatch->integer)
+		// 	client->pers.inventory[IT_KEY_NUKE] = 1;
 	}
 
 	// force the current weapon up

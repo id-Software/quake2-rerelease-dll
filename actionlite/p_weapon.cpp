@@ -459,8 +459,8 @@ inline gtime_t Weapon_AnimationTime(edict_t *ent)
 	{
 		if (is_quadfire)
 			ent->client->ps.gunrate *= 2;
-		if (CTFApplyHaste(ent))
-			ent->client->ps.gunrate *= 2;
+		// if (CTFApplyHaste(ent))
+		// 	ent->client->ps.gunrate *= 2;
 	}
 
 	// network optimization...
@@ -644,23 +644,23 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 
 void Weapon_PowerupSound(edict_t *ent)
 {
-	if (!CTFApplyStrengthSound(ent))
-	{
-		if (ent->client->quad_time > level.time && ent->client->double_time > level.time)
-			gi.sound(ent, CHAN_ITEM, gi.soundindex("ctf/tech2x.wav"), 1, ATTN_NORM, 0);
-		else if (ent->client->quad_time > level.time)
-			gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage3.wav"), 1, ATTN_NORM, 0);
-		else if (ent->client->double_time > level.time)
-			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/ddamage3.wav"), 1, ATTN_NORM, 0);
-		else if (ent->client->quadfire_time > level.time
-			&& ent->client->ctf_techsndtime < level.time)
-		{
-			ent->client->ctf_techsndtime = level.time + 1_sec;
-			gi.sound(ent, CHAN_ITEM, gi.soundindex("ctf/tech3.wav"), 1, ATTN_NORM, 0);
-		}
-	}
+	// if (!CTFApplyStrengthSound(ent))
+	// {
+	// 	if (ent->client->quad_time > level.time && ent->client->double_time > level.time)
+	// 		gi.sound(ent, CHAN_ITEM, gi.soundindex("ctf/tech2x.wav"), 1, ATTN_NORM, 0);
+	// 	else if (ent->client->quad_time > level.time)
+	// 		gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage3.wav"), 1, ATTN_NORM, 0);
+	// 	else if (ent->client->double_time > level.time)
+	// 		gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/ddamage3.wav"), 1, ATTN_NORM, 0);
+	// 	else if (ent->client->quadfire_time > level.time
+	// 		&& ent->client->ctf_techsndtime < level.time)
+	// 	{
+	// 		ent->client->ctf_techsndtime = level.time + 1_sec;
+	// 		gi.sound(ent, CHAN_ITEM, gi.soundindex("ctf/tech3.wav"), 1, ATTN_NORM, 0);
+	// 	}
+	// }
 
-	CTFApplyHasteSound(ent);
+	//CTFApplyHasteSound(ent);
 }
 
 inline bool Weapon_CanAnimate(edict_t *ent)
@@ -862,6 +862,21 @@ inline void Weapon_HandleFiring(edict_t *ent, int32_t FRAME_IDLE_FIRST, std::fun
 
 	ent->client->weapon_think_time = level.time + Weapon_AnimationTime(ent);
 }
+
+// Action Add
+// #define FRAME_FIRE_FIRST                (FRAME_ACTIVATE_LAST + 1)
+// #define FRAME_IDLE_FIRST                (FRAME_FIRE_LAST + 1)
+// #define FRAME_DEACTIVATE_FIRST  (FRAME_IDLE_LAST + 1)
+
+#define FRAME_RELOAD_FIRST              (FRAME_DEACTIVATE_LAST +1)
+#define FRAME_LASTRD_FIRST   (FRAME_RELOAD_LAST +1)
+
+#define MK23MAG 12
+#define MP5MAG  30
+#define M4MAG   24
+#define DUALMAG 24
+
+// Action End
 
 void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, int FRAME_RELOAD_LAST, int FRAME_LASTRD_LAST, const int *pause_frames, const int *fire_frames, void (*fire)(edict_t *ent))
 {
@@ -1093,10 +1108,10 @@ void Throw_Generic(edict_t *ent, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int F
 			// [Paril-KEX] dualfire/time accel
 			gtime_t grenade_wait_time = 1_sec;
 
-			if (CTFApplyHaste(ent))
-				grenade_wait_time *= 0.5f;
-			if (is_quadfire)
-				grenade_wait_time *= 0.5f;
+			// if (CTFApplyHaste(ent))
+			// 	grenade_wait_time *= 0.5f;
+			// if (is_quadfire)
+			// 	grenade_wait_time *= 0.5f;
 
 			if (ent->client->ps.gunframe == FRAME_THROW_HOLD)
 			{
@@ -1473,7 +1488,7 @@ void Machinegun_Fire(edict_t *ent)
 	// Paril: kill sideways angle on hitscan
 	P_ProjectSource(ent, ent->client->v_angle, { 0, 0, -8 }, start, dir);
 	G_LagCompensate(ent, start, dir);
-	fire_bullet(ent, start, dir, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_MACHINEGUN);
+	fire_bullet(ent, start, dir, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_MP5);
 	G_UnLagCompensate();
 	Weapon_PowerupSound(ent);
 
@@ -1611,7 +1626,7 @@ void Chaingun_Fire(edict_t *ent)
 		u = crandom() * 4;
 		P_ProjectSource(ent, ent->client->v_angle, { 0, r, u + -8 }, start, dir);
 
-		fire_bullet(ent, start, dir, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_CHAINGUN);
+		fire_bullet(ent, start, dir, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_M4);
 	}
 	G_UnLagCompensate();
 
@@ -1662,9 +1677,9 @@ void weapon_shotgun_fire(edict_t *ent)
 
 	G_LagCompensate(ent, start, dir);
 	if (deathmatch->integer)
-		fire_shotgun(ent, start, dir, damage, kick, 500, 500, DEFAULT_DEATHMATCH_SHOTGUN_COUNT, MOD_SHOTGUN);
+		fire_shotgun(ent, start, dir, damage, kick, 500, 500, DEFAULT_DEATHMATCH_SHOTGUN_COUNT, MOD_M3);
 	else
-		fire_shotgun(ent, start, dir, damage, kick, 500, 500, DEFAULT_SHOTGUN_COUNT, MOD_SHOTGUN);
+		fire_shotgun(ent, start, dir, damage, kick, 500, 500, DEFAULT_SHOTGUN_COUNT, MOD_M3);
 	G_UnLagCompensate();
 
 	// send muzzle flash
@@ -1700,10 +1715,10 @@ void weapon_supershotgun_fire(edict_t *ent)
 	v[ROLL] = ent->client->v_angle[ROLL];
 	// Paril: kill sideways angle on hitscan
 	P_ProjectSource(ent, v, { 0, 0, -8 }, start, dir);
-	fire_shotgun(ent, start, dir, damage, kick, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, DEFAULT_SSHOTGUN_COUNT / 2, MOD_SSHOTGUN);
+	fire_shotgun(ent, start, dir, damage, kick, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, DEFAULT_SSHOTGUN_COUNT / 2, MOD_HC);
 	v[YAW] = ent->client->v_angle[YAW] + 5;
 	P_ProjectSource(ent, v, { 0, 0, -8 }, start, dir);
-	fire_shotgun(ent, start, dir, damage, kick, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, DEFAULT_SSHOTGUN_COUNT / 2, MOD_SSHOTGUN);
+	fire_shotgun(ent, start, dir, damage, kick, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, DEFAULT_SSHOTGUN_COUNT / 2, MOD_HC);
 	G_UnLagCompensate();
 
 	P_AddWeaponKick(ent, ent->client->v_forward * -2, { -2.f, 0.f, 0.f });
@@ -1950,7 +1965,7 @@ void ReadySpecialWeapon(edict_t* ent)
 	{
 		if (INV_AMMO(ent, weap_ids[i % 5]))
 		{
-			ent->client->newweapon = GET_ITEM(weap_ids[i % 5]);
+			ent->client->newweapon = GetItemByIndex(weap_ids[i % 5]);
 			return;
 		}
 	}
@@ -2023,7 +2038,8 @@ void PlayWeaponSound(edict_t* ent)
 //======================================================================
 // mk23 derived from tutorial by GreyBear
 
-void Pistol_Fire(edict_t* ent, player_state_t *ps)
+//void Pistol_Fire(edict_t* ent, player_state_t *ps)
+void Pistol_Fire(edict_t* ent)
 {
 	int i;
 	vec3_t start;
@@ -2034,7 +2050,6 @@ void Pistol_Fire(edict_t* ent, player_state_t *ps)
 	vec3_t offset;
 	int spread = MK23_SPREAD;
 	int height;
-
 
 	if (ent->client->pers.firing_style == ACTION_FIRING_CLASSIC)
 		height = 8;
@@ -2053,15 +2068,14 @@ void Pistol_Fire(edict_t* ent, player_state_t *ps)
 	if (ent->client->mk23_rds < 1)
 	{
 		ent->client->ps.gunframe = 13;
-		if (level.framenum >= ent->pain_debounce_framenum)
-		{
-			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
-			ent->pain_debounce_framenum = level.time + 10_ms;
-		}
+		// if (level.framenum >= ent->pain_debounce_framenum)
+		// {
+		// 	gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
+		// 	ent->pain_debounce_framenum = level.time + 10_ms;
+		// }
+		gi.sound(ent, CHAN_VOICE, snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
-
-	
 	
 	//Calculate the kick angles
 	vec3_t kick_origin {}, kick_angles {};
@@ -2078,7 +2092,7 @@ void Pistol_Fire(edict_t* ent, player_state_t *ps)
 	VectorAdd(ent->client->v_angle, kick_angles, angles);
 	AngleVectors(angles, forward, right, NULL);
 	VectorSet(offset, 0, 8, ent->viewheight - height);
-	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	P_ProjectSource(ent, ent->s.origin, offset, forward, start);
 
 	spread = AdjustSpread(ent, spread);
 
@@ -2123,7 +2137,7 @@ void Weapon_MK23(edict_t* ent)
 void MP5_Fire(edict_t* ent)
 {
 	int i;
-	vec3_t start;
+	vec3_t start, dir;
 	vec3_t forward, right;
 	vec3_t angles;
 	int damage = 55;
@@ -2169,11 +2183,12 @@ void MP5_Fire(edict_t* ent)
 	if (ent->client->mp5_rds < 1)
 	{
 		ent->client->ps.gunframe = 13;
-		if (level.framenum >= ent->pain_debounce_framenum)
-		{
-			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
-			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
-		}
+		// if (level.framenum >= ent->pain_debounce_framenum)
+		// {
+		// 	gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
+		// 	ent->pain_debounce_framenum = level.framenum + 1 * HZ;
+		// }
+		gi.sound(ent, CHAN_VOICE, snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
 
@@ -2190,29 +2205,48 @@ void MP5_Fire(edict_t* ent)
 			kick_origin[i] = crandom() * 0.25;
 			kick_angles[i] = crandom() * 0.5;
 		}
-		P_AddWeaponKick(ent, kick_origin, kick_angles);
+
+	P_ProjectSource(ent, ent->client->v_angle, { 0, 7, -8 }, start, dir);
+	P_AddWeaponKick(ent, kick_origin, kick_angles);
 
 	kick_origin[0] = crandom() * 0.35;
 	kick_angles[0] = ent->client->machinegun_shots * -1.5;
 
 	// get start / end positions
-	VectorAdd(ent->client->v_angle, kick_angles, angles);
-	AngleVectors(angles, forward, right, NULL);
-	VectorSet(offset, 0, 8, ent->viewheight - height);
-	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	// VectorAdd(ent->client->v_angle, kick_angles, angles);
+	// AngleVectors(angles, forward, right, NULL);
+	// VectorSet(offset, 0, 8, ent->viewheight - height);
+	// P_ProjectSource(ent, ent->s.origin, offset, forward, right, start);
+	G_LagCompensate(ent, start, dir);
+	fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_MP5);
+	G_UnLagCompensate();
 
-	fire_bullet(ent, start, forward, damage, kick, spread, spread, IT_WEAPON_MP5);
 	//Stats_AddShot(ent, MOD_MP5);
 
 	ent->client->mp5_rds--;
 
 	// zucc vwep
-	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-		SetAnimation( ent, FRAME_crattak1 - (int)(random() + 0.25), FRAME_crattak9, ANIM_ATTACK );
-	else
-		SetAnimation( ent, FRAME_attack1 - (int)(random() + 0.25), FRAME_attack8, ANIM_ATTACK );
+	// if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+	// 	SetAnimation( ent, FRAME_crattak1 - (int)(random() + 0.25), FRAME_crattak9, ANIM_ATTACK );
+	// else
+	// 	SetAnimation( ent, FRAME_attack1 - (int)(random() + 0.25), FRAME_attack8, ANIM_ATTACK );
 	// zucc vwep done
 
+	if (ent->client->anim_priority != ANIM_ATTACK || frandom() < 0.25f)
+	{
+		ent->client->anim_priority = ANIM_ATTACK;
+		if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+		{
+			ent->s.frame = FRAME_crattak1 - (int)(frandom() * 0.25f);
+			ent->client->anim_end = FRAME_crattak9;
+		}
+		else
+		{
+			ent->s.frame = FRAME_attack1 - (int)(frandom() * 0.25f);
+			ent->client->anim_end = FRAME_attack8;
+		}
+		ent->client->anim_time = 0_ms;
+	}
 
 	ent->client->weapon_sound = MZ_MACHINEGUN;
 	if (INV_AMMO(ent, IT_ITEM_QUIET))
@@ -2231,10 +2265,208 @@ void Weapon_MP5(edict_t* ent)
 	Weapon_Generic(ent, 10, 12, 47, 51, 69, 77, pause_frames, fire_frames, MP5_Fire);
 }
 
+// zucc fire_load_ap for rounds that pass through soft targets and keep going
+static void fire_lead_ap(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int te_impact, int hspread, int vspread, mod_id_t mod)
+{
+	trace_t tr;
+	vec3_t dir, forward, right, up, end;
+	float r, u;
+	vec3_t water_start;
+	bool water = false;
+	contents_t content_mask = MASK_SHOT | MASK_WATER;
+	vec3_t from;
+	edict_t *ignore;
+
+
+	InitTookDamage();
+	// setup
+	stopAP = 0;
+	vectoangles(aimdir);
+	AngleVectors(dir, forward, right, up);
+
+	r = crandom() * hspread;
+	u = crandom() * vspread;
+	VectorMA(start, 8192, forward, end);
+	VectorMA(end, r, right, end);
+	VectorMA(end, u, up, end);
+	VectorCopy(start, from);
+	if (gi.pointcontents(start) & MASK_WATER)
+	{
+		water = true;
+		VectorCopy (start, water_start);
+		content_mask &= ~MASK_WATER;
+	}
+
+	ignore = self;
+
+	while (ignore)
+	{
+		PRETRACE();
+		//tr = gi.trace (from, NULL, NULL, end, ignore, mask);
+		tr = gi.trace(from, self->mins, self->maxs, end, ignore, content_mask);
+		POSTTRACE();
+
+		// glass fx
+		// catch case of firing thru one or breakable glasses
+		while (tr.fraction < 1.0 && (tr.surface->flags & (SURF_TRANS33|SURF_TRANS66))
+			&& (tr.ent) && (0 == strcmp(tr.ent->classname, "func_explosive")))
+		{
+			// break glass  
+			CGF_SFX_ShootBreakableGlass(tr.ent, self, &tr, mod);
+			// continue trace from current endpos to start
+			PRETRACE();
+			tr = gi.trace(tr.endpos, self->mins, self->maxs, end, tr.ent, content_mask);
+			POSTTRACE();
+		}
+		// ---
+
+		// see if we hit water
+		if (tr.contents & MASK_WATER)
+		{
+			int color;
+
+			water = true;
+			VectorCopy(tr.endpos, water_start);
+
+			if (!VectorCompare(from, tr.endpos))
+			{
+				if (tr.contents & CONTENTS_WATER)
+				{
+					if (strcmp(tr.surface->name, "*brwater") == 0)
+						color = SPLASH_BROWN_WATER;
+					else
+						color = SPLASH_BLUE_WATER;
+				}
+				else if (tr.contents & CONTENTS_SLIME)
+					color = SPLASH_SLIME;
+				else if (tr.contents & CONTENTS_LAVA)
+					color = SPLASH_LAVA;
+				else
+					color = SPLASH_UNKNOWN;
+
+				if (color != SPLASH_UNKNOWN)
+				{
+					gi.WriteByte(svc_temp_entity);
+					gi.WriteByte(TE_SPLASH);
+					gi.WriteByte(8);
+					gi.WritePosition(tr.endpos);
+					gi.WriteDir(tr.plane.normal);
+					gi.WriteByte(color);
+					gi.multicast(tr.endpos, MULTICAST_PVS, false);
+				}
+
+				// change bullet's course when it enters water
+				VectorSubtract(end, from, dir);
+				vectoangles(dir);
+				AngleVectors(dir, forward, right, up);
+				r = crandom() * hspread * 2;
+				u = crandom() * vspread * 2;
+				VectorMA(water_start, 8192, forward, end);
+				VectorMA(end, r, right, end);
+				VectorMA(end, u, up, end);
+			}
+
+			// re-trace ignoring water this time
+			PRETRACE();
+			tr = gi.trace(water_start, self->mins, self->maxs, end, ignore, MASK_SHOT);
+			POSTTRACE();
+		}
+
+		// send gun puff / flash
+
+		ignore = NULL;
+
+		if (tr.surface && (tr.surface->flags & SURF_SKY))
+			continue;
+
+		if (tr.fraction < 1.0)
+		{
+
+			if ((tr.ent->svflags & SVF_MONSTER) || tr.ent->client)
+			{
+				ignore = tr.ent;
+				VectorCopy(tr.endpos, from);
+				//FIREBLADE
+				// Advance the "from" point a few units
+				// towards "end" here
+				if (tr.ent->client)
+				{
+					if (tr.ent->client->took_damage)
+					{
+						vec3_t out;
+						VectorSubtract(end, from, out);
+						VectorNormalize(out);
+						VectorScale(out, 8, out);
+						VectorAdd(out, from, from);
+						continue;
+					}
+					tr.ent->client->took_damage++;
+				}
+				//FIREBLADE
+			}
+
+			if (tr.ent != self && tr.ent->takedamage)
+			{
+				T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_NONE, mod);
+				if (stopAP)	// the AP round hit something that would stop it (kevlar)
+					ignore = NULL;
+			}
+			else if (tr.ent != self && !water)
+			{
+				if (strncmp(tr.surface->name, "sky", 3) != 0)
+				{
+					//AddDecal(self, &tr);
+					gi.WriteByte(svc_temp_entity);
+					gi.WriteByte(te_impact);
+					gi.WritePosition (tr.endpos);
+					gi.WriteDir(tr.plane.normal);
+					gi.multicast(tr.endpos, MULTICAST_PVS, false);
+
+					if (self->client)
+						PlayerNoise(self, tr.endpos, PNOISE_IMPACT);
+				}
+			}
+		}
+	}
+
+	// if went through water, determine where the end and make a bubble trail
+	if (water)
+	{
+		vec3_t pos;
+
+		VectorSubtract(tr.endpos, water_start, dir);
+		VectorNormalize(dir);
+		VectorMA(tr.endpos, -2, dir, pos);
+		if (gi.pointcontents(pos) & MASK_WATER) {
+			VectorCopy(pos, tr.endpos);
+		} else {
+			PRETRACE();
+			tr = gi.traceline(pos, water_start, tr.ent, MASK_WATER);
+			//tr = gi.trace(pos, NULL, NULL, water_start, tr.ent, MASK_WATER);
+			POSTTRACE();
+		}
+
+		VectorAdd(water_start, tr.endpos, pos);
+		VectorScale(pos, 0.5, pos);
+
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_BUBBLETRAIL);
+		gi.WritePosition(water_start);
+		gi.WritePosition(tr.endpos);
+		gi.multicast(pos, MULTICAST_PVS, false);
+	}
+
+}
+
+void fire_bullet_sparks (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, mod_id_t mod)
+{
+	fire_lead_ap(self, start, aimdir, damage, kick, TE_BULLET_SPARKS, hspread, vspread, mod);
+}
+
 void M4_Fire(edict_t* ent)
 {
 	int i;
-	vec3_t start;
+	vec3_t start, dir;
 	vec3_t forward, right;
 	vec3_t angles;
 	int damage = 90;
@@ -2281,11 +2513,12 @@ void M4_Fire(edict_t* ent)
 	if (ent->client->m4_rds < 1)
 	{
 		ent->client->ps.gunframe = 13;
-		if (level.framenum >= ent->pain_debounce_framenum)
-		{
-			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
-			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
-		}
+		// if (level.framenum >= ent->pain_debounce_framenum)
+		// {
+		// 	gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
+		// 	ent->pain_debounce_framenum = level.framenum + 1 * HZ;
+		// }
+		gi.sound(ent, CHAN_VOICE, snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
 
@@ -2321,26 +2554,41 @@ void M4_Fire(edict_t* ent)
 	kick_origin[0] = crandom() * 0.35;
 	kick_angles[0] = ent->client->machinegun_shots * -.7;
 
+	P_ProjectSource(ent, ent->client->v_angle, { 0, 7, -8 }, start, dir);
+	P_AddWeaponKick(ent, kick_origin, kick_angles);
 	// get start / end positions
-	VectorAdd(ent->client->v_angle, kick_angles, angles);
-	AngleVectors(angles, forward, right, NULL);
-	VectorSet(offset, 0, 8, ent->viewheight - height);
-	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	// VectorAdd(ent->client->v_angle, kick_angles, angles);
+	// AngleVectors(angles, forward, right, NULL);
+	// VectorSet(offset, 0, 8, ent->viewheight - height);
+	// P_ProjectSource(ent, ent->s.origin, offset, forward, right, start);
 
 	if (is_quad)
 		damage *= 1.5f;
 
+	G_LagCompensate(ent, start, dir);
 	fire_bullet_sparks(ent, start, forward, damage, kick, spread, spread, IT_WEAPON_M4);
+	G_UnLagCompensate();
 	//Stats_AddShot(ent, MOD_M4);
 
 	ent->client->m4_rds--;
 
 
 	// zucc vwep
-	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-		SetAnimation( ent, FRAME_crattak1 - (int)(random() + 0.25), FRAME_crattak9, ANIM_ATTACK );
-	else
-		SetAnimation( ent, FRAME_attack1 - (int)(random() + 0.25), FRAME_attack8, ANIM_ATTACK );
+	if (ent->client->anim_priority != ANIM_ATTACK || frandom() < 0.25f)
+	{
+		ent->client->anim_priority = ANIM_ATTACK;
+		if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+		{
+			ent->s.frame = FRAME_crattak1 - (int)(frandom() * 0.25f);
+			ent->client->anim_end = FRAME_crattak9;
+		}
+		else
+		{
+			ent->s.frame = FRAME_attack1 - (int)(frandom() * 0.25f);
+			ent->client->anim_end = FRAME_attack8;
+		}
+		ent->client->anim_time = 0_ms;
+	}
 	// zucc vwep done
 
 
@@ -2361,7 +2609,7 @@ void Weapon_M4(edict_t* ent)
 
 void M3_Fire(edict_t* ent)
 {
-	vec3_t start;
+	vec3_t start, dir;
 	vec3_t forward, right;
 	vec3_t offset;
 	int damage = 17;		//actionquake is 15 standard
@@ -2396,8 +2644,7 @@ void M3_Fire(edict_t* ent)
 		return;
 	}
 
-
-	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	P_ProjectSource(ent, ent->client->v_angle, { 0, 7, -8 }, start, dir);
 
 	if (is_quad)
 	{
@@ -2408,8 +2655,10 @@ void M3_Fire(edict_t* ent)
 	setFFState(ent);
 	InitTookDamage();	//FB 6/3/99
 
+	G_LagCompensate(ent, start, dir);
 	fire_shotgun(ent, start, forward, damage, kick, 800, 800,
 		12 /*DEFAULT_DEATHMATCH_SHOTGUN_COUNT */, MOD_M3);
+	G_UnLagCompensate();
 
 	//Stats_AddShot(ent, MOD_M3);
 
@@ -2437,7 +2686,7 @@ void Weapon_M3(edict_t* ent)
 // AQ2:TNG Deathwatch - Modified to use Single Barreled HC Mode
 void HC_Fire(edict_t* ent)
 {
-	vec3_t start;
+	vec3_t start, dir;
 	vec3_t forward, right;
 	vec3_t offset;
 	vec3_t v;
@@ -2460,7 +2709,9 @@ void HC_Fire(edict_t* ent)
 	kick_angles[0] = -2;
 
 	VectorSet(offset, 0, 8, ent->viewheight - height);
-	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	//P_ProjectSource(ent, ent->s.origin, offset, forward, right, start);
+
+	P_ProjectSource(ent, ent->client->v_angle, { 0, 7, -8 }, start, dir);
 
 	if (is_quad)
 	{
@@ -2486,7 +2737,9 @@ void HC_Fire(edict_t* ent)
 		AngleVectors(v, forward, NULL, NULL);
 
 		//half the spread, half the pellets?
+		G_LagCompensate(ent, start, dir);
 		fire_shotgun(ent, start, forward, sngl_damage, sngl_kick, DEFAULT_SHOTGUN_HSPREAD * 2.5, DEFAULT_SHOTGUN_VSPREAD * 2.5, 34 / 2, MOD_HC);
+		G_UnLagCompensate();
 
 		ent->client->cannon_rds--;
 	}
@@ -2496,11 +2749,15 @@ void HC_Fire(edict_t* ent)
 
 		v[YAW] = ent->client->v_angle[YAW] - 5;
 		AngleVectors(v, forward, NULL, NULL);
+		G_LagCompensate(ent, start, dir);
 		fire_shotgun(ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4, 34 / 2, MOD_HC);
+		G_UnLagCompensate();
 
 		v[YAW] = ent->client->v_angle[YAW] + 5;
 		AngleVectors(v, forward, NULL, NULL);
+		G_LagCompensate(ent, start, dir);
 		fire_shotgun(ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD * 4, DEFAULT_SHOTGUN_VSPREAD * 4 /* was *5 here */, 34 / 2, MOD_HC);
+		G_UnLagCompensate();
 
 		ent->client->cannon_rds -= 2;
 	}
@@ -2528,7 +2785,7 @@ void Weapon_HC(edict_t* ent)
 void Sniper_Fire(edict_t* ent)
 {
 	//int i;  // FIXME: Should this be used somewhere?
-	vec3_t start;
+	vec3_t start, dir;
 	vec3_t forward, right;
 	//vec3_t angles;  // FIXME: This was set below, but never used.
 	int damage = 250;
@@ -2545,8 +2802,7 @@ void Sniper_Fire(edict_t* ent)
 		AngleVectors(ent->client->v_angle, forward, right, NULL);
 		VectorSet(offset, 0, 0, ent->viewheight - 0);
 
-		P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
-
+		P_ProjectSource(ent, ent->client->v_angle, forward, start, dir);
 		return;
 	}
 
@@ -2578,11 +2834,12 @@ void Sniper_Fire(edict_t* ent)
 	if (ent->client->sniper_rds < 1)
 	{
 		ent->client->ps.gunframe = 22;
-		if (level.framenum >= ent->pain_debounce_framenum)
-		{
-			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
-			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
-		}
+		// if (level.framenum >= ent->pain_debounce_framenum)
+		// {
+			
+		// 	ent->pain_debounce_framenum = level.framenum + 1 * HZ;
+		// }
+		gi.sound(ent, CHAN_VOICE, snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
 
@@ -2614,12 +2871,12 @@ void Sniper_Fire(edict_t* ent)
 	AngleVectors(ent->client->v_angle, forward, right, NULL);  // FIXME: Should this be angles instead of v_angle?
 	VectorSet(offset, 0, 0, ent->viewheight - 0);
 
-	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
-
-
+	P_ProjectSource(ent, ent->client->v_angle, forward, start, dir);
+	G_LagCompensate(ent, start, dir);
 	//If no reload, fire normally.
 	fire_bullet_sniper(ent, start, forward, damage, kick, spread, spread, IT_WEAPON_SNIPER);
 	//Stats_AddShot(ent, MOD_SNIPER);
+	G_UnLagCompensate();
 
 	ent->client->sniper_rds--;
 	ent->client->ps.fov = 90;	// so we can watch the next round get chambered
@@ -2648,7 +2905,7 @@ void Weapon_Sniper(edict_t* ent)
 void Dual_Fire(edict_t* ent)
 {
 	int i;
-	vec3_t start;
+	vec3_t start, dir;
 	vec3_t forward, right;
 	vec3_t angles;
 	int damage = 90;
@@ -2667,11 +2924,12 @@ void Dual_Fire(edict_t* ent)
 	if (ent->client->dual_rds < 1)
 	{
 		ent->client->ps.gunframe = 68;
-		if (level.framenum >= ent->pain_debounce_framenum)
-		{
-			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
-			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
-		}
+		// if (level.framenum >= ent->pain_debounce_framenum)
+		// {
+			
+		// 	ent->pain_debounce_framenum = level.framenum + 1 * HZ;
+		// }
+		gi.sound(ent, CHAN_VOICE, snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
 
@@ -2688,11 +2946,14 @@ void Dual_Fire(edict_t* ent)
 		AngleVectors(angles, forward, right, NULL);
 
 		VectorSet(offset, 0, 8, ent->viewheight - height);
-		P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+		//P_ProjectSource(ent, ent->s.origin, offset, forward, right, start);
+		P_ProjectSource(ent, ent->client->v_angle, forward, start, dir);
+		
 		if (ent->client->dual_rds > 1)
 		{
-
-			fire_bullet(ent, start, forward, damage, kick, spread, spread, IT_WEAPON_DUALMK23);
+			G_LagCompensate(ent, start, dir);
+			fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_DUAL);
+			G_UnLagCompensate();
 			//Stats_AddShot(ent, MOD_DUAL);
 
 			if (ent->client->dual_rds > ent->client->mk23_max + 1)
@@ -2724,7 +2985,7 @@ void Dual_Fire(edict_t* ent)
 		{
 			ent->client->dual_rds = 0;
 			ent->client->mk23_rds = 0;
-			gi.sound(ent, CHAN_WEAPON, level.snd_noammo, 1, ATTN_NORM, 0);
+			gi.sound(ent, CHAN_WEAPON, snd_noammo, 1, ATTN_NORM, 0);
 			//ent->pain_debounce_time = level.time + 1;
 			ent->client->ps.gunframe = 68;
 			ent->client->weaponstate = WEAPON_END_MAG;
@@ -2751,11 +3012,12 @@ void Dual_Fire(edict_t* ent)
 	if (ent->client->dual_rds < 1)
 	{
 		ent->client->ps.gunframe = 12;
-		if (level.framenum >= ent->pain_debounce_framenum)
-		{
-			gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
-			ent->pain_debounce_framenum = level.framenum + 1 * HZ;
-		}
+		// if (level.framenum >= ent->pain_debounce_framenum)
+		// {
+		// 	gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
+		// 	ent->pain_debounce_framenum = level.framenum + 1 * HZ;
+		// }
+		gi.sound(ent, CHAN_VOICE, snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
 
@@ -2773,12 +3035,13 @@ void Dual_Fire(edict_t* ent)
 	AngleVectors(angles, forward, right, NULL);
 	// first set up for left firing
 	VectorSet(offset, 0, -20, ent->viewheight - height);
-	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
-
+	P_ProjectSource(ent, ent->client->v_angle, { 0, 7, -8 }, start, dir);
+	G_LagCompensate(ent, start, dir);
 	//If no reload, fire normally.
-	fire_bullet(ent, start, forward, damage, kick, spread, spread, IT_WEAPON_DUALMK23);
+	fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_DUAL);
 	//Stats_AddShot(ent, MOD_DUAL);
+	G_UnLagCompensate();
 
 
 	ent->client->weapon_sound = MZ_BLASTER2;  // Becomes MZ_BLASTER.
@@ -2851,11 +3114,25 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 				// zucc going to have to do this a bit different because
 				// of the way I roll gunframes backwards for the thrownknife position
 				if ((ent->client->ps.gunframe - FRAME_NEWKNIFE_FIRST) == 4)
+				// {
+				// 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+				// 		SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSED );
+				// 	else
+				// 		SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSED );
+				// }
 				{
-					if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-						SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
-					else
-						SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
+				ent->client->anim_priority = ANIM_ATTACK;
+				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+				{
+					ent->s.frame = FRAME_crpain4 + 1;
+					ent->client->anim_end = FRAME_crpain1;
+				}
+				else
+				{
+					ent->s.frame = FRAME_pain304 + 1;
+					ent->client->anim_end = FRAME_pain301;
+				}
+				ent->client->anim_time = 0_ms;
 				}
 				ent->client->ps.gunframe--;
 			}
@@ -2869,15 +3146,26 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 				return;
 			}
 			else if ((FRAME_DEACTIVATE_LAST - ent->client->ps.gunframe) == 4)
+			// {
+			// 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+			// 		SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
+			// 	else
+			// 		SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
+			// }
 			{
+				ent->client->anim_priority = ANIM_ATTACK;
 				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-					SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
+				{
+					ent->s.frame = FRAME_crpain4 + 1;
+					ent->client->anim_end = FRAME_crpain1;
+				}
 				else
-					SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
+				{
+					ent->s.frame = FRAME_pain304 + 1;
+					ent->client->anim_end = FRAME_pain301;
+				}
+				ent->client->anim_time = 0_ms;
 			}
-
-
-
 			ent->client->ps.gunframe++;
 		}
 		return;
@@ -2895,7 +3183,7 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 			|| ent->client->ps.gunframe == FRAME_STOPTHROW_LAST)
 		{
 			ent->client->weaponstate = WEAPON_READY;
-			ent->client->ps.gunframe = FRAME_IDLE_FIRST;
+			ent->client->ps.gunframe = FRAME_FIRE_LAST + 1;
 			return;
 		}
 		if (ent->client->ps.gunframe == FRAME_PREPARETHROW_LAST)
@@ -2915,8 +3203,6 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 		return;
 	}
 
-
-
 	// bandaging case
 	if ((ent->client->bandaging)
 		&& (ent->client->weaponstate != WEAPON_FIRING)
@@ -2925,7 +3211,7 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 		&& (ent->client->weaponstate != WEAPON_BANDAGING))
 	{
 		ent->client->weaponstate = WEAPON_BANDAGING;
-		ent->client->ps.gunframe = FRAME_DEACTIVATE_FIRST;
+		ent->client->ps.gunframe = FRAME_IDLE_LAST + 1;
 		return;
 	}
 
@@ -2975,10 +3261,7 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 		if (ent->client->ps.gunframe == FRAME_DEACTIVATE_LAST)
 		{
 			ent->client->weaponstate = WEAPON_BUSY;
-			if (esp->value && esp_leaderenhance->value)
-				ent->client->idle_weapon = ENHANCED_BANDAGE_TIME;
-			else
-				ent->client->idle_weapon = BANDAGE_TIME;
+			ent->client->idle_weapon = BANDAGE_TIME;
 			return;
 		}
 		ent->client->ps.gunframe++;
@@ -2995,23 +3278,51 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 			ent->client->ps.gunframe = FRAME_NEWKNIFE_LAST;
 			// zucc more vwep stuff
 			if ((FRAME_NEWKNIFE_LAST - FRAME_NEWKNIFE_FIRST) < 4)
+			// {
+			// 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+			// 		SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
+			// 	else
+			// 		SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
+			// }
 			{
+				ent->client->anim_priority = ANIM_ATTACK;
 				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-					SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
+				{
+					ent->s.frame = FRAME_crpain4 + 1;
+					ent->client->anim_end = FRAME_crpain1;
+				}
 				else
-					SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
+				{
+					ent->s.frame = FRAME_pain304 + 1;
+					ent->client->anim_end = FRAME_pain301;
+				}
+				ent->client->anim_time = 0_ms;
 			}
 		}
 		else			// not in throwing mode
 		{
-			ent->client->ps.gunframe = FRAME_DEACTIVATE_FIRST;
+			ent->client->ps.gunframe = FRAME_IDLE_LAST + 1;
 			// zucc more vwep stuff
-			if ((FRAME_DEACTIVATE_LAST - FRAME_DEACTIVATE_FIRST) < 4)
+			if ((FRAME_DEACTIVATE_LAST - FRAME_IDLE_LAST + 1) < 4)
+			// {
+			// 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+			// 		SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
+			// 	else
+			// 		SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
+			// }
 			{
+				ent->client->anim_priority = ANIM_ATTACK;
 				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-					SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
+				{
+					ent->s.frame = FRAME_crpain4 + 1;
+					ent->client->anim_end = FRAME_crpain1;
+				}
 				else
-					SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
+				{
+					ent->s.frame = FRAME_pain304 + 1;
+					ent->client->anim_end = FRAME_pain301;
+				}
+				ent->client->anim_time = 0_ms;
 			}
 		}
 		ent->client->weaponstate = WEAPON_DROPPING;
@@ -3021,8 +3332,7 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 	if (ent->client->weaponstate == WEAPON_READY)
 	{
 		if (((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK)
-			&& (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD)
-			&& !lights_camera_action && !ent->client->uvTime)
+			&& (!IS_ALIVE(ent) && !lights_camera_action && !ent->client->uvTime))
 		{
 			ent->client->latched_buttons &= ~BUTTON_ATTACK;
 
@@ -3033,20 +3343,34 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 			}
 			else
 			{
-				ent->client->ps.gunframe = FRAME_FIRE_FIRST;
+				ent->client->ps.gunframe = FRAME_ACTIVATE_LAST + 1;
 			}
 			ent->client->weaponstate = WEAPON_FIRING;
 
 			// start the animation
+			// if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+			// 	SetAnimation( ent, FRAME_crattak1 - 1, FRAME_attack8, ANIM_ATTACK );
+			// else
+			// 	SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
+
+			ent->client->anim_priority = ANIM_ATTACK;
 			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-				SetAnimation( ent, FRAME_crattak1 - 1, FRAME_attack8, ANIM_ATTACK );
+			{
+				ent->s.frame = FRAME_crattak1 - 1;
+				ent->client->anim_end = FRAME_attack8;
+			}
 			else
-				SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
+			{
+				ent->s.frame = FRAME_attack1 - 1;
+				ent->client->anim_end = FRAME_attack8;
+			}
+			ent->client->anim_time = 0_ms;
+			
 			return;
 		}
 		if (ent->client->ps.gunframe == FRAME_IDLE_LAST)
 		{
-			ent->client->ps.gunframe = FRAME_IDLE_FIRST;
+			ent->client->ps.gunframe = FRAME_FIRE_LAST + 1;
 			return;
 		}
 
@@ -3073,9 +3397,9 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 		{
 			if (ent->client->ps.gunframe == fire_frames[n])
 			{
-				if (ent->client->quad_framenum > level.framenum)
-					gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage3.wav"),
-						1, ATTN_NORM, 0);
+				// if (ent->client->quad_framenum > level.framenum)
+				// 	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage3.wav"),
+				// 		1, ATTN_NORM, 0);
 
 				if (fire(ent))
 					break;
@@ -3093,17 +3417,31 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 		ent->client->weaponstate = WEAPON_RELOADING;
 		} */
 
-		if (ent->client->ps.gunframe == FRAME_IDLE_FIRST + 1 ||
+		if (ent->client->ps.gunframe == FRAME_FIRE_LAST + 2 ||
 			ent->client->ps.gunframe == FRAME_IDLE2_FIRST + 1)
 			ent->client->weaponstate = WEAPON_READY;
 	}
 
 }
 
+// this one is based on the real old project source
+static void Knife_ProjectSource(gclient_t* client, vec3_t point, vec3_t distance,
+	vec3_t forward, vec3_t right, vec3_t result)
+{
+	vec3_t _distance;
+
+	VectorCopy(distance, _distance);
+	if (client->pers.hand == LEFT_HANDED)
+		_distance[1] *= -1;		// changed from = to *=                                         
+	else if (client->pers.hand == CENTER_HANDED)
+		_distance[1] = 0;
+	G_ProjectSource(point, _distance, forward, right);
+	
+}
 
 int Knife_Fire(edict_t* ent)
 {
-	vec3_t start, v;
+	vec3_t start, v, dir;
 	vec3_t forward, right;
 
 	vec3_t offset;
@@ -3118,8 +3456,8 @@ int Knife_Fire(edict_t* ent)
 	ent->client->kick_angles[0] = -2;
 
 	VectorSet(offset, 0, 8, ent->viewheight - 8);
-	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
-
+	//P_ProjectSource(ent, ent->s.origin, offset, forward, right, start);
+	P_ProjectSource(ent, ent->client->v_angle, { 0, 7, -8 }, start, dir);
 
 
 	v[PITCH] = ent->client->v_angle[PITCH];
@@ -3162,7 +3500,7 @@ int Knife_Fire(edict_t* ent)
 			damage *= 1.5f;
 
 		knife_return = knife_attack(ent, start, forward, damage, kick);
-		Stats_AddShot(ent, MOD_KNIFE);
+		//Stats_AddShot(ent, MOD_KNIFE);
 
 		if (knife_return < ent->client->knife_sound)
 			ent->client->knife_sound = knife_return;
@@ -3214,14 +3552,14 @@ int Knife_Fire(edict_t* ent)
 
 		Knife_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
-		INV_AMMO(ent, KNIFE_NUM)--;
-		if (INV_AMMO(ent, KNIFE_NUM) <= 0)
+		INV_AMMO(ent, IT_WEAPON_KNIFE)--;
+		if (INV_AMMO(ent, IT_WEAPON_KNIFE) <= 0)
 		{
-			ent->client->newweapon = GET_ITEM(MK23_NUM);
+			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23);
 			ChangeWeapon(ent);
 			// zucc was at 1250, dropping speed to 1200
 			knife_throw(ent, start, forward, damage, 1200);
-			Stats_AddShot(ent, MOD_KNIFE_THROWN);
+			//Stats_AddShot(ent, MOD_KNIFE_THROWN);
 			return 0;
 		}
 		else
@@ -3243,7 +3581,7 @@ int Knife_Fire(edict_t* ent)
 		//      fire_rocket (ent, start, forward, damage, 650, 200, 200);
 
 		knife_throw(ent, start, forward, damage, 1200);
-		Stats_AddShot(ent, MOD_KNIFE_THROWN);
+		//Stats_AddShot(ent, MOD_KNIFE_THROWN);
 
 		// 
 	}
@@ -3275,23 +3613,21 @@ void gas_fire(edict_t* ent)
 {
 	vec3_t offset;
 	vec3_t forward, right;
-	vec3_t start;
+	vec3_t start, dir;
 	int damage = GRENADE_DAMRAD;
 	int speed;
 	/*        int held = false;*/
 
-	// Reset Grenade Damage to 1.52 when requested:
-	if (use_classic->value)
-		damage = GRENADE_DAMRAD_CLASSIC;
-	else
-		damage = GRENADE_DAMRAD;
+	damage = GRENADE_DAMRAD;
 
 	if (is_quad)
 		damage *= 1.5f;
 
 	VectorSet(offset, 8, 8, ent->viewheight - 8);
 	AngleVectors(ent->client->v_angle, forward, right, NULL);
-	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+
+	P_ProjectSource(ent, ent->client->v_angle, { 0, 7, -8 }, start, dir);
+	//P_ProjectSource(ent, ent->s.origin, offset, forward, right, start);
 
 	if (ent->client->pers.grenade_mode == 0)
 		speed = 400;
@@ -3300,12 +3636,14 @@ void gas_fire(edict_t* ent)
 	else
 		speed = 920;
 
-	fire_grenade2(ent, start, forward, damage, speed, 2 * HZ, damage * 2, false);
+	G_LagCompensate(ent, start, dir);
+	fire_grenade2(ent, start, forward, damage, speed, 80_ms, damage * 2, false);
+	G_UnLagCompensate();
 
-	INV_AMMO(ent, GRENADE_NUM)--;
-	if (INV_AMMO(ent, GRENADE_NUM) <= 0)
+	INV_AMMO(ent, IT_WEAPON_GRENADES)--;
+	if (INV_AMMO(ent, IT_WEAPON_GRENADES) <= 0)
 	{
-		ent->client->newweapon = GET_ITEM(MK23_NUM);
+		ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23);
 		ChangeWeapon(ent);
 		return;
 	}
@@ -3341,9 +3679,7 @@ void Weapon_Gas(edict_t* ent)
 		return;			// not on client, so VWep animations could do wacky things
 
 	//FIREBLADE
-	if (ent->client->weaponstate == WEAPON_FIRING &&
-		((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) ||
-			lights_camera_action))
+	if (ent->client->weaponstate == WEAPON_FIRING && (!IS_ALIVE(ent) || lights_camera_action))
 	{
 		ent->client->weaponstate = WEAPON_READY;
 	}
@@ -3374,11 +3710,25 @@ void Weapon_Gas(edict_t* ent)
 			// zucc going to have to do this a bit different because
 			// of the way I roll gunframes backwards for the thrownknife position
 			if ((ent->client->ps.gunframe) == 3)
+			// {
+			// 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+			// 		SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
+			// 	else
+			// 		SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
+			// }
 			{
+				ent->client->anim_priority = ANIM_REVERSED;
 				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-					SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
+				{
+					ent->s.frame = FRAME_crpain4 + 1;
+					ent->client->anim_end = FRAME_crpain1;
+				}
 				else
-					SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
+				{
+					ent->s.frame = FRAME_pain304 + 1;
+					ent->client->anim_end = FRAME_pain301;
+				}
+				ent->client->anim_time = 0_ms;
 			}
 			ent->client->ps.gunframe--;
 			return;
@@ -3399,7 +3749,7 @@ void Weapon_Gas(edict_t* ent)
 		{
 			ent->client->ps.gunframe = GRENADE_IDLE_FIRST;
 			ent->client->weaponstate = WEAPON_READY;
-			gi.cprintf(ent, PRINT_HIGH, "Pin pulled, ready for %s range throw\n",
+			gi.LocClient_Print(ent, PRINT_HIGH, "Pin pulled, ready for %s range throw\n",
 				ent->client->pers.grenade_mode == 0 ? "short" :
 				(ent->client->pers.grenade_mode == 1 ? "medium" : "long"));
 			return;
@@ -3450,9 +3800,9 @@ void Weapon_Gas(edict_t* ent)
 		// for after bandaging delay
 		if (!(ent->client->idle_weapon) && ent->client->bandage_stopped)
 		{
-			if (INV_AMMO(ent, GRENADE_NUM) <= 0)
+			if (INV_AMMO(ent, IT_WEAPON_GRENADES) <= 0)
 			{
-				ent->client->newweapon = GET_ITEM(MK23_NUM);
+				ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23);
 				ent->client->bandage_stopped = 0;
 				ChangeWeapon(ent);
 				return;
@@ -3473,10 +3823,7 @@ void Weapon_Gas(edict_t* ent)
 		if (ent->client->ps.gunframe == 0)
 		{
 			ent->client->weaponstate = WEAPON_BUSY;
-			if (esp->value && esp_leaderenhance->value)
-				ent->client->idle_weapon = ENHANCED_BANDAGE_TIME;
-			else
-				ent->client->idle_weapon = BANDAGE_TIME;
+			ent->client->idle_weapon = BANDAGE_TIME;
 			return;
 		}
 		ent->client->ps.gunframe--;
@@ -3490,29 +3837,23 @@ void Weapon_Gas(edict_t* ent)
 
 		// zucc - check if they have a primed grenade
 
-		if (ent->client->curr_weap == GRENADE_NUM
+		if (ent->client->pers.weapon->id == IT_WEAPON_GRENADES
 			&& ((ent->client->ps.gunframe >= GRENADE_IDLE_FIRST
 				&& ent->client->ps.gunframe <= GRENADE_IDLE_LAST)
 				|| (ent->client->ps.gunframe >= GRENADE_THROW_FIRST
 					&& ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
 		{
-			int damage;
-
-			// Reset Grenade Damage to 1.52 when requested:
-			if (use_classic->value)
-				damage = GRENADE_DAMRAD_CLASSIC;
-			else
-				damage = GRENADE_DAMRAD;
+			int damage = GRENADE_DAMRAD;
 
 			if (is_quad)
 				damage *= 1.5f;
 
-			fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 2 * HZ, damage * 2, false);
+			fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 80_ms, damage * 2, false);
 
-			INV_AMMO(ent, GRENADE_NUM)--;
-			if (INV_AMMO(ent, GRENADE_NUM) <= 0)
+			INV_AMMO(ent, IT_WEAPON_GRENADES)--;
+			if (INV_AMMO(ent, IT_WEAPON_GRENADES) <= 0)
 			{
-				ent->client->newweapon = GET_ITEM(MK23_NUM);
+				ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23);
 				ChangeWeapon(ent);
 				return;
 			}
@@ -3522,13 +3863,26 @@ void Weapon_Gas(edict_t* ent)
 		ent->client->ps.gunframe = GRENADE_ACTIVATE_LAST;
 		// zucc more vwep stuff
 		if ((GRENADE_ACTIVATE_LAST) < 4)
+		// {
+		// 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+		// 		SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
+		// 	else
+		// 		SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
+		// }
 		{
+			ent->client->anim_priority = ANIM_REVERSED;
 			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-				SetAnimation( ent, FRAME_crpain4 + 1, FRAME_crpain1, ANIM_REVERSE );
+			{
+				ent->s.frame = FRAME_crpain4 + 1;
+				ent->client->anim_end = FRAME_crpain1;
+			}
 			else
-				SetAnimation( ent, FRAME_pain304 + 1, FRAME_pain301, ANIM_REVERSE );
+			{
+				ent->s.frame = FRAME_pain304 + 1;
+				ent->client->anim_end = FRAME_pain301;
+			}
+			ent->client->anim_time = 0_ms;
 		}
-
 		ent->client->weaponstate = WEAPON_DROPPING;
 		return;
 	}
@@ -3536,7 +3890,7 @@ void Weapon_Gas(edict_t* ent)
 	if (ent->client->weaponstate == WEAPON_READY)
 	{
 		if (((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK)
-			&& (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD) &&
+			&& (!IS_ALIVE(ent)) &&
 			!lights_camera_action && !ent->client->uvTime)
 		{
 
@@ -3564,10 +3918,24 @@ void Weapon_Gas(edict_t* ent)
 			ent->client->ps.gunframe <= GRENADE_IDLE_LAST)
 		{
 			ent->client->ps.gunframe = GRENADE_THROW_FIRST;
-			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-				SetAnimation( ent, FRAME_crattak1 - 1, FRAME_crattak9, ANIM_ATTACK );
-			else
-				SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
+			// if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+			// 	SetAnimation( ent, FRAME_crattak1 - 1, FRAME_crattak9, ANIM_ATTACK );
+			// else
+			// 	SetAnimation( ent, FRAME_attack1 - 1, FRAME_attack8, ANIM_ATTACK );
+			{
+				ent->client->anim_priority = ANIM_ATTACK;
+				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+				{
+					ent->s.frame = FRAME_crattak1 - 1;
+					ent->client->anim_end = FRAME_crattak9;
+				}
+				else
+				{
+					ent->s.frame = FRAME_attack1 - 1;
+					ent->client->anim_end = FRAME_attack8;
+				}
+				ent->client->anim_time = 0_ms;
+			}
 			ent->client->weaponstate = WEAPON_FIRING;
 			return;
 

@@ -1020,13 +1020,13 @@ void WidowPent(edict_t *self, gtime_t time)
 	self->monsterinfo.invincible_time = time;
 }
 
-void WidowPowerArmor(edict_t *self)
-{
-	self->monsterinfo.power_armor_type = IT_ITEM_POWER_SHIELD;
-	// I don't like this, but it works
-	if (self->monsterinfo.power_armor_power <= 0)
-		self->monsterinfo.power_armor_power += 250 * skill->integer;
-}
+// void WidowPowerArmor(edict_t *self)
+// {
+// 	self->monsterinfo.power_armor_type = IT_ITEM_POWER_SHIELD;
+// 	// I don't like this, but it works
+// 	if (self->monsterinfo.power_armor_power <= 0)
+// 		self->monsterinfo.power_armor_power += 250 * skill->integer;
+// }
 
 void WidowRespondPowerup(edict_t *self, edict_t *other)
 {
@@ -1352,8 +1352,8 @@ void SP_monster_widow(edict_t *self)
 
 	if (skill->integer == 3)
 	{
-		if (!st.was_key_specified("power_armor_type"))
-			self->monsterinfo.power_armor_type = IT_ITEM_POWER_SHIELD;
+		// if (!st.was_key_specified("power_armor_type"))
+		// 	self->monsterinfo.power_armor_type = IT_ITEM_POWER_SHIELD;
 		if (!st.was_key_specified("power_armor_power"))
 			self->monsterinfo.power_armor_power = 500;
 	}

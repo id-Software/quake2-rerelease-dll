@@ -26,6 +26,8 @@ int	  sm_meat_index;
 int	  snd_fry;
 
 // Action Add
+int locOfDeath;
+int stopAP;
 int snd_silencer;
 int snd_headshot;
 int snd_vesthit;

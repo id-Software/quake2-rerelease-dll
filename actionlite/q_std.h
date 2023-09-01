@@ -34,7 +34,7 @@
 namespace fmt = std;
 #define FMT_STRING(s) s
 #else
-//#include <fmt/format.h>
+#include <fmt/format.h>
 #endif
 
 struct g_fmt_data_t {
@@ -215,7 +215,15 @@ inline char *COM_Parse(const char **data_p, char *buffer = nullptr, size_t buffe
 size_t Q_strlcpy(char* dst, const char* src, size_t siz);
 size_t Q_strlcat(char* dst, const char* src, size_t siz);
 
+//======================================================================
+// Action Add
+//======================================================================
 
+
+
+//======================================================================
+// Action Add End
+//======================================================================
 
 #define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
 #define CrossProduct(v1,v2,c)	((c)[0]=(v1)[1]*(v2)[2]-(v1)[2]*(v2)[1],(c)[1]=(v1)[2]*(v2)[0]-(v1)[0]*(v2)[2],(c)[2]=(v1)[0]*(v2)[1]-(v1)[1]*(v2)[0])
@@ -246,5 +254,20 @@ size_t Q_strlcat(char* dst, const char* src, size_t siz);
 #define Distance(v1,v2)			(sqrtf(DistanceSquared(v1,v2)))
 
 #define ClearBounds(mins,maxs)	((mins)[0]=(mins)[1]=(mins)[2]=99999,(maxs)[0]=(maxs)[1]=(maxs)[2]=-99999)
+
+
+//void AddPointToBounds (const vec3_t v, vec3_t mins, vec3_t maxs);
+vec3_t VectorNormalize (vec3_t v);	// returns vector length
+vec3_t VectorNormalize2 (const vec3_t v, vec3_t out);
+
+int Q_log2 (int val);
+
+void R_ConcatRotations (float in1[3][3], float in2[3][3], float out[3][3]);
+void R_ConcatTransforms (float in1[3][4], float in2[3][4], float out[3][4]);
+
+//void AngleVectors (const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
+int BoxOnPlaneSide (const vec3_t emins, const vec3_t emaxs, const struct cplane_s *plane);
+float anglemod (float a);
+//float LerpAngle (float a1, float a2, float frac);
 
 // EOF

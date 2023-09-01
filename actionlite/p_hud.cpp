@@ -702,15 +702,15 @@ struct powerup_info_t
 	gtime_t gclient_t::*time_ptr = nullptr;
 	int32_t gclient_t::*count_ptr = nullptr;
 } powerup_table[] = {
-	{ IT_ITEM_QUAD, &gclient_t::quad_time },
-	{ IT_ITEM_QUADFIRE, &gclient_t::quadfire_time },
-	{ IT_ITEM_DOUBLE, &gclient_t::double_time },
-	{ IT_ITEM_INVULNERABILITY, &gclient_t::invincible_time },
-	{ IT_ITEM_INVISIBILITY, &gclient_t::invisible_time },
-	{ IT_ITEM_ENVIROSUIT, &gclient_t::enviro_time },
-	{ IT_ITEM_REBREATHER, &gclient_t::breather_time },
-	{ IT_ITEM_IR_GOGGLES, &gclient_t::ir_time },
-	{ IT_ITEM_SILENCER, nullptr, &gclient_t::silencer_shots }
+	// { IT_ITEM_QUAD, &gclient_t::quad_time },
+	// { IT_ITEM_QUADFIRE, &gclient_t::quadfire_time },
+	// { IT_ITEM_DOUBLE, &gclient_t::double_time },
+	// { IT_ITEM_INVULNERABILITY, &gclient_t::invincible_time },
+	// { IT_ITEM_INVISIBILITY, &gclient_t::invisible_time },
+	// { IT_ITEM_ENVIROSUIT, &gclient_t::enviro_time },
+	// { IT_ITEM_REBREATHER, &gclient_t::breather_time },
+	// { IT_ITEM_IR_GOGGLES, &gclient_t::ir_time },
+	// { IT_ITEM_SILENCER, nullptr, &gclient_t::silencer_shots }
 };
 
 /*
@@ -740,13 +740,13 @@ void G_SetStats(edict_t *ent)
 	//
 	uint32_t weaponbits = 0;
 
-	for (invIndex = IT_WEAPON_GRAPPLE; invIndex <= IT_WEAPON_DISRUPTOR; invIndex++)
-	{
-		if (ent->client->pers.inventory[invIndex])
-		{
-			weaponbits |= 1 << GetItemByIndex((item_id_t) invIndex)->weapon_wheel_index;
-		}
-	}
+	// for (invIndex = IT_WEAPON_GRAPPLE; invIndex <= IT_WEAPON_DISRUPTOR; invIndex++)
+	// {
+	// 	if (ent->client->pers.inventory[invIndex])
+	// 	{
+	// 		weaponbits |= 1 << GetItemByIndex((item_id_t) invIndex)->weapon_wheel_index;
+	// 	}
+	// }
 
 	ent->client->ps.stats[STAT_WEAPONS_OWNED_1] = (weaponbits & 0xFFFF);
 	ent->client->ps.stats[STAT_WEAPONS_OWNED_2] = (weaponbits >> 16);
@@ -788,12 +788,13 @@ void G_SetStats(edict_t *ent)
 		cells = ent->client->pers.inventory[IT_AMMO_CELLS];
 
 	index = ArmorIndex(ent);
-	if (power_armor_type && (!index || (level.time.milliseconds() % 3000) < 1500))
-	{ // flash between power armor and other armor icon
-		ent->client->ps.stats[STAT_ARMOR_ICON] = power_armor_type == IT_ITEM_POWER_SHIELD ? gi.imageindex("i_powershield") : gi.imageindex("i_powerscreen");
-		ent->client->ps.stats[STAT_ARMOR] = cells;
-	}
-	else if (index)
+	// if (power_armor_type && (!index || (level.time.milliseconds() % 3000) < 1500))
+	// { // flash between power armor and other armor icon
+	// 	ent->client->ps.stats[STAT_ARMOR_ICON] = power_armor_type == IT_ITEM_POWER_SHIELD ? gi.imageindex("i_powershield") : gi.imageindex("i_powerscreen");
+	// 	ent->client->ps.stats[STAT_ARMOR] = cells;
+	// }
+	//else 
+	if (index)
 	{
 		item = GetItemByIndex(index);
 		ent->client->ps.stats[STAT_ARMOR_ICON] = gi.imageindex(item->icon);
@@ -816,37 +817,37 @@ void G_SetStats(edict_t *ent)
 
 	// owned powerups
 	memset(&ent->client->ps.stats[STAT_POWERUP_INFO_START], 0, sizeof(uint16_t) * NUM_POWERUP_STATS);
-	for (unsigned int powerupIndex = POWERUP_SCREEN; powerupIndex < POWERUP_MAX; ++powerupIndex)
-	{
-		gitem_t *powerup = GetItemByPowerup((powerup_t) powerupIndex);
-		uint16_t val;
+	// for (unsigned int powerupIndex = POWERUP_SCREEN; powerupIndex < POWERUP_MAX; ++powerupIndex)
+	// {
+	// 	gitem_t *powerup = GetItemByPowerup((powerup_t) powerupIndex);
+	// 	uint16_t val;
 
-		switch (powerup->id)
-		{
-		case IT_ITEM_POWER_SCREEN:
-		case IT_ITEM_POWER_SHIELD:
-			if (!ent->client->pers.inventory[powerup->id])
-				val = 0;
-			else if (ent->flags & FL_POWER_ARMOR)
-				val = 2;
-			else
-				val = 1;
-			break;
-		case IT_ITEM_FLASHLIGHT:
-			if (!ent->client->pers.inventory[powerup->id])
-				val = 0;
-			else if (ent->flags & FL_FLASHLIGHT)
-				val = 2;
-			else
-				val = 1;
-			break;
-		default:
-			val = clamp(ent->client->pers.inventory[powerup->id], 0, 3);
-			break;
-		}
+	// 	switch (powerup->id)
+	// 	{
+	// 	// case IT_ITEM_POWER_SCREEN:
+	// 	// case IT_ITEM_POWER_SHIELD:
+	// 	// 	if (!ent->client->pers.inventory[powerup->id])
+	// 	// 		val = 0;
+	// 	// 	else if (ent->flags & FL_POWER_ARMOR)
+	// 	// 		val = 2;
+	// 	// 	else
+	// 	// 		val = 1;
+	// 	// 	break;
+	// 	case IT_ITEM_FLASHLIGHT:
+	// 		if (!ent->client->pers.inventory[powerup->id])
+	// 			val = 0;
+	// 		else if (ent->flags & FL_FLASHLIGHT)
+	// 			val = 2;
+	// 		else
+	// 			val = 1;
+	// 		break;
+	// 	default:
+	// 		val = clamp(ent->client->pers.inventory[powerup->id], 0, 3);
+	// 		break;
+	// 	}
 
-		G_SetPowerupStat((uint16_t *) &ent->client->ps.stats[STAT_POWERUP_INFO_START], powerup->powerup_wheel_index, val);
-	}
+	// 	G_SetPowerupStat((uint16_t *) &ent->client->ps.stats[STAT_POWERUP_INFO_START], powerup->powerup_wheel_index, val);
+	// }
 
 	ent->client->ps.stats[STAT_TIMER_ICON] = 0;
 	ent->client->ps.stats[STAT_TIMER] = 0;

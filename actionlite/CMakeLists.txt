@@ -34,32 +34,9 @@ set(GAME_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/g_utils.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/g_weapon.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/m_actor.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_arachnid.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_berserk.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_boss2.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_boss3.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_boss31.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_boss32.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_brain.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_chick.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_flipper.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_float.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_flyer.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_gladiator.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_guardian.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_guncmdr.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_gunner.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_hover.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/m_infantry.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_insane.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/m_medic.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/m_move.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_mutant.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_parasite.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_shambler.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_soldier.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_supertank.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_tank.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/p_client.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/p_hud.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/p_move.cpp 
@@ -69,6 +46,7 @@ set(GAME_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/q_std.cpp 
 
     ${CMAKE_CURRENT_SOURCE_DIR}/a_team.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/a_game.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/cgf_sfx_glass.cpp 
 
     ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_combat.cpp 

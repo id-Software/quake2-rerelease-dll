@@ -21,7 +21,7 @@ void unicastSound(edict_t *ent, int soundIndex, float volume);
 int KickDoor (trace_t * tr_old, edict_t * ent, vec3_t forward);
 
 // Prototypes of base Q2 functions that weren't included in any Q2 header
-bool loc_CanSee (edict_t *, edict_t *);
+//bool loc_CanSee (edict_t *, edict_t *);
 void ParseSayText (edict_t *, char *, size_t size);
 
 void AttachToEntity( edict_t *self, edict_t *onto );

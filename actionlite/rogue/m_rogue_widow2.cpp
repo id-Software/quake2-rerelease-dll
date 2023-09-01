@@ -1102,8 +1102,8 @@ void SP_monster_widow2(edict_t *self)
 		else */
 	if (skill->integer == 3)
 	{
-		if (!st.was_key_specified("power_armor_type"))
-			self->monsterinfo.power_armor_type = IT_ITEM_POWER_SHIELD;
+		// if (!st.was_key_specified("power_armor_type"))
+		// 	self->monsterinfo.power_armor_type = IT_ITEM_POWER_SHIELD;
 		if (!st.was_key_specified("power_armor_power"))
 			self->monsterinfo.power_armor_power = 750;
 	}

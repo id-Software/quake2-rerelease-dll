@@ -57,25 +57,25 @@ inline item_id_t FindSubstituteItem(edict_t *ent)
 			return IT_HEALTH_LARGE;
 	}
 	// armor is also special case
-	else if (ent->item->id == IT_ARMOR_JACKET ||
-			 ent->item->id == IT_ARMOR_COMBAT ||
-			 ent->item->id == IT_ARMOR_BODY ||
-			 ent->item->id == IT_ITEM_POWER_SCREEN ||
-			 ent->item->id == IT_ITEM_POWER_SHIELD)
-	{
-		float rnd = frandom();
+	// else if (ent->item->id == IT_ARMOR_JACKET ||
+	// 		 ent->item->id == IT_ARMOR_COMBAT ||
+	// 		 ent->item->id == IT_ARMOR_BODY ||
+	// 		 ent->item->id == IT_ITEM_POWER_SCREEN ||
+	// 		 ent->item->id == IT_ITEM_POWER_SHIELD)
+	// {
+	// 	float rnd = frandom();
 
-		if (rnd < 0.4f)
-			return IT_ARMOR_JACKET;
-		else if (rnd < 0.6f)
-			return IT_ARMOR_COMBAT;
-		else if (rnd < 0.8f)
-			return IT_ARMOR_BODY;
-		else if (rnd < 0.9f)
-			return IT_ITEM_POWER_SCREEN;
-		else
-			return IT_ITEM_POWER_SHIELD;
-	}
+	// 	if (rnd < 0.4f)
+	// 		return IT_ARMOR_JACKET;
+	// 	else if (rnd < 0.6f)
+	// 		return IT_ARMOR_COMBAT;
+	// 	else if (rnd < 0.8f)
+	// 		return IT_ARMOR_BODY;
+	// 	else if (rnd < 0.9f)
+	// 		return IT_ITEM_POWER_SCREEN;
+	// 	else
+	// 		return IT_ITEM_POWER_SHIELD;
+	// }
 
 	item_flags_t myflags = GetSubstituteItemFlags(ent->item->id);
 

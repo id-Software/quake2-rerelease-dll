@@ -465,13 +465,13 @@ void ED_CallSpawn(edict_t *ent)
 	ent->sv.init = false;
 
 	// FIXME - PMM classnames hack
-	if (!strcmp(ent->classname, "weapon_nailgun"))
-		ent->classname = GetItemByIndex(IT_WEAPON_ETF_RIFLE)->classname;
-	if (!strcmp(ent->classname, "ammo_nails"))
-		ent->classname = GetItemByIndex(IT_AMMO_FLECHETTES)->classname;
-	if (!strcmp(ent->classname, "weapon_heatbeam"))
-		ent->classname = GetItemByIndex(IT_WEAPON_PLASMABEAM)->classname;
-	// pmm
+	// if (!strcmp(ent->classname, "weapon_nailgun"))
+	// 	ent->classname = GetItemByIndex(IT_WEAPON_ETF_RIFLE)->classname;
+	// if (!strcmp(ent->classname, "ammo_nails"))
+	// 	ent->classname = GetItemByIndex(IT_AMMO_FLECHETTES)->classname;
+	// if (!strcmp(ent->classname, "weapon_heatbeam"))
+	// 	ent->classname = GetItemByIndex(IT_WEAPON_PLASMABEAM)->classname;
+	// // pmm
 
 	// check item spawn functions
 	for (i = 0, item = itemlist; i < IT_TOTAL; i++, item++)
@@ -766,19 +766,19 @@ static const std::initializer_list<field_t> entity_fields = {
 	FIELD_AUTO_NAMED("bmodel_anim_alt_nowrap", bmodel_anim.alt_nowrap),
 
 	// [Paril-KEX] customizable power armor stuff
-	FIELD_AUTO_NAMED("power_armor_power", monsterinfo.power_armor_power),
-	{ "power_armor_type", [](edict_t *s, const char *v)
-		{
-			int32_t type = atoi(v);
+	// FIELD_AUTO_NAMED("power_armor_power", monsterinfo.power_armor_power),
+	// { "power_armor_type", [](edict_t *s, const char *v)
+	// 	{
+	// 		int32_t type = atoi(v);
 
-			if (type == 0)
-				s->monsterinfo.power_armor_type = IT_NULL;
-			else if (type == 1)
-				s->monsterinfo.power_armor_type = IT_ITEM_POWER_SCREEN;
-			else
-				s->monsterinfo.power_armor_type = IT_ITEM_POWER_SHIELD;
-		}
-	},
+	// 		if (type == 0)
+	// 			s->monsterinfo.power_armor_type = IT_NULL;
+	// 		else if (type == 1)
+	// 			s->monsterinfo.power_armor_type = IT_ITEM_POWER_SCREEN;
+	// 		else
+	// 			s->monsterinfo.power_armor_type = IT_ITEM_POWER_SHIELD;
+	// 	}
+	// },
 
 	FIELD_AUTO_NAMED("monster_slots", monsterinfo.monster_slots)
 };

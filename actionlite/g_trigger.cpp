@@ -308,36 +308,36 @@ USE(trigger_key_use) (edict_t *self, edict_t *other, edict_t *activator) -> void
 	{
 		edict_t *ent;
 
-		if (self->item->id == IT_KEY_POWER_CUBE || self->item->id == IT_KEY_EXPLOSIVE_CHARGES)
-		{
-			int cube;
+		// if (self->item->id == IT_KEY_POWER_CUBE || self->item->id == IT_KEY_EXPLOSIVE_CHARGES)
+		// {
+		// 	int cube;
 
-			for (cube = 0; cube < 8; cube++)
-				if (activator->client->pers.power_cubes & (1 << cube))
-					break;
-			for (uint32_t player = 1; player <= game.maxclients; player++)
-			{
-				ent = &g_edicts[player];
-				if (!ent->inuse)
-					continue;
-				if (!ent->client)
-					continue;
-				if (ent->client->pers.power_cubes & (1 << cube))
-				{
-					ent->client->pers.inventory[index]--;
-					ent->client->pers.power_cubes &= ~(1 << cube);
+		// 	for (cube = 0; cube < 8; cube++)
+		// 		if (activator->client->pers.power_cubes & (1 << cube))
+		// 			break;
+		// 	for (uint32_t player = 1; player <= game.maxclients; player++)
+		// 	{
+		// 		ent = &g_edicts[player];
+		// 		if (!ent->inuse)
+		// 			continue;
+		// 		if (!ent->client)
+		// 			continue;
+		// 		if (ent->client->pers.power_cubes & (1 << cube))
+		// 		{
+		// 			ent->client->pers.inventory[index]--;
+		// 			ent->client->pers.power_cubes &= ~(1 << cube);
 
-					// [Paril-KEX] don't allow respawning players to keep
-					// used keys
-					if (!P_UseCoopInstancedItems())
-					{
-						ent->client->resp.coop_respawn.inventory[index] = 0;
-						ent->client->resp.coop_respawn.power_cubes &= ~(1 << cube);
-					}
-				}
-			}
-		}
-		else
+		// 			// [Paril-KEX] don't allow respawning players to keep
+		// 			// used keys
+		// 			if (!P_UseCoopInstancedItems())
+		// 			{
+		// 				ent->client->resp.coop_respawn.inventory[index] = 0;
+		// 				ent->client->resp.coop_respawn.power_cubes &= ~(1 << cube);
+		// 			}
+		// 		}
+		// 	}
+		// }
+		// else
 		{
 			for (uint32_t player = 1; player <= game.maxclients; player++)
 			{

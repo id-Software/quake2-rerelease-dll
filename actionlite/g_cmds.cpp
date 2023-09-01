@@ -58,7 +58,7 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
 	lasersight->nextthink = level.time + 1_ms;
 	LaserSightThink( lasersight );
 	VectorCopy( lasersight->s.origin, lasersight->s.old_origin );
-	VectorCopy( lasersight->s.origin, lasersight->old_origin );
+	//VectorCopy( lasersight->s.origin, lasersight->old_origin );
 }
 
 /*---------------------------------------------
@@ -72,6 +72,7 @@ void LaserSightThink(edict_t * self)
 {
 	vec3_t start, end, endp, offset;
 	vec3_t forward, right, up, angles;
+	vec3_t result_start, result_dir;
 	trace_t tr;
 	float viewheight = self->owner->viewheight;
 
@@ -86,12 +87,17 @@ void LaserSightThink(edict_t * self)
 	if (self->owner->client->pers.firing_style == ACTION_FIRING_CLASSIC)
 		viewheight -= 8;
 
-	VectorSet(offset, 24, 8, viewheight);
-	P_ProjectSource(self, self->owner->s.origin, offset, forward, right, start);
+	//VectorSet(offset, 24, 8, viewheight);
+	//P_ProjectSource(self, self->owner->s.origin, offset, forward, right, start);
+
+	//vec3_t offset;
+    VectorSet(offset, 24, 8, viewheight);
+    P_ProjectSource(self->owner, angles, offset, result_start, result_dir);
+    
 	VectorMA(start, 8192, forward, end);
 
 	PRETRACE();
-	tr = gi.trace(start, NULL, NULL, end, self->owner, CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER);
+	tr = gi.trace(start, self->mins, self->maxs, end, self->owner, CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER);
 	POSTTRACE();
 
 	if (tr.fraction != 1) {
@@ -99,8 +105,14 @@ void LaserSightThink(edict_t * self)
 		VectorCopy(endp, tr.endpos);
 	}
 
-	vectoangles(self->s.angles);
-	VectorCopy(tr.endpos, self->s.origin);
+	vec3_t newAngles = vectoangles(tr.endpos);
+	// Copy the pitch and yaw from the newAngles result to self->s.angles
+    self->s.angles[0] = newAngles[0];
+    self->s.angles[1] = newAngles[1];
+    self->s.angles[2] = newAngles[2];
+
+	// vectoangles(self->s.angles);
+	// VectorCopy(tr.endpos, self->s.origin);
 
 	self->s.modelindex = (tr.surface && (tr.surface->flags & SURF_SKY)) ? level.model_null : level.model_lsight;
 
@@ -157,7 +169,7 @@ void Cmd_Reload_f(edict_t * ent)
 			// this gives them a chance to break off from reloading to fire the weapon - zucc
 			if (ent->client->ps.gunframe >= 48) {
 				ent->client->fast_reload = 1;
-				ent->client->pers.weapon->ammo--;
+				(ent->client->inventory[ent->client->ammo_index])--;
 			} else {
 				ent->client->reload_attempts++;
 			}
@@ -200,7 +212,7 @@ void Cmd_Reload_f(edict_t * ent)
 			// this gives them a chance to break off from reloading to fire the weapon - zucc
 			if (ent->client->ps.gunframe >= 72) {
 				ent->client->fast_reload = 1;
-				(ent->client->inventory[ent->client->pers.weapon->ammo])--;
+				(ent->client->inventory[ent->client->ammo_index])--;
 			} else {
 				ent->client->reload_attempts++;
 			}

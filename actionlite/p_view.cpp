@@ -66,6 +66,16 @@ float SV_CalcRoll(const vec3_t &angles, const vec3_t &velocity)
 	return side * sign;
 }
 
+// void SetAnimation( edict_t *ent, int frame, int anim_end, int anim_priority )
+// {
+// 	ent->s.frame = frame;
+// 	ent->client->anim_end = anim_end;
+// 	ent->client->anim_priority = ;
+// 	ent->client->anim_started = level.time;
+
+// 	ent->client->anim_priority.
+// }
+
 /*
 ===============
 P_DamageFeedback
@@ -482,7 +492,7 @@ void SV_CalcGunOffset(edict_t *ent)
 
 	// ROGUE - heatbeam shouldn't bob so the beam looks right
 	if (ent->client->pers.weapon && 
-		!((ent->client->pers.weapon->id == IT_WEAPON_PLASMABEAM || ent->client->pers.weapon->id == IT_WEAPON_GRAPPLE) && ent->client->weaponstate == WEAPON_FIRING)
+		!((ent->client->pers.weapon->id == IT_WEAPON_GRAPPLE) && ent->client->weaponstate == WEAPON_FIRING)
 		&& !SkipViewModifiers())
 	{
 		// ROGUE
@@ -884,19 +894,19 @@ void G_SetClientEffects(edict_t *ent)
 	// PGM
 	//=========
 
-	if (ent->powerarmor_time > level.time)
-	{
-		pa_type = PowerArmorType(ent);
-		if (pa_type == IT_ITEM_POWER_SCREEN)
-		{
-			ent->s.effects |= EF_POWERSCREEN;
-		}
-		else if (pa_type == IT_ITEM_POWER_SHIELD)
-		{
-			ent->s.effects |= EF_COLOR_SHELL;
-			ent->s.renderfx |= RF_SHELL_GREEN;
-		}
-	}
+	// if (ent->powerarmor_time > level.time)
+	// {
+	// 	pa_type = PowerArmorType(ent);
+	// 	if (pa_type == IT_ITEM_POWER_SCREEN)
+	// 	{
+	// 		ent->s.effects |= EF_POWERSCREEN;
+	// 	}
+	// 	else if (pa_type == IT_ITEM_POWER_SHIELD)
+	// 	{
+	// 		ent->s.effects |= EF_COLOR_SHELL;
+	// 		ent->s.renderfx |= RF_SHELL_GREEN;
+	// 	}
+	// }
 
 	// ZOID
 	CTFEffects(ent);
@@ -1045,17 +1055,17 @@ void G_SetClientSound(edict_t *ent)
 
 	if (ent->client->weapon_sound)
 		ent->s.sound = ent->client->weapon_sound;
-	else if (ent->client->pers.weapon)
-	{
-		if (ent->client->pers.weapon->id == IT_WEAPON_RAILGUN)
-			ent->s.sound = gi.soundindex("weapons/rg_hum.wav");
-		else if (ent->client->pers.weapon->id == IT_WEAPON_BFG)
-			ent->s.sound = gi.soundindex("weapons/bfg_hum.wav");
-		// RAFAEL
-		else if (ent->client->pers.weapon->id == IT_WEAPON_PHALANX)
-			ent->s.sound = gi.soundindex("weapons/phaloop.wav");
-		// RAFAEL
-	}
+	// else if (ent->client->pers.weapon)
+	// {
+	// 	if (ent->client->pers.weapon->id == IT_WEAPON_RAILGUN)
+	// 		ent->s.sound = gi.soundindex("weapons/rg_hum.wav");
+	// 	else if (ent->client->pers.weapon->id == IT_WEAPON_BFG)
+	// 		ent->s.sound = gi.soundindex("weapons/bfg_hum.wav");
+	// 	// RAFAEL
+	// 	else if (ent->client->pers.weapon->id == IT_WEAPON_PHALANX)
+	// 		ent->s.sound = gi.soundindex("weapons/phaloop.wav");
+	// 	// RAFAEL
+	// }
 
 	// [Paril-KEX] if no other sound is playing, play appropriate grapple sounds
 	if (!ent->s.sound && ent->client->ctf_grapple)
@@ -1397,7 +1407,7 @@ void ClientEndServerFrame(edict_t *ent)
 
 	// ZOID
 	// regen tech
-	CTFApplyRegeneration(ent);
+	//CTFApplyRegeneration(ent);
 	// ZOID
 
 	AngleVectors(ent->client->v_angle, forward, right, up);

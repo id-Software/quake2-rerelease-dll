@@ -57,6 +57,9 @@ void Weapon_Dual (edict_t * ent);
 void Weapon_Knife (edict_t * ent);
 void Weapon_Gas (edict_t * ent);
 
+void SpecThink(edict_t * spec);
+static void SpawnSpec(gitem_t * item, edict_t * spot);
+
 #define HEALTH_IGNORE_MAX       1
 #define HEALTH_TIMED            2
 #define HEALTH_MEDKIT           4
@@ -1579,7 +1582,7 @@ void Drop_Special (edict_t *ent, gitem_t *item)
 		ent->client->max_sniper_rnds = count;
 		if (INV_AMMO(ent, IT_AMMO_SLUGS) > count)
 			INV_AMMO(ent, IT_AMMO_SLUGS) = count;
-	}
+
 	Drop_Spec(ent, item);
 	ValidateSelectedItem(ent);
 	SP_LaserSight(ent, item);

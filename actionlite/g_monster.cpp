@@ -229,7 +229,7 @@ bool M_ShouldReactToPain(edict_t *self, const mod_t &mod)
 	if (self->monsterinfo.aiflags & (AI_DUCKED | AI_COMBAT_POINT))
 		return false;
 
-	return mod.id == MOD_CHAINFIST || skill->integer < 3;
+	return skill->integer < 3;
 }
 
 void M_WorldEffects(edict_t *ent)
@@ -422,18 +422,6 @@ void M_SetEffects(edict_t *ent)
 	if (ent->health <= 0)
 		return;
 
-	if (ent->powerarmor_time > level.time)
-	{
-		if (ent->monsterinfo.power_armor_type == IT_ITEM_POWER_SCREEN)
-		{
-			ent->s.effects |= EF_POWERSCREEN;
-		}
-		else if (ent->monsterinfo.power_armor_type == IT_ITEM_POWER_SHIELD)
-		{
-			ent->s.effects |= EF_COLOR_SHELL;
-			ent->s.renderfx |= RF_SHELL_GREEN;
-		}
-	}
 
 	// PMM - new monster powerups
 	if (ent->monsterinfo.quad_time > level.time)
@@ -895,7 +883,7 @@ THINK(monster_think) (edict_t *self) -> void
 			trace_t enemy_trace = gi.traceline(self->s.origin, g_edicts[1].s.origin, self, MASK_SHOT);
 
 			if (enemy_trace.fraction < 1.0f && enemy_trace.ent == &g_edicts[1])
-				T_Damage(self, &g_edicts[1], &g_edicts[1], { 0, 0, -1 }, self->s.origin, { 0, 0, -1 }, 9999, 9999, DAMAGE_NO_PROTECTION, MOD_BFG_BLAST);
+				T_Damage(self, &g_edicts[1], &g_edicts[1], { 0, 0, -1 }, self->s.origin, { 0, 0, -1 }, 9999, 9999, DAMAGE_NO_PROTECTION, MOD_UNKNOWN);
 			else
 			{
 				static vec3_t points[64];
@@ -934,7 +922,7 @@ THINK(monster_think) (edict_t *self) -> void
 										break;
 
 								if (i == info.numPathPoints - 1)
-									T_Damage(self, &g_edicts[1], &g_edicts[1], { 0, 0, 1 }, self->s.origin, { 0, 0, 1 }, 9999, 9999, DAMAGE_NO_PROTECTION, MOD_BFG_BLAST);
+									T_Damage(self, &g_edicts[1], &g_edicts[1], { 0, 0, 1 }, self->s.origin, { 0, 0, 1 }, 9999, 9999, DAMAGE_NO_PROTECTION, MOD_UNKNOWN);
 								else
 									self->disintegrator_time = level.time + 500_ms;
 							}

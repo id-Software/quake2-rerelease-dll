@@ -191,34 +191,6 @@ static int CheckPowerArmor(edict_t *ent, const vec3_t &point, const vec3_t &norm
 	if (!*power)
 		return 0;
 
-	if (power_armor_type == IT_ITEM_POWER_SCREEN)
-	{
-		vec3_t vec;
-		float  dot;
-		vec3_t forward;
-
-		// only works if damage point is in front
-		AngleVectors(ent->s.angles, forward, nullptr, nullptr);
-		vec = point - ent->s.origin;
-		vec.normalize();
-		dot = vec.dot(forward);
-		if (dot <= 0.3f)
-			return 0;
-
-		damagePerCell = 1;
-		pa_te_type = TE_SCREEN_SPARKS;
-		damage = damage / 3;
-	}
-	else
-	{
-		if (ctf->integer)
-			damagePerCell = 1; // power armor is weaker in CTF
-		else
-			damagePerCell = 2;
-		pa_te_type = TE_SCREEN_SPARKS;
-		damage = (2 * damage) / 3;
-	}
-
 	// Paril: fix small amounts of damage not
 	// being absorbed
 	damage = max(1, damage);
@@ -249,21 +221,21 @@ static int CheckPowerArmor(edict_t *ent, const vec3_t &point, const vec3_t &norm
 	// Paril: adjustment so that power armor
 	// always uses damagePerCell even if it does
 	// only a single point of damage
-	*power = max(0, *power - max(damagePerCell, power_used));
+	//*power = max(0, *power - max(damagePerCell, power_used));
 
-	// check power armor turn-off states
-	if (ent->client)
-		G_CheckPowerArmor(ent);
-	else if (!*power)
-	{
-		gi.sound(ent, CHAN_AUTO, gi.soundindex("misc/mon_power2.wav"), 1.f, ATTN_NORM, 0.f);
+	// // check power armor turn-off states
+	// if (ent->client)
+	// 	G_CheckPowerArmor(ent);
+	// else if (!*power)
+	// {
+	// 	gi.sound(ent, CHAN_AUTO, gi.soundindex("misc/mon_power2.wav"), 1.f, ATTN_NORM, 0.f);
 
-		gi.WriteByte(svc_temp_entity);
-		gi.WriteByte(TE_POWER_SPLASH);
-		gi.WriteEntity(ent);
-		gi.WriteByte((power_armor_type == IT_ITEM_POWER_SCREEN) ? 1 : 0);
-		gi.multicast(ent->s.origin, MULTICAST_PHS, false);
-	}
+	// 	gi.WriteByte(svc_temp_entity);
+	// 	gi.WriteByte(TE_POWER_SPLASH);
+	// 	gi.WriteEntity(ent);
+	// 	gi.WriteByte((power_armor_type == IT_ITEM_POWER_SCREEN) ? 1 : 0);
+	// 	gi.multicast(ent->s.origin, MULTICAST_PHS, false);
+	// }
 
 	return save;
 }
@@ -557,8 +529,8 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 			mod.friendly_fire = true;
 
 			// if we're not a nuke & friendly fire is disabled, just kill the damage
-			if (!g_friendly_fire->integer && (mod.id != MOD_NUKE))
-				damage = 0;
+			// if (!g_friendly_fire->integer && (mod.id != MOD_NUKE))
+			// 	damage = 0;
 		}
 	}
 
@@ -615,7 +587,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 
 	// ZOID
 	// strength tech
-	damage = CTFApplyStrength(attacker, damage);
+	//damage = CTFApplyStrength(attacker, damage);
 	// ZOID
 
 	if ((targ->flags & FL_NO_KNOCKBACK) ||
@@ -696,7 +668,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 
 	// ZOID
 	// resistance tech
-	take = CTFApplyResistance(targ, take);
+	//take = CTFApplyResistance(targ, take);
 	// ZOID
 
 	// ZOID
@@ -734,9 +706,9 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 					SpawnDamage(TE_GREENBLOOD, point, normal, take);
 				// XATRIX
 				// ROGUE
-				else if (mod.id == MOD_CHAINFIST)
-					SpawnDamage(TE_MOREBLOOD, point, normal, 255);
-				// ROGUE
+				// else if (mod.id == MOD_CHAINFIST)
+				// 	SpawnDamage(TE_MOREBLOOD, point, normal, 255);
+				// // ROGUE
 				else
 					SpawnDamage(TE_BLOOD, point, normal, take);
 			}

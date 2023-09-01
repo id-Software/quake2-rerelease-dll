@@ -202,7 +202,7 @@ struct fire_lead_pierce_t : pierce_args_t
 		// did we hit an hurtable entity?
 		if (tr.ent->takedamage)
 		{
-			T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, mod.id == MOD_TESLA ? DAMAGE_ENERGY : DAMAGE_BULLET, mod);
+			T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_BULLET, mod);
 
 			// only deadmonster is pierceable, or actual dead monsters
 			// that haven't been made non-solid yet
@@ -317,6 +317,17 @@ static void fire_lead(edict_t *self, const vec3_t &start, const vec3_t &aimdir, 
 	}
 }
 
+void InitTookDamage(void)
+{
+	int i;
+	gclient_t *cl;
+
+	for (i = 0, cl = game.clients; i < game.maxclients; i++, cl++) {
+		cl->took_damage = 0;
+	}
+}
+
+
 /*
 =================
 fire_bullet
@@ -327,8 +338,59 @@ pistols, rifles, etc....
 */
 void fire_bullet(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int damage, int kick, int hspread, int vspread, mod_t mod)
 {
-	fire_lead(self, start, aimdir, damage, kick, mod.id == MOD_TESLA ? -1 : TE_GUNSHOT, hspread, vspread, mod);
+	fire_lead(self, start, aimdir, damage, kick, TE_GUNSHOT, hspread, vspread, mod);
 }
+
+/*
+ *  ProduceShotgunDamageReport 
+ */
+void ProduceShotgunDamageReport (edict_t *self)
+{
+	int i, total = 0, total_to_print, printed = 0;
+	char *textbuf;
+	gclient_t *cl;
+
+	for (i = 0, cl = game.clients; i < game.maxclients; i++, cl++) {
+		if (cl->took_damage)
+			total++;
+	}
+
+	if (!total)
+		return;
+
+	if (total > 10)
+		total_to_print = 10;
+	else
+		total_to_print = total;
+
+	//256 is enough, its limited to 10 nicks
+	textbuf = self->client->last_damaged_players;
+	*textbuf = '\0';
+
+	for (i = 0, cl = game.clients; i < game.maxclients; i++, cl++)
+	{
+		if (!cl->took_damage)
+			continue;
+
+		if (printed == total_to_print - 1)
+		{
+			if (total_to_print == 2)
+				strcat(textbuf, " and ");
+			else if (total_to_print != 1)
+				strcat(textbuf, ", and ");
+		}
+		else if (printed) {
+			strcat(textbuf, ", ");
+		}
+		strcat(textbuf, cl->pers.netname);
+		printed++;
+
+		if (printed == total_to_print)
+			break;
+	}
+	gi.LocClient_Print(self, PRINT_HIGH, "You hit %s in the body\n", textbuf);
+}
+
 
 /*
 =================
@@ -370,7 +432,7 @@ TOUCH(blaster_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool oth
 	else
 	{
 		gi.WriteByte(svc_temp_entity);
-		gi.WriteByte( ( self->style != MOD_BLUEBLASTER ) ? TE_BLASTER : TE_BLUEHYPERBLASTER );
+		gi.WriteByte(self->style != TE_BLUEHYPERBLASTER);
 		gi.WritePosition(self->s.origin);
 		gi.WriteDir(tr.plane.normal);
 		gi.multicast(self->s.origin, MULTICAST_PHS, false);
@@ -669,7 +731,7 @@ TOUCH(rocket_touch) (edict_t *ent, edict_t *other, const trace_t &tr, bool other
 
 	if (other->takedamage)
 	{
-		T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin, tr.plane.normal, ent->dmg, 0, DAMAGE_NONE, MOD_ROCKET);
+		T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin, tr.plane.normal, ent->dmg, 0, DAMAGE_NONE, MOD_UNKNOWN);
 	}
 	else
 	{
@@ -685,7 +747,7 @@ TOUCH(rocket_touch) (edict_t *ent, edict_t *other, const trace_t &tr, bool other
 		}
 	}
 
-	T_RadiusDamage(ent, ent->owner, (float) ent->radius_dmg, other, ent->dmg_radius, DAMAGE_NONE, MOD_R_SPLASH);
+	T_RadiusDamage(ent, ent->owner, (float) ent->radius_dmg, other, ent->dmg_radius, DAMAGE_NONE, MOD_UNKNOWN);
 
 	gi.WriteByte(svc_temp_entity);
 	if (ent->waterlevel)
@@ -792,7 +854,7 @@ struct fire_rail_pierce_t : pierce_args_t
 		{
 			// try to kill it first
 			if ((tr.ent != self) && (tr.ent->takedamage))
-				T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_NONE, MOD_RAILGUN);
+				T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_NONE, MOD_UNKNOWN);
 
 			// dead, so we don't need to care about checking pierce
 			if (!tr.ent->inuse || (!tr.ent->solid || tr.ent->solid == SOLID_TRIGGER))
@@ -969,7 +1031,7 @@ THINK(bfg_explode) (edict_t *self) -> void
 			dist = v.length();
 			points = self->radius_dmg * (1.0f - sqrtf(dist / self->dmg_radius));
 
-			T_Damage(ent, self, self->owner, self->velocity, centroid, vec3_origin, (int) points, 0, DAMAGE_ENERGY, MOD_BFG_EFFECT);
+			T_Damage(ent, self, self->owner, self->velocity, centroid, vec3_origin, (int) points, 0, DAMAGE_ENERGY, MOD_UNKNOWN);
 
 			// Paril: draw BFG lightning laser to enemies
 			gi.WriteByte(svc_temp_entity);
@@ -1002,8 +1064,8 @@ TOUCH(bfg_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool other_t
 
 	// core explosion - prevents firing it into the wall/floor
 	if (other->takedamage)
-		T_Damage(other, self, self->owner, self->velocity, self->s.origin, tr.plane.normal, 200, 0, DAMAGE_ENERGY, MOD_BFG_BLAST);
-	T_RadiusDamage(self, self->owner, 200, other, 100, DAMAGE_ENERGY, MOD_BFG_BLAST);
+		T_Damage(other, self, self->owner, self->velocity, self->s.origin, tr.plane.normal, 200, 0, DAMAGE_ENERGY, MOD_UNKNOWN);
+	T_RadiusDamage(self, self->owner, 200, other, 100, DAMAGE_ENERGY, MOD_UNKNOWN);
 
 	gi.sound(self, CHAN_VOICE, gi.soundindex("weapons/bfg__x1b.wav"), 1, ATTN_NORM, 0);
 	self->solid = SOLID_NOT;
@@ -1045,7 +1107,7 @@ struct bfg_laser_pierce_t : pierce_args_t
 	{
 		// hurt it if we can
 		if ((tr.ent->takedamage) && !(tr.ent->flags & FL_IMMUNE_LASER) && (tr.ent != self->owner))
-			T_Damage(tr.ent, self, self->owner, dir, tr.endpos, vec3_origin, damage, 1, DAMAGE_ENERGY, MOD_BFG_LASER);
+			T_Damage(tr.ent, self, self->owner, dir, tr.endpos, vec3_origin, damage, 1, DAMAGE_ENERGY, MOD_UNKNOWN);
 
 		// if we hit something that's not a monster or player we're done
 		if (!(tr.ent->svflags & SVF_MONSTER) && !(tr.ent->flags & FL_DAMAGEABLE) && (!tr.ent->client))
@@ -1214,4 +1276,24 @@ void fire_disintegrator(edict_t *self, const vec3_t &start, const vec3_t &forwar
 	bfg->s.sound = gi.soundindex("weapons/bfg__l1a.wav");
 
 	gi.linkentity(bfg);
+}
+
+/*
+=====================================================================
+setFFState: Save team wound count & warning state before an attack
+
+The purpose of this is so that we can increment team_wounds by 1 for
+each real attack instead of just counting each bullet/pellet/shrapnel
+as a wound. The ff_warning flag is so that we don't overflow the
+clients from repeated FF warnings. Hopefully the overhead on this 
+will be low enough to not affect things.
+=====================================================================
+*/
+void setFFState (edict_t *ent)
+{
+	if (ent && ent->client)
+	{
+		ent->client->team_wounds_before = ent->client->resp.team_wounds;
+		ent->client->ff_warning = 0;
+	}
 }
