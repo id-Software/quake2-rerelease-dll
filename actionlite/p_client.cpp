@@ -573,7 +573,7 @@ DIE(player_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 		// ZOID
 		CTFPlayerResetGrapple(self);
 		CTFDeadDropFlag(self);
-		CTFDeadDropTech(self);
+		//CTFDeadDropTech(self);
 		// ZOID
 		if (deathmatch->integer && !self->client->showscores)
 			Cmd_Help_f(self); // show scores
@@ -2890,7 +2890,7 @@ void ClientDisconnect(edict_t *ent)
 
 	// ZOID
 	CTFDeadDropFlag(ent);
-	CTFDeadDropTech(ent);
+	//CTFDeadDropTech(ent);
 	// ZOID
 
 	PlayerTrail_Destroy(ent);

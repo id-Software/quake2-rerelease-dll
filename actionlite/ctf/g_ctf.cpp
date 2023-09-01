@@ -186,7 +186,7 @@ static bool loc_CanSee(edict_t *targ, edict_t *inflictor)
 void CTFSpawn()
 {
 	memset(&ctfgame, 0, sizeof(ctfgame));
-	CTFSetupTechSpawn();
+	//CTFSetupTechSpawn();
 
 	if (competition->integer > 1)
 	{
@@ -1826,60 +1826,60 @@ gitem_t *CTFWhat_Tech(edict_t *ent)
 // 	return true;
 // }
 
-static void SpawnTech(gitem_t *item, edict_t *spot);
+// static void SpawnTech(gitem_t *item, edict_t *spot);
 
-static edict_t *FindTechSpawn()
-{
-	return SelectDeathmatchSpawnPoint(false, true, true).spot;
-}
+// static edict_t *FindTechSpawn()
+// {
+// 	return SelectDeathmatchSpawnPoint(false, true, true).spot;
+// }
 
-THINK(TechThink) (edict_t *tech) -> void
-{
-	edict_t *spot;
+// THINK(TechThink) (edict_t *tech) -> void
+// {
+// 	edict_t *spot;
 
-	if ((spot = FindTechSpawn()) != nullptr)
-	{
-		SpawnTech(tech->item, spot);
-		G_FreeEdict(tech);
-	}
-	else
-	{
-		tech->nextthink = level.time + CTF_TECH_TIMEOUT;
-		tech->think = TechThink;
-	}
-}
+// 	if ((spot = FindTechSpawn()) != nullptr)
+// 	{
+// 		SpawnTech(tech->item, spot);
+// 		G_FreeEdict(tech);
+// 	}
+// 	else
+// 	{
+// 		tech->nextthink = level.time + CTF_TECH_TIMEOUT;
+// 		tech->think = TechThink;
+// 	}
+// }
 
-void CTFDrop_Tech(edict_t *ent, gitem_t *item)
-{
-	edict_t *tech;
+// void CTFDrop_Tech(edict_t *ent, gitem_t *item)
+// {
+// 	edict_t *tech;
 
-	tech = Drop_Item(ent, item);
-	tech->nextthink = level.time + CTF_TECH_TIMEOUT;
-	tech->think = TechThink;
-	ent->client->pers.inventory[item->id] = 0;
-}
+// 	tech = Drop_Item(ent, item);
+// 	tech->nextthink = level.time + CTF_TECH_TIMEOUT;
+// 	tech->think = TechThink;
+// 	ent->client->pers.inventory[item->id] = 0;
+// }
 
-void CTFDeadDropTech(edict_t *ent)
-{
-	edict_t *dropped;
-	int		 i;
+// void CTFDeadDropTech(edict_t *ent)
+// {
+// 	edict_t *dropped;
+// 	int		 i;
 
-	i = 0;
-	for (; i < q_countof(tech_ids); i++)
-	{
-		if (ent->client->pers.inventory[tech_ids[i]])
-		{
-			dropped = Drop_Item(ent, GetItemByIndex(tech_ids[i]));
-			// hack the velocity to make it bounce random
-			dropped->velocity[0] = crandom_open() * 300;
-			dropped->velocity[1] = crandom_open() * 300;
-			dropped->nextthink = level.time + CTF_TECH_TIMEOUT;
-			dropped->think = TechThink;
-			dropped->owner = nullptr;
-			ent->client->pers.inventory[tech_ids[i]] = 0;
-		}
-	}
-}
+// 	i = 0;
+// 	for (; i < q_countof(tech_ids); i++)
+// 	{
+// 		if (ent->client->pers.inventory[tech_ids[i]])
+// 		{
+// 			dropped = Drop_Item(ent, GetItemByIndex(tech_ids[i]));
+// 			// hack the velocity to make it bounce random
+// 			dropped->velocity[0] = crandom_open() * 300;
+// 			dropped->velocity[1] = crandom_open() * 300;
+// 			dropped->nextthink = level.time + CTF_TECH_TIMEOUT;
+// 			dropped->think = TechThink;
+// 			dropped->owner = nullptr;
+// 			ent->client->pers.inventory[tech_ids[i]] = 0;
+// 		}
+// 	}
+// }
 
 static void SpawnTech(gitem_t *item, edict_t *spot)
 {
@@ -1943,38 +1943,38 @@ void CTFRespawnTech(edict_t *ent)
 	G_FreeEdict(ent);
 }
 
-void CTFSetupTechSpawn()
-{
-	edict_t *ent;
-	bool techs_allowed;
+// void CTFSetupTechSpawn()
+// {
+// 	edict_t *ent;
+// 	bool techs_allowed;
 
-	// [Paril-KEX]
-	if (!strcmp(g_allow_techs->string, "auto"))
-		techs_allowed = !!ctf->integer;
-	else
-		techs_allowed = !!g_allow_techs->integer;
+// 	// [Paril-KEX]
+// 	if (!strcmp(g_allow_techs->string, "auto"))
+// 		techs_allowed = !!ctf->integer;
+// 	else
+// 		techs_allowed = !!g_allow_techs->integer;
 
-	if (!techs_allowed)
-		return;
+// 	if (!techs_allowed)
+// 		return;
 
-	ent = G_Spawn();
-	ent->nextthink = level.time + 2_sec;
-	ent->think = SpawnTechs;
-}
+// 	ent = G_Spawn();
+// 	ent->nextthink = level.time + 2_sec;
+// 	ent->think = SpawnTechs;
+// }
 
-void CTFResetTech()
-{
-	edict_t *ent;
-	uint32_t i;
+// void CTFResetTech()
+// {
+// 	edict_t *ent;
+// 	uint32_t i;
 
-	for (ent = g_edicts + 1, i = 1; i < globals.num_edicts; i++, ent++)
-	{
-		if (ent->inuse)
-			if (ent->item && (ent->item->flags & IF_TECH))
-				G_FreeEdict(ent);
-	}
-	SpawnTechs(nullptr);
-}
+// 	for (ent = g_edicts + 1, i = 1; i < globals.num_edicts; i++, ent++)
+// 	{
+// 		if (ent->inuse)
+// 			if (ent->item && (ent->item->flags & IF_TECH))
+// 				G_FreeEdict(ent);
+// 	}
+// 	SpawnTechs(nullptr);
+// }
 
 void CTFSay_Team(edict_t *who, const char *msg_in)
 {
@@ -2146,7 +2146,7 @@ void CTFResetAllPlayers()
 
 		CTFPlayerResetGrapple(ent);
 		CTFDeadDropFlag(ent);
-		CTFDeadDropTech(ent);
+		//CTFDeadDropTech(ent);
 
 		ent->client->resp.ctf_team = CTF_NOTEAM;
 		ent->client->resp.ready = false;
@@ -2157,7 +2157,7 @@ void CTFResetAllPlayers()
 	}
 
 	// reset the level
-	CTFResetTech();
+	//CTFResetTech();
 	CTFResetFlags();
 
 	for (ent = g_edicts + 1, i = 1; i < globals.num_edicts; i++, ent++)
@@ -2844,7 +2844,7 @@ void CTFObserver(edict_t *ent)
 		CTFPlayerResetGrapple(ent);
 
 	CTFDeadDropFlag(ent);
-	CTFDeadDropTech(ent);
+	//CTFDeadDropTech(ent);
 
 	ent->deadflag = false;
 	ent->movetype = MOVETYPE_NOCLIP;
