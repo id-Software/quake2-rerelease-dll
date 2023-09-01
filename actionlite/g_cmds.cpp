@@ -948,12 +948,12 @@ void Cmd_Drop_f(edict_t *ent)
 		return;
 
 	// ZOID--special case for tech powerups
-	if (Q_strcasecmp(gi.args(), "tech") == 0 && (it = CTFWhat_Tech(ent)) != nullptr)
-	{
-		it->drop(ent, it);
-		ValidateSelectedItem(ent);
-		return;
-	}
+	// if (Q_strcasecmp(gi.args(), "tech") == 0 && (it = CTFWhat_Tech(ent)) != nullptr)
+	// {
+	// 	it->drop(ent, it);
+	// 	ValidateSelectedItem(ent);
+	// 	return;
+	// }
 	// ZOID
 
 	s = gi.args();

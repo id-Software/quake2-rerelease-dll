@@ -1782,29 +1782,29 @@ void CTFScoreboardMessage(edict_t *ent, edict_t *killer)
 /* TECH																	  */
 /*------------------------------------------------------------------------*/
 
-void CTFHasTech(edict_t *who)
-{
-	if (level.time - who->client->ctf_lasttechmsg > 2_sec)
-	{
-		gi.LocCenter_Print(who, "$g_already_have_tech");
-		who->client->ctf_lasttechmsg = level.time;
-	}
-}
+// void CTFHasTech(edict_t *who)
+// {
+// 	if (level.time - who->client->ctf_lasttechmsg > 2_sec)
+// 	{
+// 		gi.LocCenter_Print(who, "$g_already_have_tech");
+// 		who->client->ctf_lasttechmsg = level.time;
+// 	}
+// }
 
-gitem_t *CTFWhat_Tech(edict_t *ent)
-{
-	// int i;
+// gitem_t *CTFWhat_Tech(edict_t *ent)
+// {
+// 	// int i;
 
-	// i = 0;
-	// for (; i < q_countof(tech_ids); i++)
-	// {
-	// 	if (ent->client->pers.inventory[tech_ids[i]])
-	// 	{
-	// 		return GetItemByIndex(tech_ids[i]);
-	// 	}
-	// }
-	return nullptr;
-}
+// 	// i = 0;
+// 	// for (; i < q_countof(tech_ids); i++)
+// 	// {
+// 	// 	if (ent->client->pers.inventory[tech_ids[i]])
+// 	// 	{
+// 	// 		return GetItemByIndex(tech_ids[i]);
+// 	// 	}
+// 	// }
+// 	return nullptr;
+// }
 
 // bool CTFPickup_Tech(edict_t *ent, edict_t *other)
 // {
@@ -1881,67 +1881,67 @@ gitem_t *CTFWhat_Tech(edict_t *ent)
 // 	}
 // }
 
-static void SpawnTech(gitem_t *item, edict_t *spot)
-{
-	edict_t *ent;
-	vec3_t	 forward, right;
-	vec3_t	 angles;
+// static void SpawnTech(gitem_t *item, edict_t *spot)
+// {
+// 	edict_t *ent;
+// 	vec3_t	 forward, right;
+// 	vec3_t	 angles;
 
-	ent = G_Spawn();
+// 	ent = G_Spawn();
 
-	ent->classname = item->classname;
-	ent->item = item;
-	ent->spawnflags = SPAWNFLAG_ITEM_DROPPED;
-	ent->s.effects = item->world_model_flags;
-	ent->s.renderfx = RF_GLOW | RF_NO_LOD;
-	ent->mins = { -15, -15, -15 };
-	ent->maxs = { 15, 15, 15 };
-	gi.setmodel(ent, ent->item->world_model);
-	ent->solid = SOLID_TRIGGER;
-	ent->movetype = MOVETYPE_TOSS;
-	ent->touch = Touch_Item;
-	ent->owner = ent;
+// 	ent->classname = item->classname;
+// 	ent->item = item;
+// 	ent->spawnflags = SPAWNFLAG_ITEM_DROPPED;
+// 	ent->s.effects = item->world_model_flags;
+// 	ent->s.renderfx = RF_GLOW | RF_NO_LOD;
+// 	ent->mins = { -15, -15, -15 };
+// 	ent->maxs = { 15, 15, 15 };
+// 	gi.setmodel(ent, ent->item->world_model);
+// 	ent->solid = SOLID_TRIGGER;
+// 	ent->movetype = MOVETYPE_TOSS;
+// 	ent->touch = Touch_Item;
+// 	ent->owner = ent;
 
-	angles[0] = 0;
-	angles[1] = (float) irandom(360);
-	angles[2] = 0;
+// 	angles[0] = 0;
+// 	angles[1] = (float) irandom(360);
+// 	angles[2] = 0;
 
-	AngleVectors(angles, forward, right, nullptr);
-	ent->s.origin = spot->s.origin;
-	ent->s.origin[2] += 16;
-	ent->velocity = forward * 100;
-	ent->velocity[2] = 300;
+// 	AngleVectors(angles, forward, right, nullptr);
+// 	ent->s.origin = spot->s.origin;
+// 	ent->s.origin[2] += 16;
+// 	ent->velocity = forward * 100;
+// 	ent->velocity[2] = 300;
 
-	ent->nextthink = level.time + CTF_TECH_TIMEOUT;
-	ent->think = TechThink;
+// 	ent->nextthink = level.time + CTF_TECH_TIMEOUT;
+// 	ent->think = TechThink;
 
-	gi.linkentity(ent);
-}
+// 	gi.linkentity(ent);
+// }
 
-THINK(SpawnTechs) (edict_t *ent) -> void
-{
-	edict_t *spot;
-	int		 i;
+// THINK(SpawnTechs) (edict_t *ent) -> void
+// {
+// 	edict_t *spot;
+// 	int		 i;
 
-	i = 0;
-	for (; i < q_countof(tech_ids); i++)
-	{
-		if ((spot = FindTechSpawn()) != nullptr)
-			SpawnTech(GetItemByIndex(tech_ids[i]), spot);
-	}
-	if (ent)
-		G_FreeEdict(ent);
-}
+// 	i = 0;
+// 	for (; i < q_countof(tech_ids); i++)
+// 	{
+// 		if ((spot = FindTechSpawn()) != nullptr)
+// 			SpawnTech(GetItemByIndex(tech_ids[i]), spot);
+// 	}
+// 	if (ent)
+// 		G_FreeEdict(ent);
+// }
 
-// frees the passed edict!
-void CTFRespawnTech(edict_t *ent)
-{
-	edict_t *spot;
+// // frees the passed edict!
+// void CTFRespawnTech(edict_t *ent)
+// {
+// 	edict_t *spot;
 
-	if ((spot = FindTechSpawn()) != nullptr)
-		SpawnTech(ent->item, spot);
-	G_FreeEdict(ent);
-}
+// 	if ((spot = FindTechSpawn()) != nullptr)
+// 		SpawnTech(ent->item, spot);
+// 	G_FreeEdict(ent);
+// }
 
 // void CTFSetupTechSpawn()
 // {
