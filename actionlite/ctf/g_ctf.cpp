@@ -95,7 +95,8 @@ int imageindex_ctfsb1;
 int imageindex_ctfsb2;
 int modelindex_flag1, modelindex_flag2; // [Paril-KEX]
 
-constexpr item_id_t tech_ids[] = { IT_TECH_RESISTANCE, IT_TECH_STRENGTH, IT_TECH_HASTE, IT_TECH_REGENERATION };
+// No techs
+//constexpr item_id_t tech_ids[] = { IT_TECH_RESISTANCE, IT_TECH_STRENGTH, IT_TECH_HASTE, IT_TECH_REGENERATION };
 
 /*--------------------------------------------------------------------------*/
 
@@ -1052,16 +1053,16 @@ void SetCTFStats(edict_t *ent)
 	}
 
 	// tech icon
-	i = 0;
-	ent->client->ps.stats[STAT_CTF_TECH] = 0;
-	for (; i < q_countof(tech_ids); i++)
-	{
-		if (ent->client->pers.inventory[tech_ids[i]])
-		{
-			ent->client->ps.stats[STAT_CTF_TECH] = gi.imageindex(GetItemByIndex(tech_ids[i])->icon);
-			break;
-		}
-	}
+	// i = 0;
+	// ent->client->ps.stats[STAT_CTF_TECH] = 0;
+	// for (; i < q_countof(tech_ids); i++)
+	// {
+	// 	if (ent->client->pers.inventory[tech_ids[i]])
+	// 	{
+	// 		ent->client->ps.stats[STAT_CTF_TECH] = gi.imageindex(GetItemByIndex(tech_ids[i])->icon);
+	// 		break;
+	// 	}
+	// }
 
 	if (ctf->integer)
 	{
@@ -1452,7 +1453,7 @@ void CTFWeapon_Grapple(edict_t *ent)
 	}
 
 	prevstate = ent->client->weaponstate;
-	Weapon_Generic(ent, 5, 10, 31, 36, pause_frames, fire_frames,
+	Weapon_Generic(ent, 5, 10, 31, 36, 5, 5, pause_frames, fire_frames,
 				   CTFWeapon_Grapple_Fire);
 
 	// if the the attack button is still down, stay in the firing frame
@@ -1792,38 +1793,38 @@ void CTFHasTech(edict_t *who)
 
 gitem_t *CTFWhat_Tech(edict_t *ent)
 {
-	int i;
+	// int i;
 
-	i = 0;
-	for (; i < q_countof(tech_ids); i++)
-	{
-		if (ent->client->pers.inventory[tech_ids[i]])
-		{
-			return GetItemByIndex(tech_ids[i]);
-		}
-	}
+	// i = 0;
+	// for (; i < q_countof(tech_ids); i++)
+	// {
+	// 	if (ent->client->pers.inventory[tech_ids[i]])
+	// 	{
+	// 		return GetItemByIndex(tech_ids[i]);
+	// 	}
+	// }
 	return nullptr;
 }
 
-bool CTFPickup_Tech(edict_t *ent, edict_t *other)
-{
-	int i;
+// bool CTFPickup_Tech(edict_t *ent, edict_t *other)
+// {
+// 	int i;
 
-	i = 0;
-	for (; i < q_countof(tech_ids); i++)
-	{
-		if (other->client->pers.inventory[tech_ids[i]])
-		{
-			CTFHasTech(other);
-			return false; // has this one
-		}
-	}
+// 	i = 0;
+// 	for (; i < q_countof(tech_ids); i++)
+// 	{
+// 		if (other->client->pers.inventory[tech_ids[i]])
+// 		{
+// 			CTFHasTech(other);
+// 			return false; // has this one
+// 		}
+// 	}
 
-	// client only gets one tech
-	other->client->pers.inventory[ent->item->id]++;
-	other->client->ctf_regentime = level.time;
-	return true;
-}
+// 	// client only gets one tech
+// 	other->client->pers.inventory[ent->item->id]++;
+// 	other->client->ctf_regentime = level.time;
+// 	return true;
+// }
 
 static void SpawnTech(gitem_t *item, edict_t *spot);
 
@@ -1973,131 +1974,6 @@ void CTFResetTech()
 				G_FreeEdict(ent);
 	}
 	SpawnTechs(nullptr);
-}
-
-int CTFApplyResistance(edict_t *ent, int dmg)
-{
-	float volume = 1.0;
-
-	if (ent->client && ent->client->silencer_shots)
-		volume = 0.2f;
-
-	if (dmg && ent->client && ent->client->pers.inventory[IT_TECH_RESISTANCE])
-	{
-		// make noise
-		gi.sound(ent, CHAN_AUX, gi.soundindex("ctf/tech1.wav"), volume, ATTN_NORM, 0);
-		return dmg / 2;
-	}
-	return dmg;
-}
-
-int CTFApplyStrength(edict_t *ent, int dmg)
-{
-	if (dmg && ent->client && ent->client->pers.inventory[IT_TECH_STRENGTH])
-	{
-		return dmg * 2;
-	}
-	return dmg;
-}
-
-bool CTFApplyStrengthSound(edict_t *ent)
-{
-	float volume = 1.0;
-
-	if (ent->client && ent->client->silencer_shots)
-		volume = 0.2f;
-
-	if (ent->client &&
-		ent->client->pers.inventory[IT_TECH_STRENGTH])
-	{
-		if (ent->client->ctf_techsndtime < level.time)
-		{
-			ent->client->ctf_techsndtime = level.time + 1_sec;
-			if (ent->client->quad_time > level.time)
-				gi.sound(ent, CHAN_AUX, gi.soundindex("ctf/tech2x.wav"), volume, ATTN_NORM, 0);
-			else
-				gi.sound(ent, CHAN_AUX, gi.soundindex("ctf/tech2.wav"), volume, ATTN_NORM, 0);
-		}
-		return true;
-	}
-	return false;
-}
-
-bool CTFApplyHaste(edict_t *ent)
-{
-	if (ent->client &&
-		ent->client->pers.inventory[IT_TECH_HASTE])
-		return true;
-	return false;
-}
-
-void CTFApplyHasteSound(edict_t *ent)
-{
-	float volume = 1.0;
-
-	if (ent->client && ent->client->silencer_shots)
-		volume = 0.2f;
-
-	if (ent->client &&
-		ent->client->pers.inventory[IT_TECH_HASTE] &&
-		ent->client->ctf_techsndtime < level.time)
-	{
-		ent->client->ctf_techsndtime = level.time + 1_sec;
-		gi.sound(ent, CHAN_AUX, gi.soundindex("ctf/tech3.wav"), volume, ATTN_NORM, 0);
-	}
-}
-
-void CTFApplyRegeneration(edict_t *ent)
-{
-	bool	   noise = false;
-	gclient_t *client;
-	int		   index;
-	float	   volume = 1.0;
-
-	client = ent->client;
-	if (!client)
-		return;
-
-	if (ent->client->silencer_shots)
-		volume = 0.2f;
-
-	if (client->pers.inventory[IT_TECH_REGENERATION])
-	{
-		if (client->ctf_regentime < level.time)
-		{
-			client->ctf_regentime = level.time;
-			if (ent->health < 150)
-			{
-				ent->health += 5;
-				if (ent->health > 150)
-					ent->health = 150;
-				client->ctf_regentime += 500_ms;
-				noise = true;
-			}
-			index = ArmorIndex(ent);
-			if (index && client->pers.inventory[index] < 150)
-			{
-				client->pers.inventory[index] += 5;
-				if (client->pers.inventory[index] > 150)
-					client->pers.inventory[index] = 150;
-				client->ctf_regentime += 500_ms;
-				noise = true;
-			}
-		}
-		if (noise && ent->client->ctf_techsndtime < level.time)
-		{
-			ent->client->ctf_techsndtime = level.time + 1_sec;
-			gi.sound(ent, CHAN_AUX, gi.soundindex("ctf/tech4.wav"), volume, ATTN_NORM, 0);
-		}
-	}
-}
-
-bool CTFHasRegeneration(edict_t *ent)
-{
-	if (ent->client &&
-		ent->client->pers.inventory[IT_TECH_REGENERATION])
-		return true;
-	return false;
 }
 
 void CTFSay_Team(edict_t *who, const char *msg_in)

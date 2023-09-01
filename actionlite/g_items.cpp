@@ -1589,18 +1589,18 @@ void Drop_Special (edict_t *ent, gitem_t *item)
 void DropSpecialItem (edict_t * ent)
 {
 	// this is the order I'd probably want to drop them in...       
-	if (INV_AMMO(ent, LASER_NUM))
-		Drop_Special (ent, GET_ITEM(LASER_NUM));
-	else if (INV_AMMO(ent, SLIP_NUM))
-		Drop_Special (ent, GET_ITEM(SLIP_NUM));
-	else if (INV_AMMO(ent, SIL_NUM))
-		Drop_Special (ent, GET_ITEM(SIL_NUM));
-	else if (INV_AMMO(ent, BAND_NUM))
-		Drop_Special (ent, GET_ITEM(BAND_NUM));
-	else if (INV_AMMO(ent, HELM_NUM))
-		Drop_Special (ent, GET_ITEM(HELM_NUM));
-	else if (INV_AMMO(ent, KEV_NUM))
-		Drop_Special (ent, GET_ITEM(KEV_NUM));
+	if (INV_AMMO(ent, IT_ITEM_LASERSIGHT))
+		Drop_Special (ent, GetItemByIndex(IT_ITEM_LASERSIGHT));
+	else if (INV_AMMO(ent, IT_ITEM_SLIPPERS))
+		Drop_Special (ent, GetItemByIndex(IT_ITEM_SLIPPERS));
+	else if (INV_AMMO(ent, IT_ITEM_SLIPPERS))
+		Drop_Special (ent, GetItemByIndex(IT_ITEM_SLIPPERS));
+	else if (INV_AMMO(ent, IT_ITEM_BANDOLIER))
+		Drop_Special (ent, GetItemByIndex(IT_ITEM_BANDOLIER));
+	else if (INV_AMMO(ent, IT_ITEM_HELM))
+		Drop_Special (ent, GetItemByIndex(IT_ITEM_HELM));
+	else if (INV_AMMO(ent, IT_ITEM_VEST))
+		Drop_Special (ent, GetItemByIndex(IT_ITEM_VEST));
 }
 
 //======================================================================

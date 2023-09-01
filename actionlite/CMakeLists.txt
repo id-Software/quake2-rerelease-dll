@@ -3,6 +3,9 @@ project(game)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 
+set(CMAKE_C_COMPILER "gcc")
+set(CMAKE_CXX_COMPILER "g++")
+
 set(GAME_SRC 
     ${CMAKE_CURRENT_SOURCE_DIR}/bots/bot_debug.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/bots/bot_exports.cpp 
@@ -103,8 +106,8 @@ set(GAME_SRC
 set(CMAKE_CXX_FLAGS "-lm -ldl -fPIE -pie -lfmt" CACHE STRING "compile flags" FORCE)
 add_compile_options(-DKEX_Q2_GAME -DKEX_Q2GAME_EXPORTS -DNO_FMT_SOURCE -DKEX_Q2GAME_DYNAMIC)
 add_library(game SHARED ${GAME_SRC} )
-#target_include_directories(game PUBLIC /usr/local/Cellar/jsoncpp/1.9.5/include /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/usr/include/c++/v1/)
-target_include_directories(game PUBLIC /usr/include/jsoncpp)
+target_include_directories(game PUBLIC /usr/local/Cellar/jsoncpp/1.9.5/include /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/usr/include/c++/v1/)
+#target_include_directories(game PUBLIC /usr/include/jsoncpp)
 
 set_target_properties(game PROPERTIES
     POSITION_INDEPENDENT_CODE ON

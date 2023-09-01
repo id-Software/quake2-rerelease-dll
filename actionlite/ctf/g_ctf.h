@@ -113,20 +113,21 @@ void CTFGrapplePull(edict_t *self);
 void CTFResetGrapple(edict_t *self);
 
 // TECH
-gitem_t *CTFWhat_Tech(edict_t *ent);
-bool	 CTFPickup_Tech(edict_t *ent, edict_t *other);
-void	 CTFDrop_Tech(edict_t *ent, gitem_t *item);
-void	 CTFDeadDropTech(edict_t *ent);
-void	 CTFSetupTechSpawn();
-int		 CTFApplyResistance(edict_t *ent, int dmg);
-int		 CTFApplyStrength(edict_t *ent, int dmg);
-bool	 CTFApplyStrengthSound(edict_t *ent);
-bool	 CTFApplyHaste(edict_t *ent);
-void	 CTFApplyHasteSound(edict_t *ent);
-void	 CTFApplyRegeneration(edict_t *ent);
-bool	 CTFHasRegeneration(edict_t *ent);
-void	 CTFRespawnTech(edict_t *ent);
-void	 CTFResetTech();
+// No techs in Action CTF
+//gitem_t *CTFWhat_Tech(edict_t *ent);
+//bool	 CTFPickup_Tech(edict_t *ent, edict_t *other);
+// void	 CTFDrop_Tech(edict_t *ent, gitem_t *item);
+// void	 CTFDeadDropTech(edict_t *ent);
+// void	 CTFSetupTechSpawn();
+// int		 CTFApplyResistance(edict_t *ent, int dmg);
+// int		 CTFApplyStrength(edict_t *ent, int dmg);
+// bool	 CTFApplyStrengthSound(edict_t *ent);
+// bool	 CTFApplyHaste(edict_t *ent);
+// void	 CTFApplyHasteSound(edict_t *ent);
+// void	 CTFApplyRegeneration(edict_t *ent);
+// bool	 CTFHasRegeneration(edict_t *ent);
+// void	 CTFRespawnTech(edict_t *ent);
+// void	 CTFResetTech();
 
 void CTFOpenJoinMenu(edict_t *ent);
 bool CTFStartClient(edict_t *ent);

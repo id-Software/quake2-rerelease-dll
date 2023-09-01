@@ -150,13 +150,6 @@ void Player_UpdateState( edict_t * player ) {
 		// NOTE: to be the "best", and last the "worst". You don't need to add
 		// NOTE: entries for things like armor shards, only actual armors.
 		// NOTE: Check "Max_Armor_Types" to raise/lower the armor count.
-		armorInfo_t * armorInfo = player->sv.armor_info;
-		armorInfo[ 0 ].item_id = IT_ARMOR_BODY;
-		armorInfo[ 0 ].max_count = bodyarmor_info.max_count;
-		armorInfo[ 1 ].item_id = IT_ARMOR_COMBAT;
-		armorInfo[ 1 ].max_count = combatarmor_info.max_count;
-		armorInfo[ 2 ].item_id = IT_ARMOR_JACKET;
-		armorInfo[ 2 ].max_count = jacketarmor_info.max_count;
 
 		gi.Info_ValueForKey( player->client->pers.userinfo, "name", player->sv.netname, sizeof( player->sv.netname ) );
 

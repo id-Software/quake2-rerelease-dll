@@ -2,3 +2,5 @@
 build
 *.dylib
 _deps
+CMakeCache.txt
+CMakeFiles

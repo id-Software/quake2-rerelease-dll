@@ -1245,14 +1245,6 @@ void weapon_grenadelauncher_fire(edict_t *ent)
 	G_RemoveAmmo(ent);
 }
 
-void Weapon_GrenadeLauncher(edict_t *ent)
-{
-	constexpr int pause_frames[] = { 34, 51, 59, 0 };
-	constexpr int fire_frames[] = { 6, 0 };
-
-	Weapon_Generic(ent, 5, 16, 59, 64, pause_frames, fire_frames, weapon_grenadelauncher_fire);
-}
-
 /*
 ======================================================================
 
@@ -1291,14 +1283,6 @@ void Weapon_RocketLauncher_Fire(edict_t *ent)
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 	
 	G_RemoveAmmo(ent);
-}
-
-void Weapon_RocketLauncher(edict_t *ent)
-{
-	constexpr int pause_frames[] = { 25, 33, 42, 50, 0 };
-	constexpr int fire_frames[] = { 5, 0 };
-
-	Weapon_Generic(ent, 4, 12, 50, 54, pause_frames, fire_frames, Weapon_RocketLauncher_Fire);
 }
 
 /*
@@ -1344,14 +1328,6 @@ void Weapon_Blaster_Fire(edict_t *ent)
 	// give the blaster 15 across the board instead of just in dm
 	int damage = 15;
 	Blaster_Fire(ent, vec3_origin, damage, false, EF_BLASTER);
-}
-
-void Weapon_Blaster(edict_t *ent)
-{
-	constexpr int pause_frames[] = { 19, 32, 0 };
-	constexpr int fire_frames[] = { 5, 0 };
-
-	Weapon_Generic(ent, 4, 8, 52, 55, pause_frames, fire_frames, Weapon_Blaster_Fire);
 }
 
 void Weapon_HyperBlaster_Fire(edict_t *ent)
@@ -1702,13 +1678,6 @@ void weapon_shotgun_fire(edict_t *ent)
 	G_RemoveAmmo(ent);
 }
 
-void Weapon_Shotgun(edict_t *ent)
-{
-	constexpr int pause_frames[] = { 22, 28, 34, 0 };
-	constexpr int fire_frames[] = { 8, 0 };
-
-	Weapon_Generic(ent, 7, 18, 36, 39, pause_frames, fire_frames, weapon_shotgun_fire);
-}
 
 void weapon_supershotgun_fire(edict_t *ent)
 {
@@ -1750,14 +1719,6 @@ void weapon_supershotgun_fire(edict_t *ent)
 	G_RemoveAmmo(ent);
 }
 
-void Weapon_SuperShotgun(edict_t *ent)
-{
-	constexpr int pause_frames[] = { 29, 42, 57, 0 };
-	constexpr int fire_frames[] = { 7, 0 };
-
-	Weapon_Generic(ent, 6, 17, 57, 61, pause_frames, fire_frames, weapon_supershotgun_fire);
-}
-
 /*
 ======================================================================
 
@@ -1794,14 +1755,6 @@ void weapon_railgun_fire(edict_t *ent)
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 	
 	G_RemoveAmmo(ent);
-}
-
-void Weapon_Railgun(edict_t *ent)
-{
-	constexpr int pause_frames[] = { 56, 0 };
-	constexpr int fire_frames[] = { 4, 0 };
-
-	Weapon_Generic(ent, 3, 18, 56, 61, pause_frames, fire_frames, weapon_railgun_fire);
 }
 
 /*
@@ -1861,14 +1814,6 @@ void weapon_bfg_fire(edict_t *ent)
 	G_RemoveAmmo(ent);
 }
 
-void Weapon_BFG(edict_t *ent)
-{
-	constexpr int pause_frames[] = { 39, 45, 50, 55, 0 };
-	constexpr int fire_frames[] = { 9, 17, 0 };
-
-	Weapon_Generic(ent, 8, 32, 54, 58, pause_frames, fire_frames, weapon_bfg_fire);
-}
-
 //======================================================================
 
 void weapon_disint_fire(edict_t *self)
@@ -1889,14 +1834,6 @@ void weapon_disint_fire(edict_t *self)
 	PlayerNoise(self, start, PNOISE_WEAPON);
 
 	G_RemoveAmmo(self);
-}
-
-void Weapon_Beta_Disintegrator(edict_t *ent)
-{
-	constexpr int pause_frames[] = { 30, 37, 45, 0 };
-	constexpr int fire_frames[] = { 17, 0 };
-
-	Weapon_Generic(ent, 16, 23, 46, 50, pause_frames, fire_frames, weapon_disint_fire);
 }
 
 //======================================================================
