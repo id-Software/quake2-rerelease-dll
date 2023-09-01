@@ -109,8 +109,8 @@ set(GAME_SRC
 set(CMAKE_CXX_FLAGS "-lm -ldl -fPIE -pie -lfmt" CACHE STRING "compile flags" FORCE)
 add_compile_options(-DKEX_Q2_GAME -DKEX_Q2GAME_EXPORTS -DNO_FMT_SOURCE -DKEX_Q2GAME_DYNAMIC)
 add_library(game SHARED ${GAME_SRC} )
-target_include_directories(game PUBLIC /usr/local/Cellar/jsoncpp/1.9.5/include /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/usr/include/c++/v1/)
-#target_include_directories(game PUBLIC /usr/include/jsoncpp)
+#target_include_directories(game PUBLIC /usr/local/Cellar/jsoncpp/1.9.5/include /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/usr/include/c++/v1/)
+target_include_directories(game PUBLIC /usr/include/jsoncpp)
 
 set_target_properties(game PROPERTIES
     POSITION_INDEPENDENT_CODE ON

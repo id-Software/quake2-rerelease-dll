@@ -99,7 +99,7 @@ void LaserSightThink(edict_t * self)
 		VectorCopy(endp, tr.endpos);
 	}
 
-	vectoangles(tr.plane.normal, self->s.angles);
+	vectoangles(self->s.angles);
 	VectorCopy(tr.endpos, self->s.origin);
 
 	self->s.modelindex = (tr.surface && (tr.surface->flags & SURF_SKY)) ? level.model_null : level.model_lsight;
@@ -157,7 +157,7 @@ void Cmd_Reload_f(edict_t * ent)
 			// this gives them a chance to break off from reloading to fire the weapon - zucc
 			if (ent->client->ps.gunframe >= 48) {
 				ent->client->fast_reload = 1;
-				(ent->client->pers.weapon->ammo)--;
+				ent->client->pers.weapon->ammo--;
 			} else {
 				ent->client->reload_attempts++;
 			}
@@ -206,8 +206,8 @@ void Cmd_Reload_f(edict_t * ent)
 			}
 		}
 		ent->client->ps.fov = 90;
-		if (ent->client->weapon)
-			ent->client->ps.gunindex = gi.modelindex(ent->client->weapon->view_model);
+		if (ent->client->pers.weapon)
+			ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
 		break;
 	case IT_WEAPON_DUALMK23:
 		if (ent->client->dual_rds == ent->client->dual_max)
@@ -221,7 +221,7 @@ void Cmd_Reload_f(edict_t * ent)
 		if (ent->client->pers.weapon->ammo == 1) {
 			gitem_t *it;
 
-			it = GET_ITEM(MK23_NUM);
+			it = GetItemByIndex(IT_WEAPON_MK23);
 			it->use(ent, it);
 			ent->client->autoreloading = true;
 			return;
@@ -265,8 +265,6 @@ void Cmd_Reload_f(edict_t * ent)
 //======================================================================
 // Action Add End
 //======================================================================
-
-
 
 void SelectNextItem(edict_t *ent, item_flags_t itflags)
 {

@@ -122,50 +122,17 @@ void PrintMatchRules ()
 {
 	char rulesmsg[256];
 
-	// Espionage rules
-	if (esp->value) {
-		if (espsettings.mode == ESPMODE_ATL) {
-			if (teamCount == TEAM2) {
-				Com_sprintf( rulesmsg, sizeof( rulesmsg ), "%s leader: %s (%s)\n\n%s leader: %s (%s)\n\nFrag the other team's leader to win!\n",
-					teams[TEAM1].name, teams[TEAM1].leader->client->pers.netname, teams[TEAM1].leader_name,
-					teams[TEAM2].name, teams[TEAM2].leader->client->pers.netname, teams[TEAM2].leader_name );
-				} else if (teamCount == TEAM3) {
-					Com_sprintf( rulesmsg, sizeof( rulesmsg ), "%s leader: %s (%s)\n\n%s leader: %s (%s)\n\n%s leader: %s (%s)\n\nFrag the other team's leaders to win!\n",
-					teams[TEAM1].name, teams[TEAM1].leader->client->pers.netname, teams[TEAM1].leader_name,
-					teams[TEAM2].name, teams[TEAM2].leader->client->pers.netname, teams[TEAM2].leader_name,
-					teams[TEAM3].name, teams[TEAM3].leader->client->pers.netname, teams[TEAM3].leader_name );
-				}
-		} else if (espsettings.mode == ESPMODE_ETV) {
-			Com_sprintf( rulesmsg, sizeof( rulesmsg ), "\n\n%s: Escort your leader %s to the %s! Don't get them killed!\n\n%s: DO NOT let %s get to the %s! Use lethal force!",
-				teams[TEAM1].name, teams[TEAM1].leader->client->pers.netname, espsettings.target_name, teams[TEAM2].name, teams[TEAM1].leader->client->pers.netname, espsettings.target_name );
-		}
-	}
-	// CTF rules
-	else if (ctf->value) {
-		if (capturelimit->value) {
-			Com_sprintf( rulesmsg, sizeof( rulesmsg ), "%s versus: %s\n\nCapture the other team's flag!\nNo capturelimit set!\n",
-			teams[TEAM1].name, teams[TEAM2].name );
-		} else {
-			Com_sprintf( rulesmsg, sizeof( rulesmsg ), "%s versus: %s\n\nCapture the other team's flag!\nThe first team to %s captures wins!\n",
-			teams[TEAM1].name, teams[TEAM2].name, capturelimit->string );
-		}
-	}
-	else if (dom->value) {
-		// I'll fill this in later
-		Com_sprintf( rulesmsg, sizeof( rulesmsg ), "%s versus: %s\n\nCapture all of the checkpoints!\nNo capturelimit set!\n",
-			teams[TEAM1].name, teams[TEAM2].name );
-	}
-	else if (!deathmatch->value) {
+	if (!deathmatch->value) {
 		if (teamCount == TEAM2) {
-			Com_sprintf( rulesmsg, sizeof( rulesmsg ), "%s versus: %s\n\nFrag the other team!\n",
+			snprintf( rulesmsg, sizeof( rulesmsg ), "%s versus: %s\n\nFrag the other team!\n",
 				teams[TEAM1].name, teams[TEAM2].name );
 		} else if (teamCount == TEAM3) {
-			Com_sprintf( rulesmsg, sizeof( rulesmsg ), "%s versus %s versus %s\n\nFrag the other team!\n",
+			snprintf( rulesmsg, sizeof( rulesmsg ), "%s versus %s versus %s\n\nFrag the other team!\n",
 				teams[TEAM1].name, teams[TEAM2].name, teams[TEAM3].name );
 		}
 	} else {
 		// If nothing else matches, just say glhf
-		Com_sprintf( rulesmsg, sizeof( rulesmsg ), "Frag 'em all!  Good luck and have fun!\n");
+		snprintf( rulesmsg, sizeof( rulesmsg ), "Frag 'em all!  Good luck and have fun!\n");
 	}
 	CenterPrintAll(rulesmsg);
 }
@@ -190,10 +157,10 @@ void JoinTeamAuto (edict_t * ent, pmenu_t * p)
 	score2 = teams[TEAM2].score;
 	score3 = teams[TEAM3].score;
 
-	if(ctf->value) {
-		CTFCalcScores();
-		GetCTFScores(&score1, &score2);
-	}
+	// if(ctf->value) {
+	// 	CTFCalcScores();
+	// 	GetCTFScores(&score1, &score2);
+	// }
 
 	/* there are many different things to consider when selecting a team */
 	if (num1 > num2 || (num1 == num2 && score1 > score2))
@@ -241,162 +208,100 @@ void LeaveTeams (edict_t * ent, pmenu_t * p)
 
 void SelectWeapon2(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenWeapon = GET_ITEM(MP5_NUM);
+	ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_MP5);
 	PMenu_Close(ent);
-	if(!item_kit_mode->value){
-		OpenItemMenu(ent);
-	} else {
-		OpenItemKitMenu(ent);
-	}
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/mp5slide.wav"), 1.0);
 }
 
 void SelectWeapon3(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenWeapon = GET_ITEM(M3_NUM);
+	ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_M3);
 	PMenu_Close(ent);
-	if(!item_kit_mode->value){
-		OpenItemMenu(ent);
-	} else {
-		OpenItemKitMenu(ent);
-	}
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/m3in.wav"), 1.0);
 }
 
 void SelectWeapon4(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenWeapon = GET_ITEM(HC_NUM);
+	ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_HANDCANNON);
 	PMenu_Close(ent);
-	if(!item_kit_mode->value){
-		OpenItemMenu(ent);
-	} else {
-		OpenItemKitMenu(ent);
-	}
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/cclose.wav"), 1.0);
 }
 
 void SelectWeapon5(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenWeapon = GET_ITEM(SNIPER_NUM);
+	ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_SNIPER);
 	PMenu_Close(ent);
-	if(!item_kit_mode->value){
-		OpenItemMenu(ent);
-	} else {
-		OpenItemKitMenu(ent);
-	}
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/ssgbolt.wav"), 1.0);
 }
 
 void SelectWeapon6(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenWeapon = GET_ITEM(M4_NUM);
+	ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_M4);
 	PMenu_Close(ent);
-	if(!item_kit_mode->value){
-		OpenItemMenu(ent);
-	} else {
-		OpenItemKitMenu(ent);
-	}
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/m4a1slide.wav"), 1.0);
 }
 
 void SelectWeapon0(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenWeapon = GET_ITEM(KNIFE_NUM);
+	ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_KNIFE);
 	PMenu_Close(ent);
-	if(!item_kit_mode->value){
-		OpenItemMenu(ent);
-	} else {
-		OpenItemKitMenu(ent);
-	}
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/swish.wav"), 1.0);
 }
 
 void SelectWeapon9(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenWeapon = GET_ITEM(DUAL_NUM);
+	ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_DUALMK23);
 	PMenu_Close(ent);
-	if(!item_kit_mode->value){
-		OpenItemMenu(ent);
-	} else {
-		OpenItemKitMenu(ent);
-	}
+	OpenItemMenu(ent);
 	unicastSound(ent, gi.soundindex("weapons/mk23slide.wav"), 1.0);
 }
 
 void SelectItem1(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenItem = GET_ITEM(KEV_NUM);
-	if(item_kit_mode->value){
-		// This is so it clears the chosenItem2 if a previous kit was chosen
-		ent->client->pers.chosenItem2 = NULL;
-	}
+	ent->client->pers.chosenItem = GetItemByIndex(IT_ITEM_VEST);
 	PMenu_Close(ent);
 	unicastSound(ent, gi.soundindex("misc/veston.wav"), 1.0);
 }
 
 void SelectItem2(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenItem = GET_ITEM(LASER_NUM);
+	ent->client->pers.chosenItem = GetItemByIndex(IT_ITEM_LASERSIGHT);
 	PMenu_Close(ent);
 	unicastSound(ent, gi.soundindex("misc/lasersight.wav"), 1.0);
 }
 
 void SelectItem3(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenItem = GET_ITEM(SLIP_NUM);
+	ent->client->pers.chosenItem = GetItemByIndex(IT_ITEM_SLIPPERS);
 	PMenu_Close(ent);
 	unicastSound(ent, gi.soundindex("misc/veston.wav"), 1.0);
 }
 
 void SelectItem4(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenItem = GET_ITEM(SIL_NUM);
+	ent->client->pers.chosenItem = GetItemByIndex(IT_ITEM_QUIET);
 	PMenu_Close(ent);
 	unicastSound(ent, gi.soundindex("misc/screw.wav"), 1.0);
 }
 
 void SelectItem5(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenItem = GET_ITEM(BAND_NUM);
+	ent->client->pers.chosenItem = GetItemByIndex(IT_ITEM_BANDOLIER);
 	PMenu_Close(ent);
 	unicastSound(ent, gi.soundindex("misc/veston.wav"), 1.0);
 }
 
 void SelectItem6(edict_t *ent, pmenu_t *p)
 {
-	ent->client->pers.chosenItem = GET_ITEM(HELM_NUM);
+	ent->client->pers.chosenItem = GetItemByIndex(IT_ITEM_HELM);
 	PMenu_Close(ent);
 	unicastSound(ent, gi.soundindex("misc/veston.wav"), 1.0);
-}
-
-// Commando kit
-void SelectKit1(edict_t *ent, pmenu_t *p)
-{
-	ent->client->pers.chosenItem = GET_ITEM(BAND_NUM);
-	ent->client->pers.chosenItem2 = GET_ITEM(HELM_NUM);
-
-	PMenu_Close(ent);
-	unicastSound(ent, gi.soundindex("misc/veston.wav"), 1.0);
-}
-
-// Stealth kit
-void SelectKit2(edict_t *ent, pmenu_t *p)
-{
-	ent->client->pers.chosenItem = GET_ITEM(SLIP_NUM);
-	ent->client->pers.chosenItem2= GET_ITEM(SIL_NUM);
-
-	PMenu_Close(ent);
-	unicastSound(ent, gi.soundindex("misc/screw.wav"), 1.0);
-}
-
-// Assassin kit
-void SelectKit3(edict_t *ent, pmenu_t *p)
-{
-	ent->client->pers.chosenItem = GET_ITEM(LASER_NUM);
-	ent->client->pers.chosenItem2= GET_ITEM(SIL_NUM);
-
-	PMenu_Close(ent);
-	unicastSound(ent, gi.soundindex("misc/lasersight.wav"), 1.0);
 }
 
 // newrand returns n, where 0 >= n < top
@@ -408,13 +313,13 @@ int newrand (int top)
 void SelectRandomWeapon(edict_t *ent, pmenu_t *p)
 {
 	menu_list_weapon weapon_list[7] = {
-		{ .num = MP5_NUM, .sound = "weapons/mp5slide.wav", .name = MP5_NAME },
-		{ .num = M3_NUM, .sound = "weapons/m3in.wav", .name = M3_NAME },
-		{ .num = HC_NUM, .sound = "weapons/cclose.wav", .name = HC_NAME },
-		{ .num = SNIPER_NUM, .sound = "weapons/ssgbolt.wav", .name = SNIPER_NAME },
-		{ .num = M4_NUM, .sound = "weapons/m4a1slide.wav", .name = M4_NAME },
-		{ .num = KNIFE_NUM, .sound = "weapons/swish.wav", .name = KNIFE_NAME },
-		{ .num = DUAL_NUM, .sound = "weapons/mk23slide.wav", .name = DUAL_NAME }
+		{ .num = IT_WEAPON_MP5, .sound = "weapons/mp5slide.wav", .name = MP5_NAME },
+		{ .num = IT_WEAPON_M3, .sound = "weapons/m3in.wav", .name = M3_NAME },
+		{ .num = IT_WEAPON_HANDCANNON, .sound = "weapons/cclose.wav", .name = HC_NAME },
+		{ .num = IT_WEAPON_SNIPER, .sound = "weapons/ssgbolt.wav", .name = SNIPER_NAME },
+		{ .num = IT_WEAPON_M4, .sound = "weapons/m4a1slide.wav", .name = M4_NAME },
+		{ .num = IT_WEAPON_KNIFE, .sound = "weapons/swish.wav", .name = KNIFE_NAME },
+		{ .num = IT_WEAPON_DUALMK23, .sound = "weapons/mk23slide.wav", .name = DUAL_NAME }
 	};
 
 	int rand = newrand(7);
@@ -428,15 +333,11 @@ void SelectRandomWeapon(edict_t *ent, pmenu_t *p)
 		}
 	}
 	
-	ent->client->pers.chosenWeapon = GET_ITEM(selected_weapon.num);
+	ent->client->pers.chosenWeapon = GetItemByIndex(selected_weapon.num);
 	unicastSound(ent, gi.soundindex(selected_weapon.sound), 1.0);
-	gi.centerprintf(ent, "You selected %s", selected_weapon.name);
+	gi.LocCenter_Print(ent, "You selected %s", selected_weapon.name);
 	PMenu_Close(ent);
-	if(!item_kit_mode->value){
-		OpenItemMenu(ent);
-	} else {
-		OpenItemKitMenu(ent);
-	}
+	OpenItemMenu(ent);
 }
 
 void SelectRandomItem(edict_t *ent, pmenu_t *p)
@@ -445,27 +346,27 @@ void SelectRandomItem(edict_t *ent, pmenu_t *p)
 
 	// Create array with limited items on certain weapons to not have silly kombos
 	menu_list_item item_list[6] = {
-		{ .num = KEV_NUM, .sound = "misc/veston.wav", .name = KEV_NAME },
-		{ .num = SLIP_NUM, .sound = "misc/veston.wav", .name = SLIP_NAME },
-		{ .num = BAND_NUM, .sound = "misc/veston.wav", .name = BAND_NAME },
-		{ .num = HELM_NUM, .sound = "misc/veston.wav", .name = HELM_NAME },
+		{ .num = IT_ITEM_VEST, .sound = "misc/veston.wav", .name = KEV_NAME },
+		{ .num = IT_ITEM_SLIPPERS, .sound = "misc/veston.wav", .name = SLIP_NAME },
+		{ .num = IT_ITEM_BANDOLIER, .sound = "misc/veston.wav", .name = BAND_NAME },
+		{ .num = IT_ITEM_HELM, .sound = "misc/veston.wav", .name = HELM_NAME },
     };
 	int listCount = 4;
 
-	menu_list_item item_sil = { .num = SIL_NUM, .sound = "misc/screw.wav", .name = SIL_NAME };
-	menu_list_item item_las = { .num = LASER_NUM, .sound = "misc/lasersight.wav", .name = LASER_NAME };
+	menu_list_item item_sil = { .num = IT_ITEM_SLIPPERS, .sound = "misc/screw.wav", .name = SIL_NAME };
+	menu_list_item item_las = { .num = IT_ITEM_LASERSIGHT, .sound = "misc/lasersight.wav", .name = LASER_NAME };
 
-	if (selected_weapon == SNIPER_NUM)
+	if (selected_weapon == IT_WEAPON_SNIPER)
 	{
 		item_list[4] = item_sil;
 		listCount = 5;
 	}
-	if (selected_weapon == M4_NUM)
+	if (selected_weapon == IT_WEAPON_M4)
 	{
 		item_list[4] = item_las;
 		listCount = 5;
 	}
-	if (selected_weapon == MP5_NUM)
+	if (selected_weapon == IT_WEAPON_MP5)
 	{
 		item_list[4] = item_sil;
 		item_list[5] = item_las;
@@ -476,22 +377,22 @@ void SelectRandomItem(edict_t *ent, pmenu_t *p)
 	menu_list_item selected_item = item_list[rand];
 
 	if (ent->client->pers.chosenItem) {
-		while (selected_item.num == ent->client->pers.chosenItem->typeNum && selected_item.num < SIL_NUM)
+		while (selected_item.num == ent->client->pers.chosenItem->typeNum && selected_item.num < IT_ITEM_SLIPPERS)
 		{
 			rand = newrand(listCount);
 			selected_item = item_list[rand];
 		}
 	} else {
-		while (selected_item.num < SIL_NUM)
+		while (selected_item.num < IT_ITEM_SLIPPERS)
 		{
 			rand = newrand(listCount);
 			selected_item = item_list[rand];
 		}
 	}
 
-	ent->client->pers.chosenItem = GET_ITEM(selected_item.num);
+	ent->client->pers.chosenItem = GetItemByIndex(selected_item.num);
 	unicastSound(ent, gi.soundindex(selected_item.sound), 1.0);
-	gi.centerprintf(ent, "You selected %s", selected_item.name);
+	gi.LocCenter_Print(ent, "You selected %s", selected_item.name);
 	PMenu_Close(ent);
 }
 
@@ -499,13 +400,13 @@ void SelectRandomWeaponAndItem(edict_t *ent, pmenu_t *p)
 {
 	// WEAPON
 	menu_list_weapon weapon_list[7] = {
-		{ .num = MP5_NUM, .sound = "weapons/mp5slide.wav", .name = MP5_NAME },
-		{ .num = M3_NUM, .sound = "weapons/m3in.wav", .name = M3_NAME },
-		{ .num = HC_NUM, .sound = "weapons/cclose.wav", .name = HC_NAME },
-		{ .num = SNIPER_NUM, .sound = "weapons/ssgbolt.wav", .name = SNIPER_NAME },
-		{ .num = M4_NUM, .sound = "weapons/m4a1slide.wav", .name = M4_NAME },
-		{ .num = KNIFE_NUM, .sound = "weapons/swish.wav", .name = KNIFE_NAME },
-		{ .num = DUAL_NUM, .sound = "weapons/mk23slide.wav", .name = DUAL_NAME }
+		{ .num = IT_WEAPON_MP5, .sound = "weapons/mp5slide.wav", .name = MP5_NAME },
+		{ .num = IT_WEAPON_M3, .sound = "weapons/m3in.wav", .name = M3_NAME },
+		{ .num = IT_WEAPON_HANDCANNON, .sound = "weapons/cclose.wav", .name = HC_NAME },
+		{ .num = IT_WEAPON_SNIPER, .sound = "weapons/ssgbolt.wav", .name = SNIPER_NAME },
+		{ .num = IT_WEAPON_M4, .sound = "weapons/m4a1slide.wav", .name = M4_NAME },
+		{ .num = IT_WEAPON_KNIFE, .sound = "weapons/swish.wav", .name = KNIFE_NAME },
+		{ .num = IT_WEAPON_DUALMK23, .sound = "weapons/mk23slide.wav", .name = DUAL_NAME }
 	};
 
 	int rand = newrand(7);
@@ -519,33 +420,33 @@ void SelectRandomWeaponAndItem(edict_t *ent, pmenu_t *p)
 		}
 	}
 	
-	ent->client->pers.chosenWeapon = GET_ITEM(selected_weapon.num);
+	ent->client->pers.chosenWeapon = GetItemByIndex(selected_weapon.num);
 	unicastSound(ent, gi.soundindex(selected_weapon.sound), 1.0);
 
 	// ITEM
 	// Create array with limited items on certain weapons to not have silly kombos
 	menu_list_item item_list[6] = {
-		{ .num = KEV_NUM, .sound = "misc/veston.wav", .name = KEV_NAME },
-		{ .num = SLIP_NUM, .sound = "misc/veston.wav", .name = SLIP_NAME },
-		{ .num = BAND_NUM, .sound = "misc/veston.wav", .name = BAND_NAME },
-		{ .num = HELM_NUM, .sound = "misc/veston.wav", .name = HELM_NAME },
+		{ .num = IT_ITEM_VEST, .sound = "misc/veston.wav", .name = KEV_NAME },
+		{ .num = IT_ITEM_SLIPPERS, .sound = "misc/veston.wav", .name = SLIP_NAME },
+		{ .num = IT_ITEM_BANDOLIER, .sound = "misc/veston.wav", .name = BAND_NAME },
+		{ .num = IT_ITEM_HELM, .sound = "misc/veston.wav", .name = HELM_NAME },
 	};
 	int listCount = 4;
 
-	menu_list_item item_sil = { .num = SIL_NUM, .sound = "misc/screw.wav", .name = SIL_NAME };
-	menu_list_item item_las = { .num = LASER_NUM, .sound = "misc/lasersight.wav", .name = LASER_NAME };
+	menu_list_item item_sil = { .num = IT_ITEM_SLIPPERS, .sound = "misc/screw.wav", .name = SIL_NAME };
+	menu_list_item item_las = { .num = IT_ITEM_LASERSIGHT, .sound = "misc/lasersight.wav", .name = LASER_NAME };
 
-	if (selected_weapon.num == SNIPER_NUM)
+	if (selected_weapon.num == IT_WEAPON_SNIPER)
 	{
 		item_list[4] = item_sil;
 		listCount = 5;
 	}
-	if (selected_weapon.num == M4_NUM)
+	if (selected_weapon.num == IT_WEAPON_M4)
 	{
 		item_list[4] = item_las;
 		listCount = 5;
 	}
-	if (selected_weapon.num == MP5_NUM)
+	if (selected_weapon.num == IT_WEAPON_MP5)
 	{
 		item_list[4] = item_sil;
 		item_list[5] = item_las;
@@ -567,9 +468,9 @@ void SelectRandomWeaponAndItem(edict_t *ent, pmenu_t *p)
 		gi.cprintf(ent, PRINT_HIGH, "%i %s\n", item_list[i].num, item_list[i].name);
 	}
 
-	ent->client->pers.chosenItem = GET_ITEM(selected_item.num);
+	ent->client->pers.chosenItem = GetItemByIndex(selected_item.num);
 	unicastSound(ent, gi.soundindex(selected_item.sound), 1.0);
-	gi.centerprintf(ent, "You selected %s and %s", selected_weapon.name, selected_item.name);
+	gi.LocCenter_Print(ent, "You selected %s and %s", selected_weapon.name, selected_item.name);
 	PMenu_Close(ent);
 }
 
@@ -795,7 +696,7 @@ void killPlayer( edict_t *ent, bool suicidePunish )
 		if (attacker && attacker != ent && attacker->client)
 		{
 			char deathmsg[128];
-			Com_sprintf( deathmsg, sizeof( deathmsg ), "%s ph34rs %s so much %s committed suicide! :)\n",
+			snprintf( deathmsg, sizeof( deathmsg ), "%s ph34rs %s so much %s committed suicide! :)\n",
 				ent->client->pers.netname, attacker->client->pers.netname,
 				ent->client->pers.gender ? "she" : "he");
 			
@@ -856,13 +757,13 @@ void AssignSkin (edict_t * ent, const char *s, bool nickChanged)
 		switch (ent->client->resp.team)
 		{
 		case TEAM1:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s%s", ent->client->pers.netname, t, CTF_TEAM1_SKIN);
+			snprintf(skin, sizeof(skin), "%s\\%s%s", ent->client->pers.netname, t, CTF_TEAM1_SKIN);
 			break;
 		case TEAM2:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s%s", ent->client->pers.netname, t, CTF_TEAM2_SKIN);
+			snprintf(skin, sizeof(skin), "%s\\%s%s", ent->client->pers.netname, t, CTF_TEAM2_SKIN);
 			break;
 		default:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, default_skin);
+			snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, default_skin);
 			break;
 		}
 	}
@@ -876,25 +777,25 @@ void AssignSkin (edict_t * ent, const char *s, bool nickChanged)
 		switch (ent->client->resp.team)
 		{
 		case TEAM1:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM1].skin);
+			snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM1].skin);
 			if (IS_LEADER(ent)){
-				Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM1].leader_skin);
+				snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM1].leader_skin);
 			}
 			break;
 		case TEAM2:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM2].skin);
+			snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM2].skin);
 			if ((espsettings.mode == 0) && IS_LEADER(ent)){
-				Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM2].leader_skin);
+				snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM2].leader_skin);
 			}
 			break;
 		case TEAM3:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM3].skin);
+			snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM3].skin);
 			if ((espsettings.mode == 0) && IS_LEADER(ent)){
-				Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM3].leader_skin);
+				snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM3].leader_skin);
 			}
 			break;
 		default:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, default_skin);
+			snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, default_skin);
 			break;
 		}
 		//gi.dprintf("I assigned skin  %s  to  %s\n", skin, ent->client->pers.netname);
@@ -906,10 +807,10 @@ void AssignSkin (edict_t * ent, const char *s, bool nickChanged)
 		case TEAM1:
 		case TEAM2:
 		case TEAM3:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[ent->client->resp.team].skin);
+			snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[ent->client->resp.team].skin);
 			break;
 		default:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, (teamplay->value ? default_skin : s));
+			snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, (teamplay->value ? default_skin : s));
 			break;
 		}
 	}
@@ -1047,7 +948,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 			if (skip_menuclose)
 				gi.cprintf(ent, PRINT_HIGH, "Cannot join %s (locked)\n", TeamName(desired_team));
 			else
-				gi.centerprintf(ent, "Cannot join %s (locked)", TeamName(desired_team));
+				gi.LocCenter_Print(ent, "Cannot join %s (locked)", TeamName(desired_team));
 
 			return;
 		}
@@ -1056,7 +957,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	{
 		if(eventeams->value && desired_team != NOTEAM) {
 			if(!IsAllowedToJoin(ent, desired_team)) {
-				gi.centerprintf(ent, "Cannot join %s (has too many players)", TeamName(desired_team));
+				gi.LocCenter_Print(ent, "Cannot join %s (has too many players)", TeamName(desired_team));
 				return;
 			}
 		}
@@ -1207,12 +1108,12 @@ typedef struct menuentry_s
 void OpenItemMenu (edict_t * ent)
 {
 	menuentry_t *menuEntry, menu_items[] = {
-		{ KEV_NUM, SelectItem1 },
-		{ LASER_NUM, SelectItem2 },
-		{ SLIP_NUM, SelectItem3 },
-		{ SIL_NUM, SelectItem4 },
-		{ BAND_NUM, SelectItem5 },
-		{ HELM_NUM, SelectItem6 }
+		{ IT_ITEM_VEST, SelectItem1 },
+		{ IT_ITEM_LASERSIGHT, SelectItem2 },
+		{ IT_ITEM_SLIPPERS, SelectItem3 },
+		{ IT_ITEM_SLIPPERS, SelectItem4 },
+		{ IT_ITEM_BANDOLIER, SelectItem5 },
+		{ IT_ITEM_HELM, SelectItem6 }
 		};
 	int i, count, pos = 4;
 
@@ -1248,7 +1149,7 @@ void OpenItemMenu (edict_t * ent)
 void OpenItemKitMenu (edict_t * ent)
 {
 	menuentry_t *kitmenuEntry, kit_menu_items[] = {
-		{ KEV_NUM, SelectItem1 },
+		{ IT_ITEM_VEST, SelectItem1 },
 		{ C_KIT_NUM, SelectKit1 },
 		{ S_KIT_NUM, SelectKit2 },
 		{ A_KIT_NUM, SelectKit3 }
@@ -1287,13 +1188,13 @@ void OpenWeaponMenu (edict_t * ent)
 	}
 
 	menuentry_t *menuEntry, menu_items[] = {
-		{ MP5_NUM, SelectWeapon2 },
-		{ M3_NUM, SelectWeapon3 },
-		{ HC_NUM, SelectWeapon4 },
-		{ SNIPER_NUM, SelectWeapon5 },
-		{ M4_NUM, SelectWeapon6 },
-		{ KNIFE_NUM, SelectWeapon0 },
-		{ DUAL_NUM, SelectWeapon9 }
+		{ IT_WEAPON_MP5, SelectWeapon2 },
+		{ IT_WEAPON_M3, SelectWeapon3 },
+		{ IT_WEAPON_HANDCANNON, SelectWeapon4 },
+		{ IT_WEAPON_SNIPER, SelectWeapon5 },
+		{ IT_WEAPON_M4, SelectWeapon6 },
+		{ IT_WEAPON_KNIFE, SelectWeapon0 },
+		{ IT_WEAPON_DUALMK23, SelectWeapon9 }
 	};
 	int i, count, pos = 4;
 
@@ -1319,15 +1220,11 @@ void OpenWeaponMenu (edict_t * ent)
 			}
 
 			PMenu_Open(ent, weapmenu, 4, sizeof(weapmenu) / sizeof(pmenu_t));
-			return;
+			reurn;
 		}
 	}
 
-	if(!item_kit_mode->value){
 		OpenItemMenu(ent);
-	} else {
-		OpenItemKitMenu(ent);
-	}
 }
 
 // AQ2:TNG Deathwatch - Updated this for the new menu
@@ -1450,20 +1347,20 @@ void CleanLevel ()
 			continue;
 		switch (ent->typeNum) {
 			case MK23_NUM:
-			case MP5_NUM:
-			case M4_NUM:
-			case M3_NUM:
-			case HC_NUM:
-			case SNIPER_NUM:
-			case DUAL_NUM:
-			case KNIFE_NUM:
+			case IT_WEAPON_MP5:
+			case IT_WEAPON_M4:
+			case IT_WEAPON_M3:
+			case IT_WEAPON_HANDCANNON:
+			case IT_WEAPON_SNIPER:
+			case IT_WEAPON_DUALMK23:
+			case IT_WEAPON_KNIFE:
 			case GRENADE_NUM:
-			case SIL_NUM:
-			case SLIP_NUM:
-			case BAND_NUM:
-			case KEV_NUM:
-			case LASER_NUM:
-			case HELM_NUM:
+			case IT_ITEM_SLIPPERS:
+			case IT_ITEM_SLIPPERS:
+			case IT_ITEM_BANDOLIER:
+			case IT_ITEM_VEST:
+			case IT_ITEM_LASERSIGHT:
+			case IT_ITEM_HELM:
 			case MK23_ANUM:
 			case MP5_ANUM:
 			case M4_ANUM:
@@ -1560,7 +1457,7 @@ void CenterPrintAll (const char *msg)
 	{
 		ent = &g_edicts[1 + i];
 		if (ent->inuse)
-			gi.centerprintf (ent, "%s", msg);
+			gi.LocCenter_Print (ent, "%s", msg);
 	}
 }
 
@@ -1767,19 +1664,19 @@ static void SpawnPlayers(void)
 
 		// make sure teamplay spawners always have some weapon, warmup starts only after weapon selected
 		if (!ent->client->pers.chosenWeapon) {
-			if (WPF_ALLOWED(MP5_NUM)) {
-				ent->client->pers.chosenWeapon = GET_ITEM(MP5_NUM);
+			if (WPF_ALLOWED(IT_WEAPON_MP5)) {
+				ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_MP5);
 			} else if (WPF_ALLOWED(MK23_NUM)) {
-				ent->client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
-			} else if (WPF_ALLOWED(KNIFE_NUM)) {
-				ent->client->pers.chosenWeapon = GET_ITEM(KNIFE_NUM);
+				ent->client->pers.chosenWeapon = GetItemByIndex(MK23_NUM);
+			} else if (WPF_ALLOWED(IT_WEAPON_KNIFE)) {
+				ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_KNIFE);
 			} else {
-				ent->client->pers.chosenWeapon = GET_ITEM(MK23_NUM);
+				ent->client->pers.chosenWeapon = GetItemByIndex(MK23_NUM);
 			}
 		}
 
 		if (!ent->client->pers.chosenItem) {
-			ent->client->pers.chosenItem = GET_ITEM(KEV_NUM);
+			ent->client->pers.chosenItem = GetItemByIndex(IT_ITEM_VEST);
 		}
 
 		// Random weapons and items mode.
@@ -1845,7 +1742,7 @@ void RunWarmup ()
 			ent->client->latched_buttons = 0;
 			PutClientInServer(ent);
 			AddToTransparentList(ent);
-			gi.centerprintf(ent, "WARMUP");
+			gi.LocCenter_Print(ent, "WARMUP");
 		}
 	}
 	#ifdef USE_AQTION
@@ -2396,7 +2293,7 @@ int CheckTeamRules (void)
 						tnow = time(NULL);
 						now = localtime(&tnow);
 						strftime( ltm, 64, "%Y%m%d-%H%M%S", now );
-						Com_sprintf( mvdstring, sizeof(mvdstring), "mvdrecord %s-%s\n", ltm, level.mapname );
+						snprintf( mvdstring, sizeof(mvdstring), "mvdrecord %s-%s\n", ltm, level.mapname );
 						gi.AddCommandString( mvdstring );
 						gi.bprintf( PRINT_HIGH, "Starting MVD recording to file %s-%s.mvd2\n", ltm, level.mapname );
 					}
@@ -2647,10 +2544,10 @@ void A_NewScoreboardMessage(edict_t * ent)
 	// print teams
 	for (i = TEAM1; i <= teamCount; i++)
 	{
-		Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string2 \"%3d %-11.11s Frg Tim Png\"", line++ * lineh, teams[i].score, teams[i].name );
+		snprintf( buf, sizeof( buf ), "xv 44 yv %d string2 \"%3d %-11.11s Frg Tim Png\"", line++ * lineh, teams[i].score, teams[i].name );
 		Q_strncatz( string, buf, sizeof( string ) );
 
-		Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string2 \"%s\" ",
+		snprintf( buf, sizeof( buf ), "xv 44 yv %d string2 \"%s\" ",
 			line++ * lineh,
 			"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F \x9D\x9E\x9F"
 			);
@@ -2674,7 +2571,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 			cl_ent = g_edicts + 1 + (cl - game.clients);
 			alive = IS_ALIVE(cl_ent);
 
-			Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string%c \"%-15s %3d %3d %3d\"",
+			snprintf( buf, sizeof( buf ), "xv 44 yv %d string%c \"%-15s %3d %3d %3d\"",
 				line++ * lineh,
 				(alive && dead ? '2' : ' '),
 				cl->pers.netname,
@@ -2689,7 +2586,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 
 		// show the amount of excess players
 		if (total[i] > MAX_PLAYERS_PER_TEAM) {
-			Com_sprintf( buf, sizeof( buf ), "xv 44 yv %d string \"   ..and %d more\"", line++ * lineh, total[i] - MAX_PLAYERS_PER_TEAM + 1 );
+			snprintf( buf, sizeof( buf ), "xv 44 yv %d string \"   ..and %d more\"", line++ * lineh, total[i] - MAX_PLAYERS_PER_TEAM + 1 );
 			Q_strncatz( string, buf, sizeof( string ) );
 		}
 
@@ -2829,9 +2726,9 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		for (i = TEAM1, line_x = base_x + headerOffset; i <= teamCount; i++, line_x += rowWidth)
 		{
 			if (matchmode->value)
-				Com_sprintf(temp, sizeof(temp), "%4i/%2i/%-2d", totalscore[i], total[i], totalsubs[i]);
+				snprintf(temp, sizeof(temp), "%4i/%2i/%-2d", totalscore[i], total[i], totalsubs[i]);
 			else
-				Com_sprintf(temp, sizeof(temp), "%4i/%2i", totalscore[i], total[i]);
+				snprintf(temp, sizeof(temp), "%4i/%2i", totalscore[i], total[i]);
 
 			sprintf( string + len,
 				"xv %i string \"%s\" ",
@@ -3172,7 +3069,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 				if( j )
 					strcat( string, " " );
 
-				if(      field == 'F' ) Com_sprintf( buf, sizeof(buf), "%5i", min( 99999, cl->resp.score ) );
+				if(      field == 'F' ) snprintf( buf, sizeof(buf), "%5i", min( 99999, cl->resp.score ) );
 				else if( field == 'T' )
 				{
 					if( matchmode->value )
@@ -3182,21 +3079,21 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 							suffix = 'C';
 						else if( cl->resp.subteam )
 							suffix = 'S';
-						Com_sprintf( buf, sizeof(buf), "  %c%c", (cl->resp.team ? (cl->resp.team + '0') : ' '), suffix );
+						snprintf( buf, sizeof(buf), "  %c%c", (cl->resp.team ? (cl->resp.team + '0') : ' '), suffix );
 					}
 					else
-						Com_sprintf( buf, sizeof(buf), "   %c", (cl->resp.team ? (cl->resp.team + '0') : ' ') );
+						snprintf( buf, sizeof(buf), "   %c", (cl->resp.team ? (cl->resp.team + '0') : ' ') );
 				}
-				else if( field == 'N' ) Com_sprintf( buf, sizeof(buf), "%-15s", cl->pers.netname );
+				else if( field == 'N' ) snprintf( buf, sizeof(buf), "%-15s", cl->pers.netname );
 				else if( field == 'M' )
 				{
 					int minutes = (level.framenum - cl->resp.enterframe) / (60 * HZ);
 					if( minutes < 60 )
-						Com_sprintf( buf, sizeof(buf), "%4i", minutes );
+						snprintf( buf, sizeof(buf), "%4i", minutes );
 					else if( minutes < 600 )
-						Com_sprintf( buf, sizeof(buf), "%1i:%02i", minutes / 60, minutes % 60 );
+						snprintf( buf, sizeof(buf), "%1i:%02i", minutes / 60, minutes % 60 );
 					else
-						Com_sprintf( buf, sizeof(buf), "%3ih", min( 999, minutes / 60 ) );
+						snprintf( buf, sizeof(buf), "%3ih", min( 999, minutes / 60 ) );
 				}
 				else if( field == 'P' )
 				{
@@ -3205,14 +3102,14 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 						strcpy( buf, " BOT" );
 					else
 #endif
-						Com_sprintf( buf, sizeof(buf), "%4i", min( 9999, cl->ping ) );
+						snprintf( buf, sizeof(buf), "%4i", min( 9999, cl->ping ) );
 				}
-				else if( field == 'C' ) Com_sprintf( buf, sizeof(buf), "%4i", min( 9999, cl->resp.ctf_caps ) );
-				else if( field == 'S' ) Com_sprintf( buf, sizeof(buf), "%5i", min( 99999, cl->resp.score ) );
-				else if( field == 'K' ) Com_sprintf( buf, sizeof(buf), "%5i", min( 99999, cl->resp.kills) );
-				else if( field == 'D' ) Com_sprintf( buf, sizeof(buf), "%6i", min( 999999, cl->resp.deaths) );
-				else if( field == 'I' ) Com_sprintf( buf, sizeof(buf), "%6i", min( 999999, cl->resp.damage_dealt) );
-				else if( field == 'A' ) Com_sprintf( buf, sizeof(buf), "%3.f", cl->resp.shotsTotal ? (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal : 0. );
+				else if( field == 'C' ) snprintf( buf, sizeof(buf), "%4i", min( 9999, cl->resp.ctf_caps ) );
+				else if( field == 'S' ) snprintf( buf, sizeof(buf), "%5i", min( 99999, cl->resp.score ) );
+				else if( field == 'K' ) snprintf( buf, sizeof(buf), "%5i", min( 99999, cl->resp.kills) );
+				else if( field == 'D' ) snprintf( buf, sizeof(buf), "%6i", min( 999999, cl->resp.deaths) );
+				else if( field == 'I' ) snprintf( buf, sizeof(buf), "%6i", min( 999999, cl->resp.damage_dealt) );
+				else if( field == 'A' ) snprintf( buf, sizeof(buf), "%3.f", cl->resp.shotsTotal ? (double) cl->resp.hitsTotal * 100.0 / (double) cl->resp.shotsTotal : 0. );
 				else sprintf( buf, "%c", sb[ j ] );
 
 				strcat( string, buf );

@@ -6,6 +6,9 @@
 
 #include "bg_local.h"
 
+#include "a_team.h"
+#include "a_game.h"
+
 // the "gameversion" client command will print this plus compile date
 constexpr const char *GAMEVERSION = "action";
 
@@ -775,8 +778,9 @@ enum movetype_t {
 	MOVETYPE_WALLBOUNCE,
 	// RAFAEL
 	// ROGUE
-	MOVETYPE_NEWTOSS // PGM - for deathball
+	MOVETYPE_NEWTOSS, // PGM - for deathball
 					 // ROGUE
+	MOVETYPE_BLOOD   // Action
 };
 
 // edict->flags
@@ -1191,6 +1195,7 @@ struct level_locals_t
 	gtime_t next_match_report;
 
 	// Action add
+	int32_t model_null;
 	int32_t model_lsight;
 };
 
@@ -2800,8 +2805,28 @@ struct client_respawn_t
 					// ZOID
 
 	// Action Add
+	aqteam_t team;
 	int32_t	sniper_mode;
 };
+
+// Action Add
+#define MAX_LOCATIONS_IN_BASE		256	// Max amount of locations
+extern int ml_count;
+extern placedata_t locationbase[];
+extern char ml_creator[101];
+
+struct team_t
+{
+	char name[20];
+	char skin[MAX_SKINLEN];
+	char skin_index[MAX_QPATH];
+	int23_t score, total;
+	int23_t ready, locked;
+	int23_t pauses_used, wantReset;
+	cvar_t	*teamscore;
+};
+
+// Action ADd
 
 // [Paril-KEX] seconds until we are fully invisible after
 // making a racket

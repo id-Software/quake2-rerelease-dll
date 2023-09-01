@@ -2796,13 +2796,11 @@ void Weapon_Dual(edict_t* ent)
 	Weapon_Generic(ent, 6, 10, 32, 40, 65, 68, pause_frames, fire_frames, Dual_Fire);
 }
 
-
-
 //zucc 
 
 #define FRAME_PREPARETHROW_FIRST        (FRAME_DEACTIVATE_LAST +1)
-#define FRAME_IDLE2_FIRST                       (FRAME_PREPARETHROW_LAST +1)
-#define FRAME_THROW_FIRST                       (FRAME_IDLE2_LAST +1)
+#define FRAME_IDLE2_FIRST               (FRAME_PREPARETHROW_LAST +1)
+#define FRAME_THROW_FIRST               (FRAME_IDLE2_LAST +1)
 #define FRAME_STOPTHROW_FIRST           (FRAME_THROW_LAST +1)
 #define FRAME_NEWKNIFE_FIRST            (FRAME_STOPTHROW_LAST +1)
 
@@ -2820,9 +2818,7 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 		return;			// not on client, so VWep animations could do wacky things
 
 	//FIREBLADE
-	if (ent->client->weaponstate == WEAPON_FIRING &&
-		((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD)
-			|| lights_camera_action))
+	if (ent->client->weaponstate == WEAPON_FIRING && !IS_ALIVE(ent) || lights_camera_action)
 	{
 		ent->client->weaponstate = WEAPON_READY;
 	}
