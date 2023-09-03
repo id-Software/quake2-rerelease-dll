@@ -1944,6 +1944,15 @@ constexpr item_id_t weap_ids[] = {
 	IT_WEAPON_SNIPER
 	};
 
+typedef enum {
+	GENDER_MALE,
+	GENDER_FEMALE,
+	GENDER_NEUTRAL
+} gender_t;
+
+#define GENDER_STR( ent, he, she, it ) (((ent)->client->pers.gender == GENDER_MALE) ? he : (((ent)->client->pers.gender == GENDER_FEMALE) ? she : it))
+
+
 //======================================================================
 // Action Add End
 //======================================================================
@@ -2595,6 +2604,7 @@ void RemoveAttackingPainDaemons(edict_t *self);
 bool G_ShouldPlayersCollide(bool weaponry);
 bool P_UseCoopInstancedItems();
 // ACTION
+void CL_FixUpGender(edict_t *ent, const char *userinfo);
 void ClientFixLegs(edict_t *ent);
 // ACTION
 
@@ -2808,6 +2818,7 @@ struct client_respawn_t
 
 	// Action Add
 	// Number of team kills this game
+	gender_t gender;
 	int32_t team_kills;
 	int32_t team_wounds;
 	

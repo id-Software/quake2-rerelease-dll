@@ -428,6 +428,44 @@ bool P_UseCoopInstancedItems()
 }
 
 //=======================================================================
+// Action Add
+//=======================================================================
+// Gender-based messaging in a genderless world
+// Credit to skuller for the `CL_FixUpGender` function
+//=======================================================================
+
+// This only applies to Action skins, all others become neutral
+void CL_FixUpGender(edict_t *ent, const char *userinfo)
+{
+    char *p;
+    char sk[MAX_QPATH];
+	char val[MAX_INFO_VALUE] = { 0 };
+
+	if (!ent->client)
+        return false;
+
+    Q_strlcpy(sk, info_skin->string, sizeof(sk));
+    if ((p = strchr(sk, '/')) != NULL)
+        *p = 0;
+    if (Q_stricmp(sk, "male") == 0 ||
+		Q_stricmp(sk, "actionmale") == 0 ||
+		Q_stricmp(sk, "aqmarine") == 0 ||
+		Q_stricmp(sk, "messiah") == 0 ||
+		Q_stricmp(sk, "sas") == 0 ||
+		Q_stricmp(sk, "terror") == 0
+		)
+		Q_strlcpy(val, "male", sizeof(val));
+    else if (Q_stricmp(sk, "female") == 0 ||
+			 Q_stricmp(sk, "crackhor") == 0 ||
+			 Q_stricmp(sk, "actionrally") == 0 ||
+			 Q_stricmp(sk, "sydney") == 0
+		)
+        Q_strlcpy(val, "female", sizeof(val));
+    else
+        Q_strlcpy(val, "none", sizeof(val));
+}
+
+//=======================================================================
 
 void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t mod)
 {
@@ -3431,6 +3469,10 @@ void ClientUserinfoChanged(edict_t *ent, const char *userinfo)
 	// set skin
 	if (!gi.Info_ValueForKey(userinfo, "skin", val, sizeof(val)))
 		Q_strlcpy(val, "male/grunt", sizeof(val));
+
+	// set gender based on skin (Action add)
+	//if (!gi.Info_ValueForKey(userinfo, "gender", val, sizeof(val)))
+	CL_FixUpGender(ent, userinfo);
 
 	int playernum = ent - g_edicts - 1;
 
