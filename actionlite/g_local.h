@@ -1621,13 +1621,28 @@ extern int sm_meat_index;
 extern int snd_fry;
 
 // Action Add
+extern cvar_t *teamdm;
+extern cvar_t *teamdm_respawn;
+extern cvar_t *respawn_effect;
+extern cvar_t *use_warnings;
+extern cvar_t *use_killcounts;
+extern cvar_t *use_rewards;
+extern cvar_t *motd_time;
+extern cvar_t *actionmaps;
+extern cvar_t *roundtimelimit;
+extern cvar_t *maxteamkills;
+extern cvar_t *twbanrounds;
+extern cvar_t *tkbanrounds;
+extern cvar_t *limchasecam;
+extern cvar_t *roundlimit;
+
 extern int snd_silencer;
 extern int snd_headshot;
 extern int snd_vesthit;
 extern int snd_knifethrow;
 extern int snd_kick;
 extern int snd_noammo;
-extern int meansOfDeath;
+extern mod_id_t meansOfDeath;
 // zucc for hitlocation of death
 extern int locOfDeath;
 // stop an armor piercing round that hits a vest
@@ -1944,14 +1959,39 @@ constexpr item_id_t weap_ids[] = {
 	IT_WEAPON_SNIPER
 	};
 
-typedef enum {
+enum damage_loc_t {
+	LOC_HDAM, // head
+	LOC_CDAM, // chest
+	LOC_SDAM, // stomach
+	LOC_LDAM, // legs
+	LOC_KVLR_HELMET, // kevlar helmet	Freud, for %D
+	LOC_KVLR_VEST, // kevlar vest 		Freud, for %D
+	LOC_NO, // Shot by shotgun or handcannon
+	LOC_MAX // must be last
+};
+
+enum award_t {
+	ACCURACY,
+	IMPRESSIVE,
+	EXCELLENT
+};
+
+enum gender_t {
 	GENDER_MALE,
 	GENDER_FEMALE,
 	GENDER_NEUTRAL
-} gender_t;
+};
 
 #define GENDER_STR( ent, he, she, it ) (((ent)->client->pers.gender == GENDER_MALE) ? he : (((ent)->client->pers.gender == GENDER_FEMALE) ? she : it))
 
+struct gunStats_t
+{
+	int shots;		//Number of shots
+	int hits;		//Number of hits
+	int headshots;	//Number of headshots
+	int kills;		//Number of kills
+	int damage;		//Damage dealt
+};
 
 //======================================================================
 // Action Add End
@@ -2824,6 +2864,32 @@ struct client_respawn_t
 	
 	aqteam_t team;
 	int32_t	sniper_mode;
+
+	int32_t idletime;
+	int32_t totalidletime;
+	int32_t tourneynumber;
+	edict_t *kickvote;
+
+	char *mapvote;		// pointer to map voted on (if any)
+	char *cvote;			// pointer to config voted on (if any)
+	bool scramblevote;	// want scramble
+
+	int32_t ignore_time;		// framenum when the player called ignore - to prevent spamming
+	
+	int32_t stat_mode;		// Automatical Send of statistics to client
+	int32_t stat_mode_intermission;
+
+	int32_t kills;
+	int32_t shotsTotal;					//Total number of shots
+	int32_t hitsTotal;					//Total number of hits
+	int32_t streakKills;					//Kills in a row
+	int32_t roundStreakKills;				//Kills in a row in that round
+	int32_t streakHS;						//Headshots in a Row
+	int32_t streakKillsHighest;			//Highest kills in a row
+	int32_t streakHSHighest;				//Highest headshots in a Row
+
+	int32_t hitsLocations[LOC_MAX];		//Number of hits for different locations
+	gunStats_t gunstats[MOD_TOTAL]; //Number of shots/hits for different guns, adjusted to MOD_TOTAL to allow grenade, kick and punch stats
 };
 
 // Action Add
@@ -3067,6 +3133,7 @@ struct gclient_t
 	gtime_t	 last_attacker_time;
 
 	// Action Add
+	char			ip[64];		// For banning IPs
 	int32_t			unique_item_total;
 	int32_t			unique_weapon_total;
 

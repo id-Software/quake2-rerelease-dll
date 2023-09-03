@@ -453,7 +453,7 @@ void PlaceHolder( edict_t * ent );  // p_weapon.c
 
 void ShellTouch(edict_t * self, edict_t * other, cplane_t * plane, csurface_t * surf)
 {
-	if (self->owner->client->curr_weap == M3_NUM)
+	if (self->owner->client->curr_weap == IT_WEAPON_M3)
 		gi.sound(self, CHAN_WEAPON, gi.soundindex("weapons/shellhit1.wav"), 1, ATTN_STATIC, 0);
 	else if (random() < 0.5)
 		gi.sound(self, CHAN_WEAPON, gi.soundindex("weapons/tink1.wav"), 0.2, ATTN_STATIC, 0);
@@ -519,30 +519,30 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 	// zucc spent a fair amount of time hacking these until they look ok,
 	// several of them could be improved however.
 
-	if (self->client->curr_weap == MK23_NUM) {
+	if (self->client->curr_weap == IT_WEAPON_MK23) {
 		VectorMA(start, left ? -7 : .4, right, start);
 		VectorMA(start, left ? 5 : 2, forward, start);
 		VectorMA(start, left ? -10 : -8, up, start);
-	} else if (self->client->curr_weap == M4_NUM) {
+	} else if (self->client->curr_weap == IT_WEAPON_M4) {
 		VectorMA(start, left ? -10 : 5, right, start);
 		VectorMA(start, left ? 6 : 12, forward, start);
 		VectorMA(start, left ? -9 : -11, up, start);
-	} else if (self->client->curr_weap == MP5_NUM) {
+	} else if (self->client->curr_weap == IT_WEAPON_MP5) {
 		VectorMA(start, left ? -10 : 6, right, start);
 		VectorMA(start, left ? 6 : 8, forward, start);
 		VectorMA(start, left ? -9 : -10, up, start);
-	} else if (self->client->curr_weap == SNIPER_NUM) {
+	} else if (self->client->curr_weap == IT_WEAPON_SNIPER) {
 		VectorMA(start, fix * 11, right, start);
 		VectorMA(start, 2, forward, start);
 		VectorMA(start, -11, up, start);
 
-	} else if (self->client->curr_weap == M3_NUM) {
+	} else if (self->client->curr_weap == IT_WEAPON_M3) {
 		VectorMA(start, left ? -9 : 3, right, start);
 		VectorMA(start, left ? 4 : 4, forward, start);
 		VectorMA(start, left ? -1 : -1, up, start);
 	}
 
-	else if (self->client->curr_weap == DUAL_NUM) {
+	else if (self->client->curr_weap == IT_WEAPON_DUALMK23) {
 		if (self->client->pers.hand == LEFT_HANDED)
 			VectorMA(start, ((toggle == 1) ? 8 : -8), right, start);
 		else
@@ -654,9 +654,9 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 	VectorCopy(start, shell->old_origin);
 	if (fix == 0)		// we want some velocity on those center handed ones
 		fix = 1;
-	if (self->client->curr_weap == SNIPER_NUM)
+	if (self->client->curr_weap == IT_WEAPON_SNIPER)
 		VectorMA(shell->velocity, fix * (-35 + random() * -60), right, shell->velocity);
-	else if (self->client->curr_weap == DUAL_NUM) {
+	else if (self->client->curr_weap == IT_WEAPON_DUALMK23) {
 		if (self->client->pers.hand == LEFT_HANDED)
 			VectorMA(shell->velocity,
 				 (toggle == 1 ? 1 : -1) * (35 + random() * 60), right, shell->velocity);
@@ -666,7 +666,7 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 	} else
 		VectorMA(shell->velocity, fix * (35 + random() * 60), right, shell->velocity);
 	VectorMA(shell->avelocity, 500, right, shell->avelocity);
-	if (self->client->curr_weap == SNIPER_NUM)
+	if (self->client->curr_weap == IT_WEAPON_SNIPER)
 		VectorMA(shell->velocity, 60 + 40, up, shell->velocity);
 	else
 		VectorMA(shell->velocity, 60 + random() * 90, up, shell->velocity);
@@ -674,9 +674,9 @@ void EjectShell(edict_t * self, vec3_t start, int toggle)
 	shell->movetype = MOVETYPE_BOUNCE;
 	shell->solid = SOLID_BBOX;
 
-	if( (self->client->curr_weap == M3_NUM) || (self->client->curr_weap == HC_NUM) )
+	if( (self->client->curr_weap == IT_WEAPON_M3) || (self->client->curr_weap == IT_WEAPON_HANDCANNON) )
 		shell->s.modelindex = gi.modelindex("models/weapons/shell/tris2.md2");
-	else if( (self->client->curr_weap == SNIPER_NUM) || (self->client->curr_weap == M4_NUM) )
+	else if( (self->client->curr_weap == IT_WEAPON_SNIPER) || (self->client->curr_weap == IT_WEAPON_M4) )
 		shell->s.modelindex = gi.modelindex("models/weapons/shell/tris3.md2");
 	else
 		shell->s.modelindex = gi.modelindex("models/weapons/shell/tris.md2");
@@ -798,7 +798,7 @@ void AttachToEntity( edict_t *self, edict_t *onto )
 	UpdateAttachedPos( self );
 }
 
-qboolean CanBeAttachedTo( const edict_t *ent )
+bool CanBeAttachedTo( const edict_t *ent )
 {
 	return (ent && ( (Q_strnicmp( ent->classname, "func_door", 9 ) == 0)
 	               || (Q_stricmp( ent->classname, "func_plat" ) == 0)
@@ -810,7 +810,7 @@ qboolean CanBeAttachedTo( const edict_t *ent )
 void AddDecal(edict_t * self, trace_t * tr)
 {
 	edict_t *decal, *dec;
-	qboolean attached;
+	bool attached;
 
 	if (bholelimit->value < 1)
 		return;
@@ -862,7 +862,7 @@ void AddSplat(edict_t * self, vec3_t point, trace_t * tr)
 {
 	edict_t *splat, *spt;
 	float r;
-	qboolean attached;
+	bool attached;
 
 	if (splatlimit->value < 1)
 		return;
@@ -966,56 +966,56 @@ void GetAmmo( edict_t *ent, char *buf )
 
 	if( IS_ALIVE(ent) && ent->client->weapon )
 	{
-		switch( ent->client->curr_weap )
+		switch( ent->client->pers.weapon->id )
 		{
-		case MK23_NUM:
+		case IT_WEAPON_MK23:
 			sprintf( buf, "%d round%s (%d extra mag%s)",
 				ent->client->mk23_rds, ent->client->mk23_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
-		case MP5_NUM:
+		case IT_WEAPON_MP5:
 			sprintf( buf, "%d round%s (%d extra mag%s)",
 				ent->client->mp5_rds, ent->client->mp5_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
-		case M4_NUM:
+		case IT_WEAPON_M4:
 			sprintf( buf, "%d round%s (%d extra mag%s)",
 				ent->client->m4_rds, ent->client->m4_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
-		case M3_NUM:
+		case IT_WEAPON_M3:
 			sprintf( buf, "%d shell%s (%d extra shell%s)",
 				ent->client->shot_rds, ent->client->shot_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
-		case HC_NUM:
+		case IT_WEAPON_HANDCANNON:
 			sprintf( buf, "%d shell%s (%d extra shell%s)",
 				ent->client->cannon_rds, ent->client->cannon_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
-		case SNIPER_NUM:
+		case IT_WEAPON_SNIPER:
 			sprintf( buf, "%d round%s (%d extra round%s)",
 				ent->client->sniper_rds, ent->client->sniper_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
-		case DUAL_NUM:
+		case IT_WEAPON_DUALMK23:
 			sprintf( buf, "%d round%s (%d extra mag%s)",
 				ent->client->dual_rds, ent->client->dual_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
-		case KNIFE_NUM:
-			ammo = INV_AMMO( ent, KNIFE_NUM );
+		case IT_WEAPON_KNIFE:
+			ammo = INV_AMMO( ent, IT_WEAPON_KNIFE );
 			sprintf( buf, "%d kni%s", ammo, (ammo == 1) ? "fe" : "ves" );
 			return;
-		case GRENADE_NUM:
-			ammo = INV_AMMO( ent, GRENADE_NUM );
+		case IT_WEAPON_GRENADES:
+			ammo = INV_AMMO( ent, IT_WEAPON_GRENADES );
 			sprintf( buf, "%d grenade%s", ammo, (ammo == 1) ? "" : "s" );
 			return;
 		}

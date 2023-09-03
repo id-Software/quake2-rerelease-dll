@@ -118,9 +118,6 @@ void Add_Frag(edict_t * ent, int mod)
 			gi.LocBroadcast_Print(PRINT_MEDIUM,
 				"%s has %d kills in a row and receives %d frags for the kill!\n",
 				ent->client->pers.netname, ent->client->resp.streakKills, frags );
-			IRC_printf(IRC_T_GAME,
-				"%n has %k kills in a row and receives %k frags for the kill!",
-				ent->client->pers.netname, ent->client->resp.streakKills, frags );
 		}
 		ent->client->resp.score += frags;
 
@@ -181,7 +178,7 @@ void Subtract_Frag(edict_t * ent)
 		teams[ent->client->resp.team].score--;
 }
 
-void Add_Death( edict_t *ent, qboolean end_streak )
+void Add_Death( edict_t *ent, bool end_streak )
 {
 	if( in_warmup )
 		return;
@@ -616,7 +613,6 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			sprintf(death_msg, "%s %s %s\n",
 				self->client->pers.netname, special_message, self->client->attacker->client->pers.netname);
 			PrintDeathMessage(death_msg, self);
-			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(self->client->attacker, self);
 
 			#if USE_AQTION
@@ -648,7 +644,6 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		{
 			sprintf( death_msg, "%s %s\n", self->client->pers.netname, message );
 			PrintDeathMessage(death_msg, self );
-			IRC_printf( IRC_T_DEATH, death_msg );
 
 			if (!teamplay->value || team_round_going || !ff_afterround->value)  {
 				Subtract_Frag( self );
@@ -995,7 +990,6 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname,
 			message, attacker->client->pers.netname, message2);
 			PrintDeathMessage(death_msg, self);
-			IRC_printf(IRC_T_KILL, death_msg);
 			AddKilledPlayer(attacker, self);
 
 			#if USE_AQTION
@@ -1026,7 +1020,6 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 
 	sprintf(death_msg, "%s died\n", self->client->pers.netname);
 	PrintDeathMessage(death_msg, self);
-	IRC_printf(IRC_T_DEATH, death_msg);
 
 	#if USE_AQTION
 	if (stat_logs->value) { // Only create stats logs if stat_logs is 1
@@ -1049,7 +1042,7 @@ void EjectItem(edict_t * ent, gitem_t * item)
 		ent->client->v_angle[YAW] -= spread;
 		drop = Drop_Item(ent, item);
 		ent->client->v_angle[YAW] += spread;
-		drop->spawnflags = DROPPED_PLAYER_ITEM;
+		drop->spawnflags = SPAWNFLAG_ITEM_DROPPED_PLAYER;
 	}
 
 }
@@ -1065,7 +1058,7 @@ void EjectWeapon(edict_t * ent, gitem_t * item)
 		ent->client->v_angle[YAW] -= spread;
 		drop = Drop_Item(ent, item);
 		ent->client->v_angle[YAW] += spread;
-		drop->spawnflags = DROPPED_PLAYER_ITEM;
+		drop->spawnflags = SPAWNFLAG_ITEM_DROPPED_PLAYER;
 		if (!in_warmup)
 			drop->think = temp_think_specweap;
 	}
@@ -1097,7 +1090,7 @@ void EjectMedKit( edict_t *ent, int medkit )
 void TossItemsOnDeath(edict_t * ent)
 {
 	gitem_t *item;
-	qboolean quad = false;
+	bool quad = false;
 	int i;
 
 	// don't bother dropping stuff when allweapons/items is active
@@ -1115,15 +1108,15 @@ void TossItemsOnDeath(edict_t * ent)
 	if (allweapon->value)// don't drop weapons if allweapons is on
 		return;
 
-	if (WPF_ALLOWED(MK23_NUM) && WPF_ALLOWED(DUAL_NUM)) {
+	//if (WPF_ALLOWED(MK23_NUM) && WPF_ALLOWED(IT_WEAPON_DUALMK23)) {
 		// give the player a dual pistol so they can be sure to drop one
-		item = GET_ITEM(DUAL_NUM);
-		ent->client->inventory[ITEM_INDEX(item)]++;
-		EjectItem(ent, item);
-	}
+	item = GET_ITEM(IT_WEAPON_DUALMK23);
+	ent->client->inventory[ITEM_INDEX(item)]++;
+	EjectItem(ent, item);
+	//}
 
 	// check for every item we want to drop when a player dies
-	for (i = MP5_NUM; i < DUAL_NUM; i++) {
+	for (i = MP5_NUM; i < IT_WEAPON_DUALMK23; i++) {
 		item = GET_ITEM( i );
 		while (ent->client->inventory[ITEM_INDEX( item )] > 0) {
 			ent->client->inventory[ITEM_INDEX( item )]--;
@@ -1131,35 +1124,35 @@ void TossItemsOnDeath(edict_t * ent)
 		}
 	}
 
-	item = GET_ITEM(KNIFE_NUM);
+	item = GET_ITEM(IT_WEAPON_KNIFE);
 	if (ent->client->inventory[ITEM_INDEX(item)] > 0) {
 		EjectItem(ent, item);
 	}
 // special items
 
-	if (!DMFLAGS(DF_QUAD_DROP))
-		quad = false;
-	else
-		quad = (ent->client->quad_framenum > (level.framenum + HZ));
+	// if (!DMFLAGS(DF_QUAD_DROP))
+	// 	quad = false;
+	// else
+	// 	quad = (ent->client->quad_framenum > (level.framenum + HZ));
 }
 
 void TossClientWeapon(edict_t * self)
 {
 	gitem_t *item;
 	edict_t *drop;
-	qboolean quad;
+	bool quad;
 	float spread;
 
-	item = self->client->weapon;
+	item = self->client->pers.weapon->id;
 	if (!self->client->inventory[self->client->ammo_index])
 		item = NULL;
 	if (item && (strcmp(item->pickup_name, "Blaster") == 0))
 		item = NULL;
 
-	if (!DMFLAGS(DF_QUAD_DROP))
-		quad = false;
-	else
-		quad = (self->client->quad_framenum > (level.framenum + HZ));
+	// if (!DMFLAGS(DF_QUAD_DROP))
+	// 	quad = false;
+	// else
+	// 	quad = (self->client->quad_framenum > (level.framenum + HZ));
 
 	if (item && quad)
 		spread = 22.5;
@@ -1170,7 +1163,7 @@ void TossClientWeapon(edict_t * self)
 		self->client->v_angle[YAW] -= spread;
 		drop = Drop_Item(self, item);
 		self->client->v_angle[YAW] += spread;
-		drop->spawnflags = DROPPED_PLAYER_ITEM;
+		drop->spawnflags = SPAWNFLAG_ITEM_DROPPED_PLAYER;
 	}
 }
 	
@@ -3719,8 +3712,15 @@ bool ClientConnect(edict_t *ent, char *userinfo, const char *social_id, bool isB
 	}
 #endif
 
-	// check for a spectator
+	// define value
 	char value[MAX_INFO_VALUE] = { 0 };
+
+	if (gi.Info_ValueForKey(userinfo, "ip", value, sizeof(value))){
+		// Append to pers.ip
+		Q_strlcat(ent->client->pers.ip, value, sizeof(ent->client->pers.ip));
+	}
+	
+	// check for a spectator
 	gi.Info_ValueForKey(userinfo, "spectator", value, sizeof(value));
 
 	if (deathmatch->integer && *value && strcmp(value, "0"))

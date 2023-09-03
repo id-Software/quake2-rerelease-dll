@@ -153,6 +153,22 @@ cvar_t *ai_movement_disabled;
 // Action Add
 //======================================================================
 
+cvar_t *teamdm;
+cvar_t *teamdm_respawn;
+cvar_t *respawn_effect;
+cvar_t *use_warnings;
+cvar_t *use_killcounts;
+cvar_t *use_rewards;
+
+cvar_t *motd_time;
+cvar_t *actionmaps;
+cvar_t *roundtimelimit;
+cvar_t *maxteamkills;
+cvar_t *twbanrounds;
+cvar_t *tkbanrounds;
+cvar_t *limchasecam;
+cvar_t *roundlimit;
+
 cvar_t *allitem;
 cvar_t *allweapon;
 cvar_t *unique_items;
@@ -163,6 +179,7 @@ cvar_t *weapon_respawn;
 cvar_t *ammo_respawn;
 cvar_t *hc_single;
 cvar_t *use_punch;
+cvar_t *radiolog;
 cvar_t *radio_max;
 cvar_t *radio_time;
 cvar_t *radio_ban;

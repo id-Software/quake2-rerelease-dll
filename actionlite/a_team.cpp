@@ -977,13 +977,11 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	if (ctf->value)
 	{
 		ent->client->resp.ctf_state = CTF_STATE_START;
-		gi.bprintf (PRINT_HIGH, "%s %s %s.\n", ent->client->pers.netname, a, CTFTeamName(desired_team));
-		IRC_printf (IRC_T_GAME, "%n %s %n.", ent->client->pers.netname, a, CTFTeamName(desired_team));
+		gi.LocBroadcast_Print (PRINT_HIGH, "%s %s %s.\n", ent->client->pers.netname, a, CTFTeamName(desired_team));
 	}
 	else
 	{
-		gi.bprintf (PRINT_HIGH, "%s %s %s.\n", ent->client->pers.netname, a, TeamName(desired_team));
-		IRC_printf (IRC_T_GAME, "%n %s %n.", ent->client->pers.netname, a, TeamName(desired_team));
+		gi.LocBroadcast_Print (PRINT_HIGH, "%s %s %s.\n", ent->client->pers.netname, a, TeamName(desired_team));
 	}
 
 	ent->client->resp.joined_team = level.realFramenum;
@@ -1044,8 +1042,7 @@ void LeaveTeam (edict_t * ent)
 	
 	genderstr = GENDER_STR(ent, "his", "her", "its");
 
-	gi.bprintf (PRINT_HIGH, "%s left %s team.\n", ent->client->pers.netname, genderstr);
-	IRC_printf (IRC_T_GAME, "%n left %n team.", ent->client->pers.netname, genderstr);
+	gi.LocBroadcast_Print (PRINT_HIGH, "%s left %s team.\n", ent->client->pers.netname, genderstr);
 
 	MM_LeftTeam( ent );
 	EspLeaderLeftTeam ( ent );
@@ -1203,8 +1200,9 @@ void OpenWeaponMenu (edict_t * ent)
 	if ((int)wp_flags->value & WPF_MASK)
 	{
 		for (menuEntry = menu_items, i = 0; i < count; i++, menuEntry++) {
-			if (!WPF_ALLOWED(menuEntry->itemNum))
-				continue;
+			// TOD: Work in weapon bans
+			// if (!WPF_ALLOWED(menuEntry->itemNum))
+			// 	continue;
 
 			weapmenu[pos].text = menu_itemnames[menuEntry->itemNum];
 			weapmenu[pos].SelectFunc = menuEntry->SelectFunc;
@@ -1346,7 +1344,7 @@ void CleanLevel ()
 		if (!ent->classname)
 			continue;
 		switch (ent->typeNum) {
-			case MK23_NUM:
+			case IT_WEAPON_MK23:
 			case IT_WEAPON_MP5:
 			case IT_WEAPON_M4:
 			case IT_WEAPON_M3:
@@ -1664,14 +1662,15 @@ static void SpawnPlayers(void)
 
 		// make sure teamplay spawners always have some weapon, warmup starts only after weapon selected
 		if (!ent->client->pers.chosenWeapon) {
-			if (WPF_ALLOWED(IT_WEAPON_MP5)) {
-				ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_MP5);
-			} else if (WPF_ALLOWED(MK23_NUM)) {
-				ent->client->pers.chosenWeapon = GetItemByIndex(MK23_NUM);
-			} else if (WPF_ALLOWED(IT_WEAPON_KNIFE)) {
-				ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_KNIFE);
-			} else {
-				ent->client->pers.chosenWeapon = GetItemByIndex(MK23_NUM);
+			// TODO: Work in weapon bans
+			// if (WPF_ALLOWED(IT_WEAPON_MP5)) {
+			// 	ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_MP5);
+			// } else if (WPF_ALLOWED(IT_WEAPON_MK23)) {
+			// 	ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_MK23);
+			// } else if (WPF_ALLOWED(IT_WEAPON_KNIFE)) {
+			// 	ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_KNIFE);
+			// } else {
+				ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_MK23);
 			}
 		}
 
@@ -1862,11 +1861,9 @@ void MakeAllLivePlayersObservers (void)
 void PrintScores (void)
 {
 	if (teamCount == 3) {
-		gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d to %s: %d\n", TeamName (TEAM1), teams[TEAM1].score, TeamName (TEAM2), teams[TEAM2].score, TeamName (TEAM3), teams[TEAM3].score);
-		IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k to %n: %k", level.mapname, TeamName (TEAM1), teams[TEAM1].score, TeamName (TEAM2), teams[TEAM2].score, TeamName (TEAM3), teams[TEAM3].score);
+		gi.LocBroadcast_Print (PRINT_HIGH, "Current score is %s: %d to %s: %d to %s: %d\n", TeamName (TEAM1), teams[TEAM1].score, TeamName (TEAM2), teams[TEAM2].score, TeamName (TEAM3), teams[TEAM3].score);
 	} else {
-		gi.bprintf (PRINT_HIGH, "Current score is %s: %d to %s: %d\n", TeamName (TEAM1), teams[TEAM1].score, TeamName (TEAM2), teams[TEAM2].score);
-		IRC_printf (IRC_T_TOPIC, "Current score on map %n is %n: %k to %n: %k", level.mapname, TeamName (TEAM1), teams[TEAM1].score, TeamName (TEAM2), teams[TEAM2].score);
+		gi.LocBroadcast_Print (PRINT_HIGH, "Current score is %s: %d to %s: %d\n", TeamName (TEAM1), teams[TEAM1].score, TeamName (TEAM2), teams[TEAM2].score);
 	}
 }
 
@@ -1890,8 +1887,7 @@ bool CheckTimelimit( void )
 				MakeAllLivePlayersObservers();
 				ctfgame.halftime = 0;
 			} else {
-				gi.bprintf( PRINT_HIGH, "Timelimit hit.\n" );
-				IRC_printf( IRC_T_GAME, "Timelimit hit." );
+				gi.LocBroadcast_Print( PRINT_HIGH, "Timelimit hit.\n" );
 				if (!(gameSettings & GS_ROUNDBASED))
 					ResetPlayers();
 				EndDMLevel();
@@ -1942,8 +1938,7 @@ static bool CheckRoundTimeLimit( void )
 		{
 			int winTeam = NOTEAM;
 
-			gi.bprintf( PRINT_HIGH, "Round timelimit hit.\n" );
-			IRC_printf( IRC_T_GAME, "Round timelimit hit." );
+			gi.LocBroadcast_Print( PRINT_HIGH, "Round timelimit hit.\n" );
 
 			winTeam = CheckForForcedWinner();
 			if (WonGame( winTeam ))
@@ -2004,8 +1999,7 @@ static bool CheckRoundLimit( void )
 				team_round_going = team_round_countdown = team_game_going = 0;
 				MakeAllLivePlayersObservers();
 			} else {
-				gi.bprintf( PRINT_HIGH, "Roundlimit hit.\n" );
-				IRC_printf( IRC_T_GAME, "Roundlimit hit." );
+				gi.LocBroadcast_Print( PRINT_HIGH, "Roundlimit hit.\n" );
 				EndDMLevel();
 			}
 			team_round_going = team_round_countdown = team_game_going = 0;
@@ -2023,12 +2017,10 @@ int WonGame (int winner)
 	int i;
 	char arg[64];
 
-	gi.bprintf (PRINT_HIGH, "The round is over:\n");
-	IRC_printf (IRC_T_GAME, "The round is over:");
+	gi.LocBroadcast_Print (PRINT_HIGH, "The round is over:\n");
 	if (winner == WINNER_TIE)
 	{
-		gi.bprintf (PRINT_HIGH, "It was a tie, no points awarded!\n");
-		IRC_printf (IRC_T_GAME, "It was a tie, no points awarded!");
+		gi.LocBroadcast_Print (PRINT_HIGH, "It was a tie, no points awarded!\n");
 
 		if(use_warnings->value)
 			gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_teamwins[0], 1.0, ATTN_NONE, 0.0);
@@ -2045,17 +2037,15 @@ int WonGame (int winner)
 
 			if (player)
 			{
-				gi.bprintf (PRINT_HIGH, "%s was victorious!\n",
+				gi.LocBroadcast_Print (PRINT_HIGH, "%s was victorious!\n",
 				player->client->pers.netname);
-				IRC_printf (IRC_T_GAME, "%n was victorious!",
 				player->client->pers.netname);
 				TourneyWinner (player);
 			}
 		}
 		else
 		{
-			gi.bprintf (PRINT_HIGH, "%s won!\n", TeamName(winner));
-			IRC_printf (IRC_T_GAME, "%n won!", TeamName(winner));
+			gi.LocBroadcast_Print (PRINT_HIGH, "%s won!\n", TeamName(winner));
 			// AQ:TNG Igor[Rock] changing sound dir
 			if(use_warnings->value)
 				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_teamwins[winner], 1.0, ATTN_NONE, 0.0);
@@ -2295,7 +2285,7 @@ int CheckTeamRules (void)
 						strftime( ltm, 64, "%Y%m%d-%H%M%S", now );
 						snprintf( mvdstring, sizeof(mvdstring), "mvdrecord %s-%s\n", ltm, level.mapname );
 						gi.AddCommandString( mvdstring );
-						gi.bprintf( PRINT_HIGH, "Starting MVD recording to file %s-%s.mvd2\n", ltm, level.mapname );
+						gi.LocBroadcast_Print( PRINT_HIGH, "Starting MVD recording to file %s-%s.mvd2\n", ltm, level.mapname );
 					}
 					// JBravo: End MVD2
 				}
