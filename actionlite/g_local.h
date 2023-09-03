@@ -995,7 +995,7 @@ enum mod_id_t : uint8_t
 	MOD_KICK,
 	MOD_GRAPPLE,
 	MOD_TOTAL,
-	MOD_FRIENDLY_FIRE = 0x8000000
+	MOD_FRIENDLY_FIRE
 };
 
 struct mod_t

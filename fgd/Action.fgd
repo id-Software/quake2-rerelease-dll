@@ -153,13 +153,8 @@
 
 @PointClass base(PlayerClass) = info_player_start : "Player start" []
 @PointClass base(PlayerClass) = info_player_deathmatch : "Player deathmatch start" []
-    targetname(string) : "Spawn point name, to be matched to previous levels' target_changelevel"
-]
-
 @PointClass base(PlayerClass) = info_player_coop_lava : "Smart Water lava spawn point" []
-
 @PointClass base(PlayerClass, Targetable) = info_player_intermission : "Deathmatch intermission point" []
-
 @PointClass base(PlayerClass) = info_player_team1 : "CTF Red start" []
 @PointClass base(PlayerClass) = info_player_team2 : "CTF Blue start" []
 
