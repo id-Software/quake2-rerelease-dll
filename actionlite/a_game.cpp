@@ -964,7 +964,7 @@ void GetAmmo( edict_t *ent, char *buf )
 {
 	int ammo;
 
-	if( IS_ALIVE(ent) && ent->client->weapon )
+	if( IS_ALIVE(ent) && ent->client->pers.weapon )
 	{
 		switch( ent->client->pers.weapon->id )
 		{
@@ -1053,5 +1053,40 @@ void GetNearbyTeammates( edict_t *self, char *buf )
 			Q_strncatz(buf, ", ", PARSE_BUFSIZE);
 
 		Q_strncatz( buf, nearby_teammates[l]->client->pers.netname, PARSE_BUFSIZE );
+	}
+}
+
+// Messaging adjectives/pronouns
+// Borrowed from https://github.com/VortexQuake2/Vortex, thank you!
+
+char *GetPossesiveAdjective(edict_t *ent) {
+	int gender = ent->client->pers.gender;
+	char *info;
+
+	switch( gender ) {
+		case GENDER_MALE:
+			return "his";
+		case GENDER_FEMALE:
+			return "her";
+		case GENDER_NEUTRAL:
+			return "its";
+		default:
+			return "their";
+	}
+}
+
+char *GetReflexivePronoun(edict_t *ent) {
+	int gender = ent->client->pers.gender;
+	char *info;
+
+	switch( gender ) {
+		case GENDER_MALE:
+			return "himself";
+		case GENDER_FEMALE:
+			return "herself";
+		case GENDER_NEUTRAL:
+			return "itself";
+		default:
+			return "themselves";
 	}
 }

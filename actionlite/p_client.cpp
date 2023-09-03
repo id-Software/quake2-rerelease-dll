@@ -515,91 +515,73 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 	{
 		switch (mod.id) {
 		case MOD_HELD_GRENADE:
-			message = "tried to put the pin back in";
+			snprintf(message, sizeof(message), "%s tried to put the pin back in", self->client->pers.netname);
 			break;
 		case MOD_HG_SPLASH:
-			if (self->client->pers.gender == GENDER_MALE)
-				message = "didn't throw his grenade far enough";
-			else if (self->client->pers.gender == GENDER_FEMALE)
-				message = "didn't throw her grenade far enough";
-			else
-				message = "didn't throw its grenade far enough";
+			snprintf(message, sizeof(message), "%s didn't throw %s grenade far enough", self->client->pers.netname, GetPossesiveAdjective(self));
 			break;
 		case MOD_G_SPLASH:
-			if (self->client->pers.gender == GENDER_MALE)
-				message = "tripped on his own grenade";
-			else if (self->client->pers.gender == GENDER_FEMALE)
-				message = "tripped on her own grenade";
-			else
-				message = "tripped on its own grenade";
+			snprintf(message, sizeof(message), "%s tripped on %s own grenade", self->client->pers.netname, GetPossesiveAdjective(self));
 			break;
 		default:
-			if (self->client->pers.gender == GENDER_MALE)
-				message = "killed himself";
-			else if (self->client->pers.gender == GENDER_FEMALE)
-				message = "killed herself";
-			else
-				message = "killed itself";
+			snprintf(message, sizeof(message), "%s killed %s", self->client->pers.netname, GetReflexivePronoun(self));
 			break;
 		}
 	}
 
 	if (!message) {
-		switch (mod) {
+		switch (mod.id) {
 		case MOD_BREAKINGGLASS:
 			if( self->client->push_timeout > 40 )
-				special_message = "was thrown through a window by";
+				snprintf(special_message, sizeof(special_message), "%s was thrown through a window by %s", 
+				self->client->pers.netname, attacker->client->pers.netname);
 			message = "ate too much glass";
 			break;
 		case MOD_SUICIDE:
-			message = "is done with the world";
+			snprintf(message, sizeof(message), "%s is done with the world", self->client->pers.netname);
 			break;
 		case MOD_FALLING:
 			if( self->client->push_timeout )
-				special_message = "was taught how to fly by";
+				snprintf(special_message, sizeof(special_message), "%s was taught how to fly by %s", self->client->pers.netname, attacker->client->pers.netname);
 			//message = "hit the ground hard, real hard";
-			if (self->client->pers.gender == GENDER_MALE)
-				message = "plummets to his death";
-			else if (self->client->pers.gender == GENDER_FEMALE)
-				message = "plummets to her death";
-			else
-				message = "plummets to its death";
+			snprintf(message, sizeof(message), "%s plummets to %s death", self->client->pers.netname, GetPossesiveAdjective(self));
 			break;
 		case MOD_CRUSH:
-			message = "was flattened";
+			snprintf(message, sizeof(message), "%s was flattened", self->client->pers.netname);
 			break;
 		case MOD_WATER:
-			message = "sank like a rock";
+			snprintf(message, sizeof(message), "%s sank like a rock", self->client->pers.netname);
 			break;
 		case MOD_SLIME:
 			if( self->client->push_timeout )
-				special_message = "melted thanks to";
-			message = "melted";
+				snprintf(special_message, sizeof(special_message), "%s melted thanks to %s", self->client->pers.netname, attacker->client->pers.netname);
+			snprintf(message, sizeof(message), "%s melted", self->client->pers.netname);
 			break;
 		case MOD_LAVA:
 			if( self->client->push_timeout )
-				special_message = "was drop-kicked into the lava by";
-			message = "does a back flip into the lava";
+				snprintf(special_message, sizeof(special_message), "%s was drop-kicked into the lava by %s", self->client->pers.netname, attacker->client->pers.netname);
+			snprintf(message, sizeof(message), "%s does a back flip into the lava", self->client->pers.netname);
 			break;
 		case MOD_EXPLOSIVE:
 		case MOD_BARREL:
-			message = "blew up";
+			snprintf(message, sizeof(message), "%s blew up", self->client->pers.netname);
 			break;
 		case MOD_EXIT:
-			message = "found a way out";
+			snprintf(message, sizeof(message), "%s found a way out", self->client->pers.netname);
 			break;
 		case MOD_TARGET_LASER:
-			message = "saw the light";
+			snprintf(message, sizeof(message), "%s saw the light", self->client->pers.netname);
 			break;
 		case MOD_TARGET_BLASTER:
+			snprintf(message, sizeof(message), "%s got blasted", self->client->pers.netname);
 			message = "got blasted";
 			break;
 		case MOD_BOMB:
 		case MOD_SPLASH:
 		case MOD_TRIGGER_HURT:
 			if( self->client->push_timeout )
-				special_message = "was shoved off the edge by";
-			message = "was in the wrong place";
+				snprintf(special_message, sizeof(special_message), "%s was shoved off the edge by %s", self->client->pers.netname, attacker->client->pers.netname);
+			snprintf(message, sizeof(message), "%s was in the wrong place", self->client->pers.netname);
 			break;
 		}
 	}
@@ -626,7 +608,7 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			//MODIFIED FOR FF -FB
 			if (OnSameTeam(self, self->client->attacker))
 			{
-				if (!DMFLAGS(DF_NO_FRIENDLY_FIRE) && (!teamplay->value || team_round_going || !ff_afterround->value)) {
+				if (!g_friendly_fire->integer && (!teamplay->value || team_round_going || !ff_afterround->value)) {
 					self->enemy = self->client->attacker;
 					Add_TeamKill(self->client->attacker);
 					Subtract_Frag(self->client->attacker);	//attacker->client->resp.score--;
@@ -672,7 +654,7 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 	self->enemy = attacker;
 	if (attacker && attacker->client)
 	{
-		switch (mod) {
+		switch (mod.id) {
 		case MOD_MK23:	// zucc
 			switch (loc) {
 			case LOC_HDAM:

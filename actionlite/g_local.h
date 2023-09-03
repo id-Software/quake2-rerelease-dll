@@ -1649,6 +1649,10 @@ extern int locOfDeath;
 extern int stopAP;
 
 void TransparentListSet (solid_t solid_type);
+
+char *GetPossesiveAdjective(edict_t *ent);
+char *GetReflexivePronoun(edict_t *ent);
+
 // Action Add end
 
 extern edict_t *g_edicts;
@@ -2815,6 +2819,7 @@ struct client_persistant_t
 
 	// Action Add
 
+	gender_t gender;			// For message pronouns, etc.
 	gitem_t *chosenItem;		// item for teamplay
 	gitem_t *chosenWeapon;		// weapon for teamplay
 	int32_t	mk23_mode;		// firing mode, semi or auto
@@ -2857,8 +2862,6 @@ struct client_respawn_t
 					// ZOID
 
 	// Action Add
-	// Number of team kills this game
-	gender_t gender;
 	int32_t team_kills;
 	int32_t team_wounds;
 	
