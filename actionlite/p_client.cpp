@@ -439,23 +439,23 @@ void CL_FixUpGender(edict_t *ent, const char *userinfo)
 	char val[MAX_INFO_VALUE] = { 0 };
 
 	if (!ent->client)
-        return false;
+        return;
 
-    Q_strlcpy(sk, info_skin->string, sizeof(sk));
+    Q_strlcpy(sk, gi.Info_ValueForKey(userinfo, "skin"), sizeof(sk));
     if ((p = strchr(sk, '/')) != NULL)
         *p = 0;
-    if (Q_stricmp(sk, "male") == 0 ||
-		Q_stricmp(sk, "actionmale") == 0 ||
-		Q_stricmp(sk, "aqmarine") == 0 ||
-		Q_stricmp(sk, "messiah") == 0 ||
-		Q_stricmp(sk, "sas") == 0 ||
-		Q_stricmp(sk, "terror") == 0
+    if (Q_strcasecmp(sk, "male") == 0 ||
+		Q_strcasecmp(sk, "actionmale") == 0 ||
+		Q_strcasecmp(sk, "aqmarine") == 0 ||
+		Q_strcasecmp(sk, "messiah") == 0 ||
+		Q_strcasecmp(sk, "sas") == 0 ||
+		Q_strcasecmp(sk, "terror") == 0
 		)
 		Q_strlcpy(val, "male", sizeof(val));
-    else if (Q_stricmp(sk, "female") == 0 ||
-			 Q_stricmp(sk, "crackhor") == 0 ||
-			 Q_stricmp(sk, "actionrally") == 0 ||
-			 Q_stricmp(sk, "sydney") == 0
+    else if (Q_strcasecmp(sk, "female") == 0 ||
+			 Q_strcasecmp(sk, "crackhor") == 0 ||
+			 Q_strcasecmp(sk, "actionrally") == 0 ||
+			 Q_strcasecmp(sk, "sydney") == 0
 		)
         Q_strlcpy(val, "female", sizeof(val));
     else

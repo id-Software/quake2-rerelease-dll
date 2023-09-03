@@ -2880,6 +2880,7 @@ struct client_respawn_t
 	int32_t stat_mode_intermission;
 
 	int32_t kills;
+	int32_t deaths;
 	int32_t shotsTotal;					//Total number of shots
 	int32_t hitsTotal;					//Total number of hits
 	int32_t streakKills;					//Kills in a row
