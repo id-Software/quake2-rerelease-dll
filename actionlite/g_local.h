@@ -1651,6 +1651,7 @@ extern int stopAP;
 
 void TransparentListSet (solid_t solid_type);
 
+char *GetPossesiveAdjectiveSingular(edict_t *ent);
 char *GetPossesiveAdjective(edict_t *ent);
 char *GetReflexivePronoun(edict_t *ent);
 

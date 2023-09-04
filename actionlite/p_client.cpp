@@ -66,7 +66,7 @@ void Add_Frag(edict_t * ent, int mod)
 		ent->client->resp.gunstats[mod].kills++;
 	}
 	// Grenade splash, kicks and punch damage
-	if (mod > 0 && ((mod == MOD_HG_SPLASH) || (mod == MOD_KICK) || (mod == MOD_PUNCH))) {
+	if (mod > 0 && ((mod.id == MOD_HG_SPLASH) || (mod.id == MOD_KICK) || (mod.id == MOD_PUNCH))) {
 		ent->client->resp.gunstats[mod].kills++;
 	}
 
@@ -625,7 +625,7 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 	}
 #if 0
 		// handle bleeding, not used because bleeding doesn't get set
-		if (mod == MOD_BLEEDING) {
+		if (mod.id == MOD_BLEEDING) {
 			sprintf(death_msg, "%s bleeds to death\n", self->client->pers.netname);
 			PrintDeathMessage(death_msg, self);
 			return;
@@ -772,166 +772,133 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		case MOD_DUAL:
 			switch (loc) {
 			case LOC_HDAM:
-				message = " was trepanned by";
-				message2 = "'s akimbo Mark 23 pistols";
+				snprintf(message, sizeof(message), "%s was trepanned by %s's akimbo Mark 23 pistols", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				message = " was John Woo'd by";
-				//message2 = "'s .45 caliber pistol round";
+				snprintf(message, sizeof(message), "%s was John Woo'd by %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				message = " needs some new kidneys thanks to";
-				message2 = "'s akimbo Mark 23 pistols";
+				snprintf(message, sizeof(message), "%s needs some new kidneys thanks to %s's akimbo Mark 23 pistols", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				message = " was shot in the legs by";
-				message2 = "'s akimbo Mark 23 pistols";
+				snprintf(message, sizeof(message), "%s was shot in the legs by %s's akimbo Mark 23 pistols", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				message = " was shot by";
-				message2 = "'s pair of Mark 23 Pistols";
+				snprintf(message, sizeof(message), "%s was shot by %s's pair of Mark 23 Pistols", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_KNIFE:
 			switch (loc) {
 			case LOC_HDAM:
-				if (self->client->pers.gender == GENDER_MALE)
-					message = " had his throat slit by";
-				else if (self->client->pers.gender == GENDER_FEMALE)
-					message = " had her throat slit by";
-				else
-					message = " had its throat slit by";
+				snprintf(message, sizeof(message), "%s had %s throat slit by %s", 
+					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				message = " had open heart surgery, compliments of";
+				snprintf(message, sizeof(message), "%s had open heart surgery, compliments of %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				message = " was gutted by";
+				snprintf(message, sizeof(message), "%s was gutted by %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				message = " was stabbed repeatedly in the legs by";
+				snprintf(message, sizeof(message), "%s was stabbed repeatedly in the legs by %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				message = " was slashed apart by";
-				message2 = "'s Combat Knife";
+				snprintf(message, sizeof(message), "%s was slashed apart by %s's Combat Knife", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_KNIFE_THROWN:
 			switch (loc) {
 				case LOC_HDAM:
-				message = " caught";
-				if (self->client->pers.gender == GENDER_MALE)
-					message2 = "'s flying knife with his forehead";
-				else if (self->client->pers.gender == GENDER_FEMALE)
-					message2 = "'s flying knife with her forehead";
-				else
-					message2 = "'s flying knife with its forehead";
+				snprintf(message, sizeof(message), "%s caught %s's flying knife with his forehead %s", 
+					self->client->pers.netname, attacker->client->pers.netname, GetPossesiveAdjective(self));
 				break;
 			case LOC_CDAM:
-				message = "'s ribs don't help against";
-				message2 = "'s flying knife";
+				snprintf(message, sizeof(message), "%s's ribs don't help against %s's flying knife", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				if (self->client->pers.gender == GENDER_MALE)
-					message = " sees the contents of his own stomach thanks to";
-				else if (self->client->pers.gender == GENDER_FEMALE)
-					message = " sees the contents of her own stomach thanks to";
-				else
-					message = " sees the contents of its own stomach thanks to";
-				message2 = "'s flying knife";
+				snprintf(message, sizeof(message), "%s sees the contents of %s own stomach thanks to %s's flying knife", 
+					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				if (self->client->pers.gender == GENDER_MALE)
-					message = " had his legs cut off thanks to";
-				else if (self->client->pers.gender == GENDER_FEMALE)
-					message = " had her legs cut off thanks to";
-				else
-					message = " had its legs cut off thanks to";
-				message2 = "'s flying knife";
+				snprintf(message, sizeof(message), "%s had %s legs cut off thanks to %s's flying knife", 
+					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			default:
-				message = " was hit by";
-				message2 = "'s flying Combat Knife";
+				snprintf(message, sizeof(message), "%s was hit by %s's flying Combat Knife", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_KICK:
 			n = rand() % 3 + 1;
 			if (n == 1) {
-				if (self->client->pers.gender == GENDER_MALE)
-					message = " got his ass kicked by";
-				else if (self->client->pers.gender == GENDER_FEMALE)
-					message = " got her ass kicked by";
-				else
-					message = " got its ass kicked by";
+				snprintf(message, sizeof(message), "%s got %s ass kicked by %s", 
+					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 			} else if (n == 2) {
-				if (self->client->pers.gender == GENDER_MALE) {
-					message = " couldn't remove";
-					message2 = "'s boot from his ass";
-				} else if (self->client->pers.gender == GENDER_FEMALE) {
-					message = " couldn't remove";
-					message2 = "'s boot from her ass";
-				} else {
-					message = " couldn't remove";
-					message2 = "'s boot from its ass";
-				}
+				snprintf(message, sizeof(message), "%s couldn't remove %s's boot from %s ass", 
+					self->client->pers.netname, attacker->client->pers.netname, GetPossesiveAdjective(self));
 			} else {
-				if (self->client->pers.gender == GENDER_MALE) {
-					message = " had a Bruce Lee put on him by";
-					message2 = ", with a quickness";
-				} else if (self->client->pers.gender == GENDER_FEMALE) {
-					message = " had a Bruce Lee put on her by";
-					message2 = ", with a quickness";
-				} else {
-					message = " had a Bruce Lee put on it by";
-					message2 = ", with a quickness";
-				}
+				snprintf(message, sizeof(message), "%s had a Bruce Lee put on %s by %s, with a quickness", 
+					self->client->pers.netname, GetPossesiveAdjectiveSingular(self), attacker->client->pers.netname);
 			}
 			break;
 		case MOD_PUNCH:
 			n = rand() % 3 + 1;
 			if (n == 1) {
-				message = " got a free facelift by";
+				snprintf(message, sizeof(message), "%s got a free facelift by %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			} else if (n == 2) {
-				message = " was knocked out by";
+				snprintf(message, sizeof(message), "%s was knocked out by %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			} else {
-				message = " caught";
-				message2 = "'s iron fist";
+				snprintf(message, sizeof(message), "%s caught %s's iron fist", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_BLASTER:
-			message = "was blasted by";
+			snprintf(message, sizeof(message), "%s was blasted by %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_GRENADE:
-			message = "was popped by";
-			message2 = "'s grenade";
+			snprintf(message, sizeof(message), "%s was popped by %s's grenade", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_G_SPLASH:
-			message = "was shredded by";
-			message2 = "'s shrapnel";
+			snprintf(message, sizeof(message), "%s was shredded by %s's shrapnel", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_HYPERBLASTER:
-			message = "was melted by";
-			message2 = "'s hyperblaster";
+			snprintf(message, sizeof(message), "%s was melted by %s's hyperblaster", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_HANDGRENADE:
-			message = " caught";
-			message2 = "'s handgrenade";
+			snprintf(message, sizeof(message), "%s caught %s's handgrenade", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_HG_SPLASH:
-			message = " didn't see";
-			message2 = "'s handgrenade";
+			snprintf(message, sizeof(message), "%s didn't see %s's handgrenade", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_HELD_GRENADE:
-			message = " feels";
-			message2 = "'s pain";
+			snprintf(message, sizeof(message), "%s feels %s's pain", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_TELEFRAG:
-			message = " tried to invade";
-			message2 = "'s personal space";
+			snprintf(message, sizeof(message), "%s tried to invade %s's personal space", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_GRAPPLE:
-			message = " was caught by";
-			message2 = "'s grapple";
+			snprintf(message, sizeof(message), "%s was caught by %s's grapple", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		}	//end of case (mod)
 

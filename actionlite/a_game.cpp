@@ -1059,6 +1059,22 @@ void GetNearbyTeammates( edict_t *self, char *buf )
 // Messaging adjectives/pronouns
 // Borrowed from https://github.com/VortexQuake2/Vortex, thank you!
 
+char *GetPossesiveAdjectiveSingular(edict_t *ent) {
+	int gender = ent->client->pers.gender;
+	char *info;
+
+	switch( gender ) {
+		case GENDER_MALE:
+			return "his";
+		case GENDER_FEMALE:
+			return "her";
+		case GENDER_NEUTRAL:
+			return "it";
+		default:
+			return "their";
+	}
+}
+
 char *GetPossesiveAdjective(edict_t *ent) {
 	int gender = ent->client->pers.gender;
 	char *info;

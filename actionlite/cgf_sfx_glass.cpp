@@ -281,7 +281,7 @@ CGF_SFX_ShootBreakableGlass (edict_t * aGlassPane, edict_t * anAttacker,
       // break glass (and hurt if doing kick)
       CGF_SFX_BreakGlass (aGlassPane, anAttacker, 0, aGlassPane->health,
 			  vec3_origin, FRAMETIME);
-      if (mod == MOD_KICK)
+      if (mod.id == MOD_KICK)
 	{
 	  vec3_t bloodorigin;
 	  vec3_t dir;
