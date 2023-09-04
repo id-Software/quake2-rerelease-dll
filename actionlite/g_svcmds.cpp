@@ -48,6 +48,7 @@ struct ipfilter_t
 {
 	unsigned mask;
 	unsigned compare;
+	int32_t temp_ban_games;
 };
 
 constexpr size_t MAX_IPFILTERS = 1024;
@@ -353,7 +354,7 @@ bool Ban_TeamKiller (edict_t * ent, int rounds)
 		}
 		numipfilters++;
 	}
-	if (!StringToFilter(ent->client->pers.ip, &ipfilters[i], rounds))
+	if (!StringToFilter(ent->client->pers.ip, &ipfilters[i]))
 	{
 		ipfilters[i].compare = 0xffffffff;
 		return false;
@@ -379,7 +380,7 @@ void UnBan_TeamKillers (void)
 				for (j = i + 1; j < numipfilters; j++)
 					ipfilters[j - 1] = ipfilters[j];
 				numipfilters--;
-				gi.Com_Print ("Unbanned teamkiller/vote kickked.\n");
+				gi.Com_Print ("Unbanned teamkiller/vote kicked.\n");
 
 				// since we removed the current we have to re-process the new current
 				i--;
