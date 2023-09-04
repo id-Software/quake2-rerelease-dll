@@ -153,23 +153,39 @@ cvar_t *ai_movement_disabled;
 // Action Add
 //======================================================================
 
+// Game Modes and Settings
 cvar_t *teamdm;
 cvar_t *teamdm_respawn;
+cvar_t *actionmaps;
+cvar_t *roundtimelimit;
+cvar_t *roundlimit;
+cvar_t *dm_choose;
+cvar_t *dm_shield;
+cvar_t *uvtime;
+
+// Kick / Bans / Silences
+cvar_t *maxteamkills;
+cvar_t *twbanrounds;
+cvar_t *tkbanrounds;
+
+// Gameplay Settings
 cvar_t *ff_afterround;
 cvar_t *respawn_effect;
 cvar_t *use_warnings;
 cvar_t *use_killcounts;
 cvar_t *use_rewards;
 
+// UI / Menu / Messaging Settings
 cvar_t *motd_time;
-cvar_t *actionmaps;
-cvar_t *roundtimelimit;
-cvar_t *maxteamkills;
-cvar_t *twbanrounds;
-cvar_t *tkbanrounds;
 cvar_t *limchasecam;
-cvar_t *roundlimit;
+cvar_t *stats_endmap; // If on (1), show the accuracy/etc stats at the end of a map
+cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
+cvar_t *auto_join;	// Automaticly join clients to teams they were on in last map.
+cvar_t *auto_equip;	// Remember weapons and items for players between maps.
+cvar_t *auto_menu;	// Automatically show the join menu
 
+
+// Weapon and Item Settings
 cvar_t *allitem;
 cvar_t *allweapon;
 cvar_t *unique_items;
@@ -180,12 +196,21 @@ cvar_t *weapon_respawn;
 cvar_t *ammo_respawn;
 cvar_t *hc_single;
 cvar_t *use_punch;
+
+// Radio Settings
 cvar_t *radiolog;
 cvar_t *radio_max;
 cvar_t *radio_time;
 cvar_t *radio_ban;
 cvar_t *radio_repeat;
 cvar_t *radio_repeat_time;
+
+// Medkit Settings
+cvar_t *medkit_instant;
+cvar_t *medkit_drop;
+cvar_t *medkit_time;
+cvar_t *medkit_max;
+cvar_t *medkit_value;
 
 //======================================================================
 // Action Add End

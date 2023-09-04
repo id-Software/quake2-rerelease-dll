@@ -3967,6 +3967,57 @@ void Weapon_Gas(edict_t* ent)
 	}
 }
 
+void PlaceHolder(edict_t* ent)
+{
+	ent->nextthink = level.framenum + 1000 * HZ;
+}
+
+void ThinkSpecWeap(edict_t* ent)
+{
+	edict_t* spot;
+
+	if ((spot = FindSpecWeapSpawn(ent)) != NULL)
+	{
+		SpawnSpecWeap(ent->item, spot);
+		G_FreeEdict(ent);
+	}
+	else
+	{
+		ent->nextthink = level.framenum + 1 * HZ;
+		ent->think = G_FreeEdict;
+	}
+}
+
+void temp_think_specweap(edict_t* ent)
+{
+	ent->touch = Touch_Item;
+
+	if (allweapon->value) { // allweapon set
+		ent->nextthink = level.framenum + 1 * HZ;
+		ent->think = G_FreeEdict;
+		return;
+	}
+
+	if (gameSettings & GS_ROUNDBASED) {
+		ent->nextthink = level.framenum + 1000 * HZ;
+		ent->think = PlaceHolder;
+		return;
+	}
+
+	if (gameSettings & GS_WEAPONCHOOSE) {
+		ent->nextthink = level.framenum + 6 * HZ;
+		ent->think = ThinkSpecWeap;
+	}
+	else if (DMFLAGS(DF_WEAPON_RESPAWN)) {
+		ent->nextthink = level.framenum + (weapon_respawn->value * 0.6f) * HZ;
+		ent->think = G_FreeEdict;
+	}
+	else {
+		ent->nextthink = level.framenum + weapon_respawn->value * HZ;
+		ent->think = ThinkSpecWeap;
+	}
+}
+
 //======================================================================
-// Action Add
+// Action Add End
 //======================================================================

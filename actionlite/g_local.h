@@ -1636,6 +1636,21 @@ extern cvar_t *twbanrounds;
 extern cvar_t *tkbanrounds;
 extern cvar_t *limchasecam;
 extern cvar_t *roundlimit;
+extern cvar_t *medkit_drop;
+extern cvar_t *medkit_time;
+extern cvar_t *medkit_instant;
+extern cvar_t *medkit_max;
+extern cvar_t *medkit_value;
+extern cvar_t *stats_endmap; // If on (1), show the accuracy/etc stats at the end of a map
+extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
+
+extern cvar_t *auto_join;	// Automaticly join clients to teams they were on in last map.
+extern cvar_t *auto_equip;	// Remember weapons and items for players between maps.
+extern cvar_t *auto_menu;	// Automatically show the join menu
+
+extern cvar_t *dm_choose;
+extern cvar_t *dm_shield;
+extern cvar_t *uvtime;
 
 extern int snd_silencer;
 extern int snd_headshot;
@@ -1644,6 +1659,7 @@ extern int snd_knifethrow;
 extern int snd_kick;
 extern int snd_noammo;
 extern mod_id_t meansOfDeath;
+
 // zucc for hitlocation of death
 extern int locOfDeath;
 // stop an armor piercing round that hits a vest
@@ -2035,6 +2051,7 @@ bool      Entity_IsVisibleToPlayer(edict_t* ent, edict_t* player);
 void      Compass_Update(edict_t *ent, bool first);
 
 // ACTION
+void 	  DeadDropSpec(edict_t * ent);
 #define ITEM_INDEX(x) ((x)-itemlist)
 #define INV_AMMO(ent, num) ((ent)->client->pers.inventory[num])
 #define GET_ITEM(num) (&itemlist[num])
@@ -2496,6 +2513,9 @@ extern byte damage_multiplier;
 // ACTION
 void InitTookDamage(void);
 void Bandage(edict_t * ent);
+void PlaceHolder(edict_t* ent);
+void ThinkSpecWeap(edict_t* ent);
+void temp_think_specweap(edict_t* ent);
 //ACTION
 
 //
@@ -2652,6 +2672,7 @@ bool P_UseCoopInstancedItems();
 // ACTION
 void CL_FixUpGender(edict_t *ent, const char *userinfo);
 void ClientFixLegs(edict_t *ent);
+
 // ACTION
 
 constexpr spawnflags_t SPAWNFLAG_LANDMARK_KEEP_Z = 1_spawnflag;

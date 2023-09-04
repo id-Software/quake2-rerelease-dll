@@ -567,7 +567,6 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			break;
 		case MOD_TARGET_BLASTER:
 			snprintf(message, sizeof(message), "%s got blasted", self->client->pers.netname);
-			message = "got blasted";
 			break;
 		case MOD_BOMB:
 		case MOD_SPLASH:
@@ -904,8 +903,8 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 
 		if (message)
 		{
-			sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname,
-			message, attacker->client->pers.netname, message2);
+			//sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname, message, attacker->client->pers.netname, message2);
+			snprintf(death_msg, sizeof(death_msg), message);
 			PrintDeathMessage(death_msg, self);
 			AddKilledPlayer(attacker, self);
 
