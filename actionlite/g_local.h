@@ -2841,7 +2841,7 @@ struct client_persistant_t
 	gtime_t n64_crouch_warning;
 
 	// Action Add
-
+	char	ip[64];		// For banning IPs
 	gender_t gender;			// For message pronouns, etc.
 	gitem_t *chosenItem;		// item for teamplay
 	gitem_t *chosenWeapon;		// weapon for teamplay
@@ -3160,7 +3160,6 @@ struct gclient_t
 	gtime_t	 last_attacker_time;
 
 	// Action Add
-	char			ip[64];		// For banning IPs
 	int32_t			unique_item_total;
 	int32_t			unique_weapon_total;
 

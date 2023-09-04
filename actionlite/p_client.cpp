@@ -1020,7 +1020,7 @@ void TossItemsOnDeath(edict_t * ent)
 
 	// check for every item we want to drop when a player dies
 	for (i = IT_WEAPON_MP5; i < IT_WEAPON_DUALMK23; i++) {
-		item = GetItemByIndex( i );
+		item = GET_ITEM( i );
 		while (ent->client->inventory[ITEM_INDEX( item )] > 0) {
 			ent->client->inventory[ITEM_INDEX( item )]--;
 			EjectWeapon( ent, item );
