@@ -51,11 +51,6 @@ void Announce_Reward(edict_t *ent, int rewardType){
 		CenterPrintAll(buf);
 		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
 	}
-
-	#ifdef USE_AQTION
-	if (stat_logs->value)
-		LogAward(ent, rewardType);
-	#endif
 }
 
 void Add_Frag(edict_t * ent, int mod)
@@ -467,8 +462,7 @@ void CL_FixUpGender(edict_t *ent, const char *userinfo)
 void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t mod)
 {
 	int loc;
-	char *message;
-	char *message2;
+	char message[1024];
 	char death_msg[1024];	// enough in all situations? -FB
 	bool friendlyFire;
 	char *special_message = NULL;
@@ -484,8 +478,6 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 	friendlyFire = meansOfDeath & MOD_FRIENDLY_FIRE;
 	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 	loc = locOfDeath;	// useful for location based hits
-	message = NULL;
-	message2 = "";
 
 	// Reki: Print killfeed to spectators who ask for easily parsable stuff
 	edict_t *other;
@@ -535,7 +527,8 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			if( self->client->push_timeout > 40 )
 				snprintf(special_message, sizeof(special_message), "%s was thrown through a window by %s", 
 				self->client->pers.netname, attacker->client->pers.netname);
-			message = "ate too much glass";
+			snprintf(message, sizeof(message), "%s ate too much glass", 
+				self->client->pers.netname);
 			break;
 		case MOD_SUICIDE:
 			snprintf(message, sizeof(message), "%s is done with the world", self->client->pers.netname);
@@ -597,12 +590,6 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			PrintDeathMessage(death_msg, self);
 			AddKilledPlayer(self->client->attacker, self);
 
-			#if USE_AQTION
-			if (stat_logs->value) { // Only create stats logs if stat_logs is 1
-				LogKill(self, inflictor, self->client->attacker);
-			}
-			#endif
-
 			self->client->attacker->client->radio_num_kills++;
 
 			//MODIFIED FOR FF -FB
@@ -633,12 +620,6 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			}
 
 			self->enemy = NULL;
-      
-			#if USE_AQTION
-			if (stat_logs->value) { // Only create stats logs if stat_logs is 1
-				LogWorldKill(self);
-			}
-			#endif
 		}
 		return;
 	}
