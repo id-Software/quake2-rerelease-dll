@@ -1938,6 +1938,11 @@ extern gitem_t itemlist[IT_TOTAL];
 #define ENHANCED_BANDAGE_TIME		10
 #define BLEED_TIME      			10	// 10 = 1 second is time for losing 1 health at slowest bleed rate
 
+// edict->client->pers.spec_flags
+#define SPECFL_KILLFEED					0x00000001
+#define SPECFL_SPECHUD					0x00000002
+#define SPECFL_SPECHUD_NEW				0x00000004
+
 // Firing styles (where shots originate from)
 #define ACTION_FIRING_CENTER		0
 #define ACTION_FIRING_CLASSIC		1
@@ -1949,6 +1954,7 @@ extern gitem_t itemlist[IT_TOTAL];
 #define CROUCHING_VIEWHEIGHT		8
 #define STANDING_VIEWHEIGHT			22
 
+extern team_t teams[TEAM_TOP];
 int32_t gameSettings;  // Round based, deathmatch, etc?
 
 extern cvar_t *allitem;
@@ -2458,6 +2464,9 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 //
 void ServerCommand();
 bool SV_FilterPacket(const char *from);
+// ACTION
+bool Ban_TeamKiller (edict_t * ent, int rounds);
+void UnBan_TeamKillers (void);
 
 //
 // p_view.c
@@ -2853,7 +2862,7 @@ struct client_persistant_t
 	int32_t	hc_mode;
 	int32_t	id;			// id command on or off
 	int32_t	irvision;			// ir on or off (only matters if player has ir device, currently bandolier)
-
+	int32_t spec_flags;
 	int32_t	firing_style;
 	// Action Add End
 };

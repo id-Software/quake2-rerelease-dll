@@ -66,7 +66,7 @@ void Add_Frag(edict_t * ent, int mod)
 		ent->client->resp.gunstats[mod].kills++;
 	}
 	// Grenade splash, kicks and punch damage
-	if (mod > 0 && ((mod.id == MOD_HG_SPLASH) || (mod.id == MOD_KICK) || (mod.id == MOD_PUNCH))) {
+	if (mod.id > 0 && ((mod.id == MOD_HG_SPLASH) || (mod.id == MOD_KICK) || (mod.id == MOD_PUNCH))) {
 		ent->client->resp.gunstats[mod].kills++;
 	}
 
@@ -436,7 +436,9 @@ void CL_FixUpGender(edict_t *ent, const char *userinfo)
 	if (!ent->client)
         return;
 
-    Q_strlcpy(sk, gi.Info_ValueForKey(userinfo, "skin"), sizeof(sk));
+	gi.Info_ValueForKey(userinfo, "skin", sk, sizeof(sk));
+	
+    //Q_strlcpy(sk, gi.Info_ValueForKey(userinfo, "skin"), sizeof(sk));
     if ((p = strchr(sk, '/')) != NULL)
         *p = 0;
     if (Q_strcasecmp(sk, "male") == 0 ||
@@ -476,7 +478,7 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 	self->client->resp.ctf_capstreak = 0;
 
 	friendlyFire = meansOfDeath & MOD_FRIENDLY_FIRE;
-	mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
+	//mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 	loc = locOfDeath;	// useful for location based hits
 
 	// Reki: Print killfeed to spectators who ask for easily parsable stuff
@@ -495,10 +497,10 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 
 		if (attacker == world || !attacker->client)
 			sprintf(death_msg, "--KF %i %s, MOD %i\n",
-				self->client->resp.team, self->client->pers.netname, mod);
+				self->client->resp.team, self->client->pers.netname, mod.id);
 		else
 			sprintf(death_msg, "--KF %i %s, MOD %i, %i %s\n",
-				attacker->client->resp.team, attacker->client->pers.netname, mod, self->client->resp.team, self->client->pers.netname);
+				attacker->client->resp.team, attacker->client->pers.netname, mod.id, self->client->resp.team, self->client->pers.netname);
 		gi.LocClient_Print(other, PRINT_MEDIUM, "%s", death_msg);
 	}
 	//
@@ -610,7 +612,7 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		}
 		else
 		{
-			sprintf( death_msg, "%s %s\n", self->client->pers.netname, message );
+			sprintf( death_msg, message );
 			PrintDeathMessage(death_msg, self );
 
 			if (!teamplay->value || team_round_going || !ff_afterround->value)  {
@@ -1237,7 +1239,7 @@ void TossClientWeapon(edict_t * self)
 	// 	drop->think = G_FreeEdict;
 	// }
 	// RAFAEL
-}
+//}
 
 /*
 ==================

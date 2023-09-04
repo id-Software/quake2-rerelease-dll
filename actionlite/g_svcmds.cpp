@@ -300,3 +300,90 @@ void ServerCommand()
 	else
 		gi.LocClient_Print(nullptr, PRINT_HIGH, "Unknown server command \"{}\"\n", cmd);
 }
+
+/*
+==========================
+Kick a client entity
+==========================
+*/
+void Kick_Client (edict_t * ent)
+{
+	if (!ent || !ent->client || !ent->client->pers.connected)
+		return;
+
+	int clientId = ent->client - game.clients;
+	char *kick_msg;
+
+	// We used to kick on names, but people got crafty and figured
+	// out that putting in a space after their name let them get
+	// around the stupid 'kick' function. So now we kick by number.
+
+	snprintf(kick_msg, sizeof(kick_msg), "kick %d\n", clientId);
+	gi.AddCommandString(kick_msg);
+}
+
+
+/*
+==========================
+Ban a client for N rounds
+==========================
+*/
+bool Ban_TeamKiller (edict_t * ent, int rounds)
+{
+	int i = 0;
+
+	if (!ent || !ent->client || !ent->client->pers.ip[0])
+	{
+		gi.Com_Print("Unable to determine client ip address for edict\n");
+		return false;
+	}
+
+	for (i = 0; i < numipfilters; i++)
+	{
+		if (ipfilters[i].compare == 0xffffffff)
+		break;			// free spot
+	}
+
+	if (i == numipfilters)
+	{
+		if (numipfilters == MAX_IPFILTERS)
+		{
+			gi.Com_Print("IP filter list is full\n");
+			return false;
+		}
+		numipfilters++;
+	}
+	if (!StringToFilter(ent->client->pers.ip, &ipfilters[i], rounds))
+	{
+		ipfilters[i].compare = 0xffffffff;
+		return false;
+	}
+
+	return true;
+}
+
+void UnBan_TeamKillers (void)
+{
+  // We don't directly unban them all - we subtract 1 from temp_ban_games,
+  // and unban them if it's 0.
+
+	int i, j;
+
+	for (i = 0; i < numipfilters; i++)
+	{
+		if (ipfilters[i].temp_ban_games > 0)
+		{
+			if (!--ipfilters[i].temp_ban_games)
+			{
+				// re-pack the filters
+				for (j = i + 1; j < numipfilters; j++)
+					ipfilters[j - 1] = ipfilters[j];
+				numipfilters--;
+				gi.Com_Print ("Unbanned teamkiller/vote kickked.\n");
+
+				// since we removed the current we have to re-process the new current
+				i--;
+			}
+		}
+	}
+}
