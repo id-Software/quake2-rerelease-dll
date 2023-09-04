@@ -1623,6 +1623,7 @@ extern int snd_fry;
 // Action Add
 extern cvar_t *teamdm;
 extern cvar_t *teamdm_respawn;
+extern cvar_t *ff_afterround;
 extern cvar_t *respawn_effect;
 extern cvar_t *use_warnings;
 extern cvar_t *use_killcounts;

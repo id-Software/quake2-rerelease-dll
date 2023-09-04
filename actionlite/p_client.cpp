@@ -658,95 +658,80 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		case MOD_MK23:	// zucc
 			switch (loc) {
 			case LOC_HDAM:
-				if (self->client->pers.gender == GENDER_MALE)
-					message = " has a hole in his head from";
-				else if (self->client->pers.gender == GENDER_FEMALE)
-					message = " has a hole in her head from";
-				else
-					message = " has a hole in its head from";
-				message2 = "'s Mark 23 pistol";
+				snprintf(message, sizeof(message), "%s has a hole in %s head from %s's Mark 23 pistol", 
+					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				message = " loses a vital chest organ thanks to";
-				message2 = "'s Mark 23 pistol";
+				snprintf(message, sizeof(message), "%s loses a vital chest organ thanks to %s's Mark 23 pistol", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				if (self->client->pers.gender == GENDER_MALE)
-					message = " loses his lunch to";
-				else if (self->client->pers.gender == GENDER_FEMALE)
-					message = " loses her lunch to";
-				else
-					message = " loses its lunch to";
-				message2 = "'s .45 caliber pistol round";
+				snprintf(message, sizeof(message), "%s loses %s lunch to %s's .45 caliber pistol round", 
+					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				message = " is legless because of";
-				message2 = "'s .45 caliber pistol round";
+				snprintf(message, sizeof(message), "%s is legless because of %s's .45 caliber pistol round", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				message = " was shot by";
-				message2 = "'s Mark 23 Pistol";
+				snprintf(message, sizeof(message), "%s was shot by %s's Mark 23 pistol", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_MP5:
 			switch (loc) {
 			case LOC_HDAM:
-				message = "'s brains are on the wall thanks to";
-				message2 = "'s 10mm MP5/10 round";
+				snprintf(message, sizeof(message), "%s 's brains are on the wall thanks to %s's 10mm MP5/10 round", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				message = " feels some chest pain via";
-				message2 = "'s MP5/10 Submachinegun";
+				snprintf(message, sizeof(message), "%s feels some chest pain via %s's MP5/10 Submachinegun", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				message = " needs some Pepto Bismol after";
-				message2 = "'s 10mm MP5 round";
+				snprintf(message, sizeof(message), "%s needs some Pepto Bismol after %s's 10mm MP5 round", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				if (self->client->pers.gender == GENDER_MALE)
-					message = " had his legs blown off thanks to";
-				else if (self->client->pers.gender == GENDER_FEMALE)
-					message = " had her legs blown off thanks to";
-				else
-					message = " had its legs blown off thanks to";
-				message2 = "'s MP5/10 Submachinegun";
+				snprintf(message, sizeof(message), "%s had %s legs blown off thanks to %s's MP5/10 Submachinegun", 
+					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			default:
-				message = " was shot by";
-				message2 = "'s MP5/10 Submachinegun";
+				snprintf(message, sizeof(message), "%s was shot by %s's MP5/10 Submachinegun", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_M4:
 			switch (loc) {
 			case LOC_HDAM:
-				message = " had a makeover by";
-				message2 = "'s M4 Assault Rifle";
+				snprintf(message, sizeof(message), "%s had a makeover by %s's M4 Assault Rifle", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				message = " feels some heart burn thanks to";
-				message2 = "'s M4 Assault Rifle";
+				snprintf(message, sizeof(message), "%s feels some heart burn thanks to %s's M4 Assault Rifle", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				message = " has an upset stomach thanks to";
-				message2 = "'s M4 Assault Rifle";
+				snprintf(message, sizeof(message), "%s has an upset stomach thanks to %s's M4 Assault Rifle", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				message = " is now shorter thanks to";
-				message2 = "'s M4 Assault Rifle";
+				snprintf(message, sizeof(message), "%s is now shorter thanks to %s's M4 Assault Rifle", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				message = " was shot by";
-				message2 = "'s M4 Assault Rifle";
+				snprintf(message, sizeof(message), "%s was shot by %s's M4 Assault Rifle", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_M3:
 			n = rand() % 2 + 1;
 			if (n == 1) {
-				message = " accepts";
-				message2 = "'s M3 Super 90 Assault Shotgun in hole-y matrimony";
+				snprintf(message, sizeof(message), "%s accepts %s's M3 Super 90 Assault Shotgun in hole-y matrimony", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			} else {
-				message = " is full of buckshot from";
-				message2 = "'s M3 Super 90 Assault Shotgun";
+				snprintf(message, sizeof(message), "%s is full of buckshot from %s's M3 Super 90 Assault Shotgun", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_HC:
@@ -754,51 +739,53 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			if (n == 1) {
 				if (attacker->client->pers.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
 				{
-					message = " underestimated";
-					message2 = "'s single barreled handcannon shot";
+					snprintf(message, sizeof(message), "%s underestimated %s's single barreled handcannon shot", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				} else {
-					message = " ate";
-					message2 = "'s sawed-off 12 gauge";
+					snprintf(message, sizeof(message), "%s ate %s's sawed-off 12 gauge", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				}
 			} else if (n == 2 ){
 				if (attacker->client->pers.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
 				{
-					message = " won't be able to pass a metal detector anymore thanks to";
-					message2 = "'s single barreled handcannon shot";
+					snprintf(message, sizeof(message), "%s won't be able to pass a metal detector anymore thanks to %s's single barreled handcannon shot", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				} else {
-					message = " is full of buckshot from";
-					message2 = "'s sawed off shotgun";
+					snprintf(message, sizeof(message), "%s is full of buckshot from %s's sawed off shotgun", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				} 
 			} else {
 				// minch <3
-				message = " was minched by";
+				snprintf(message, sizeof(message), "%s was minched by %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_SNIPER:
 			switch (loc) {
 			case LOC_HDAM:
 				if (self->client->ps.fov < 90) {
-					if (self->client->pers.gender == GENDER_MALE)
-						message = " saw the sniper bullet go through his scope thanks to";
-					else if (self->client->pers.gender == GENDER_FEMALE)
-						message = " saw the sniper bullet go through her scope thanks to";
-					else
-						message = " saw the sniper bullet go through its scope thanks to";
-				} else
-					message = " caught a sniper bullet between the eyes from";
+					snprintf(message, sizeof(message), "%s saw the sniper bullet go through %s scope thanks to %s", 
+					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
+				} else {
+					snprintf(message, sizeof(message), "%s caught a sniper bullet between the eyes from %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
+				}
 				break;
 			case LOC_CDAM:
-				message = " was picked off by";
+				snprintf(message, sizeof(message), "%s was picked off by %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				message = " was sniped in the stomach by";
+				snprintf(message, sizeof(message), "%s was sniped in the stomach by %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				message = " was shot in the legs by";
+				snprintf(message, sizeof(message), "%s was shot in the legs by %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				message = " was sniped by";
-				//message2 = "'s Sniper Rifle";
+				snprintf(message, sizeof(message), "%s was sniped by %s", 
+					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_DUAL:
@@ -974,12 +961,6 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			PrintDeathMessage(death_msg, self);
 			AddKilledPlayer(attacker, self);
 
-			#if USE_AQTION
-			if (stat_logs->value) {
-				LogKill(self, inflictor, attacker);
-			}
-			#endif
-
 			if (friendlyFire) {
 				if (!teamplay->value || team_round_going || !ff_afterround->value)
 				{
@@ -989,8 +970,8 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 					Add_Death( self, false );
 				}
 			} else {
-				if (!teamplay->value || mod != MOD_TELEFRAG) {
-					Add_Frag(attacker, mod);
+				if (!teamplay->value || mod.id != MOD_TELEFRAG) {
+					Add_Frag(attacker, mod.id);
 					attacker->client->radio_num_kills++;
 					Add_Death( self, true );
 				}
@@ -1002,13 +983,6 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 
 	sprintf(death_msg, "%s died\n", self->client->pers.netname);
 	PrintDeathMessage(death_msg, self);
-
-	#if USE_AQTION
-	if (stat_logs->value) { // Only create stats logs if stat_logs is 1
-		LogWorldKill(self);
-	}
-	#endif
-
 	Subtract_Frag(self);	//self->client->resp.score--;
 	Add_Death( self, true );
 }
@@ -1078,7 +1052,7 @@ void TossItemsOnDeath(edict_t * ent)
 	// don't bother dropping stuff when allweapons/items is active
 	if (allitem->value) {
 		// remove the lasersight because then the observer might have it
-		item = GET_ITEM(LASER_NUM);
+		item = GetItemByIndex(IT_ITEM_LASERSIGHT);
 		ent->client->inventory[ITEM_INDEX(item)] = 0;
 	} else {
 		DeadDropSpec(ent);
@@ -1092,21 +1066,21 @@ void TossItemsOnDeath(edict_t * ent)
 
 	//if (WPF_ALLOWED(MK23_NUM) && WPF_ALLOWED(IT_WEAPON_DUALMK23)) {
 		// give the player a dual pistol so they can be sure to drop one
-	item = GET_ITEM(IT_WEAPON_DUALMK23);
+	item = GetItemByIndex(IT_WEAPON_DUALMK23);
 	ent->client->inventory[ITEM_INDEX(item)]++;
 	EjectItem(ent, item);
 	//}
 
 	// check for every item we want to drop when a player dies
-	for (i = MP5_NUM; i < IT_WEAPON_DUALMK23; i++) {
-		item = GET_ITEM( i );
+	for (i = IT_WEAPON_MP5; i < IT_WEAPON_DUALMK23; i++) {
+		item = GetItemByIndex( i );
 		while (ent->client->inventory[ITEM_INDEX( item )] > 0) {
 			ent->client->inventory[ITEM_INDEX( item )]--;
 			EjectWeapon( ent, item );
 		}
 	}
 
-	item = GET_ITEM(IT_WEAPON_KNIFE);
+	item = GetItemByIndex(IT_WEAPON_KNIFE);
 	if (ent->client->inventory[ITEM_INDEX(item)] > 0) {
 		EjectItem(ent, item);
 	}
@@ -1125,7 +1099,7 @@ void TossClientWeapon(edict_t * self)
 	bool quad;
 	float spread;
 
-	item = self->client->pers.weapon->id;
+	item = self->client->pers.weapon;
 	if (!self->client->inventory[self->client->ammo_index])
 		item = NULL;
 	if (item && (strcmp(item->pickup_name, "Blaster") == 0))
@@ -1150,221 +1124,142 @@ void TossClientWeapon(edict_t * self)
 }
 	
 
-	// send generic/self
-	if (base)
-	{
-		gi.LocBroadcast_Print(PRINT_MEDIUM, base, self->client->pers.netname);
-		if (deathmatch->integer && !mod.no_point_loss)
-		{
-			self->client->resp.score--;
+	// // send generic/self
+	// if (base)
+	// {
+	// 	gi.LocBroadcast_Print(PRINT_MEDIUM, base, self->client->pers.netname);
+	// 	if (deathmatch->integer && !mod.no_point_loss)
+	// 	{
+	// 		self->client->resp.score--;
 
-			if (teamplay->integer)
-				G_AdjustTeamScore(self->client->resp.ctf_team, -1);
-		}
-		self->enemy = nullptr;
-		return;
-	}
+	// 		if (teamplay->integer)
+	// 			G_AdjustTeamScore(self->client->resp.ctf_team, -1);
+	// 	}
+	// 	self->enemy = nullptr;
+	// 	return;
+	// }
 
 	// has a killer
-	self->enemy = attacker;
-	if (attacker && attacker->client)
-	{
-		switch (mod.id)
-		{
-		case MOD_BLASTER:
-			base = "$g_mod_kill_blaster";
-			break;
-		case MOD_M3:
-			base = "$g_mod_kill_shotgun";
-			break;
-		case MOD_HC:
-			base = "$g_mod_kill_sshotgun";
-			break;
-		case MOD_MP5:
-			base = "$g_mod_kill_machinegun";
-			break;
-		case MOD_M4:
-			base = "$g_mod_kill_chaingun";
-			break;
-		case MOD_GRENADE:
-			base = "$g_mod_kill_grenade";
-			break;
-		case MOD_G_SPLASH:
-			base = "$g_mod_kill_grenade_splash";
-			break;
-		case MOD_SNIPER:
-			base = "$g_mod_kill_rocket";
-			break;
-		case MOD_KNIFE:
-			base = "$g_mod_kill_rocket_splash";
-			break;
-		case MOD_HYPERBLASTER:
-			base = "$g_mod_kill_hyperblaster";
-			break;
-		case MOD_KNIFE_THROWN:
-			base = "$g_mod_kill_railgun";
-			break;
-		case MOD_MK23:
-			base = "$g_mod_kill_bfg_laser";
-			break;
-		case MOD_DUAL:
-			base = "$g_mod_kill_bfg_blast";
-			break;
-		case MOD_HANDGRENADE:
-			base = "$g_mod_kill_handgrenade";
-			break;
-		case MOD_HG_SPLASH:
-			base = "$g_mod_kill_handgrenade_splash";
-			break;
-		case MOD_HELD_GRENADE:
-			base = "$g_mod_kill_held_grenade";
-			break;
-		case MOD_TELEFRAG:
-		case MOD_TELEFRAG_SPAWN:
-			base = "$g_mod_kill_telefrag";
-			break;
-		case MOD_GRAPPLE:
-			base = "$g_mod_kill_grapple";
-			break;
-			// ZOID
-		default:
-			base = "$g_mod_kill_generic";
-			break;
-		}
+	// self->enemy = attacker;
+	// if (attacker && attacker->client)
+	// {
+	// 	switch (mod.id)
+	// 	{
+	// 	case MOD_BLASTER:
+	// 		base = "$g_mod_kill_blaster";
+	// 		break;
+	// 	case MOD_M3:
+	// 		base = "$g_mod_kill_shotgun";
+	// 		break;
+	// 	case MOD_HC:
+	// 		base = "$g_mod_kill_sshotgun";
+	// 		break;
+	// 	case MOD_MP5:
+	// 		base = "$g_mod_kill_machinegun";
+	// 		break;
+	// 	case MOD_M4:
+	// 		base = "$g_mod_kill_chaingun";
+	// 		break;
+	// 	case MOD_GRENADE:
+	// 		base = "$g_mod_kill_grenade";
+	// 		break;
+	// 	case MOD_G_SPLASH:
+	// 		base = "$g_mod_kill_grenade_splash";
+	// 		break;
+	// 	case MOD_SNIPER:
+	// 		base = "$g_mod_kill_rocket";
+	// 		break;
+	// 	case MOD_KNIFE:
+	// 		base = "$g_mod_kill_rocket_splash";
+	// 		break;
+	// 	case MOD_HYPERBLASTER:
+	// 		base = "$g_mod_kill_hyperblaster";
+	// 		break;
+	// 	case MOD_KNIFE_THROWN:
+	// 		base = "$g_mod_kill_railgun";
+	// 		break;
+	// 	case MOD_MK23:
+	// 		base = "$g_mod_kill_bfg_laser";
+	// 		break;
+	// 	case MOD_DUAL:
+	// 		base = "$g_mod_kill_bfg_blast";
+	// 		break;
+	// 	case MOD_HANDGRENADE:
+	// 		base = "$g_mod_kill_handgrenade";
+	// 		break;
+	// 	case MOD_HG_SPLASH:
+	// 		base = "$g_mod_kill_handgrenade_splash";
+	// 		break;
+	// 	case MOD_HELD_GRENADE:
+	// 		base = "$g_mod_kill_held_grenade";
+	// 		break;
+	// 	case MOD_TELEFRAG:
+	// 	case MOD_TELEFRAG_SPAWN:
+	// 		base = "$g_mod_kill_telefrag";
+	// 		break;
+	// 	case MOD_GRAPPLE:
+	// 		base = "$g_mod_kill_grapple";
+	// 		break;
+	// 		// ZOID
+	// 	default:
+	// 		base = "$g_mod_kill_generic";
+	// 		break;
+	// 	}
 
-		gi.LocBroadcast_Print(PRINT_MEDIUM, base, self->client->pers.netname, attacker->client->pers.netname);
+		//gi.LocBroadcast_Print(PRINT_MEDIUM, base, self->client->pers.netname, attacker->client->pers.netname);
 
-		if (G_TeamplayEnabled())
-		{
-			// ZOID
-			//  if at start and same team, clear.
-			// [Paril-KEX] moved here so it's not an outlier in player_die.
-			if (mod.id == MOD_TELEFRAG_SPAWN &&
-				self->client->resp.ctf_state < 2 &&
-				self->client->resp.ctf_team == attacker->client->resp.ctf_team)
-			{
-				self->client->resp.ctf_state = 0;
-				return;
-			}
-		}
 
-		// ROGUE
-		if (gamerules->integer)
-		{
-			if (DMGame.Score)
-			{
-				if (mod.friendly_fire)
-				{
-					if (!mod.no_point_loss)
-						DMGame.Score(attacker, self, -1, mod);
-				}
-				else
-					DMGame.Score(attacker, self, 1, mod);
-			}
-			return;
-		}
-		// ROGUE
+// void TossClientWeapon(edict_t *self)
+// {
+// 	gitem_t *item;
+// 	edict_t *drop;
+// 	bool	 quad;
+// 	// RAFAEL
+// 	bool quadfire;
+// 	// RAFAEL
+// 	float spread;
 
-		if (deathmatch->integer)
-		{
-			if (mod.friendly_fire)
-			{
-				if (!mod.no_point_loss)
-				{
-					attacker->client->resp.score--;
+// 	if (!deathmatch->integer)
+// 		return;
 
-					if (teamplay->integer)
-						G_AdjustTeamScore(attacker->client->resp.ctf_team, -1);
-				}
-			}
-			else
-			{
-				attacker->client->resp.score++;
+// 	item = self->client->pers.weapon;
+// 	if (item && g_instagib->integer)
+// 		item = nullptr;
+// 	if (item && !self->client->pers.inventory[self->client->pers.weapon->ammo])
+// 		item = nullptr;
+// 	if (item && !item->drop)
+// 		item = nullptr;
 
-				if (teamplay->integer)
-					G_AdjustTeamScore(attacker->client->resp.ctf_team, 1);
-			}
-		}
-		else if (!coop->integer)
-			self->client->resp.score--;
+// 	if (g_dm_no_quad_drop->integer)
+// 		quad = false;
+// 	else
+// 		quad = (self->client->quad_time > (level.time + 1_sec));
 
-		return;
-	}
+// 	// RAFAEL
+// 	if (g_dm_no_quadfire_drop->integer)
+// 		quadfire = false;
+// 	else
+// 		quadfire = (self->client->quadfire_time > (level.time + 1_sec));
+// 	// RAFAEL
 
-	gi.LocBroadcast_Print(PRINT_MEDIUM, "$g_mod_generic_died", self->client->pers.netname);
-	if (deathmatch->integer && !mod.no_point_loss)
-	// ROGUE
-	{
-		if (gamerules->integer)
-		{
-			if (DMGame.Score)
-			{
-				DMGame.Score(self, self, -1, mod);
-			}
-			return;
-		}
-		else
-		{
-			self->client->resp.score--;
+// 	if (item && quad)
+// 		spread = 22.5;
+// 	// RAFAEL
+// 	else if (item && quadfire)
+// 		spread = 12.5;
+// 	// RAFAEL
+// 	else
+// 		spread = 0.0;
 
-			if (teamplay->integer)
-				G_AdjustTeamScore(attacker->client->resp.ctf_team, -1);
-		}
-	}
-	// ROGUE
-}
-
-void TossClientWeapon(edict_t *self)
-{
-	gitem_t *item;
-	edict_t *drop;
-	bool	 quad;
-	// RAFAEL
-	bool quadfire;
-	// RAFAEL
-	float spread;
-
-	if (!deathmatch->integer)
-		return;
-
-	item = self->client->pers.weapon;
-	if (item && g_instagib->integer)
-		item = nullptr;
-	if (item && !self->client->pers.inventory[self->client->pers.weapon->ammo])
-		item = nullptr;
-	if (item && !item->drop)
-		item = nullptr;
-
-	if (g_dm_no_quad_drop->integer)
-		quad = false;
-	else
-		quad = (self->client->quad_time > (level.time + 1_sec));
-
-	// RAFAEL
-	if (g_dm_no_quadfire_drop->integer)
-		quadfire = false;
-	else
-		quadfire = (self->client->quadfire_time > (level.time + 1_sec));
-	// RAFAEL
-
-	if (item && quad)
-		spread = 22.5;
-	// RAFAEL
-	else if (item && quadfire)
-		spread = 12.5;
-	// RAFAEL
-	else
-		spread = 0.0;
-
-	if (item)
-	{
-		self->client->v_angle[YAW] -= spread;
-		drop = Drop_Item(self, item);
-		self->client->v_angle[YAW] += spread;
-		drop->spawnflags |= SPAWNFLAG_ITEM_DROPPED_PLAYER;
-		drop->spawnflags &= ~SPAWNFLAG_ITEM_DROPPED;
-		drop->svflags &= ~SVF_INSTANCED;
-	}
+// 	if (item)
+// 	{
+// 		self->client->v_angle[YAW] -= spread;
+// 		drop = Drop_Item(self, item);
+// 		self->client->v_angle[YAW] += spread;
+// 		drop->spawnflags |= SPAWNFLAG_ITEM_DROPPED_PLAYER;
+// 		drop->spawnflags &= ~SPAWNFLAG_ITEM_DROPPED;
+// 		drop->svflags &= ~SVF_INSTANCED;
+// 	}
 
 	// if (quad)
 	// {

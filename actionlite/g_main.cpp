@@ -155,6 +155,7 @@ cvar_t *ai_movement_disabled;
 
 cvar_t *teamdm;
 cvar_t *teamdm_respawn;
+cvar_t *ff_afterround;
 cvar_t *respawn_effect;
 cvar_t *use_warnings;
 cvar_t *use_killcounts;
