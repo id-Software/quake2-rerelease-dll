@@ -2465,6 +2465,7 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 void ServerCommand();
 bool SV_FilterPacket(const char *from);
 // ACTION
+void Kick_Client (edict_t * ent);
 bool Ban_TeamKiller (edict_t * ent, int rounds);
 void UnBan_TeamKillers (void);
 
@@ -2897,7 +2898,7 @@ struct client_respawn_t
 	int32_t team_kills;
 	int32_t team_wounds;
 	
-	aqteam_t team;
+	int32_t team;
 	int32_t	sniper_mode;
 
 	int32_t idletime;

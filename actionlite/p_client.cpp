@@ -304,7 +304,7 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 		return;
 	}
 
-	if (dedicated->value)
+	if (sv_dedicated->integer)
 		gi.LocClient_Print(NULL, PRINT_MEDIUM, "%s", msg);
 
 	// First, let's print the message for gibee and its attacker. -TempFile
@@ -612,7 +612,9 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		}
 		else
 		{
-			sprintf( death_msg, message );
+			//snprintf( death_msg, sizeof(death_msg), message);
+			//sprintf( death_msg, message );
+			death_msg = message;
 			PrintDeathMessage(death_msg, self );
 
 			if (!teamplay->value || team_round_going || !ff_afterround->value)  {
@@ -906,7 +908,8 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		if (message)
 		{
 			//sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname, message, attacker->client->pers.netname, message2);
-			snprintf(death_msg, sizeof(death_msg), message);
+			//snprintf(death_msg, sizeof(death_msg), message);
+			death_msg = message;
 			PrintDeathMessage(death_msg, self);
 			AddKilledPlayer(attacker, self);
 
