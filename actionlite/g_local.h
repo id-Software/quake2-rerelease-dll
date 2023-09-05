@@ -6,9 +6,16 @@
 
 #include "bg_local.h"
 
-#include "a_team.h"
-#include "a_game.h"
-#include "cgf_sfx_glass.h"
+// Action includes
+#include "action/a_team.h"
+#include "action/a_game.h"
+#include "action/cgf_sfx_glass.h"
+#include "action/a_match.h"
+#include "action/a_radio.h"
+#include "action/a_ini.h"
+#include "action/a_stats.h"
+#include "action/a_balancer.h"
+
 
 // the "gameversion" client command will print this plus compile date
 constexpr const char *GAMEVERSION = "action";
@@ -1995,6 +2002,8 @@ extern cvar_t *radio_ban;
 extern cvar_t *radio_repeat;
 //SLIC2
 extern cvar_t *radio_repeat_time;
+extern cvar_t *warmup;
+extern cvar_t *round_begin;
 
 void LaserSightThink (edict_t * self);
 void SP_LaserSight (edict_t * self, gitem_t * item);
@@ -2961,6 +2970,7 @@ struct client_respawn_t
 	gtime_t	 ctf_lastreturnedflag;
 	gtime_t	 ctf_flagsince;
 	gtime_t	 ctf_lastfraggedcarrier;
+	int32_t  ctf_caps;
 	int32_t  ctf_capstreak;
 	bool	 id_state;
 	gtime_t	 lastidtime;
@@ -2971,12 +2981,17 @@ struct client_respawn_t
 					// ZOID
 
 	// Action Add
+	int32_t joined_team;		// last frame # at which the player joined a team
+	int32_t lastWave;			//last time used wave
+
+	radio_t radio;
+	
+	int32_t motd_refreshes;
+	int32_t last_motd_refresh;
+	edict_t *last_chase_target;	// last person they chased, to resume at the same place later...
 	int32_t enterframe;		// frame when player entered the game
 	int32_t team_kills;
-	int32_t team_wounds;
-	int32_t joined_team;		// last frame # at which the player joined a team
-  	int32_t lastWave;			//last time used wave
-	
+	int32_t team_wounds;	
 	int32_t team;
 	int32_t subteam;
 	int32_t	sniper_mode;
@@ -3041,7 +3056,15 @@ struct team_t
 };
 extern team_t teams[TEAM_TOP];
 
-// Action Add
+#ifndef max
+# define max(a,b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef min
+# define min(a,b) ((a) < (b) ? (a) : (b))
+#endif
+
+// Action Add End
 
 // [Paril-KEX] seconds until we are fully invisible after
 // making a racket

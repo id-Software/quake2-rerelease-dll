@@ -1323,9 +1323,9 @@ static void G_InitStatusbar()
 				.yb(-84)
 			.endifstat()
 		.endifstat();
-		sb.ifstat(STAT_KEY_A).xv(296).pic(STAT_KEY_A).endifstat();
-		sb.ifstat(STAT_KEY_B).xv(272).pic(STAT_KEY_B).endifstat();
-		sb.ifstat(STAT_KEY_C).xv(248).pic(STAT_KEY_C).endifstat();
+		// sb.ifstat(STAT_KEY_A).xv(296).pic(STAT_KEY_A).endifstat();
+		// sb.ifstat(STAT_KEY_B).xv(272).pic(STAT_KEY_B).endifstat();
+		// sb.ifstat(STAT_KEY_C).xv(248).pic(STAT_KEY_C).endifstat();
 
 		if (coop->integer)
 		{

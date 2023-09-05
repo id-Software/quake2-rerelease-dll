@@ -170,6 +170,8 @@ cvar_t *respawn_effect;
 cvar_t *use_warnings;
 cvar_t *use_killcounts;
 cvar_t *use_rewards;
+cvar_t *warmup;
+cvar_t *round_begin;
 
 // UI / Menu / Messaging Settings
 cvar_t *motd_time;

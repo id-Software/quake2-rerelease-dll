@@ -973,11 +973,11 @@ void G_SetStats(edict_t *ent)
 	if (!deathmatch->integer)
 	{
 		int32_t key_offset = 0;
-		player_stat_t stat = STAT_KEY_A;
+		// player_stat_t stat = STAT_KEY_A;
 		
-		ent->client->ps.stats[STAT_KEY_A] = 
-		ent->client->ps.stats[STAT_KEY_B] = 
-		ent->client->ps.stats[STAT_KEY_C] = 0;
+		// ent->client->ps.stats[STAT_KEY_A] = 
+		// ent->client->ps.stats[STAT_KEY_B] = 
+		// ent->client->ps.stats[STAT_KEY_C] = 0;
 
 		// there's probably a way to do this in one pass but
 		// I'm lazy

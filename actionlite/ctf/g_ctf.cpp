@@ -5,52 +5,15 @@
 
 #include <assert.h>
 
-enum match_t
-{
-	MATCH_NONE,
-	MATCH_SETUP,
-	MATCH_PREGAME,
-	MATCH_GAME,
-	MATCH_POST
-};
-
-enum elect_t
-{
-	ELECT_NONE,
-	ELECT_MATCH,
-	ELECT_ADMIN,
-	ELECT_MAP
-};
-
-struct ctfgame_t
-{
-	int		team1, team2;
-	int		total1, total2; // these are only set when going into intermission except in teamplay
-	gtime_t last_flag_capture;
-	int		last_capture_team;
-
-	match_t match;	   // match state
-	gtime_t matchtime; // time for match start/end (depends on state)
-	int		lasttime;  // last time update, explicitly truncated to seconds
-	bool	countdown; // has audio countdown started?
-
-	elect_t	 election;	 // election type
-	edict_t *etarget;	 // for admin election, who's being elected
-	char	 elevel[32]; // for map election, target level
-	int		 evotes;	 // votes so far
-	int		 needvotes;	 // votes needed
-	gtime_t	 electtime;	 // remaining time until election times out
-	char	 emsg[256];	 // election name
-	int		 warnactive; // true if stat string 30 is active
-
-	ghost_t ghosts[MAX_CLIENTS]; // ghost codes
-};
-
 ctfgame_t ctfgame;
 
 cvar_t *ctf;
 cvar_t *teamplay;
 cvar_t *g_teamplay_force_join;
+cvar_t *ctf_mode = NULL;
+cvar_t *ctf_dropflag = NULL;
+cvar_t *ctf_respawn = NULL;
+cvar_t *ctf_model = NULL;
 
 // [Paril-KEX]
 bool G_TeamplayEnabled()

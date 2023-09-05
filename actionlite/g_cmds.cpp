@@ -120,6 +120,91 @@ void LaserSightThink(edict_t * self)
 	self->nextthink = level.time + 1_ms;
 }
 
+
+// sets variable to toggle nearby door status
+void Cmd_OpenDoor_f(edict_t * ent)
+{
+	ent->client->doortoggle = 1;
+	return;
+}
+
+void Cmd_Bandage_f(edict_t *ent)
+{
+	if (!IS_ALIVE(ent))
+		return;
+
+	if (ent->client->bandaging) {
+		gi.LocClient_Print(ent, PRINT_HIGH, "Already bandaging\n");
+		return;
+	}
+
+	bool can_use_medkit = (ent->client->medkit > 0) && (ent->health < ent->max_health);
+
+	// No need to bandage if enhanced slippers are enabled and you only have fall damage
+	// but you can still use the medkit to regain health
+	if (ent->client->bleeding == 0 && e_enhancedSlippers->value && ! can_use_medkit){
+		gi.LocClient_Print(ent, PRINT_HIGH, "No need to bandage\n");
+		return;
+	}
+
+	if (ent->client->bleeding == 0 && ent->client->leg_damage == 0 && ! can_use_medkit) {
+		gi.LocClient_Print(ent, PRINT_HIGH, "No need to bandage\n");
+		return;
+	}
+
+	ent->client->reload_attempts = 0;	// prevent any further reloading
+
+	if (ent->client->weaponstate != WEAPON_READY && ent->client->weaponstate != WEAPON_END_MAG) {
+		gi.LocClient_Print(ent, PRINT_HIGH, "Can't bandage now\n");
+		return;
+	}
+
+	// zucc - check if they have a primed grenade
+	if (ent->client->pers.weapon->id == IT_WEAPON_GRENADES
+		&& ((ent->client->ps.gunframe >= GRENADE_IDLE_FIRST
+			&& ent->client->ps.gunframe <= GRENADE_IDLE_LAST)
+		|| (ent->client->ps.gunframe >= GRENADE_THROW_FIRST
+			&& ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
+	{
+		int damage;
+
+		ent->client->ps.gunframe = 0;
+
+		damage = GRENADE_DAMRAD;
+
+		fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 80_ms, damage * 2, false);
+
+		INV_AMMO(ent, IT_WEAPON_GRENADES)--;
+		if (INV_AMMO(ent, IT_WEAPON_GRENADES) <= 0) {
+			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23);
+		}
+	}
+
+	ent->client->bandaging = 1;
+	ent->client->resp.sniper_mode = SNIPER_1X;
+	ent->client->ps.fov = 90;
+	ent->client->desired_fov = 90;
+	if (ent->client->pers.weapon)
+		ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
+	gi.LocClient_Print(ent, PRINT_HIGH, "You've started bandaging\n");
+}
+
+// function called in generic_weapon function that does the bandaging
+
+void Bandage(edict_t * ent)
+{
+	ClientFixLegs(ent);
+	ent->client->bleeding = 0;
+	ent->client->bleed_remain = 0;
+	ent->client->bandaging = 0;
+	ent->client->attacker = NULL;
+	ent->client->bandage_stopped = 1;
+	if (esp->value && esp_leaderenhance->value)
+		ent->client->idle_weapon = ENHANCED_BANDAGE_TIME;
+	else
+		ent->client->idle_weapon = BANDAGE_TIME;
+}
+
 void Cmd_New_Reload_f(edict_t * ent)
 {
 //FB 6/1/99 - refuse to reload during LCA

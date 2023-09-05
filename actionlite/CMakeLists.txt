@@ -7,6 +7,12 @@ set(CMAKE_C_COMPILER "gcc")
 set(CMAKE_CXX_COMPILER "g++")
 
 set(GAME_SRC 
+    ${CMAKE_CURRENT_SOURCE_DIR}/action/a_team.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/action/a_game.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/action/a_match.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/action/a_radio.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/action/cgf_sfx_glass.cpp 
+
     ${CMAKE_CURRENT_SOURCE_DIR}/bots/bot_debug.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/bots/bot_exports.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/bots/bot_think.cpp 
@@ -44,10 +50,6 @@ set(GAME_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/p_view.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/p_weapon.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/q_std.cpp 
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/a_team.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/a_game.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/cgf_sfx_glass.cpp 
 
     ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_combat.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_func.cpp 
@@ -94,7 +96,7 @@ set_target_properties(game PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 set_target_properties(game PROPERTIES PREFIX "")
-set_target_properties(game PROPERTIES OUTPUT_NAME "gamex86")
+set_target_properties(game PROPERTIES OUTPUT_NAME "game")
 
 # Fetch fmt locally
 find_package(fmt CONFIG REQUIRED)
