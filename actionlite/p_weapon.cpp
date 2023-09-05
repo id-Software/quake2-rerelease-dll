@@ -3977,19 +3977,21 @@ edict_t *FindSpecWeapSpawn(edict_t* ent)
 	edict_t* spot = NULL;
 
 	//gi.bprintf (PRINT_HIGH, "Calling the FindSpecWeapSpawn\n");
-	spot = G_Find(spot, FOFS(classname), ent->classname);
+	spot = G_FindByString<&edict_t::classname>(spot, classname);
+	//spot = G_Find(spot, FOFS(classname), ent->classname);
 	//gi.bprintf (PRINT_HIGH, "spot = %p and spot->think = %p and playerholder = %p, spot, (spot ? spot->think : 0), PlaceHolder\n");
 	while (spot && spot->think != PlaceHolder)	//(spot->spawnflags & DROPPED_ITEM ) && spot->think != PlaceHolder )//spot->solid == SOLID_NOT )        
 	{
 		//              gi.bprintf (PRINT_HIGH, "Calling inside the loop FindSpecWeapSpawn\n");
-		spot = G_Find(spot, FOFS(classname), ent->classname);
+		spot = G_FindByString<&edict_t::classname>(spot, classname);
+		//spot = G_Find(spot, FOFS(classname), ent->classname);
 	}
 	return spot;
 }
 
 static void SpawnSpecWeap(gitem_t* item, edict_t* spot)
 {
-	SetRespawn(spot, 1);
+	SetRespawn(spot, 60_sec, false);
 	gi.linkentity(spot);
 }
 

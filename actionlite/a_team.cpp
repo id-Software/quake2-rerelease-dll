@@ -2952,20 +2952,20 @@ void GetSpawnPoints (void)
 
 	num_potential_spawns = 0;
 
-	if ((spot = G_Find (spot, FOFS (classname), "info_player_team1")) != NULL)
+	if ((spot = G_FindByString<&edict_t::classname>(spot, "info_player_team1") != nullptr))
 	{
 		potential_spawns[num_potential_spawns] = spot;
 		num_potential_spawns++;
 	}
 
-	if ((spot = G_Find (spot, FOFS (classname), "info_player_team2")) != NULL)
+	if ((spot = G_FindByString<&edict_t::classname>(spot, "info_player_team2") != nullptr))
 	{
 		potential_spawns[num_potential_spawns] = spot;
 		num_potential_spawns++;
 	}
 
-	spot = NULL;
-	while ((spot = G_Find (spot, FOFS (classname), "info_player_deathmatch")) != NULL)
+	spot = nullptr;
+	while ((spot = G_FindByString<&edict_t::classname>(spot, "info_player_deathmatch") != nullptr))
 	{
 		potential_spawns[num_potential_spawns] = spot;
 		num_potential_spawns++;
