@@ -1,7 +1,5 @@
 #include "../g_local.h"
 #include "cgf_sfx_glass.h"
-#include "../ctf/g_ctf.h"
-
 
 bool team_game_going = false;	// is a team game going right now?
 bool team_round_going = false;	// is an actual round of a team game going right now?
@@ -37,7 +35,7 @@ edict_t *NS_used_farteamplay_spawns[MAX_TEAMS][MAX_SPAWNS];
 int NS_randteam;
 // </TNG:Freud>
 
-void CreditsMenu (edict_t * ent, pmenu_t * p);
+void CreditsMenu (edict_t * ent, pmenuhnd_t * p);
 static transparent_list_t transparentList[MAX_CLIENTS];
 static size_t transparentEntryCount = 0;
 transparent_list_t *transparent_list = NULL;
@@ -114,7 +112,7 @@ bool OnTransparentList( const edict_t *ent )
 	return false;
 }
 
-void ReprintMOTD (edict_t * ent, pmenu_t * p)
+void ReprintMOTD (edict_t * ent, pmenuhnd_t * p)
 {
 	PMenu_Close (ent);
 	PrintMOTD (ent);
@@ -139,7 +137,7 @@ void PrintMatchRules ()
 	CenterPrintAll(rulesmsg);
 }
 
-void JoinTeamAuto (edict_t * ent, pmenu_t * p)
+void JoinTeamAuto (edict_t * ent, pmenuhnd_t * p)
 {
 	int i, team = TEAM1, num1 = 0, num2 = 0, num3 = 0, score1, score2, score3;
 
@@ -356,7 +354,7 @@ void QuakeNigguhz (edict_t * ent, pmenuhnd_t * p)
 }
 
 // AQ2:TNG Deathwatch - Editing all menus to show the correct credits, version, names, locations, urls, etc
-pmenu_t creditsmenu[] = {
+const pmenu_t creditsmenu[] = {
   {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL},
   {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL},
   {"*Design Team", PMENU_ALIGN_LEFT, NULL},
@@ -386,26 +384,54 @@ pmenu_t creditsmenu[] = {
 //PG BUND END
 };
 
-pmenu_t weapmenu[] = {
-  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL},
-  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL},
-  {"Select your Weapon", PMENU_ALIGN_CENTER, NULL},
-  {NULL, PMENU_ALIGN_LEFT, NULL},
+// const pmenu_t weapmenu[] = {
+//   {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL},
+//   {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL},
+//   {"Select your Weapon", PMENU_ALIGN_CENTER, NULL},
+//   {NULL, PMENU_ALIGN_LEFT, NULL},
+//   //AQ2:TNG - Igor adding wp_flags
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "MP5/10 Submachinegun", SelectWeapon2
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "M3 Super90 Assault Shotgun", SelectWeapon3
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "Handcannon", SelectWeapon4
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "SSG 3000 Sniper Rifle", SelectWeapon5
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "M4 Assault Rifle", SelectWeapon6
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "Combat Knives", SelectWeapon0
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "Akimbo Pistols", SelectWeapon9
+//   {NULL, PMENU_ALIGN_LEFT, NULL},
+//   //AQ2:TNG End adding wp_flags
+//   {NULL, PMENU_ALIGN_LEFT, NULL},
+//   //AQ2:TNG - Slicer: changing this
+//   //{"Leave Team", PMENU_ALIGN_LEFT, NULL, LeaveTeams},
+//   {"Return to Main Menu", PMENU_ALIGN_LEFT, CreditsReturnToMain},
+//   {NULL, PMENU_ALIGN_LEFT, NULL},
+//   //AQ2:TNG END
+//   {"Use arrows to move cursor", PMENU_ALIGN_LEFT, NULL},
+//   {"ENTER to select", PMENU_ALIGN_LEFT, NULL},
+//   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL},
+//   {NULL, PMENU_ALIGN_LEFT, NULL},
+//   {"v" VERSION, PMENU_ALIGN_RIGHT, NULL},
+// };
+
+const pmenu_t weapmenu[] = {
+  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, nullptr},
+  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, nullptr},
+  {"Select your Weapon", PMENU_ALIGN_CENTER, nullptr},
+  {"", PMENU_ALIGN_LEFT, nullptr},
   //AQ2:TNG - Igor adding wp_flags
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "MP5/10 Submachinegun", SelectWeapon2
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "M3 Super90 Assault Shotgun", SelectWeapon3
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "Handcannon", SelectWeapon4
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "SSG 3000 Sniper Rifle", SelectWeapon5
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "M4 Assault Rifle", SelectWeapon6
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "Combat Knives", SelectWeapon0
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "Akimbo Pistols", SelectWeapon9
-  {NULL, PMENU_ALIGN_LEFT, NULL},
+  {MP5_NAME, PMENU_ALIGN_LEFT, SelectWeapon2},	// "MP5/10 Submachinegun", SelectWeapon2
+  {M3_NAME, PMENU_ALIGN_LEFT, SelectWeapon3},	// "M3 Super90 Assault Shotgun", SelectWeapon3
+  {HC_NAME, PMENU_ALIGN_LEFT, SelectWeapon4},	// "Handcannon", SelectWeapon4
+  {SNIPER_NAME, PMENU_ALIGN_LEFT, SelectWeapon5},	// "SSG 3000 Sniper Rifle", SelectWeapon5
+  {M4_NAME, PMENU_ALIGN_LEFT, SelectWeapon6},	// "M4 Assault Rifle", SelectWeapon6
+  {KNIFE_NAME, PMENU_ALIGN_LEFT, SelectWeapon0},	// "Combat Knives", SelectWeapon0
+  {DUAL_NAME, PMENU_ALIGN_LEFT, SelectWeapon9},	// "Akimbo Pistols", SelectWeapon9
+  {"", PMENU_ALIGN_LEFT, nullptr},
   //AQ2:TNG End adding wp_flags
-  {NULL, PMENU_ALIGN_LEFT, NULL},
+  {"", PMENU_ALIGN_LEFT, nullptr},
   //AQ2:TNG - Slicer: changing this
-  //{"Leave Team", PMENU_ALIGN_LEFT, NULL, LeaveTeams},
+  //{"Leave Team", PMENU_ALIGN_LEFT, nullptr, LeaveTeams},
   {"Return to Main Menu", PMENU_ALIGN_LEFT, CreditsReturnToMain},
-  {NULL, PMENU_ALIGN_LEFT, NULL},
+  {"", PMENU_ALIGN_LEFT, nullptr},
   //AQ2:TNG END
   {"Use arrows to move cursor", PMENU_ALIGN_LEFT, NULL},
   {"ENTER to select", PMENU_ALIGN_LEFT, NULL},
@@ -414,69 +440,90 @@ pmenu_t weapmenu[] = {
   {"v" VERSION, PMENU_ALIGN_RIGHT, NULL},
 };
 
-pmenu_t itemmenu[] = {
-  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL},
-  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL},
-  {"Select your Item", PMENU_ALIGN_CENTER, NULL},
-  {NULL, PMENU_ALIGN_LEFT, NULL},
-  //AQ2:TNG Igor adding itm_flags
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "Kevlar Vest", SelectItem1
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "Laser Sight", SelectItem2
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "Stealth Slippers", SelectItem3
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "Silencer", SelectItem4
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "Bandolier", SelectItem5
-  {NULL, PMENU_ALIGN_LEFT, NULL},	// "Kevlar Helmet", SelectItem6
-  {NULL, PMENU_ALIGN_LEFT, NULL},
-  //AQ2:TNG end adding itm_flags
-  {NULL, PMENU_ALIGN_LEFT, NULL},
-  {"Use arrows to move cursor", PMENU_ALIGN_LEFT, NULL},
-  {"ENTER to select", PMENU_ALIGN_LEFT, NULL},
-  {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL},
-  {NULL, PMENU_ALIGN_LEFT, NULL},
-  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL},
-};
+// pmenu_t itemmenu[] = {
+//   {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL},
+//   {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL},
+//   {"Select your Item", PMENU_ALIGN_CENTER, NULL},
+//   {NULL, PMENU_ALIGN_LEFT, NULL},
+//   //AQ2:TNG Igor adding itm_flags
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "Kevlar Vest", SelectItem1
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "Laser Sight", SelectItem2
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "Stealth Slippers", SelectItem3
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "Silencer", SelectItem4
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "Bandolier", SelectItem5
+//   {NULL, PMENU_ALIGN_LEFT, NULL},	// "Kevlar Helmet", SelectItem6
+//   {NULL, PMENU_ALIGN_LEFT, NULL},
+//   //AQ2:TNG end adding itm_flags
+//   {NULL, PMENU_ALIGN_LEFT, NULL},
+//   {"Use arrows to move cursor", PMENU_ALIGN_LEFT, NULL},
+//   {"ENTER to select", PMENU_ALIGN_LEFT, NULL},
+//   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL},
+//   {NULL, PMENU_ALIGN_LEFT, NULL},
+//   {"v" VERSION, PMENU_ALIGN_RIGHT, NULL},
+// };
 
+const pmenu_t itemmenu[] = {
+  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, nullptr},
+  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, nullptr},
+  {"Select your Item", PMENU_ALIGN_CENTER, nullptr},
+  {"", PMENU_ALIGN_LEFT, nullptr},
+  //AQ2:TNG Igor adding itm_flags
+  {KEV_NAME, PMENU_ALIGN_LEFT, SelectItem1},	// "Kevlar Vest", SelectItem1
+  {LASER_NAME, PMENU_ALIGN_LEFT, SelectItem2},	// "Laser Sight", SelectItem2
+  {SLIP_NAME, PMENU_ALIGN_LEFT, SelectItem3},	// "Stealth Slippers", SelectItem3
+  {SIL_NAME, PMENU_ALIGN_LEFT, SelectItem4},	// "Silencer", SelectItem4
+  {BAND_NAME, PMENU_ALIGN_LEFT, SelectItem5},	// "Bandolier", SelectItem5
+  {HELM_NAME, PMENU_ALIGN_LEFT, SelectItem6},	// "Kevlar Helmet", SelectItem6
+  {"", PMENU_ALIGN_LEFT, nullptr},
+  //AQ2:TNG end adding itm_flags
+  {"", PMENU_ALIGN_LEFT, nullptr},
+  {"Use arrows to move cursor", PMENU_ALIGN_LEFT, nullptr},
+  {"ENTER to select", PMENU_ALIGN_LEFT, nullptr},
+  {"TAB to exit menu", PMENU_ALIGN_LEFT, nullptr},
+  {"", PMENU_ALIGN_LEFT, nullptr},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, nullptr},
+};
 //AQ2:TNG - slicer
-void VotingMenu (edict_t * ent, pmenu_t * p)
+void VotingMenu (edict_t * ent, pmenuhnd_t * p)
 {
 	PMenu_Close (ent);
 	//vShowMenu (ent, "");
 }
 //AQ2:TNG END
 
-pmenu_t joinmenu[] = {
-  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL},
-  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL},
-  {NULL /* lvl name */ , PMENU_ALIGN_CENTER, NULL},
-  {NULL, PMENU_ALIGN_CENTER, NULL},
-  {NULL /* team 1 */ , PMENU_ALIGN_LEFT, JoinTeam1},
-  {NULL, PMENU_ALIGN_LEFT, NULL},
-  {NULL /* team 2 */ , PMENU_ALIGN_LEFT, JoinTeam2},
-  {NULL, PMENU_ALIGN_LEFT, NULL},
-  {NULL /* team 3 */ , PMENU_ALIGN_LEFT, JoinTeam3},
-  {NULL, PMENU_ALIGN_LEFT, NULL},
-  {NULL, PMENU_ALIGN_LEFT, NULL},
-  {NULL /* auto-join */ , PMENU_ALIGN_LEFT, JoinTeamAuto},
-  {NULL, PMENU_ALIGN_LEFT, NULL},
+const pmenu_t joinmenu[] = {
+  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, nullptr},
+  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, nullptr},
+  {"" /* lvl name */ , PMENU_ALIGN_CENTER, nullptr},
+  {"", PMENU_ALIGN_CENTER, nullptr},
+  {"" /* team 1 */ , PMENU_ALIGN_LEFT, JoinTeam1},
+  {"", PMENU_ALIGN_LEFT, nullptr},
+  {"" /* team 2 */ , PMENU_ALIGN_LEFT, JoinTeam2},
+  {"", PMENU_ALIGN_LEFT, nullptr},
+  {"" /* team 3 */ , PMENU_ALIGN_LEFT, JoinTeam3},
+  {"", PMENU_ALIGN_LEFT, nullptr},
+  {"", PMENU_ALIGN_LEFT, nullptr},
+  {"" /* auto-join */ , PMENU_ALIGN_LEFT, JoinTeamAuto},
+  {"", PMENU_ALIGN_LEFT, nullptr},
   //AQ2:TNG - Slicer
   {"Voting & Ignoring Menus", PMENU_ALIGN_LEFT, VotingMenu},
   //AQ2:TNG END
   {"MOTD", PMENU_ALIGN_LEFT, ReprintMOTD},
   {"Credits", PMENU_ALIGN_LEFT, CreditsMenu},
-  {NULL, PMENU_ALIGN_LEFT, NULL},
-  {"Use arrows to move cursor", PMENU_ALIGN_LEFT, NULL},
-  {"ENTER to select", PMENU_ALIGN_LEFT, NULL},
-  {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL},
-  {NULL, PMENU_ALIGN_LEFT, NULL},
-  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL},
+  {"", PMENU_ALIGN_LEFT, nullptr},
+  {"Use arrows to move cursor", PMENU_ALIGN_LEFT, nullptr},
+  {"ENTER to select", PMENU_ALIGN_LEFT, nullptr},
+  {"TAB to exit menu", PMENU_ALIGN_LEFT, nullptr},
+  {"", PMENU_ALIGN_LEFT, nullptr},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, nullptr},
 };
 // AQ2:TNG End
 
-void CreditsMenu (edict_t * ent, pmenu_t * p)
+void CreditsMenu (edict_t * ent, pmenuhnd_t * p)
 {
 	PMenu_Close (ent);
-	PMenu_Open (ent, creditsmenu, 4, sizeof (creditsmenu) / sizeof (pmenu_t));
-	gi.sound(ent, gi.soundindex("world/elv.wav"), 1, ATTN_NORM, 1.0);
+	PMenu_Open (ent, creditsmenu, 4, sizeof (creditsmenu) / sizeof (pmenu_t), nullptr, nullptr);
+	gi.sound(ent, CHAN_VOICE, gi.soundindex("world/elv.wav"), 1, ATTN_NORM, 1.0);
 }
 
 void killPlayer( edict_t *ent, bool suicidePunish )
@@ -609,8 +656,7 @@ void Team_f (edict_t * ent)
 
 		return;
 	}
-
-	if( (ent->client->resp.joined_team > 0) && (level.realFramenum - ent->client->resp.joined_team < 5 * HZ) )
+	if( (ent->client->resp.joined_team > 0) && (gtime_t::from_sec(ent->client->resp.joined_team)) )
 	{
 		gi.LocClient_Print(ent, PRINT_HIGH, "You must wait 5 seconds before changing teams again.\n");
 		return;
@@ -749,19 +795,28 @@ typedef struct menuentry_s
 	void (*SelectFunc) (edict_t * ent, struct pmenu_s * entry);
 } menuentry_t;
 
+static void CTFNoChaseCamUpdate(edict_t *ent)
+{
+	pmenu_t		*entries = ent->client->menu->entries;
+}
+
 void OpenItemMenu (edict_t * ent)
 {
-	menuentry_t *menuEntry, menu_items[] = {
-		{ IT_ITEM_VEST, SelectItem1 },
-		{ IT_ITEM_LASERSIGHT, SelectItem2 },
-		{ IT_ITEM_SLIPPERS, SelectItem3 },
-		{ IT_ITEM_SLIPPERS, SelectItem4 },
-		{ IT_ITEM_BANDOLIER, SelectItem5 },
-		{ IT_ITEM_HELM, SelectItem6 }
-		};
-	int i, count, pos = 4;
+	PMenu_Close(ent);
+	PMenu_Open(ent, itemmenu, -1, sizeof(itemmenu) / sizeof(pmenu_t), nullptr, nullptr);
+	
+	
+	// menuentry_t *menuEntry, menu_items[] = {
+	// 	{ IT_ITEM_VEST, SelectItem1 },
+	// 	{ IT_ITEM_LASERSIGHT, SelectItem2 },
+	// 	{ IT_ITEM_SLIPPERS, SelectItem3 },
+	// 	{ IT_ITEM_SLIPPERS, SelectItem4 },
+	// 	{ IT_ITEM_BANDOLIER, SelectItem5 },
+	// 	{ IT_ITEM_HELM, SelectItem6 }
+	// 	};
+	// int i, count, pos = 4;
 
-	count = sizeof( menu_items ) / sizeof( menu_items[0] );
+	// count = sizeof( menu_items ) / sizeof( menu_items[0] );
 
 	// if ((int)itm_flags->value & ITF_MASK)
 	// {
@@ -787,23 +842,26 @@ void OpenItemMenu (edict_t * ent)
 	// 	}
 	// }
 
-	PMenu_Close(ent);
+	//PMenu_Close(ent);
 }
 
 void OpenWeaponMenu (edict_t * ent)
 {
-	menuentry_t *menuEntry, menu_items[] = {
-		{ IT_WEAPON_MP5, SelectWeapon2 },
-		{ IT_WEAPON_M3, SelectWeapon3 },
-		{ IT_WEAPON_HANDCANNON, SelectWeapon4 },
-		{ IT_WEAPON_SNIPER, SelectWeapon5 },
-		{ IT_WEAPON_M4, SelectWeapon6 },
-		{ IT_WEAPON_KNIFE, SelectWeapon0 },
-		{ IT_WEAPON_DUALMK23, SelectWeapon9 }
-	};
-	int i, count, pos = 4;
+	PMenu_Close(ent);
+	PMenu_Open(ent, weapmenu, -1, sizeof(weapmenu) / sizeof(pmenu_t), nullptr, nullptr);
+	
+	// menuentry_t *menuEntry, menu_items[] = {
+	// 	{ IT_WEAPON_MP5, SelectWeapon2 },
+	// 	{ IT_WEAPON_M3, SelectWeapon3 },
+	// 	{ IT_WEAPON_HANDCANNON, SelectWeapon4 },
+	// 	{ IT_WEAPON_SNIPER, SelectWeapon5 },
+	// 	{ IT_WEAPON_M4, SelectWeapon6 },
+	// 	{ IT_WEAPON_KNIFE, SelectWeapon0 },
+	// 	{ IT_WEAPON_DUALMK23, SelectWeapon9 }
+	// };
+	// int i, count, pos = 4;
 
-	count = sizeof( menu_items ) / sizeof( menu_items[0] );
+	// count = sizeof( menu_items ) / sizeof( menu_items[0] );
 
 	// TODO Weapon bans
 	// if ((int)wp_flags->value & WPF_MASK)
@@ -831,102 +889,102 @@ void OpenWeaponMenu (edict_t * ent)
 	// 	}
 	// }
 
-	OpenItemMenu(ent);
+	//OpenItemMenu(ent);
 }
 
 // AQ2:TNG Deathwatch - Updated this for the new menu
-void UpdateJoinMenu( void )
-{
-	static char levelname[28];
-	static char team1players[28];
-	static char team2players[28];
-	static char team3players[28];
-	int num1 = 0, num2 = 0, num3 = 0, i;
+// void UpdateJoinMenu( void )
+// {
+// 	static char levelname[28];
+// 	static char team1players[28];
+// 	static char team2players[28];
+// 	static char team3players[28];
+// 	int num1 = 0, num2 = 0, num3 = 0, i;
 
-	if (ctf->value)
-	{
-		joinmenu[4].text = "Join Red Team";
-		joinmenu[4].SelectFunc = JoinTeam1;
-		joinmenu[6].text = "Join Blue Team";
-		joinmenu[6].SelectFunc = JoinTeam2;
-		joinmenu[8].text = NULL;
-		joinmenu[8].SelectFunc = NULL;
-		if (g_teamplay_force_join->string && *g_teamplay_force_join->string)
-		{
-			if (strcmp (g_teamplay_force_join->string, "red") == 0)
-			{
-				joinmenu[6].text = NULL;
-				joinmenu[6].SelectFunc = NULL;
-			}
-			else if (strcmp (g_teamplay_force_join->string, "blue") == 0)
-			{
-				joinmenu[4].text = NULL;
-				joinmenu[4].SelectFunc = NULL;
-			}
-		}
-	}
-	else
-	{
-		joinmenu[4].text = teams[TEAM1].name;
-		joinmenu[4].SelectFunc = JoinTeam1;
-		joinmenu[6].text = teams[TEAM2].name;
-		joinmenu[6].SelectFunc = JoinTeam2;
-		if (teamCount == 3)
-		{
-			joinmenu[8].text = teams[TEAM3].name;
-			joinmenu[8].SelectFunc = JoinTeam3;
-		}
-		else
-		{
-			joinmenu[8].text = NULL;
-			joinmenu[8].SelectFunc = NULL;
-		}
-	}
-	joinmenu[11].text = "Auto-join team";
-	joinmenu[11].SelectFunc = JoinTeamAuto;
+// 	if (ctf->value)
+// 	{
+// 		joinmenu[4].text = "Join Red Team";
+// 		joinmenu[4].SelectFunc = JoinTeam1;
+// 		joinmenu[6].text = "Join Blue Team";
+// 		joinmenu[6].SelectFunc = JoinTeam2;
+// 		joinmenu[8].text = NULL;
+// 		joinmenu[8].SelectFunc = NULL;
+// 		if (g_teamplay_force_join->string && *g_teamplay_force_join->string)
+// 		{
+// 			if (strcmp (g_teamplay_force_join->string, "red") == 0)
+// 			{
+// 				joinmenu[6].text = NULL;
+// 				joinmenu[6].SelectFunc = NULL;
+// 			}
+// 			else if (strcmp (g_teamplay_force_join->string, "blue") == 0)
+// 			{
+// 				joinmenu[4].text = NULL;
+// 				joinmenu[4].SelectFunc = NULL;
+// 			}
+// 		}
+// 	}
+// 	else
+// 	{
+// 		joinmenu[4].text = teams[TEAM1].name;
+// 		joinmenu[4].SelectFunc = JoinTeam1;
+// 		joinmenu[6].text = teams[TEAM2].name;
+// 		joinmenu[6].SelectFunc = JoinTeam2;
+// 		if (teamCount == 3)
+// 		{
+// 			joinmenu[8].text = teams[TEAM3].name;
+// 			joinmenu[8].SelectFunc = JoinTeam3;
+// 		}
+// 		else
+// 		{
+// 			joinmenu[8].text = NULL;
+// 			joinmenu[8].SelectFunc = NULL;
+// 		}
+// 	}
+// 	joinmenu[11].text = "Auto-join team";
+// 	joinmenu[11].SelectFunc = JoinTeamAuto;
 
-	levelname[0] = '*';
-	if (g_edicts[0].message)
-		Q_strlcpy(levelname + 1, g_edicts[0].message, sizeof(levelname) - 1);
-	else
-		Q_strlcpy(levelname + 1, level.mapname, sizeof(levelname) - 1);
+// 	levelname[0] = '*';
+// 	if (g_edicts[0].message)
+// 		Q_strlcpy(levelname + 1, g_edicts[0].message, sizeof(levelname) - 1);
+// 	else
+// 		Q_strlcpy(levelname + 1, level.mapname, sizeof(levelname) - 1);
 
-	for (i = 0; i < game.maxclients; i++)
-	{
-		if (!g_edicts[i + 1].inuse)
-			continue;
-		if (game.clients[i].resp.team == TEAM1)
-			num1++;
-		else if (game.clients[i].resp.team == TEAM2)
-			num2++;
-		else if (game.clients[i].resp.team == TEAM3)
-			num3++;
-	}
+// 	for (i = 0; i < game.maxclients; i++)
+// 	{
+// 		if (!g_edicts[i + 1].inuse)
+// 			continue;
+// 		if (game.clients[i].resp.team == TEAM1)
+// 			num1++;
+// 		else if (game.clients[i].resp.team == TEAM2)
+// 			num2++;
+// 		else if (game.clients[i].resp.team == TEAM3)
+// 			num3++;
+// 	}
 
-	sprintf (team1players, "  (%d players)", num1);
-	sprintf (team2players, "  (%d players)", num2);
-	sprintf (team3players, "  (%d players)", num3);
+// 	sprintf (team1players, "  (%d players)", num1);
+// 	sprintf (team2players, "  (%d players)", num2);
+// 	sprintf (team3players, "  (%d players)", num3);
 
-	joinmenu[2].text = levelname;
-	if (joinmenu[4].text)
-		joinmenu[5].text = team1players;
-	else
-		joinmenu[5].text = NULL;
-	if (joinmenu[6].text)
-		joinmenu[7].text = team2players;
-	else
-		joinmenu[7].text = NULL;
-	if (joinmenu[8].text && (teamCount == 3))
-		joinmenu[9].text = team3players;
-	else
-		joinmenu[9].text = NULL;
-}
+// 	joinmenu[2].text = levelname;
+// 	if (joinmenu[4].text)
+// 		joinmenu[5].text = team1players;
+// 	else
+// 		joinmenu[5].text = NULL;
+// 	if (joinmenu[6].text)
+// 		joinmenu[7].text = team2players;
+// 	else
+// 		joinmenu[7].text = NULL;
+// 	if (joinmenu[8].text && (teamCount == 3))
+// 		joinmenu[9].text = team3players;
+// 	else
+// 		joinmenu[9].text = NULL;
+// }
 
 // AQ2:TNG END
 
 void OpenJoinMenu (edict_t * ent)
 {
-	UpdateJoinMenu();
+	//UpdateJoinMenu();
 
 	PMenu_Open (ent, joinmenu, 11 /* magic for Auto-join menu item */, sizeof (joinmenu) / sizeof (pmenu_t), nullptr, nullptr);
 }
@@ -991,7 +1049,8 @@ void CleanLevel ()
 	
 	CleanBodies();
 	// fix glass
-	CGF_SFX_RebuildAllBrokenGlass ();
+	// Review this later
+	//CGF_SFX_RebuildAllBrokenGlass ();
 }
 
 void MakeAllLivePlayersObservers(void);
@@ -2128,7 +2187,8 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 		else 
 			totalClients = G_SortedClients(sortedClients);
 
-		ent->client->ps.stats[STAT_TEAM_HEADER] = level.pic_teamtag;
+		// TODO: Fix this
+		ent->client->ps.stats[STAT_TEAM1_HEADER] = level.pic_teamtag;
 
 		for (i = 0; i < totalClients; i++) {
 			cl = sortedClients[i];
@@ -2311,7 +2371,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 							playername,
 							cl->resp.score,
 							(level.time - cl->resp.entertime).minutes());
-							min(cl->ping, 999) );
+							min(cl->ping, 999);
 					} else {
 						sprintf( string + len,
 							"yv %i string%s \"%s\" ",

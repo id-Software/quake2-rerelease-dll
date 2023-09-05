@@ -199,10 +199,7 @@ void Bandage(edict_t * ent)
 	ent->client->bandaging = 0;
 	ent->client->attacker = NULL;
 	ent->client->bandage_stopped = 1;
-	if (esp->value && esp_leaderenhance->value)
-		ent->client->idle_weapon = ENHANCED_BANDAGE_TIME;
-	else
-		ent->client->idle_weapon = BANDAGE_TIME;
+	ent->client->idle_weapon = BANDAGE_TIME;
 }
 
 void Cmd_New_Reload_f(edict_t * ent)

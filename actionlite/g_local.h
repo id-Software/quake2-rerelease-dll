@@ -632,6 +632,13 @@ constexpr size_t BODY_QUEUE_SIZE = 8;
 // null trace used when touches don't need a trace
 constexpr trace_t null_trace {};
 
+enum damage_t
+{
+  DAMAGE_NO,
+  DAMAGE_YES,			// will take damage if hit
+  DAMAGE_AIM			// auto targeting recognizes this
+};
+
 enum weaponstate_t
 {
 	WEAPON_READY,
@@ -658,6 +665,96 @@ enum gib_type_t
 	GIB_UPRIGHT =   32, // stay upright on ground
 };
 MAKE_ENUM_BITFLAGS(gib_type_t);
+
+// Action Add
+enum layout_t{
+	LAYOUT_NONE,
+	LAYOUT_SCORES,
+	LAYOUT_SCORES2,
+	LAYOUT_MENU
+};
+
+enum action_sniper_modes_t
+{
+	SNIPER_1X,
+	SNIPER_2X,
+	SNIPER_4X,
+	SNIPER_6X,
+	SNIPER_MODE_MAX
+};
+
+enum action_weapon_num_t
+{
+	NO_WEAP_NUM,
+	MK23_NUM,
+	MP5_NUM,
+	M4_NUM,
+	M3_NUM,
+	HC_NUM,
+	SNIPER_NUM,
+	DUAL_NUM,
+	KNIFE_NUM,
+	GRENADE_NUM,
+	WEAPON_MAX
+};
+
+enum action_item_num_t
+{
+	NO_ITEM_NUM,
+	SIL_NUM,
+	SLIP_NUM,
+	BAND_NUM,
+	KEV_NUM,
+	LASER_NUM,
+	HELM_NUM,
+	ITEM_MAX
+};
+
+enum action_ammo_num_t
+{
+	NO_AMMO_NUM,
+	MK23_ANUM,
+	MP5_ANUM,
+	M4_ANUM,
+	SHELL_ANUM,
+	SNIPER_ANUM,
+	AMMO_MAX_ANUM
+};
+
+constexpr int32_t weap_ids[] = { 
+	MP5_NUM,
+	M4_NUM,
+	M3_NUM,
+	HC_NUM,
+	SNIPER_NUM
+	};
+
+enum damage_loc_t {
+	LOC_HDAM, // head
+	LOC_CDAM, // chest
+	LOC_SDAM, // stomach
+	LOC_LDAM, // legs
+	LOC_KVLR_HELMET, // kevlar helmet	Freud, for %D
+	LOC_KVLR_VEST, // kevlar vest 		Freud, for %D
+	LOC_NO, // Shot by shotgun or handcannon
+	LOC_MAX // must be last
+};
+
+enum award_t {
+	ACCURACY,
+	IMPRESSIVE,
+	EXCELLENT
+};
+
+enum gender_t {
+	GENDER_MALE,
+	GENDER_FEMALE,
+	GENDER_NEUTRAL
+};
+
+#define GENDER_STR( ent, he, she, it ) (((ent)->client->pers.gender == GENDER_MALE) ? he : (((ent)->client->pers.gender == GENDER_FEMALE) ? she : it))
+
+// Action add end
 
 // monster ai flags
 enum monster_ai_flags_t : uint64_t
@@ -997,7 +1094,8 @@ enum mod_id_t : uint8_t
 	MOD_KICK,
 	MOD_GRAPPLE,
 	MOD_TOTAL,
-	MOD_FRIENDLY_FIRE
+	MOD_FRIENDLY_FIRE,
+	MOD_BREAKINGGLASS
 };
 
 struct mod_t
@@ -1689,6 +1787,7 @@ extern cvar_t *uvtime;
 extern cvar_t *warmup;
 extern cvar_t *rrot;
 extern cvar_t *vrot;
+extern cvar_t *e_enhancedSlippers;
 
 
 extern mod_id_t meansOfDeath;
@@ -2021,93 +2120,6 @@ void LaserSightThink (edict_t * self);
 void SP_LaserSight (edict_t * self, gitem_t * item);
 void Cmd_Reload_f (edict_t * ent);
 void Cmd_New_Reload_f (edict_t * ent);
-
-enum layout_t{
-	LAYOUT_NONE,
-	LAYOUT_SCORES,
-	LAYOUT_SCORES2,
-	LAYOUT_MENU
-};
-
-enum action_sniper_modes_t
-{
-	SNIPER_1X,
-	SNIPER_2X,
-	SNIPER_4X,
-	SNIPER_6X,
-	SNIPER_MODE_MAX
-};
-
-enum action_weapon_num_t
-{
-	NO_WEAP_NUM,
-	MK23_NUM,
-	MP5_NUM,
-	M4_NUM,
-	M3_NUM,
-	HC_NUM,
-	SNIPER_NUM,
-	DUAL_NUM,
-	KNIFE_NUM,
-	GRENADE_NUM,
-	WEAPON_MAX
-};
-
-enum action_item_num_t
-{
-	NO_ITEM_NUM,
-	SIL_NUM,
-	SLIP_NUM,
-	BAND_NUM,
-	KEV_NUM,
-	LASER_NUM,
-	HELM_NUM,
-	ITEM_MAX
-};
-
-enum action_ammo_num_t
-{
-	NO_AMMO_NUM,
-	MK23_ANUM,
-	MP5_ANUM,
-	M4_ANUM,
-	SHELL_ANUM,
-	SNIPER_ANUM,
-	AMMO_MAX_ANUM
-};
-
-constexpr item_id_t weap_ids[] = { 
-	IT_WEAPON_MP5,
-	IT_WEAPON_M4,
-	IT_WEAPON_M3,
-	IT_WEAPON_HANDCANNON,
-	IT_WEAPON_SNIPER
-	};
-
-enum damage_loc_t {
-	LOC_HDAM, // head
-	LOC_CDAM, // chest
-	LOC_SDAM, // stomach
-	LOC_LDAM, // legs
-	LOC_KVLR_HELMET, // kevlar helmet	Freud, for %D
-	LOC_KVLR_VEST, // kevlar vest 		Freud, for %D
-	LOC_NO, // Shot by shotgun or handcannon
-	LOC_MAX // must be last
-};
-
-enum award_t {
-	ACCURACY,
-	IMPRESSIVE,
-	EXCELLENT
-};
-
-enum gender_t {
-	GENDER_MALE,
-	GENDER_FEMALE,
-	GENDER_NEUTRAL
-};
-
-#define GENDER_STR( ent, he, she, it ) (((ent)->client->pers.gender == GENDER_MALE) ? he : (((ent)->client->pers.gender == GENDER_FEMALE) ? she : it))
 
 struct gunStats_t
 {
@@ -2966,6 +2978,7 @@ struct client_persistant_t
 	int32_t	irvision;			// ir on or off (only matters if player has ir device, currently bandolier)
 	int32_t spec_flags;
 	int32_t	firing_style;
+	int32_t *menu_shown;
 	// Action Add End
 };
 
@@ -3015,8 +3028,6 @@ struct client_respawn_t
 	int32_t idletime;
 	int32_t totalidletime;
 	edict_t *kickvote;
-
-	int32_t *menu_shown;
 	char *mapvote;		// pointer to map voted on (if any)
 	char *cvote;			// pointer to config voted on (if any)
 	bool scramblevote;	// want scramble
@@ -3073,13 +3084,13 @@ struct team_t
 };
 extern team_t teams[TEAM_TOP];
 
-#ifndef max
-# define max(a,b) ((a) > (b) ? (a) : (b))
-#endif
+// #ifndef max
+// # define max(a,b) ((a) > (b) ? (a) : (b))
+// #endif
 
-#ifndef min
-# define min(a,b) ((a) < (b) ? (a) : (b))
-#endif
+// #ifndef min
+// # define min(a,b) ((a) < (b) ? (a) : (b))
+// #endif
 
 // Action Add End
 
@@ -3322,6 +3333,8 @@ struct gclient_t
 	int32_t			cannon_rds;
 	int32_t			knife_max;
 	int32_t			grenade_max;
+
+	int32_t			medkit;
 
 	bool			bandaging;
 	bool			bandage_stopped;
@@ -3603,6 +3616,9 @@ struct edict_t
 	uint32_t crosslevel_flags;
 	// NOTE: if adding new elements, make sure to add them
 	// in g_save.cpp too!
+
+	// Action
+	int32_t			light_level;
 };
 
 //=============

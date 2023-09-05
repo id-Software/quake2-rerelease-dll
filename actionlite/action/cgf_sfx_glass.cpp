@@ -70,7 +70,7 @@ extern "C"
 
   void CGF_SFX_BreakGlass (edict_t * aGlassPane, edict_t * anOther,
 			   edict_t * anAttacker, int aDamage, vec3_t aPoint,
-			   vec_t aPaneDestructDelay);
+			   vec3_t aPaneDestructDelay);
 // breaks glass
 
   void CGF_SFX_InstallBreakableGlass (edict_t * aGlassPane);
@@ -117,8 +117,8 @@ extern "C"
 void
 CGF_SFX_InstallGlassSupport ()
 {
-  breakableglass = gi.cvar ("breakableglass", "0", 0);
-  glassfragmentlimit = gi.cvar ("glassfragmentlimit", "30", 0);
+  breakableglass = gi.cvar ("breakableglass", "0", CVAR_NOFLAGS);
+  glassfragmentlimit = gi.cvar ("glassfragmentlimit", "30", CVAR_NOFLAGS);
 }
 
 
@@ -422,7 +422,7 @@ CGF_SFX_TouchGlass (edict_t * self, edict_t * other, cplane_t * plane,
 
   // break glass
   CGF_SFX_BreakGlass (glass, other, other, glass->health, vec3_origin,
-		      3.0f * FRAMETIME);
+		      3.0f * 10);
   // glass can take care of itself, but the trigger isn't needed anymore
   G_FreeEdict (self);
 
@@ -435,7 +435,7 @@ CGF_SFX_TouchGlass (edict_t * self, edict_t * other, cplane_t * plane,
    */
 
   // make sure client takes damage
-  T_Damage (other, glass, other, normal, other->s.origin, normal, 15.0, 0, 0,
+  T_Damage (other, glass, other, normal, other->s.origin, normal, 15.0, 0, DAMAGE_NONE,
 	    MOD_BREAKINGGLASS);
   return;
 
@@ -453,7 +453,7 @@ knife_and_grenade_handling:
 void
 CGF_SFX_BreakGlass (edict_t * aGlassPane, edict_t * anInflictor,
 		    edict_t * anAttacker, int aDamage, vec3_t aPoint,
-		    vec_t aPaneDestructDelay)
+		    vec3_t aPaneDestructDelay)
 {
   // based on func_explode, but with lotsa subtle differences
   vec3_t origin;
@@ -537,7 +537,7 @@ CGF_SFX_BreakGlass (edict_t * aGlassPane, edict_t * anInflictor,
   // meanwhile, make sure the player can move thru
   aGlassPane->solid = SOLID_NOT;
   aGlassPane->think = CGF_SFX_HideBreakableGlass;
-  aGlassPane->nextthink = level.framenum + aPaneDestructDelay * HZ;
+  aGlassPane->nextthink = level.time + 100_ms;
 }
 
 
@@ -592,23 +592,23 @@ CGF_SFX_HideBreakableGlass (edict_t * aGlassPane)
   // remove all attached decals
   edict_t *decal;
   decal = 0;
-  while ((decal = G_Find (decal, FOFS (classname), "decal")) != NULL)
+  while ((decal = G_FindByString<&edict_t::classname>(nullptr, "decal")) != NULL)
     {
       if (decal->owner == aGlassPane)
 	{
 	  // make it goaway in the next frame
 	  decal->think = G_FreeEdict;
-	  decal->nextthink = level.framenum + 1;
+	  decal->nextthink = level.time + 40_ms;
 	}
     }
 
-  while ((decal = G_Find (decal, FOFS (classname), "splat")) != NULL)
+  while ((decal = G_FindByString<&edict_t::classname>(nullptr, "splat")) != NULL)
     {
       if (decal->owner == aGlassPane)
 	{
 	  // make it goaway in the next frame
 	  decal->think = G_FreeEdict;
-	  decal->nextthink = level.framenum + 1;
+	  decal->nextthink = level.time + 40_ms;
 	}
     }
 
@@ -636,7 +636,7 @@ CGF_SFX_RebuildAllBrokenGlass ()
   // iterate over all func_explosives
   edict_t *glass;
   glass = 0;
-  while ((glass = G_Find (glass, FOFS (classname), "func_explosive")) != NULL)
+  while ((glass = G_FindByString<&edict_t::classname>(nullptr, "func_explosive")) != NULL)
     {
       // glass is broken if solid != SOLID_BSP
       if (glass->solid != SOLID_BSP)
@@ -692,7 +692,7 @@ CGF_SFX_MiscGlassDie (edict_t * self, edict_t * inflictor, edict_t * attacker,
 
 
 
-static vec_t previous_throw_time = 0;
+static vec3_t previous_throw_time = 0;
 static int this_throw_count = 0;
 
 void
@@ -728,9 +728,9 @@ CGF_SFX_GlassThrowDebris (edict_t * self, char *modelname, float speed,
   chunk->avelocity[1] = random () * 600;
   chunk->avelocity[2] = random () * 600;
   chunk->think = G_FreeEdict;
-  chunk->nextthink = level.framenum + (5 + random() * 5) * HZ;
+  chunk->nextthink = level.time + FRAME_TIME_S;
   chunk->s.frame = 0;
-  chunk->flags = 0;
+  chunk->flags = FL_NONE;
   chunk->classname = "debris";
   chunk->takedamage = DAMAGE_YES;
   chunk->die = debris_die;

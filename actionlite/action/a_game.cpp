@@ -161,12 +161,15 @@ void PrintMOTD(edict_t * ent)
 	 */
 	//if (!skipmotd->value) {
 		// This line will show the hostname. If not set, the default name will be "Unnamed TNG Server" (used to be "unnamed")
-		if (hostname->string[0] && strcmp(hostname->string, "Unnamed TNG Server"))
-		{
-			Q_strlcat(msg_buf, hostname->string, strlen(msg_buf)+40);
-			strcat(msg_buf, "\n");
-			lines++;
-		}
+		
+		// TODO: When hostnames become a thing, re-enable this
+		//if (hostname->string[0] && strcmp(hostname->string, "Unnamed TNG Server"))
+		
+		const char *hostname = "An Action Server";
+		Q_strlcat(msg_buf, hostname, strlen(msg_buf)+40);
+		strcat(msg_buf, "\n");
+		lines++;
+		
 
 		/* 
 		   Now all the settings
@@ -716,21 +719,20 @@ void PlaceHolder( edict_t * ent );  // p_weapon.c
    FindEdictByClassnum
    ==================
  */
-edict_t *FindEdictByClassnum(char *classname, int classnum)
-{
-	int i;
-	edict_t *it;
+// edict_t *FindEdictByClassnum(char *classname, int classnum)
+// {
+// 	int i;
+// 	edict_t *it;
+// 	for (i = 0; i < globals.num_edicts; i++)
+// 	{
+// 		it = &g_edicts[i];
+// 		if (it->classname && (it->classnum == classnum) && (strcmp(it->classname, classname) == 0))
+// 			return it;
+// 	}
 
-	for (i = 0; i < globals.num_edicts; i++)
-	{
-		it = &g_edicts[i];
-		if (it->classname && (it->classnum == classnum) && (Q_stricmp(it->classname, classname) == 0))
-			return it;
-	}
+// 	return NULL;
 
-	return NULL;
-
-}
+// }
 
 // /********* Bulletholes/wall stuff ***********/
 
@@ -801,10 +803,10 @@ edict_t *FindEdictByClassnum(char *classname, int classnum)
 // bool CanBeAttachedTo( const edict_t *ent )
 // {
 // 	return (ent && ( (Q_strnicmp( ent->classname, "func_door", 9 ) == 0)
-// 	               || (Q_stricmp( ent->classname, "func_plat" ) == 0)
-// 	               || (Q_stricmp( ent->classname, "func_rotating" ) == 0)
-// 	               || (Q_stricmp( ent->classname, "func_train" ) == 0)
-// 	               || (Q_stricmp( ent->classname, "func_button" ) == 0) ));
+// 	               || (strcmp( ent->classname, "func_plat" ) == 0)
+// 	               || (strcmp( ent->classname, "func_rotating" ) == 0)
+// 	               || (strcmp( ent->classname, "func_train" ) == 0)
+// 	               || (strcmp( ent->classname, "func_button" ) == 0) ));
 // }
 
 // void AddDecal(edict_t * self, trace_t * tr)
@@ -849,7 +851,7 @@ edict_t *FindEdictByClassnum(char *classname, int classnum)
 // 	decal->classname = "decal";
 // 	decal->classnum = decals;
 
-// 	if ((tr->ent) && (0 == Q_stricmp("func_explosive", tr->ent->classname))) {
+// 	if ((tr->ent) && (0 == strcmp("func_explosive", tr->ent->classname))) {
 // 		CGF_SFX_AttachDecalToGlass(tr->ent, decal);
 // 	}
 // 	else if( attached )
@@ -910,7 +912,7 @@ edict_t *FindEdictByClassnum(char *classname, int classnum)
 // 	splat->classname = "splat";
 // 	splat->classnum = splats;
 
-// 	if ((tr->ent) && (0 == Q_stricmp("func_explosive", tr->ent->classname))) {
+// 	if ((tr->ent) && (0 == strcmp("func_explosive", tr->ent->classname))) {
 // 		CGF_SFX_AttachDecalToGlass(tr->ent, splat);
 // 	}
 // 	else if( attached )
@@ -940,7 +942,7 @@ void GetItemName( edict_t *ent, char *buf )
 	{
 		for( i = 0; i < ITEM_COUNT; i ++ )
 		{
-			itemNum = ITEM_FIRST + i;
+			itemNum = IT_ITEM_QUIET;
 			if( INV_AMMO( ent, itemNum ) )
 			{
 				strcpy( buf, GET_ITEM(itemNum)->pickup_name );

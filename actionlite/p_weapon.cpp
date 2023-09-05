@@ -2311,8 +2311,9 @@ static void fire_lead_ap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		while (tr.fraction < 1.0 && (tr.surface->flags & (SURF_TRANS33|SURF_TRANS66))
 			&& (tr.ent) && (0 == strcmp(tr.ent->classname, "func_explosive")))
 		{
-			// break glass  
-			CGF_SFX_ShootBreakableGlass(tr.ent, self, &tr, mod);
+			// break glass
+			// Will review this later  
+			//CGF_SFX_ShootBreakableGlass(tr.ent, self, &tr, mod);
 			// continue trace from current endpos to start
 			PRETRACE();
 			tr = gi.trace(tr.endpos, self->mins, self->maxs, end, tr.ent, content_mask);

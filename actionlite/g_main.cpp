@@ -204,6 +204,7 @@ cvar_t *weapon_respawn;
 cvar_t *ammo_respawn;
 cvar_t *hc_single;
 cvar_t *use_punch;
+cvar_t *e_enhancedSlippers;
 
 // Radio Settings
 cvar_t *radiolog;
