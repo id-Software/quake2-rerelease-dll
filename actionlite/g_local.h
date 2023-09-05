@@ -1985,6 +1985,53 @@ void SP_LaserSight (edict_t * self, gitem_t * item);
 void Cmd_Reload_f (edict_t * ent);
 void Cmd_New_Reload_f (edict_t * ent);
 
+enum action_sniper_modes_t
+{
+	SNIPER_1X,
+	SNIPER_2X,
+	SNIPER_4X,
+	SNIPER_6X,
+	SNIPER_MODE_MAX
+};
+
+enum action_weapon_num_t
+{
+	NO_WEAP_NUM,
+	MK23_NUM,
+	MP5_NUM,
+	M4_NUM,
+	M3_NUM,
+	HC_NUM,
+	SNIPER_NUM,
+	DUAL_NUM,
+	KNIFE_NUM,
+	GRENADE_NUM,
+	WEAPON_MAX
+};
+
+enum action_item_num_t
+{
+	NO_ITEM_NUM,
+	SIL_NUM,
+	SLIP_NUM,
+	BAND_NUM,
+	KEV_NUM,
+	LASER_NUM,
+	HELM_NUM,
+	ITEM_MAX
+};
+
+enum action_ammo_num_t
+{
+	NO_AMMO_NUM,
+	MK23_ANUM,
+	MP5_ANUM,
+	M4_ANUM,
+	SHELL_ANUM,
+	SNIPER_ANUM,
+	AMMO_MAX
+};
+
 constexpr item_id_t weap_ids[] = { 
 	IT_WEAPON_MP5,
 	IT_WEAPON_M4,
