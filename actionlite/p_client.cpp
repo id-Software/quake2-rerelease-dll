@@ -615,7 +615,7 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			//snprintf( death_msg, sizeof(death_msg), message);
 			//sprintf( death_msg, message );
 
-			strdup(death_msg, message);
+			death_msg = strdup(message);
 			PrintDeathMessage(death_msg, self );
 
 			if (!teamplay->value || team_round_going || !ff_afterround->value)  {
@@ -910,7 +910,7 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		{
 			//sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname, message, attacker->client->pers.netname, message2);
 			//snprintf(death_msg, sizeof(death_msg), message);
-			strdup(death_msg, message);
+			death_msg = strdup(message);
 			PrintDeathMessage(death_msg, self);
 			AddKilledPlayer(attacker, self);
 
