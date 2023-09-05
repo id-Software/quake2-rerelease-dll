@@ -197,15 +197,15 @@ enum player_stat_t
     STAT_CHASE = 16,
     STAT_SPECTATOR = 17,
 
-	STAT_CTF_TEAM1_PIC = 18,
+	STAT_TEAM1_PIC = 18,
 	STAT_CTF_TEAM1_CAPS = 19,
-	STAT_CTF_TEAM2_PIC = 20,
+	STAT_TEAM2_PIC = 20,
 	STAT_CTF_TEAM2_CAPS = 21,
-	STAT_CTF_FLAG_PIC = 22,
-	STAT_CTF_JOINED_TEAM1_PIC = 23,
-	STAT_CTF_JOINED_TEAM2_PIC = 24,
-	STAT_CTF_TEAM1_HEADER = 25,
-	STAT_CTF_TEAM2_HEADER = 26,
+	STAT_FLAG_PIC = 22,
+	STAT_JOINED_TEAM1_PIC = 23,
+	STAT_JOINED_TEAM2_PIC = 24,
+	STAT_TEAM1_HEADER = 25,
+	STAT_TEAM2_HEADER = 26,
 	STAT_CTF_TECH = 27,
 	STAT_CTF_ID_VIEW = 28,
 	STAT_CTF_MATCH = 29,
@@ -221,9 +221,10 @@ enum player_stat_t
 	STAT_POWERUP_INFO_END = STAT_POWERUP_INFO_START + NUM_POWERUP_STATS - 1,
 
     // [Paril-KEX] Key display
-    STAT_KEY_A,
-    STAT_KEY_B,
-    STAT_KEY_C,
+	// Not used in Action, freeing up stat numbers
+    // STAT_KEY_A,
+    // STAT_KEY_B,
+    // STAT_KEY_C,
 
     // [Paril-KEX] currently active wheel weapon (or one we're switching to)
     STAT_ACTIVE_WHEEL_WEAPON,
@@ -239,6 +240,25 @@ enum player_stat_t
 	STAT_HEALTH_BARS, // two health bar values; 7 bits for value, 1 bit for active
 	// if active, 
 
+	// Action
+    STAT_CLIP_ICON,
+    STAT_CLIP,
+    STAT_SNIPER_ICON,
+    STAT_ITEMS_ICON,
+    STAT_WEAPONS_ICON,
+    STAT_ID_VIEW,
+
+    STAT_TEAM_HEADER,
+
+    STAT_TEAM1_SCORE,
+    STAT_TEAM2_SCORE,
+	STAT_TEAM3_SCORE,
+
+    STAT_GRENADE_ICON,
+    STAT_GRENADES,
+
+    STAT_TEAM3_PIC,
+    
 	// don't use; just for verification
     STAT_LAST
 };

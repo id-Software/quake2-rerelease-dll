@@ -1858,10 +1858,6 @@ int CheckTeamRules (void)
 	if (!team_round_going)
 	{
 		RunWarmup();
-
-		if (!AllTeamsHaveLeaders())
-			return 1;
-
 		if (CheckTimelimit())
 			return 1;
 
@@ -2061,7 +2057,7 @@ int G_SortedClients( gclient_t **sortedList )
 	gclient_t *client;
 
 	for (i = 0, client = game.clients; i < game.maxclients; i++, client++) {
-		if (!client->pers.connected || client->pers.mvdspec)
+		if (!client->pers.connected)
 			continue;
 
 		sortedList[total++] = client;
@@ -2078,7 +2074,7 @@ int G_NotSortedClients( gclient_t **sortedList )
 	gclient_t *client;
 
 	for (i = 0, client = game.clients; i < game.maxclients; i++, client++) {
-		if (!client->pers.connected || client->pers.mvdspec)
+		if (!client->pers.connected)
 			continue;
 
 		sortedList[total++] = client;
@@ -2290,14 +2286,14 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
 		//Add team tag img
 		if (!ctf->value) {
-			Q_strncatz(string, "if 22 ", sizeof(string));
+			Q_strlcat(string, "if 22 ", sizeof(string));
 			len = strlen(string);
 			for (i = TEAM1, line_x = base_x + headerOffset; i <= teamCount; i++, line_x += rowWidth)
 			{
 				sprintf(string + len, "xv %i pic 22 ", line_x + 32);
 				len = strlen(string);
 			}
-			Q_strncatz(string, "endif ", sizeof(string));
+			Q_strlcat(string, "endif ", sizeof(string));
 			len = strlen(string);
 		}
 
@@ -2421,11 +2417,11 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 						totalaliveprinted++;
 
 					playername[0] = 0;
-					if (IS_CAPTAIN(cl_ent) || IS_LEADER(cl_ent)) {
+					if (IS_CAPTAIN(cl_ent)) {
 						playername[0] = '@';
 						playername[1] = 0;
 					}
-					Q_strncatz(playername, cl->pers.netname, sizeof(playername));
+					Q_strlcat(playername, cl->pers.netname, sizeof(playername));
 					if (showExtra) {
 						sprintf( string + len,
 							"yv %d string%s \"%-15s %3d %3d %3d\" ",
@@ -2764,7 +2760,6 @@ void GetSpawnPoints (void)
 		potential_spawns[num_potential_spawns] = spot;
 		num_potential_spawns++;
 	}
-
 	if ((spot = G_FindByString<&edict_t::classname>(spot, "info_player_team2") != nullptr))
 	{
 		potential_spawns[num_potential_spawns] = spot;

@@ -1027,8 +1027,8 @@ void SetCTFStats(edict_t *ent)
 	}
 
 	// logo headers for the frag display
-	ent->client->ps.stats[STAT_CTF_TEAM1_HEADER] = imageindex_ctfsb1;
-	ent->client->ps.stats[STAT_CTF_TEAM2_HEADER] = imageindex_ctfsb2;
+	ent->client->ps.stats[STAT_TEAM1_HEADER] = imageindex_ctfsb1;
+	ent->client->ps.stats[STAT_TEAM2_HEADER] = imageindex_ctfsb2;
 
 	bool blink = (level.time.milliseconds() % 1000) < 500;
 
@@ -1038,17 +1038,17 @@ void SetCTFStats(edict_t *ent)
 		// blink half second
 		// note that ctfgame.total[12] is set when we go to intermission
 		if (ctfgame.team1 > ctfgame.team2)
-			ent->client->ps.stats[STAT_CTF_TEAM1_HEADER] = 0;
+			ent->client->ps.stats[STAT_TEAM1_HEADER] = 0;
 		else if (ctfgame.team2 > ctfgame.team1)
-			ent->client->ps.stats[STAT_CTF_TEAM2_HEADER] = 0;
+			ent->client->ps.stats[STAT_TEAM2_HEADER] = 0;
 		else if (ctfgame.total1 > ctfgame.total2) // frag tie breaker
-			ent->client->ps.stats[STAT_CTF_TEAM1_HEADER] = 0;
+			ent->client->ps.stats[STAT_TEAM1_HEADER] = 0;
 		else if (ctfgame.total2 > ctfgame.total1)
-			ent->client->ps.stats[STAT_CTF_TEAM2_HEADER] = 0;
+			ent->client->ps.stats[STAT_TEAM2_HEADER] = 0;
 		else
 		{ // tie game!
-			ent->client->ps.stats[STAT_CTF_TEAM1_HEADER] = 0;
-			ent->client->ps.stats[STAT_CTF_TEAM2_HEADER] = 0;
+			ent->client->ps.stats[STAT_TEAM1_HEADER] = 0;
+			ent->client->ps.stats[STAT_TEAM2_HEADER] = 0;
 		}
 	}
 
@@ -1114,51 +1114,51 @@ void SetCTFStats(edict_t *ent)
 				p2 = imageindex_i_ctf2d; // must be dropped
 		}
 
-		ent->client->ps.stats[STAT_CTF_TEAM1_PIC] = p1;
-		ent->client->ps.stats[STAT_CTF_TEAM2_PIC] = p2;
+		ent->client->ps.stats[STAT_TEAM1_PIC] = p1;
+		ent->client->ps.stats[STAT_TEAM2_PIC] = p2;
 
 		if (ctfgame.last_flag_capture && level.time - ctfgame.last_flag_capture < 5_sec)
 		{
 			if (ctfgame.last_capture_team == CTF_TEAM1)
 				if (blink)
-					ent->client->ps.stats[STAT_CTF_TEAM1_PIC] = p1;
+					ent->client->ps.stats[STAT_TEAM1_PIC] = p1;
 				else
-					ent->client->ps.stats[STAT_CTF_TEAM1_PIC] = 0;
+					ent->client->ps.stats[STAT_TEAM1_PIC] = 0;
 			else if (blink)
-				ent->client->ps.stats[STAT_CTF_TEAM2_PIC] = p2;
+				ent->client->ps.stats[STAT_TEAM2_PIC] = p2;
 			else
-				ent->client->ps.stats[STAT_CTF_TEAM2_PIC] = 0;
+				ent->client->ps.stats[STAT_TEAM2_PIC] = 0;
 		}
 
 		ent->client->ps.stats[STAT_CTF_TEAM1_CAPS] = ctfgame.team1;
 		ent->client->ps.stats[STAT_CTF_TEAM2_CAPS] = ctfgame.team2;
 
-		ent->client->ps.stats[STAT_CTF_FLAG_PIC] = 0;
+		ent->client->ps.stats[STAT_FLAG_PIC] = 0;
 		if (ent->client->resp.ctf_team == CTF_TEAM1 &&
 			ent->client->pers.inventory[IT_FLAG2] &&
 			(blink))
-			ent->client->ps.stats[STAT_CTF_FLAG_PIC] = imageindex_i_ctf2;
+			ent->client->ps.stats[STAT_FLAG_PIC] = imageindex_i_ctf2;
 
 		else if (ent->client->resp.ctf_team == CTF_TEAM2 &&
 				 ent->client->pers.inventory[IT_FLAG1] &&
 				 (blink))
-			ent->client->ps.stats[STAT_CTF_FLAG_PIC] = imageindex_i_ctf1;
+			ent->client->ps.stats[STAT_FLAG_PIC] = imageindex_i_ctf1;
 	}
 	else
 	{
-		ent->client->ps.stats[STAT_CTF_TEAM1_PIC] = imageindex_i_ctf1;
-		ent->client->ps.stats[STAT_CTF_TEAM2_PIC] = imageindex_i_ctf2;
+		ent->client->ps.stats[STAT_TEAM1_PIC] = imageindex_i_ctf1;
+		ent->client->ps.stats[STAT_TEAM2_PIC] = imageindex_i_ctf2;
 
 		ent->client->ps.stats[STAT_CTF_TEAM1_CAPS] = ctfgame.total1;
 		ent->client->ps.stats[STAT_CTF_TEAM2_CAPS] = ctfgame.total2;
 	}
 
-	ent->client->ps.stats[STAT_CTF_JOINED_TEAM1_PIC] = 0;
-	ent->client->ps.stats[STAT_CTF_JOINED_TEAM2_PIC] = 0;
+	ent->client->ps.stats[STAT_JOINED_TEAM1_PIC] = 0;
+	ent->client->ps.stats[STAT_JOINED_TEAM2_PIC] = 0;
 	if (ent->client->resp.ctf_team == CTF_TEAM1)
-		ent->client->ps.stats[STAT_CTF_JOINED_TEAM1_PIC] = imageindex_i_ctfj;
+		ent->client->ps.stats[STAT_JOINED_TEAM1_PIC] = imageindex_i_ctfj;
 	else if (ent->client->resp.ctf_team == CTF_TEAM2)
-		ent->client->ps.stats[STAT_CTF_JOINED_TEAM2_PIC] = imageindex_i_ctfj;
+		ent->client->ps.stats[STAT_JOINED_TEAM2_PIC] = imageindex_i_ctfj;
 
 	if (ent->client->resp.id_state)
 		CTFSetIDView(ent);

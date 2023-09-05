@@ -1064,10 +1064,14 @@ struct game_locals_t
 	std::array<level_entry_t, MAX_LEVELS_PER_UNIT> level_entries;
 	int32_t max_lag_origins;
 	vec3_t *lag_origins; // maxclients * max_lag_origins
+
+	// Action
+	int32_t roundNum;
 };
 
 constexpr size_t MAX_HEALTH_BARS = 2;
 
+#define ITEM_MAX_NUM	WEAPON_MAX+ITEM_MAX+AMMO_MAX_ANUM
 //
 // this structure is cleared as each map is entered
 // it is read/written to the level.sav file for savegames
@@ -1171,6 +1175,18 @@ struct level_locals_t
 	gtime_t next_match_report;
 
 	// Action add
+
+	int32_t pic_items[ITEM_MAX_NUM];
+	int32_t pic_weapon_ammo[WEAPON_MAX];
+	int32_t pic_sniper_mode[SNIPER_MODE_MAX];
+	int32_t pic_teamskin[TEAM_TOP];
+	int32_t pic_teamtag;
+	
+	int32_t pic_ctf_teamtag[TEAM_TOP];
+	int32_t pic_ctf_flagbase[TEAM_TOP];
+	int32_t pic_ctf_flagtaken[TEAM_TOP];
+	int32_t pic_ctf_flagdropped[TEAM_TOP];
+
 	int32_t snd_silencer;
 	int32_t snd_headshot;
 	int32_t snd_vesthit;
@@ -1919,12 +1935,12 @@ extern gitem_t itemlist[IT_TOTAL];
 #define GS_ROUNDBASED	8
 #define GS_WEAPONCHOOSE 16
 
-// sniper modes
-#define SNIPER_1X		0
-#define SNIPER_2X		1
-#define SNIPER_4X		2
-#define SNIPER_6X		3
-#define SNIPER_MODE_MAX	4
+// // sniper modes
+// #define SNIPER_1X		0
+// #define SNIPER_2X		1
+// #define SNIPER_4X		2
+// #define SNIPER_6X		3
+// #define SNIPER_MODE_MAX	4
 
 //TempFile sniper zoom moved to constants
 #define SNIPER_FOV1		90
@@ -1985,6 +2001,13 @@ void SP_LaserSight (edict_t * self, gitem_t * item);
 void Cmd_Reload_f (edict_t * ent);
 void Cmd_New_Reload_f (edict_t * ent);
 
+enum layout_t{
+	LAYOUT_NONE,
+	LAYOUT_SCORES,
+	LAYOUT_SCORES2,
+	LAYOUT_MENU
+};
+
 enum action_sniper_modes_t
 {
 	SNIPER_1X,
@@ -2029,7 +2052,7 @@ enum action_ammo_num_t
 	M4_ANUM,
 	SHELL_ANUM,
 	SNIPER_ANUM,
-	AMMO_MAX
+	AMMO_MAX_ANUM
 };
 
 constexpr item_id_t weap_ids[] = { 
@@ -2948,8 +2971,11 @@ struct client_respawn_t
 					// ZOID
 
 	// Action Add
+	int32_t enterframe;		// frame when player entered the game
 	int32_t team_kills;
 	int32_t team_wounds;
+	int32_t joined_team;		// last frame # at which the player joined a team
+  	int32_t lastWave;			//last time used wave
 	
 	int32_t team;
 	int32_t subteam;
@@ -2977,6 +3003,7 @@ struct client_respawn_t
 	int32_t streakHS;						//Headshots in a Row
 	int32_t streakKillsHighest;			//Highest kills in a row
 	int32_t streakHSHighest;				//Highest headshots in a Row
+	int32_t damage_dealt;
 
 	int32_t hitsLocations[LOC_MAX];		//Number of hits for different locations
 	gunStats_t gunstats[MOD_TOTAL]; //Number of shots/hits for different guns, adjusted to MOD_TOTAL to allow grenade, kick and punch stats
@@ -3141,7 +3168,6 @@ struct gclient_t
 
 	gtime_t respawn_time; // can respawn when time > this
 
-	edict_t *chase_target; // player we are chasing
 	bool	 update_chase; // need to update chase info?
 
 	//=======
@@ -3224,13 +3250,14 @@ struct gclient_t
 	gtime_t	 last_attacker_time;
 
 	// Action Add
+	layout_t		layout;		// set layout stat
 	int32_t			unique_item_total;
 	int32_t			unique_weapon_total;
 
-	int32_t				inventory[MAX_ITEMS];
+	int32_t			inventory[MAX_ITEMS];
 
 	edict_t		    *chase_target;
-	int32_t			    chase_mode;
+	int32_t			chase_mode;
 	// ammo capacities
 	int32_t			ammo_index;
 	int32_t			max_pistolmags;
