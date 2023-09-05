@@ -3969,7 +3969,7 @@ void Weapon_Gas(edict_t* ent)
 
 void PlaceHolder(edict_t* ent)
 {
-	ent->nextthink = level.framenum + 1000 * HZ;
+	ent->nextthink = level.time + 1_sec;
 }
 
 void ThinkSpecWeap(edict_t* ent)
@@ -3983,7 +3983,7 @@ void ThinkSpecWeap(edict_t* ent)
 	}
 	else
 	{
-		ent->nextthink = level.framenum + 1 * HZ;
+		ent->nextthink = level.time + 10_msec;
 		ent->think = G_FreeEdict;
 	}
 }
@@ -3993,27 +3993,27 @@ void temp_think_specweap(edict_t* ent)
 	ent->touch = Touch_Item;
 
 	if (allweapon->value) { // allweapon set
-		ent->nextthink = level.framenum + 1 * HZ;
+		ent->nextthink = level.time + 10_msec;
 		ent->think = G_FreeEdict;
 		return;
 	}
 
 	if (gameSettings & GS_ROUNDBASED) {
-		ent->nextthink = level.framenum + 1000 * HZ;
+		ent->nextthink = level.time + 1_sec;
 		ent->think = PlaceHolder;
 		return;
 	}
 
 	if (gameSettings & GS_WEAPONCHOOSE) {
-		ent->nextthink = level.framenum + 6 * HZ;
+		ent->nextthink = level.time + 60_msec;
 		ent->think = ThinkSpecWeap;
 	}
-	else if (DMFLAGS(DF_WEAPON_RESPAWN)) {
-		ent->nextthink = level.framenum + (weapon_respawn->value * 0.6f) * HZ;
-		ent->think = G_FreeEdict;
-	}
+	// else if (DMFLAGS(DF_WEAPON_RESPAWN)) {
+	// 	ent->nextthink = level.time + 60_sec;
+	// 	ent->think = G_FreeEdict;
+	// }
 	else {
-		ent->nextthink = level.framenum + weapon_respawn->value * HZ;
+		ent->nextthink = level.time + 1_sec;
 		ent->think = ThinkSpecWeap;
 	}
 }
