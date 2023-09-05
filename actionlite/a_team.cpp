@@ -602,39 +602,6 @@ void AssignSkin (edict_t * ent, const char *s, bool nickChanged)
 			break;
 		}
 	}
-	else if (esp->value)
-	{
-		/*
-		In ATL mode (espsettings == 0), all teams must have a leader, and will have their own skin
-		In ETV mode (espsettings == 1), only TEAM1 gets a leader.
-		*/
-	
-		switch (ent->client->resp.team)
-		{
-		case TEAM1:
-			snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM1].skin);
-			if (IS_LEADER(ent)){
-				snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM1].leader_skin);
-			}
-			break;
-		case TEAM2:
-			snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM2].skin);
-			if ((espsettings.mode == 0) && IS_LEADER(ent)){
-				snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM2].leader_skin);
-			}
-			break;
-		case TEAM3:
-			snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM3].skin);
-			if ((espsettings.mode == 0) && IS_LEADER(ent)){
-				snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[TEAM3].leader_skin);
-			}
-			break;
-		default:
-			snprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, default_skin);
-			break;
-		}
-		//gi.dprintf("I assigned skin  %s  to  %s\n", skin, ent->client->pers.netname);
-	}
 	else
 	{
 		switch (ent->client->resp.team)
@@ -708,13 +675,6 @@ void Team_f (edict_t * ent)
 
 	if (!teamplay->value)
 		return;
-
-	//PG BUND - BEGIN (Tourney extension)
-	if (use_tourney->value) {
-		gi.cprintf(ent, PRINT_MEDIUM, "Currently running tourney mod, team selection is disabled.");
-		return;
-	}
-	//PG BUND - END (Tourney extension)
 	
 	Q_strncpyz(team, gi.args(), sizeof(team));
 	t = team;
@@ -829,13 +789,6 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	if (level.intermission_framenum)
 		return;
 
-	// Espionage join a game in progress
-	if (esp->value && team_round_going && ent->inuse && ent->client->resp.team)
-	{
-		PutClientInServer (ent);
-		//AddToTransparentList (ent);
-	}
-
 	if (!(gameSettings & GS_ROUNDBASED) && team_round_going && ent->inuse && ent->client->resp.team)
 	{
 		PutClientInServer (ent);
@@ -863,8 +816,6 @@ void LeaveTeam (edict_t * ent)
 	gi.LocBroadcast_Print (PRINT_HIGH, "%s left %s team.\n", ent->client->pers.netname, genderstr);
 
 	MM_LeftTeam( ent );
-	EspLeaderLeftTeam ( ent );
-
 	ent->client->resp.joined_team = 0;
 	ent->client->resp.team = NOTEAM;
 	G_UpdatePlayerStatusbar(ent, 1);
@@ -1135,14 +1086,6 @@ void UpdateJoinMenu( void )
 
 void OpenJoinMenu (edict_t * ent)
 {
-	//PG BUND - BEGIN (Tourney extension)
-	if (use_tourney->value)
-	{
-		OpenWeaponMenu (ent);
-		return;
-	}
-	//PG BUND - END (Tourney extension)
-
 	UpdateJoinMenu();
 
 	PMenu_Open (ent, joinmenu, 11 /* magic for Auto-join menu item */, sizeof (joinmenu) / sizeof (pmenu_t));
@@ -1197,10 +1140,6 @@ void CleanLevel ()
 	CleanBodies();
 	// fix glass
 	CGF_SFX_RebuildAllBrokenGlass ();
-
-	// Reset ETV capture point
-	if (esp->value && espsettings.mode == ESPMODE_ETV)
-		EspResetFlag();
 }
 
 void MakeAllLivePlayersObservers(void);
@@ -1253,7 +1192,6 @@ void ResetScores (bool playerScores)
 		ent->client->resp.streakKills = 0;
 		ent->client->resp.ctf_caps = 0;
 		ent->client->resp.ctf_capstreak = 0;
-		ent->client->resp.esp_capstreak = 0;
 		ent->client->resp.deaths = 0;
 		ent->client->resp.team_kills = 0;
 		ent->client->resp.team_wounds = 0;
@@ -1309,9 +1247,6 @@ bool BothTeamsHavePlayers()
 		return false;
 	//AQ2:TNG END
 
-	if (use_tourney->value)
-		return (LastOpponent > 1);
-
 	if( ! _numclients() )
 		return false;
 
@@ -1341,44 +1276,9 @@ int CheckForWinner()
 	int players[TEAM_TOP] = { 0 }, i = 0, teamNum = 0, teamsWithPlayers = 0;
 	edict_t *ent;
 
-	if (!(gameSettings & GS_ROUNDBASED))
+	if (!(gameSettings & GS_ROUNDBASED)) {
 		return WINNER_NONE;
-
-	if (esp->value){
-		if (espsettings.mode == ESPMODE_ATL) {
-			if (teamCount == TEAM2) {
-				if (teams[TEAM1].leader_dead && teams[TEAM2].leader_dead) {
-					return WINNER_TIE;
-				} else if (teams[TEAM1].leader_dead) {
-					return TEAM2;
-				} else if (teams[TEAM2].leader_dead) {
-					return TEAM1;
-				}
-			} else if (teamCount == TEAM3) {
-				if (teams[TEAM1].leader_dead && teams[TEAM2].leader_dead && teams[TEAM3].leader_dead) {
-					return WINNER_TIE;
-				} else if (teams[TEAM1].leader_dead && teams[TEAM2].leader_dead) {
-					return TEAM3;
-				} else if (teams[TEAM1].leader_dead && teams[TEAM3].leader_dead) {
-					return TEAM2;
-				} else if (teams[TEAM2].leader_dead && teams[TEAM3].leader_dead) {
-					return TEAM1;
-				} 
-			}
-		} else if (espsettings.mode == ESPMODE_ETV) {
-			// Check if this value is 1, which means the escorting team wins
-			// By default it is 0
-			if (espsettings.escortcap == 1) {
-				gi.Com_PrintFmt("The winner was team %d\n", TEAM1);
-				return TEAM1;
-			} else if (teams[TEAM1].leader_dead){
-				gi.Com_PrintFmt("The winner was team %d\n", TEAM2);
-				return TEAM2;
-			}
-		}
-	//gi.dprintf("Escortcap value is %d\n", espsettings.escortcap);
-	
-	} else if (!esp->value) {
+	} else {
 		for (i = 0; i < game.maxclients; i++){
 			ent = &g_edicts[1 + i];
 			if (!ent->inuse || ent->solid == SOLID_NOT)
@@ -1461,12 +1361,8 @@ static void SpawnPlayers(void)
 	int i;
 	edict_t *ent;
 
-	if (gameSettings & GS_ROUNDBASED)
-	{
-		if (!use_oldspawns->value)
-			NS_SetupTeamSpawnPoints ();
-		else
-			SetupTeamSpawnPoints ();
+	if (gameSettings & GS_ROUNDBASED)	{
+		NS_SetupTeamSpawnPoints ();
 	}
 
 	InitTransparentList();
@@ -1488,8 +1384,7 @@ static void SpawnPlayers(void)
 			// } else if (WPF_ALLOWED(IT_WEAPON_KNIFE)) {
 			// 	ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_KNIFE);
 			// } else {
-				ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_MK23);
-			}
+			ent->client->pers.chosenWeapon = GetItemByIndex(IT_WEAPON_MK23);
 		}
 
 		if (!ent->client->pers.chosenItem) {
@@ -1541,10 +1436,9 @@ void RunWarmup ()
 		if (!ent->client->pers.chosenWeapon || !ent->client->pers.chosenItem)
 			continue;
 
-		dead = (ent->solid == SOLID_NOT && ent->deadflag == DEAD_NO && ent->movetype == MOVETYPE_NOCLIP);
-		if (dead && ent->client->latched_buttons & BUTTON_ATTACK)
+		if ((!IS_ALIVE(ent) && ent->movetype == MOVETYPE_NOCLIP) && ent->client->latched_buttons & BUTTON_ATTACK)
 		{
-			ent->client->latched_buttons = 0;
+			ent->client->latched_buttons = BUTTON_NONE;
 			PutClientInServer(ent);
 			AddToTransparentList(ent);
 			gi.LocCenter_Print(ent, "WARMUP");
@@ -1563,17 +1457,11 @@ static void StartLCA(void)
 	if ((gameSettings & (GS_WEAPONCHOOSE|GS_ROUNDBASED)))
 		CleanLevel();
 
-	if (use_tourney->value && !tourney_lca->value)
-	{
-		lights_camera_action = TourneySetTime (T_SPAWN);
-		TourneyTimeEvent(T_SPAWN, lights_camera_action);
-	}
-	else
-	{
-		CenterPrintAll ("LIGHTS...");
-		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_lights, 1.0, ATTN_NONE, 0.0);
-		lights_camera_action = 43;	// TempFile changed from 41
-	}
+
+	CenterPrintAll ("LIGHTS...");
+	gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, snd_lights, 1.0, ATTN_NONE, 0.0);
+	lights_camera_action = 43;	// TempFile changed from 41
+
 	SpawnPlayers();
 }
 
@@ -1604,30 +1492,19 @@ edict_t *FindOverlap (edict_t * ent, edict_t * last_overlap)
 
 void ContinueLCA ()
 {
-	if (use_tourney->value && !tourney_lca->value)
+	if (lights_camera_action == 23)
 	{
-		TourneyTimeEvent (T_SPAWN, lights_camera_action);
-		if (lights_camera_action == 1)
-		{
-			StartRound();
-		}
+		CenterPrintAll("CAMERA...");
+		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_camera , 1.0, ATTN_NONE, 0.0);
 	}
-	else
+	else if (lights_camera_action == 3)
 	{
-		if (lights_camera_action == 23)
-		{
-			CenterPrintAll("CAMERA...");
-			gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_camera , 1.0, ATTN_NONE, 0.0);
-		}
-		else if (lights_camera_action == 3)
-		{
-			CenterPrintAll("ACTION!");
-			gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_action, 1.0, ATTN_NONE, 0.0);
-		}
-		else if (lights_camera_action == 1)
-		{
-			StartRound();
-		}
+		CenterPrintAll("ACTION!");
+		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_action, 1.0, ATTN_NONE, 0.0);
+	}
+	else if (lights_camera_action == 1)
+	{
+		StartRound();
 	}
 	lights_camera_action--;
 }
@@ -1827,42 +1704,17 @@ int WonGame (int winner)
 	}
 	else
 	{
-		if (use_tourney->value)
-		{
-			if(winner == TEAM1)
-				player = TourneyFindPlayer(1);
-			else
-				player = TourneyFindPlayer(NextOpponent);
+		gi.LocBroadcast_Print (PRINT_HIGH, "%s won!\n", TeamName(winner));
+		// AQ:TNG Igor[Rock] changing sound dir
+		if(use_warnings->value)
+			gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_teamwins[winner], 1.0, ATTN_NONE, 0.0);
+		// end of changing sound dir
+		teams[winner].score++;
 
-			if (player)
-			{
-				gi.LocBroadcast_Print (PRINT_HIGH, "%s was victorious!\n",
-				player->client->pers.netname);
-				player->client->pers.netname);
-				TourneyWinner (player);
-			}
-		}
-		else
-		{
-			gi.LocBroadcast_Print (PRINT_HIGH, "%s won!\n", TeamName(winner));
-			// AQ:TNG Igor[Rock] changing sound dir
-			if(use_warnings->value)
-				gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_teamwins[winner], 1.0, ATTN_NONE, 0.0);
-			// end of changing sound dir
-			teams[winner].score++;
-			if (esp->value) {
-				for (i = 0; i <= teamCount; i++) {
-					// Reset leader_dead for all teams before next round starts and set escortcap to 0
-					gi.Com_PrintFmt("Resetting team %d leader status to false\n", i);
-					espsettings.escortcap = 0;
-					teams[i].leader_dead = false;
-				}
-			}
+		gi.cvar_forceset(teams[winner].teamscore->name, va("%i", teams[winner].score));
 
-			gi.cvar_forceset(teams[winner].teamscore->name, va("%i", teams[winner].score));
+		PrintScores ();
 
-			PrintScores ();
-		}
 	}
 
 	if (CheckTimelimit())
@@ -1914,19 +1766,6 @@ int CheckTeamRules (void)
 	char ltm[64] = "";
 	char mvdstring[512] = "";
 
-	if (round_delay_time && use_tourney->value)
-	{
-		TourneyTimeEvent (T_END, round_delay_time);
-		round_delay_time--;
-		if (!round_delay_time)
-		{
-			TourneyNewRound ();
-			team_round_countdown = TourneySetTime( T_RSTART );
-			TourneyTimeEvent (T_START, team_round_countdown);
-		}
-		return 0;
-	}
-
 	if (lights_camera_action)
 	{
 		ContinueLCA ();
@@ -1956,28 +1795,16 @@ int CheckTeamRules (void)
 				team_game_going = 1;
 				StartLCA();
 			}
-			else if (esp->value && AllTeamsHaveLeaders())
-			{
-				in_warmup = 0;
-				team_game_going = 1;
-				StartLCA();
-			}
 			else
 			{
 				if (!matchmode->value || TeamsReady())
 					CenterPrintAll ("Not enough players to play!");
-				else if (esp->value && !AllTeamsHaveLeaders())
-					CenterPrintAll ("Both Teams Must Have a Leader!");
 				else
 					CenterPrintAll ("Both Teams Must Be Ready!");
 
 				team_round_going = team_round_countdown = team_game_going = 0;
 				MakeAllLivePlayersObservers ();
 			}
-		}
-		else if(use_tourney->value)
-		{
-			TourneyTimeEvent (T_START, team_round_countdown);
 		}
 		else
 		{
@@ -2026,13 +1853,6 @@ int CheckTeamRules (void)
 		if (CheckTimelimit())
 			return 1;
 
-		if (esp->value && EspCheckRules())
-		{
-			EndDMLevel();
-			team_round_going = team_round_countdown = team_game_going = 0;
-			return 1;
-		}
-
 		if (vCheckVote()) {
 			EndDMLevel ();
 			team_round_going = team_round_countdown = team_game_going = 0;
@@ -2041,38 +1861,25 @@ int CheckTeamRules (void)
 
 		if (!team_round_countdown)
 		{
-			if (BothTeamsHavePlayers() || (esp->value && AllTeamsHaveLeaders()))
+			if (BothTeamsHavePlayers())
 			{
-				if (use_tourney->value)
-				{
-					TourneyNewRound ();
-					team_round_countdown = TourneySetTime( T_START );
-					TourneyTimeEvent (T_START, team_round_countdown);
-				}
-				else
-				{
-					int warmup_length = max( warmup->value, round_begin->value );
-					char buf[64] = "";
-					if (esp->value) {
-						sprintf( buf, "All teams have leaders!\nThe round will begin in %d seconds!", warmup_length );
-					} else {
-						sprintf( buf, "The round will begin in %d seconds!", warmup_length );
-					}
-					CenterPrintAll( buf );
-					team_round_countdown = warmup_length * 10 + 2;
+				int warmup_length = max( warmup->value, round_begin->value );
+				char buf[64] = "";
+				sprintf( buf, "The round will begin in %d seconds!", warmup_length );
+				CenterPrintAll( buf );
+				team_round_countdown = warmup_length * 10 + 2;
 
-					// JBravo: Autostart q2pro MVD2 recording on the server
-					if( use_mvd2->value )
-					{
-						tnow = time(NULL);
-						now = localtime(&tnow);
-						strftime( ltm, 64, "%Y%m%d-%H%M%S", now );
-						snprintf( mvdstring, sizeof(mvdstring), "mvdrecord %s-%s\n", ltm, level.mapname );
-						gi.AddCommandString( mvdstring );
-						gi.LocBroadcast_Print( PRINT_HIGH, "Starting MVD recording to file %s-%s.mvd2\n", ltm, level.mapname );
-					}
-					// JBravo: End MVD2
+				// JBravo: Autostart q2pro MVD2 recording on the server
+				if( use_mvd2->value )
+				{
+					tnow = time(NULL);
+					now = localtime(&tnow);
+					strftime( ltm, 64, "%Y%m%d-%H%M%S", now );
+					snprintf( mvdstring, sizeof(mvdstring), "mvdrecord %s-%s\n", ltm, level.mapname );
+					gi.AddCommandString( mvdstring );
+					gi.LocBroadcast_Print( PRINT_HIGH, "Starting MVD recording to file %s-%s.mvd2\n", ltm, level.mapname );
 				}
+				// JBravo: End MVD2
 			}
 		}
     }
@@ -2120,14 +1927,6 @@ int CheckTeamRules (void)
 			}
 			return 0; //CTF and teamDM dont need to check winner, its not round based
 		}
-		else if ((gameSettings & GS_ROUNDBASED))
-		// Team round is going, and it's GS_ROUNDBASED
-		{
-			if (esp->value) {
-				GenerateMedKit(false);
-				// Do something here about giving players stuff
-			}
-		}
 
 		winner = CheckForWinner();
 		if (winner != WINNER_NONE)
@@ -2144,11 +1943,7 @@ int CheckTeamRules (void)
 			lights_camera_action = 0;
 			holding_on_tie_check = 0;
 			timewarning = fragwarning = 0;
-
-			if (use_tourney->value)
-				round_delay_time = TourneySetTime (T_END);
-			else
-				team_round_countdown = 71;
+			team_round_countdown = 71;
 
 			return 0;
 		}

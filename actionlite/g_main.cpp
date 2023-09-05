@@ -28,12 +28,6 @@ int	  snd_fry;
 // Action Add
 int locOfDeath;
 int stopAP;
-int snd_silencer;
-int snd_headshot;
-int snd_vesthit;
-int snd_knifethrow;
-int snd_kick;
-int snd_noammo;
 
 // Action Add end
 
@@ -162,6 +156,8 @@ cvar_t *roundlimit;
 cvar_t *dm_choose;
 cvar_t *dm_shield;
 cvar_t *uvtime;
+cvar_t *matchmode;
+cvar_t *warmup;
 
 // Kick / Bans / Silences
 cvar_t *maxteamkills;

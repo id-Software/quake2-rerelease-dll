@@ -1995,7 +1995,7 @@ void PlayWeaponSound(edict_t* ent)
 
 	if (ent->client->weapon_sound & MZ_SILENCED)
 		// Silencer suppresses both sound and muzzle flash.
-		gi.sound(ent, CHAN_WEAPON, snd_silencer, 1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_WEAPON, level.snd_silencer, 1, ATTN_NORM, 0);
 
 	else switch (ent->client->weapon_sound)
 	{
@@ -2073,7 +2073,7 @@ void Pistol_Fire(edict_t* ent)
 		// 	gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 		// 	ent->pain_debounce_framenum = level.time + 10_ms;
 		// }
-		gi.sound(ent, CHAN_VOICE, snd_noammo, 1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
 	
@@ -2188,7 +2188,7 @@ void MP5_Fire(edict_t* ent)
 		// 	gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 		// 	ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		// }
-		gi.sound(ent, CHAN_VOICE, snd_noammo, 1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
 
@@ -2518,7 +2518,7 @@ void M4_Fire(edict_t* ent)
 		// 	gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 		// 	ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		// }
-		gi.sound(ent, CHAN_VOICE, snd_noammo, 1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
 
@@ -2839,7 +2839,7 @@ void Sniper_Fire(edict_t* ent)
 			
 		// 	ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		// }
-		gi.sound(ent, CHAN_VOICE, snd_noammo, 1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
 
@@ -2929,7 +2929,7 @@ void Dual_Fire(edict_t* ent)
 			
 		// 	ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		// }
-		gi.sound(ent, CHAN_VOICE, snd_noammo, 1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
 
@@ -2985,7 +2985,7 @@ void Dual_Fire(edict_t* ent)
 		{
 			ent->client->dual_rds = 0;
 			ent->client->mk23_rds = 0;
-			gi.sound(ent, CHAN_WEAPON, snd_noammo, 1, ATTN_NORM, 0);
+			gi.sound(ent, CHAN_WEAPON, level.snd_noammo, 1, ATTN_NORM, 0);
 			//ent->pain_debounce_time = level.time + 1;
 			ent->client->ps.gunframe = 68;
 			ent->client->weaponstate = WEAPON_END_MAG;
@@ -3017,7 +3017,7 @@ void Dual_Fire(edict_t* ent)
 		// 	gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 		// 	ent->pain_debounce_framenum = level.framenum + 1 * HZ;
 		// }
-		gi.sound(ent, CHAN_VOICE, snd_noammo, 1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
 

@@ -1546,12 +1546,20 @@ void SP_worldspawn(edict_t *ent)
 
 	snd_fry = gi.soundindex("player/fry.wav"); // standing in lava / slime
 	// Action Add
-	snd_silencer = gi.soundindex("misc/silencer.wav");	// all silencer weapons
-	snd_headshot = gi.soundindex("misc/headshot.wav");	// headshot sound
-	snd_vesthit = gi.soundindex("misc/vest.wav");		// kevlar hit
-	snd_knifethrow = gi.soundindex("misc/flyloop.wav");	// throwing knife
-	snd_kick = gi.soundindex("weapons/kick.wav");	// not loaded by any item, kick sound
-	snd_noammo = gi.soundindex("weapons/noammo.wav");
+	level.snd_silencer = gi.soundindex("misc/silencer.wav");	// all silencer weapons
+	level.snd_headshot = gi.soundindex("misc/headshot.wav");	// headshot sound
+	level.snd_vesthit = gi.soundindex("misc/vest.wav");		// kevlar hit
+	level.snd_knifethrow = gi.soundindex("misc/flyloop.wav");	// throwing knife
+	level.snd_kick = gi.soundindex("weapons/kick.wav");	// not loaded by any item, kick sound
+	level.snd_noammo = gi.soundindex("weapons/noammo.wav");
+
+	level.snd_lights = gi.soundindex("atl/lights.wav");
+	level.snd_camera = gi.soundindex("atl/camera.wav");
+	level.snd_action = gi.soundindex("atl/action.wav");
+	level.snd_teamwins[0] = gi.soundindex("tng/no_team_wins.wav");
+	level.snd_teamwins[1] = gi.soundindex("tng/team1_wins.wav");
+	level.snd_teamwins[2] = gi.soundindex("tng/team2_wins.wav");
+	level.snd_teamwins[3] = gi.soundindex("tng/team3_wins.wav");
 
 	PrecacheItem(GetItemByIndex(IT_WEAPON_MK23));
 

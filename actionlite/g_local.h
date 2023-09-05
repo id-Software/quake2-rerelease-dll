@@ -1171,8 +1171,19 @@ struct level_locals_t
 	gtime_t next_match_report;
 
 	// Action add
+	int32_t snd_silencer;
+	int32_t snd_headshot;
+	int32_t snd_vesthit;
+	int32_t snd_knifethrow;
+	int32_t snd_kick;
+	int32_t snd_noammo;
+	int32_t snd_lights;
+	int32_t snd_camera;
+	int32_t snd_action;
+	int32_t snd_teamwins[TEAM_TOP];
 	int32_t model_null;
 	int32_t model_lsight;
+	float matchTime;
 };
 
 struct shadow_light_temp_t
@@ -1623,6 +1634,7 @@ extern int snd_fry;
 // Action Add
 extern cvar_t *teamdm;
 extern cvar_t *teamdm_respawn;
+extern cvar_t *matchmode;
 extern cvar_t *ff_afterround;
 extern cvar_t *respawn_effect;
 extern cvar_t *use_warnings;
@@ -1651,13 +1663,8 @@ extern cvar_t *auto_menu;	// Automatically show the join menu
 extern cvar_t *dm_choose;
 extern cvar_t *dm_shield;
 extern cvar_t *uvtime;
+extern cvar_t *warmup;
 
-extern int snd_silencer;
-extern int snd_headshot;
-extern int snd_vesthit;
-extern int snd_knifethrow;
-extern int snd_kick;
-extern int snd_noammo;
 extern mod_id_t meansOfDeath;
 
 // zucc for hitlocation of death
@@ -2898,11 +2905,11 @@ struct client_respawn_t
 	int32_t team_wounds;
 	
 	int32_t team;
+	int32_t subteam;
 	int32_t	sniper_mode;
 
 	int32_t idletime;
 	int32_t totalidletime;
-	int32_t tourneynumber;
 	edict_t *kickvote;
 
 	char *mapvote;		// pointer to map voted on (if any)
@@ -3174,6 +3181,9 @@ struct gclient_t
 	int32_t			unique_weapon_total;
 
 	int32_t				inventory[MAX_ITEMS];
+
+	edict_t		    *chase_target;
+	int32_t			    chase_mode;
 	// ammo capacities
 	int32_t			ammo_index;
 	int32_t			max_pistolmags;
