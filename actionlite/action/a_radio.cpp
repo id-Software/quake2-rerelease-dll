@@ -6,7 +6,7 @@ void Cmd_Say_f (edict_t * ent, bool team, bool arg0,
 // Each of the possible radio messages and their length
 struct radio_msg_t
 {
-	char *msg;			// the msg name 
+	const char *msg;			// the msg name 
 	int length;			// length in server frames (ie tenths of a second), rounded up
 	int sndIndex;
 };

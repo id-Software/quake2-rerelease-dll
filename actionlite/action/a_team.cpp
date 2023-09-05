@@ -557,7 +557,7 @@ void killPlayer( edict_t *ent, bool suicidePunish )
 	ent->deadflag = true;
 }
 
-char *TeamName (int team)
+const char *TeamName (int team)
 {
 	if (team >= TEAM1 && team <= TEAM3)
 		return teams[team].name;
