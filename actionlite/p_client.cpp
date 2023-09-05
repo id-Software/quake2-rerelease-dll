@@ -66,7 +66,7 @@ void Add_Frag(edict_t * ent, int mod)
 		ent->client->resp.gunstats[mod].kills++;
 	}
 	// Grenade splash, kicks and punch damage
-	if (mod.id > 0 && ((mod.id == MOD_HG_SPLASH) || (mod.id == MOD_KICK) || (mod.id == MOD_PUNCH))) {
+	if (mod > 0 && ((mod == MOD_HG_SPLASH) || (mod == MOD_KICK) || (mod == MOD_PUNCH))) {
 		ent->client->resp.gunstats[mod].kills++;
 	}
 
@@ -614,7 +614,8 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		{
 			//snprintf( death_msg, sizeof(death_msg), message);
 			//sprintf( death_msg, message );
-			death_msg = message;
+
+			strdup(death_msg, message);
 			PrintDeathMessage(death_msg, self );
 
 			if (!teamplay->value || team_round_going || !ff_afterround->value)  {
@@ -909,7 +910,7 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		{
 			//sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname, message, attacker->client->pers.netname, message2);
 			//snprintf(death_msg, sizeof(death_msg), message);
-			death_msg = message;
+			strdup(death_msg, message);
 			PrintDeathMessage(death_msg, self);
 			AddKilledPlayer(attacker, self);
 

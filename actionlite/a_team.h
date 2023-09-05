@@ -1,13 +1,9 @@
 #include "g_local.h"
 
-enum aqteam_t
-{
-	NOTEAM,
-	TEAM1,
-	TEAM2,
-  TEAM3
-};
-
+#define NOTEAM          0
+#define TEAM1           1
+#define TEAM2           2
+#define TEAM3           3
 
 #define MAX_TEAMS       3
 #define TEAM_TOP        (MAX_TEAMS+1)

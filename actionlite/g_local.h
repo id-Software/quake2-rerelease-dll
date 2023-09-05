@@ -1954,7 +1954,6 @@ extern gitem_t itemlist[IT_TOTAL];
 #define CROUCHING_VIEWHEIGHT		8
 #define STANDING_VIEWHEIGHT			22
 
-extern aqteam_t teams[TEAM_TOP];
 int32_t gameSettings;  // Round based, deathmatch, etc?
 
 extern cvar_t *allitem;
@@ -2959,8 +2958,9 @@ struct team_t
 	int32_t pauses_used, wantReset;
 	cvar_t	*teamscore;
 };
+extern team_t teams[TEAM_TOP];
 
-// Action ADd
+// Action Add
 
 // [Paril-KEX] seconds until we are fully invisible after
 // making a racket
