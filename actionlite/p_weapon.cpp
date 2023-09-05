@@ -1965,7 +1965,7 @@ void ReadySpecialWeapon(edict_t* ent)
 	{
 		if (INV_AMMO(ent, weap_ids[i % 5]))
 		{
-			ent->client->newweapon = GetItemByIndex(weap_ids[i % 5]);
+			ent->client->newweapon = GET_ITEM(weap_ids[i % 5]);
 			return;
 		}
 	}

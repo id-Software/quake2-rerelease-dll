@@ -240,9 +240,9 @@ void sphere_touch(edict_t *self, edict_t *other, const trace_t &tr, mod_t mod)
 TOUCH(vengeance_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool other_touching_self) -> void
 {
 	if (self->spawnflags.has(SPHERE_DOPPLEGANGER))
-		sphere_touch(self, other, tr, MOD_DOPPLE_VENGEANCE);
+		sphere_touch(self, other, tr, MOD_UNKNOWN);
 	else
-		sphere_touch(self, other, tr, MOD_VENGEANCE_SPHERE);
+		sphere_touch(self, other, tr, MOD_UNKNOWN);
 }
 
 // =================
@@ -268,9 +268,9 @@ TOUCH(hunter_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool othe
 	}
 
 	if (self->spawnflags.has(SPHERE_DOPPLEGANGER))
-		sphere_touch(self, other, tr, MOD_DOPPLE_HUNTER);
+		sphere_touch(self, other, tr, MOD_UNKNOWN);
 	else
-		sphere_touch(self, other, tr, MOD_HUNTER_SPHERE);
+		sphere_touch(self, other, tr, MOD_UNKNOWN);
 }
 
 // =================

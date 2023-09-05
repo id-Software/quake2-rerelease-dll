@@ -28,8 +28,8 @@ inline item_flags_t GetSubstituteItemFlags(item_id_t id)
 	if ((flags & (IF_WEAPON | IF_AMMO)) == (IF_WEAPON | IF_AMMO))
 		flags = IF_AMMO;
 	// Adrenaline and Mega Health count as powerup
-	else if (id == IT_ITEM_ADRENALINE || id == IT_HEALTH_MEGA)
-		flags = IF_POWERUP;
+	// else if (id == IT_ITEM_ADRENALINE || id == IT_HEALTH_MEGA)
+	// 	flags = IF_POWERUP;
 
 	return flags;
 }
@@ -37,24 +37,24 @@ inline item_flags_t GetSubstituteItemFlags(item_id_t id)
 inline item_id_t FindSubstituteItem(edict_t *ent)
 {
 	// never replace flags
-	if (ent->item->id == IT_FLAG1 || ent->item->id == IT_FLAG2 || ent->item->id == IT_ITEM_TAG_TOKEN)
+	if (ent->item->id == IT_FLAG1 || ent->item->id == IT_FLAG2) //|| ent->item->id == IT_ITEM_TAG_TOKEN)
 		return IT_NULL;
 
-	// stimpack/shard randomizes
-	if (ent->item->id == IT_HEALTH_SMALL ||
-		ent->item->id == IT_ARMOR_SHARD)
-		return brandom() ? IT_HEALTH_SMALL : IT_ARMOR_SHARD;
+	// // stimpack/shard randomizes
+	// if (ent->item->id == IT_HEALTH_SMALL ||
+	// 	ent->item->id == IT_ARMOR_SHARD)
+	// 	return brandom() ? IT_HEALTH_SMALL : IT_ARMOR_SHARD;
 
 	// health is special case
 	if (ent->item->id == IT_HEALTH_MEDIUM ||
-		ent->item->id == IT_HEALTH_LARGE)
+		ent->item->id == IT_HEALTH_MEDIUM)
 	{
 		float rnd = frandom();
 
 		if (rnd < 0.6f)
 			return IT_HEALTH_MEDIUM;
 		else
-			return IT_HEALTH_LARGE;
+			return IT_HEALTH_MEDIUM;
 	}
 	// armor is also special case
 	// else if (ent->item->id == IT_ARMOR_JACKET ||
@@ -94,22 +94,22 @@ inline item_id_t FindSubstituteItem(edict_t *ent)
 		itflags = GetSubstituteItemFlags(i);
 
 		// don't respawn spheres if they're dmflag disabled.
-		if (g_no_spheres->integer)
-		{
-			if (ent->item->id == IT_ITEM_SPHERE_VENGEANCE ||
-				ent->item->id == IT_ITEM_SPHERE_HUNTER ||
-				ent->item->id == IT_ITEM_SPHERE_DEFENDER)
-			{
-				continue;
-			}
-		}
+		// if (g_no_spheres->integer)
+		// {
+		// 	if (ent->item->id == IT_ITEM_SPHERE_VENGEANCE ||
+		// 		ent->item->id == IT_ITEM_SPHERE_HUNTER ||
+		// 		ent->item->id == IT_ITEM_SPHERE_DEFENDER)
+		// 	{
+		// 		continue;
+		// 	}
+		// }
 
-		if (g_no_nukes->integer && ent->item->id == IT_AMMO_NUKE)
-			continue;
+		// if (g_no_nukes->integer && ent->item->id == IT_AMMO_NUKE)
+		// 	continue;
 
-		if (g_no_mines->integer &&
-			(ent->item->id == IT_AMMO_PROX || ent->item->id == IT_AMMO_TESLA || ent->item->id == IT_AMMO_TRAP))
-			continue;
+		// if (g_no_mines->integer &&
+		// 	(ent->item->id == IT_AMMO_PROX || ent->item->id == IT_AMMO_TESLA || ent->item->id == IT_AMMO_TRAP))
+		// 	continue;
 
 		if ((itflags & IF_TYPE_MASK) == (myflags & IF_TYPE_MASK))
 			possible_items[possible_item_count++] = i;
@@ -191,7 +191,7 @@ DIE(doppleganger_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int
 	self->takedamage = DAMAGE_NONE;
 
 	// [Paril-KEX]
-	T_RadiusDamage(self, self->teammaster, 160.f, self, 140.f, DAMAGE_NONE, MOD_DOPPLE_EXPLODE);
+	//T_RadiusDamage(self, self->teammaster, 160.f, self, 140.f, DAMAGE_NONE, MOD_DOPPLE_EXPLODE);
 
 	if (self->teamchain)
 		BecomeExplosion1(self->teamchain);

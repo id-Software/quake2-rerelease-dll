@@ -24,7 +24,7 @@ TOUCH(flechette_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool o
 	if (other->takedamage)
 	{
 		T_Damage(other, self, self->owner, self->velocity, self->s.origin, tr.plane.normal,
-				 self->dmg, (int) self->dmg_radius, DAMAGE_NO_REG_ARMOR, MOD_ETF_RIFLE);
+				 self->dmg, (int) self->dmg_radius, DAMAGE_NO_REG_ARMOR, MOD_UNKNOWN);
 	}
 	else
 	{
@@ -113,7 +113,7 @@ THINK(Prox_Explode) (edict_t *ent) -> void
 		gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage3.wav"), 1, ATTN_NORM, 0);
 
 	ent->takedamage = false;
-	T_RadiusDamage(ent, owner, (float) ent->dmg, ent, PROX_DAMAGE_RADIUS, DAMAGE_NONE, MOD_PROX);
+	T_RadiusDamage(ent, owner, (float) ent->dmg, ent, PROX_DAMAGE_RADIUS, DAMAGE_NONE, MOD_UNKNOWN);
 
 	origin = ent->s.origin + (ent->velocity * -0.02f);
 	gi.WriteByte(svc_temp_entity);
@@ -574,7 +574,7 @@ bool fire_player_melee(edict_t *self, const vec3_t &start, const vec3_t &aim, in
 		if (hit->svflags & SVF_MONSTER)
 			hit->pain_debounce_time -= random_time(5_ms, 75_ms);
 
-		if (mod.id == MOD_CHAINFIST)
+		if (mod.id == MOD_UNKNOWN)
 			T_Damage(hit, self, self, aim, closest_point_to_check, -aim, damage, kick / 2,
 					 DAMAGE_DESTROY_ARMOR | DAMAGE_NO_KNOCKBACK, mod);
 		else
@@ -635,7 +635,7 @@ static void Nuke_Explode(edict_t *ent)
 	if (ent->teammaster->client)
 		PlayerNoise(ent->teammaster, ent->s.origin, PNOISE_IMPACT);
 
-	T_RadiusNukeDamage(ent, ent->teammaster, (float) ent->dmg, ent, ent->dmg_radius, MOD_NUKE);
+	T_RadiusNukeDamage(ent, ent->teammaster, (float) ent->dmg, ent, ent->dmg_radius, MOD_UNKNOWN);
 
 	if (ent->dmg > NUKE_DAMAGE)
 		gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage3.wav"), 1, ATTN_NORM, 0);
@@ -952,10 +952,10 @@ THINK(tesla_think_active) (edict_t *self) -> void
 			// PGM - don't do knockback to walking monsters
 			if ((hit->svflags & SVF_MONSTER) && !(hit->flags & (FL_FLY | FL_SWIM)))
 				T_Damage(hit, self, self->teammaster, dir, tr.endpos, tr.plane.normal,
-						 self->dmg, 0, DAMAGE_NONE, MOD_TESLA);
+						 self->dmg, 0, DAMAGE_NONE, MOD_UNKNOWN);
 			else
 				T_Damage(hit, self, self->teammaster, dir, tr.endpos, tr.plane.normal,
-						 self->dmg, TESLA_KNOCKBACK, DAMAGE_NONE, MOD_TESLA);
+						 self->dmg, TESLA_KNOCKBACK, DAMAGE_NONE, MOD_UNKNOWN);
 
 			gi.WriteByte(svc_temp_entity);
 			gi.WriteByte(TE_LIGHTNING);
@@ -1295,9 +1295,9 @@ Fires a single heat beam.  Zap.
 void fire_heatbeam(edict_t *self, const vec3_t &start, const vec3_t &aimdir, const vec3_t &offset, int damage, int kick, bool monster)
 {
 	if (monster)
-		fire_beams(self, start, aimdir, offset, damage, kick, TE_MONSTER_HEATBEAM, TE_HEATBEAM_SPARKS, MOD_HEATBEAM);
+		fire_beams(self, start, aimdir, offset, damage, kick, TE_MONSTER_HEATBEAM, TE_HEATBEAM_SPARKS, MOD_UNKNOWN);
 	else
-		fire_beams(self, start, aimdir, offset, damage, kick, TE_HEATBEAM, TE_HEATBEAM_SPARKS, MOD_HEATBEAM);
+		fire_beams(self, start, aimdir, offset, damage, kick, TE_HEATBEAM, TE_HEATBEAM_SPARKS, MOD_UNKNOWN);
 }
 
 // *************************
@@ -1333,9 +1333,9 @@ TOUCH(blaster2_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool ot
 		// the only time players will be firing blaster2 bolts will be from the
 		// defender sphere.
 		if (self->owner && self->owner->client)
-			mod = MOD_DEFENDER_SPHERE;
+			mod = MOD_UNKNOWN;
 		else
-			mod = MOD_BLASTER2;
+			mod = MOD_BLASTER;
 
 		if (self->owner)
 		{
@@ -1443,7 +1443,7 @@ THINK(tracker_pain_daemon_think) (edict_t *self) -> void
 			vec3_t center = (self->enemy->absmax + self->enemy->absmin) * 0.5f;
 
 			T_Damage(self->enemy, self, self->owner, vec3_origin, center, pain_normal,
-					 self->dmg, 0, TRACKER_DAMAGE_FLAGS, MOD_TRACKER);
+					 self->dmg, 0, TRACKER_DAMAGE_FLAGS, MOD_UNKNOWN);
 
 			// if we kill the player, we'll be removed.
 			if (self->inuse)
@@ -1457,7 +1457,7 @@ THINK(tracker_pain_daemon_think) (edict_t *self) -> void
 						hurt = 500;
 
 					T_Damage(self->enemy, self, self->owner, vec3_origin, center,
-							 pain_normal, hurt, 0, TRACKER_DAMAGE_FLAGS, MOD_TRACKER);
+							 pain_normal, hurt, 0, TRACKER_DAMAGE_FLAGS, MOD_UNKNOWN);
 				}
 
 				self->nextthink = level.time + 10_hz;
@@ -1529,7 +1529,7 @@ TOUCH(tracker_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool oth
 				// PMM - kickback was times 4 .. reduced to 3
 				// now this does no damage, just knockback
 				T_Damage(other, self, self->owner, self->velocity, self->s.origin, tr.plane.normal,
-						 /* self->dmg */ 0, (self->dmg * 3), TRACKER_IMPACT_FLAGS, MOD_TRACKER);
+						 /* self->dmg */ 0, (self->dmg * 3), TRACKER_IMPACT_FLAGS, MOD_UNKNOWN);
 
 				if (!(other->flags & (FL_FLY | FL_SWIM)))
 					other->velocity[2] += 140;
@@ -1542,13 +1542,13 @@ TOUCH(tracker_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool oth
 			else // lots of damage (almost autogib) for dead bodies
 			{
 				T_Damage(other, self, self->owner, self->velocity, self->s.origin, tr.plane.normal,
-						 self->dmg * 4, (self->dmg * 3), TRACKER_IMPACT_FLAGS, MOD_TRACKER);
+						 self->dmg * 4, (self->dmg * 3), TRACKER_IMPACT_FLAGS, MOD_UNKNOWN);
 			}
 		}
 		else // full damage in one shot for inanimate objects
 		{
 			T_Damage(other, self, self->owner, self->velocity, self->s.origin, tr.plane.normal,
-					 self->dmg, (self->dmg * 3), TRACKER_IMPACT_FLAGS, MOD_TRACKER);
+					 self->dmg, (self->dmg * 3), TRACKER_IMPACT_FLAGS, MOD_UNKNOWN);
 		}
 	}
 

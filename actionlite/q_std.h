@@ -276,26 +276,7 @@ float anglemod (float a);
 #define Q_isalpha( c )	( Q_isupper( c ) || Q_islower( c ) )
 #define Q_isalnum( c )	( Q_isalpha( c ) || Q_isdigit( c ) )
 
-int Q_tolower( int c );
-int Q_toupper( int c );
-
 char *Q_strlwr( char *s );
 char *Q_strupr( char *s );
-
-int Q_tolower( int c ) {
-	if (Q_isupper( c )) {
-		c += ('a' - 'A');
-	}
-
-	return c;
-}
-
-int Q_toupper( int c ) {
-	if (Q_islower( c )) {
-		c -= ('a' - 'A');
-	}
-
-	return c;
-}
 
 // EOF

@@ -13,7 +13,7 @@ void SP_item_foodcube(edict_t *self)
 	}
 
 	self->model = "models/objects/trapfx/tris.md2";
-	SpawnItem(self, GetItemByIndex(IT_HEALTH_SMALL));
+	SpawnItem(self, GetItemByIndex(IT_HEALTH_MEDIUM));
 	self->spawnflags |= SPAWNFLAG_ITEM_DROPPED;
 	self->style = HEALTH_IGNORE_MAX;
 	self->classname = "item_foodcube";

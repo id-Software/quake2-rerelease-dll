@@ -205,8 +205,8 @@ USE(Item_TriggeredSpawn) (edict_t *self, edict_t *other, edict_t *activator) -> 
 		self->velocity[2] = 300;
 	}
 
-	if (self->item->id != IT_KEY_POWER_CUBE && self->item->id != IT_KEY_EXPLOSIVE_CHARGES) // leave them be on key_power_cube..
-		self->spawnflags &= SPAWNFLAG_ITEM_NO_TOUCH;
+	// if (self->item->id != IT_KEY_POWER_CUBE && self->item->id != IT_KEY_EXPLOSIVE_CHARGES) // leave them be on key_power_cube..
+	// 	self->spawnflags &= SPAWNFLAG_ITEM_NO_TOUCH;
 
 	droptofloor(self);
 }
@@ -217,8 +217,8 @@ USE(Item_TriggeredSpawn) (edict_t *self, edict_t *other, edict_t *activator) -> 
 void SetTriggeredSpawn(edict_t *ent)
 {
 	// don't do anything on key_power_cubes.
-	if (ent->item->id == IT_KEY_POWER_CUBE || ent->item->id == IT_KEY_EXPLOSIVE_CHARGES)
-		return;
+	// if (ent->item->id == IT_KEY_POWER_CUBE || ent->item->id == IT_KEY_EXPLOSIVE_CHARGES)
+	// 	return;
 
 	ent->think = nullptr;
 	ent->nextthink = 0_ms;

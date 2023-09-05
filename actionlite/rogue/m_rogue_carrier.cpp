@@ -930,7 +930,7 @@ PAIN(carrier_pain) (edict_t *self, edict_t *other, float kick, int damage, const
 	{
 		if (damage < 30)
 		{
-			if (mod.id == MOD_CHAINFIST || frandom() < 0.5f)
+			if (mod.id == MOD_UNKNOWN || frandom() < 0.5f)
 			{
 				changed = true;
 				M_SetAnimation(self, &carrier_move_pain_light);

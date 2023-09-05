@@ -1039,7 +1039,7 @@ void WidowRespondPowerup(edict_t *self, edict_t *other)
 		else if (skill->integer == 3)
 		{
 			WidowGoinQuad(self, other->client->quad_time);
-			WidowPowerArmor(self);
+			//WidowPowerArmor(self);
 		}
 	}
 	else if (other->s.effects & EF_DOUBLE)
@@ -1049,7 +1049,7 @@ void WidowRespondPowerup(edict_t *self, edict_t *other)
 		else if (skill->integer == 3)
 		{
 			WidowDouble(self, other->client->double_time);
-			WidowPowerArmor(self);
+			//WidowPowerArmor(self);
 		}
 	}
 	else
@@ -1058,13 +1058,14 @@ void WidowRespondPowerup(edict_t *self, edict_t *other)
 	if (other->s.effects & EF_PENT)
 	{
 		if (skill->integer == 1)
-			WidowPowerArmor(self);
+			return;
+			//WidowPowerArmor(self);
 		else if (skill->integer == 2)
 			WidowPent(self, other->client->invincible_time);
 		else if (skill->integer == 3)
 		{
 			WidowPent(self, other->client->invincible_time);
-			WidowPowerArmor(self);
+			//WidowPowerArmor(self);
 		}
 	}
 }

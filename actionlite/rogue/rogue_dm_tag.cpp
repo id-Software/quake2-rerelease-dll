@@ -22,7 +22,7 @@ void Tag_PlayerDeath(edict_t *targ, edict_t *inflictor, edict_t *attacker)
 {
 	if (tag_token && targ && (targ == tag_owner))
 	{
-		Tag_DropToken(targ, GetItemByIndex(IT_ITEM_TAG_TOKEN));
+		//Tag_DropToken(targ, GetItemByIndex(IT_ITEM_TAG_TOKEN));
 		tag_owner = nullptr;
 		tag_count = 0;
 	}
@@ -45,7 +45,7 @@ void Tag_KillItBonus(edict_t *self)
 	// give the player a body armor
 	armor = G_Spawn();
 	armor->spawnflags |= SPAWNFLAG_ITEM_DROPPED;
-	armor->item = GetItemByIndex(IT_ARMOR_BODY);
+	//armor->item = GetItemByIndex(IT_ARMOR_BODY);
 	Touch_Item(armor, self, null_trace, true);
 	if (armor->inuse)
 		G_FreeEdict(armor);
@@ -57,7 +57,7 @@ void Tag_PlayerDisconnect(edict_t *self)
 {
 	if (tag_token && self && (self == tag_owner))
 	{
-		Tag_DropToken(self, GetItemByIndex(IT_ITEM_TAG_TOKEN));
+		//Tag_DropToken(self, GetItemByIndex(IT_ITEM_TAG_TOKEN));
 		tag_owner = nullptr;
 		tag_count = 0;
 	}
@@ -78,8 +78,8 @@ void Tag_Score(edict_t *attacker, edict_t *victim, int scoreChange, const mod_t 
 			tag_count++;
 			if (tag_count == 5)
 			{
-				quad = GetItemByIndex(IT_ITEM_QUAD);
-				attacker->client->pers.inventory[IT_ITEM_QUAD]++;
+				//quad = GetItemByIndex(IT_ITEM_QUAD);
+				//attacker->client->pers.inventory[IT_ITEM_QUAD]++;
 				quad->use(attacker, quad);
 				tag_count = 0;
 			}
@@ -88,20 +88,20 @@ void Tag_Score(edict_t *attacker, edict_t *victim, int scoreChange, const mod_t 
 		else if (tag_owner == victim && tag_owner != attacker)
 		{
 			scoreChange = 5;
-			if ((mod.id == MOD_HUNTER_SPHERE) || (mod.id == MOD_DOPPLE_EXPLODE) ||
-				(mod.id == MOD_DOPPLE_VENGEANCE) || (mod.id == MOD_DOPPLE_HUNTER) ||
-				(attacker->health <= 0))
-			{
-				Tag_DropToken(tag_owner, GetItemByIndex(IT_ITEM_TAG_TOKEN));
-				tag_owner = nullptr;
-				tag_count = 0;
-			}
-			else
-			{
-				Tag_KillItBonus(attacker);
-				tag_owner = attacker;
-				tag_count = 0;
-			}
+			// if ((mod.id == MOD_HUNTER_SPHERE) || (mod.id == MOD_DOPPLE_EXPLODE) ||
+			// 	(mod.id == MOD_DOPPLE_VENGEANCE) || (mod.id == MOD_DOPPLE_HUNTER) ||
+			// 	(attacker->health <= 0))
+			// {
+			// 	Tag_DropToken(tag_owner, GetItemByIndex(IT_ITEM_TAG_TOKEN));
+			// 	tag_owner = nullptr;
+			// 	tag_count = 0;
+			// }
+			// else
+			// {
+			// 	Tag_KillItBonus(attacker);
+			// 	tag_owner = attacker;
+			// 	tag_count = 0;
+			// }
 		}
 	}
 
@@ -293,5 +293,5 @@ void SP_dm_tag_token(edict_t *self)
 	self->classname = "dm_tag_token";
 	self->model = "models/items/tagtoken/tris.md2";
 	self->count = 1;
-	SpawnItem(self, GetItemByIndex(IT_ITEM_TAG_TOKEN));
+	//SpawnItem(self, GetItemByIndex(IT_ITEM_TAG_TOKEN));
 }

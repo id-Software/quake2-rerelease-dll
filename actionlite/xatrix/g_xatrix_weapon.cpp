@@ -29,7 +29,7 @@ void fire_blueblaster(edict_t *self, const vec3_t &start, const vec3_t &dir, int
 	bolt->think = G_FreeEdict;
 	bolt->dmg = damage;
 	bolt->classname = "bolt";
-	bolt->style = MOD_BLUEBLASTER;
+	bolt->style = MOD_UNKNOWN;
 	gi.linkentity(bolt);
 
 	tr = gi.traceline(self->s.origin, bolt->s.origin, bolt, bolt->clipmask);
@@ -77,7 +77,7 @@ TOUCH(ionripper_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool o
 
 	if (other->takedamage)
 	{
-		T_Damage(other, self, self->owner, self->velocity, self->s.origin, tr.plane.normal, self->dmg, 1, DAMAGE_ENERGY, MOD_RIPPER);
+		T_Damage(other, self, self->owner, self->velocity, self->s.origin, tr.plane.normal, self->dmg, 1, DAMAGE_ENERGY, MOD_UNKNOWN);
 	}
 	else
 	{
@@ -263,10 +263,10 @@ TOUCH(plasma_touch) (edict_t *ent, edict_t *other, const trace_t &tr, bool other
 
 	if (other->takedamage)
 	{
-		T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin, tr.plane.normal, ent->dmg, 0, DAMAGE_ENERGY, MOD_PHALANX);
+		T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin, tr.plane.normal, ent->dmg, 0, DAMAGE_ENERGY, MOD_UNKNOWN);
 	}
 
-	T_RadiusDamage(ent, ent->owner, (float) ent->radius_dmg, other, ent->dmg_radius, DAMAGE_ENERGY, MOD_PHALANX);
+	T_RadiusDamage(ent, ent->owner, (float) ent->radius_dmg, other, ent->dmg_radius, DAMAGE_ENERGY, MOD_UNKNOWN);
 
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(TE_PLASMA_EXPLOSION);
@@ -508,7 +508,7 @@ THINK(Trap_Think) (edict_t *ent) -> void
 				ent->solid = SOLID_NOT;
 				ent->die = nullptr;
 
-				T_Damage(best, ent, ent->teammaster, vec3_origin, best->s.origin, vec3_origin, 100000, 1, DAMAGE_NONE, MOD_TRAP);
+				T_Damage(best, ent, ent->teammaster, vec3_origin, best->s.origin, vec3_origin, 100000, 1, DAMAGE_NONE, MOD_UNKNOWN);
 
 				if (best->svflags & SVF_MONSTER)
 					M_ProcessPain(best);

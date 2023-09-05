@@ -1,8 +1,5 @@
 #include "../g_local.h"
 
-cvar_t *eventeams;
-cvar_t *use_balancer;
-
 edict_t *FindNewestPlayer(int team)
 {
 	edict_t *e, *newest = NULL;

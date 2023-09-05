@@ -482,7 +482,7 @@ void blastoff(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int dama
 		{
 			if (tr.ent->takedamage)
 			{
-				T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_BULLET, MOD_BLASTOFF);
+				T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_BULLET, MOD_UNKNOWN);
 			}
 			else
 			{

@@ -997,8 +997,8 @@ void G_SetStats(edict_t *ent)
 		if (num_keys_held > 3)
 			key_offset = (int32_t) (level.time.seconds() / 5);
 
-		for (int32_t i = 0; i < min(num_keys_held, (size_t) 3); i++, stat = (player_stat_t) (stat + 1))
-			ent->client->ps.stats[stat] = gi.imageindex(GetItemByIndex(keys_held[(i + key_offset) % num_keys_held])->icon);
+		//for (int32_t i = 0; i < min(num_keys_held, (size_t) 3); i++, stat = (player_stat_t) (stat + 1))
+		//	ent->client->ps.stats[stat] = gi.imageindex(GetItemByIndex(keys_held[(i + key_offset) % num_keys_held])->icon);
 	}
 
 	//

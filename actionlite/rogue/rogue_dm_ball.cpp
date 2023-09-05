@@ -232,9 +232,9 @@ int DBall_ChangeKnockback(edict_t *targ, edict_t *attacker, int knockback, mod_t
 	if (knockback < 1)
 	{
 		// FIXME - these don't account for quad/double
-		if (mod.id == MOD_ROCKET) // rocket
+		if (mod.id == MOD_UNKNOWN) // rocket
 			knockback = 70;
-		else if (mod.id == MOD_BFG_EFFECT) // bfg
+		else if (mod.id == MOD_UNKNOWN) // bfg
 			knockback = 90;
 		else
 			gi.Com_PrintFmt("zero knockback, mod {}\n", (int32_t) mod.id);
@@ -247,34 +247,18 @@ int DBall_ChangeKnockback(edict_t *targ, edict_t *attacker, int knockback, mod_t
 		case MOD_BLASTER:
 			knockback *= 3;
 			break;
-		case MOD_SHOTGUN:
+		case MOD_UNKNOWN:
 			knockback = (knockback * 3) / 8;
-			break;
-		case MOD_SSHOTGUN:
-			knockback = knockback / 3;
-			break;
-		case MOD_MACHINEGUN:
-			knockback = (knockback * 3) / 2;
 			break;
 		case MOD_HYPERBLASTER:
 			knockback *= 4;
 			break;
 		case MOD_GRENADE:
 		case MOD_HANDGRENADE:
-		case MOD_PROX:
 		case MOD_G_SPLASH:
 		case MOD_HG_SPLASH:
 		case MOD_HELD_GRENADE:
-		case MOD_TRACKER:
-		case MOD_DISINTEGRATOR:
 			knockback /= 2;
-			break;
-		case MOD_R_SPLASH:
-			knockback = (knockback * 3) / 2;
-			break;
-		case MOD_RAILGUN:
-		case MOD_HEATBEAM:
-			knockback /= 3;
 			break;
 		default:
 			break;
@@ -414,7 +398,7 @@ TOUCH(DBall_BallTouch) (edict_t *ent, edict_t *other, const trace_t &tr, bool ot
 			if (dot > 0.7f)
 			{
 				T_Damage(other, ent, ent, vec3_origin, ent->s.origin, vec3_origin,
-						 (int) (speed / 10), (int) (speed / 10), DAMAGE_NONE, MOD_DBALL_CRUSH);
+						 (int) (speed / 10), (int) (speed / 10), DAMAGE_NONE, MOD_UNKNOWN);
 			}
 		}
 	}

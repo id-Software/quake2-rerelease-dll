@@ -415,7 +415,7 @@ PAIN(stalker_pain) (edict_t *self, edict_t *other, float kick, int damage, const
 
 	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 
-	if (mod.id == MOD_CHAINFIST || damage > 10) // don't react unless the damage was significant
+	if (mod.id == MOD_UNKNOWN || damage > 10) // don't react unless the damage was significant
 	{
 		// stalker should dodge jump periodically to help avoid damage.
 		if (self->groundentity && (frandom() < 0.5f))

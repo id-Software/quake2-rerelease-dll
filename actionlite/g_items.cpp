@@ -1467,7 +1467,7 @@ void DeadDropSpec(edict_t * ent)
 	{
 		if (ent->client->pers.inventory[weap_ids[i]])
 		{
-			dropped = Drop_Item(ent, GetItemByIndex(weap_ids[i]));
+			dropped = Drop_Item(ent, GET_ITEM(weap_ids[i]));
 			// hack the velocity to make it bounce random
 			dropped->velocity[0] = (rand() % 600) - 300;
 			dropped->velocity[1] = (rand() % 600) - 300;

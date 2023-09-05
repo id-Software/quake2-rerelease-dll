@@ -18,7 +18,6 @@ bool teams_changed = false;  // Need to update the join menu.
 team_t teams[TEAM_TOP];
 int	teamCount = 2;
 int gameSettings;
-ctfgame_t ctfgame;
 
 #define MAX_SPAWNS 512		// max DM spawn points supported
 
@@ -588,6 +587,22 @@ void AssignSkin (edict_t * ent, const char *s, bool nickChanged)
 	gi.configstring(CS_PLAYERSKINS + playernum, skin);
 }
 
+int Q_tolower( int c ) {
+	if (Q_isupper( c )) {
+		c += ('a' - 'A');
+	}
+
+	return c;
+}
+
+int Q_toupper( int c ) {
+	if (Q_islower( c )) {
+		c -= ('a' - 'A');
+	}
+
+	return c;
+}
+
 /*
 ==============
 TP_GetTeamFromArgs
@@ -1059,6 +1074,7 @@ void ResetScores (bool playerScores)
 {
 	int i;
 	edict_t *ent;
+	ctfgame_t *ctfgame;
 
 	team_round_going = team_round_countdown = team_game_going = 0;
 	current_round_length = 0;
@@ -1078,13 +1094,14 @@ void ResetScores (bool playerScores)
 		gi.cvar_forceset(teams[i].teamscore->name, "0");
 	}
 
-	ctfgame.team1 = 0;
-	ctfgame.team2 = 0;
-	ctfgame.total1 = 0;
-	ctfgame.total2 = 0;
-	ctfgame.last_flag_capture = 0_ms;
-	ctfgame.last_capture_team = 0;
-	ctfgame.halftime = 0;
+
+	ctfgame->team1 = 0;
+	ctfgame->team2 = 0;
+	ctfgame->total1 = 0;
+	ctfgame->total2 = 0;
+	ctfgame->last_flag_capture = 0_ms;
+	ctfgame->last_capture_team = 0;
+	ctfgame->halftime = 0;
 
 	if(!playerScores)
 		return;

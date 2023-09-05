@@ -953,7 +953,7 @@ void SP_monster_turret(edict_t *self)
 	self->mass = 250;
 	self->yaw_speed = 10 * skill->integer;
 
-	self->monsterinfo.armor_type = IT_ARMOR_COMBAT;
+	self->monsterinfo.armor_type = IT_NULL;
 	self->monsterinfo.armor_power = 50;
 
 	self->flags |= FL_MECHANICAL;

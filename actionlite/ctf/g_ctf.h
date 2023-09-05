@@ -83,6 +83,7 @@ struct ctfgame_t
 };
 
 extern cvar_t *ctf;
+//extern cvar_t ctfgame;
 extern cvar_t *g_teamplay_force_join;
 extern cvar_t *teamplay;
 

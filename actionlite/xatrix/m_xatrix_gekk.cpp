@@ -677,7 +677,7 @@ TOUCH(loogie_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool othe
 		PlayerNoise(self->owner, self->s.origin, PNOISE_IMPACT);
 
 	if (other->takedamage)
-		T_Damage(other, self, self->owner, self->velocity, self->s.origin, tr.plane.normal, self->dmg, 1, DAMAGE_ENERGY, MOD_GEKK);
+		T_Damage(other, self, self->owner, self->velocity, self->s.origin, tr.plane.normal, self->dmg, 1, DAMAGE_ENERGY, MOD_UNKNOWN);
 	
 	gi.sound(self, CHAN_AUTO, loogie_hit, 1.0f, ATTN_NORM, 0);
 
@@ -937,7 +937,7 @@ TOUCH(gekk_jump_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool o
 			normal.normalize();
 			point = self->s.origin + (normal * self->maxs[0]);
 			damage = irandom(10, 20);
-			T_Damage(other, self, self, self->velocity, point, normal, damage, damage, DAMAGE_NONE, MOD_GEKK);
+			T_Damage(other, self, self, self->velocity, point, normal, damage, damage, DAMAGE_NONE, MOD_UNKNOWN);
 			self->style = 0;
 		}
 	}

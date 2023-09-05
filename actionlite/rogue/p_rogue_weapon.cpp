@@ -84,7 +84,7 @@ void weapon_chainfist_fire(edict_t *ent)
 
 	P_ProjectSource(ent, ent->client->v_angle, { 0, 0, -4 }, start, dir);
 
-	if (fire_player_melee(ent, start, dir, CHAINFIST_REACH, damage, 100, MOD_CHAINFIST))
+	if (fire_player_melee(ent, start, dir, CHAINFIST_REACH, damage, 100, MOD_UNKNOWN))
 	{
 		if (ent->client->empty_click_sound < level.time)
 		{
@@ -160,7 +160,7 @@ void Weapon_ChainFist(edict_t *ent)
 		ent->client->weapon_sound = gi.soundindex("weapons/sawhit.wav");
 	else if (ent->client->weaponstate == WEAPON_DROPPING)
 		ent->client->weapon_sound = 0;
-	else if (ent->client->pers.weapon->id == IT_WEAPON_CHAINFIST)
+	else if (ent->client->pers.weapon->id == MOD_UNKNOWN)
 		ent->client->weapon_sound = gi.soundindex("weapons/sawidle.wav");
 }
 
