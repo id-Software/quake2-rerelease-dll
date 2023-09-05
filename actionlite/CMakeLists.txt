@@ -7,10 +7,9 @@ set(CMAKE_C_COMPILER "gcc")
 set(CMAKE_CXX_COMPILER "g++")
 
 set(GAME_SRC 
-    ${CMAKE_CURRENT_SOURCE_DIR}/action/a_team.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/action/a_game.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/action/a_match.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/action/a_radio.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/action/a_team.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/action/a_balancer.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/action/cgf_sfx_glass.cpp 
 
     ${CMAKE_CURRENT_SOURCE_DIR}/bots/bot_debug.cpp 

@@ -10,12 +10,7 @@
 #include "action/a_team.h"
 #include "action/a_game.h"
 #include "action/cgf_sfx_glass.h"
-#include "action/a_match.h"
 #include "action/a_radio.h"
-#include "action/a_ini.h"
-#include "action/a_stats.h"
-#include "action/a_balancer.h"
-
 
 // the "gameversion" client command will print this plus compile date
 constexpr const char *GAMEVERSION = "action";
@@ -1678,15 +1673,23 @@ extern cvar_t *medkit_max;
 extern cvar_t *medkit_value;
 extern cvar_t *stats_endmap; // If on (1), show the accuracy/etc stats at the end of a map
 extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
-
+extern cvar_t *printrules;
 extern cvar_t *auto_join;	// Automaticly join clients to teams they were on in last map.
 extern cvar_t *auto_equip;	// Remember weapons and items for players between maps.
 extern cvar_t *auto_menu;	// Automatically show the join menu
-
+extern cvar_t *use_newscore;	// Use the new scoreboard
+extern cvar_t *noscore;	// Don't show the scoreboard
+extern cvar_t *scoreboard;	// Scoreboard style 
+extern cvar_t *ir;
+extern cvar_t *knifelimit;
+extern cvar_t *tgren;
 extern cvar_t *dm_choose;
 extern cvar_t *dm_shield;
 extern cvar_t *uvtime;
 extern cvar_t *warmup;
+extern cvar_t *rrot;
+extern cvar_t *vrot;
+
 
 extern mod_id_t meansOfDeath;
 
@@ -1694,12 +1697,16 @@ extern mod_id_t meansOfDeath;
 extern int locOfDeath;
 // stop an armor piercing round that hits a vest
 extern int stopAP;
+extern cvar_t *eventeams;
+extern cvar_t *use_balancer;
 
+bool CheckForUnevenTeams (edict_t *);
+bool IsAllowedToJoin(edict_t *, int);
 void TransparentListSet (solid_t solid_type);
 
-char *GetPossesiveAdjectiveSingular(edict_t *ent);
-char *GetPossesiveAdjective(edict_t *ent);
-char *GetReflexivePronoun(edict_t *ent);
+const char *GetPossesiveAdjectiveSingular(edict_t *ent);
+const char *GetPossesiveAdjective(edict_t *ent);
+const char *GetReflexivePronoun(edict_t *ent);
 
 // Action Add end
 
@@ -1933,8 +1940,12 @@ extern gitem_t itemlist[IT_TOTAL];
 //======================================================================
 // Action Add
 //======================================================================
-
+#define PARSE_BUFSIZE 256
 #define IS_ALIVE(ent) ((ent)->solid != SOLID_NOT && (ent)->deadflag)
+
+#define WEAPON_COUNT			9
+#define ITEM_COUNT				6
+#define AMMO_COUNT				5
 
 #define GS_DEATHMATCH	1
 #define GS_TEAMPLAY		2
@@ -1996,6 +2007,7 @@ extern cvar_t *weapon_respawn;
 extern cvar_t *ammo_respawn;
 extern cvar_t *hc_single;
 extern cvar_t *use_punch;
+extern cvar_t *radiolog;
 extern cvar_t *radio_max;
 extern cvar_t *radio_time;
 extern cvar_t *radio_ban;
@@ -2764,6 +2776,10 @@ void	 fire_doppleganger(edict_t *ent, const vec3_t &start, const vec3_t &aimdir)
 void RemoveAttackingPainDaemons(edict_t *self);
 bool G_ShouldPlayersCollide(bool weaponry);
 bool P_UseCoopInstancedItems();
+void Add_Frag(edict_t * ent, int mod);
+void Subtract_Frag(edict_t * ent);
+void Add_Death( edict_t *ent, bool end_streak );
+void PrintDeathMessage(char *msg, edict_t * gibee);
 // ACTION
 void CL_FixUpGender(edict_t *ent, const char *userinfo);
 void ClientFixLegs(edict_t *ent);
@@ -3000,6 +3016,7 @@ struct client_respawn_t
 	int32_t totalidletime;
 	edict_t *kickvote;
 
+	int32_t *menu_shown;
 	char *mapvote;		// pointer to map voted on (if any)
 	char *cvote;			// pointer to config voted on (if any)
 	bool scramblevote;	// want scramble
@@ -3281,6 +3298,7 @@ struct gclient_t
 
 	edict_t		    *chase_target;
 	int32_t			chase_mode;
+	bool			team_force;		// are we forcing a team change
 	// ammo capacities
 	int32_t			ammo_index;
 	int32_t			max_pistolmags;

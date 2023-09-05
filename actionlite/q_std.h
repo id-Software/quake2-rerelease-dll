@@ -270,4 +270,32 @@ int BoxOnPlaneSide (const vec3_t emins, const vec3_t emaxs, const struct cplane_
 float anglemod (float a);
 //float LerpAngle (float a1, float a2, float frac);
 
+#define Q_isupper( c )	( (c) >= 'A' && (c) <= 'Z' )
+#define Q_islower( c )	( (c) >= 'a' && (c) <= 'z' )
+#define Q_isdigit( c )	( (c) >= '0' && (c) <= '9' )
+#define Q_isalpha( c )	( Q_isupper( c ) || Q_islower( c ) )
+#define Q_isalnum( c )	( Q_isalpha( c ) || Q_isdigit( c ) )
+
+int Q_tolower( int c );
+int Q_toupper( int c );
+
+char *Q_strlwr( char *s );
+char *Q_strupr( char *s );
+
+int Q_tolower( int c ) {
+	if (Q_isupper( c )) {
+		c += ('a' - 'A');
+	}
+
+	return c;
+}
+
+int Q_toupper( int c ) {
+	if (Q_islower( c )) {
+		c -= ('a' - 'A');
+	}
+
+	return c;
+}
+
 // EOF

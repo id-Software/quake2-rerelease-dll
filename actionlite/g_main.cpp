@@ -172,6 +172,13 @@ cvar_t *use_killcounts;
 cvar_t *use_rewards;
 cvar_t *warmup;
 cvar_t *round_begin;
+cvar_t *eventeams;
+cvar_t *use_balancer;
+cvar_t *ir;
+cvar_t *knifelimit;
+cvar_t *tgren;
+cvar_t *rrot;
+cvar_t *vrot;
 
 // UI / Menu / Messaging Settings
 cvar_t *motd_time;
@@ -181,7 +188,10 @@ cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
 cvar_t *auto_join;	// Automaticly join clients to teams they were on in last map.
 cvar_t *auto_equip;	// Remember weapons and items for players between maps.
 cvar_t *auto_menu;	// Automatically show the join menu
-
+cvar_t *printrules;	// Print the rules at the start of the game
+cvar_t *use_newscore;	// Use the new scoreboard
+cvar_t *noscore;	// Don't show the scoreboard
+cvar_t *scoreboard; 
 
 // Weapon and Item Settings
 cvar_t *allitem;
