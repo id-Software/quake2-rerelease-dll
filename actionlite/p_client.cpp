@@ -509,16 +509,16 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 	{
 		switch (mod.id) {
 		case MOD_HELD_GRENADE:
-			snprintf(message, sizeof(message), "%s tried to put the pin back in", self->client->pers.netname);
+			snprintf(death_msg, sizeof(death_msg), "%s tried to put the pin back in", self->client->pers.netname);
 			break;
 		case MOD_HG_SPLASH:
-			snprintf(message, sizeof(message), "%s didn't throw %s grenade far enough", self->client->pers.netname, GetPossesiveAdjective(self));
+			snprintf(death_msg, sizeof(death_msg), "%s didn't throw %s grenade far enough", self->client->pers.netname, GetPossesiveAdjective(self));
 			break;
 		case MOD_G_SPLASH:
-			snprintf(message, sizeof(message), "%s tripped on %s own grenade", self->client->pers.netname, GetPossesiveAdjective(self));
+			snprintf(death_msg, sizeof(death_msg), "%s tripped on %s own grenade", self->client->pers.netname, GetPossesiveAdjective(self));
 			break;
 		default:
-			snprintf(message, sizeof(message), "%s killed %s", self->client->pers.netname, GetReflexivePronoun(self));
+			snprintf(death_msg, sizeof(death_msg), "%s killed %s", self->client->pers.netname, GetReflexivePronoun(self));
 			break;
 		}
 	}
@@ -529,58 +529,58 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			if( self->client->push_timeout > 40 )
 				snprintf(special_message, sizeof(special_message), "%s was thrown through a window by %s", 
 				self->client->pers.netname, attacker->client->pers.netname);
-			snprintf(message, sizeof(message), "%s ate too much glass", 
+			snprintf(death_msg, sizeof(death_msg), "%s ate too much glass", 
 				self->client->pers.netname);
 			break;
 		case MOD_SUICIDE:
-			snprintf(message, sizeof(message), "%s is done with the world", self->client->pers.netname);
+			snprintf(death_msg, sizeof(death_msg), "%s is done with the world", self->client->pers.netname);
 			break;
 		case MOD_FALLING:
 			if( self->client->push_timeout )
 				snprintf(special_message, sizeof(special_message), "%s was taught how to fly by %s", self->client->pers.netname, attacker->client->pers.netname);
 			//message = "hit the ground hard, real hard";
-			snprintf(message, sizeof(message), "%s plummets to %s death", self->client->pers.netname, GetPossesiveAdjective(self));
+			snprintf(death_msg, sizeof(death_msg), "%s plummets to %s death", self->client->pers.netname, GetPossesiveAdjective(self));
 			break;
 		case MOD_CRUSH:
-			snprintf(message, sizeof(message), "%s was flattened", self->client->pers.netname);
+			snprintf(death_msg, sizeof(death_msg), "%s was flattened", self->client->pers.netname);
 			break;
 		case MOD_WATER:
-			snprintf(message, sizeof(message), "%s sank like a rock", self->client->pers.netname);
+			snprintf(death_msg, sizeof(death_msg), "%s sank like a rock", self->client->pers.netname);
 			break;
 		case MOD_SLIME:
 			if( self->client->push_timeout )
 				snprintf(special_message, sizeof(special_message), "%s melted thanks to %s", self->client->pers.netname, attacker->client->pers.netname);
-			snprintf(message, sizeof(message), "%s melted", self->client->pers.netname);
+			snprintf(death_msg, sizeof(death_msg), "%s melted", self->client->pers.netname);
 			break;
 		case MOD_LAVA:
 			if( self->client->push_timeout )
 				snprintf(special_message, sizeof(special_message), "%s was drop-kicked into the lava by %s", self->client->pers.netname, attacker->client->pers.netname);
-			snprintf(message, sizeof(message), "%s does a back flip into the lava", self->client->pers.netname);
+			snprintf(death_msg, sizeof(death_msg), "%s does a back flip into the lava", self->client->pers.netname);
 			break;
 		case MOD_EXPLOSIVE:
 		case MOD_BARREL:
-			snprintf(message, sizeof(message), "%s blew up", self->client->pers.netname);
+			snprintf(death_msg, sizeof(death_msg), "%s blew up", self->client->pers.netname);
 			break;
 		case MOD_EXIT:
-			snprintf(message, sizeof(message), "%s found a way out", self->client->pers.netname);
+			snprintf(death_msg, sizeof(death_msg), "%s found a way out", self->client->pers.netname);
 			break;
 		case MOD_TARGET_LASER:
-			snprintf(message, sizeof(message), "%s saw the light", self->client->pers.netname);
+			snprintf(death_msg, sizeof(death_msg), "%s saw the light", self->client->pers.netname);
 			break;
 		case MOD_TARGET_BLASTER:
-			snprintf(message, sizeof(message), "%s got blasted", self->client->pers.netname);
+			snprintf(death_msg, sizeof(death_msg), "%s got blasted", self->client->pers.netname);
 			break;
 		case MOD_BOMB:
 		case MOD_SPLASH:
 		case MOD_TRIGGER_HURT:
 			if( self->client->push_timeout )
 				snprintf(special_message, sizeof(special_message), "%s was shoved off the edge by %s", self->client->pers.netname, attacker->client->pers.netname);
-			snprintf(message, sizeof(message), "%s was in the wrong place", self->client->pers.netname);
+			snprintf(death_msg, sizeof(death_msg), "%s was in the wrong place", self->client->pers.netname);
 			break;
 		}
 	}
 
-	if (message)
+	if (death_msg)
 	{
 		// handle falling with an attacker set
 		if (special_message && self->client->attacker && self->client->attacker->client
@@ -608,14 +608,9 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 				Add_Frag(self->client->attacker, MOD_UNKNOWN);
 				Add_Death( self, true );
 			}
-
 		}
 		else
 		{
-			//snprintf( death_msg, sizeof(death_msg), message);
-			//sprintf( death_msg, message );
-
-			death_msg = strdup(message);
 			PrintDeathMessage(death_msg, self );
 
 			if (!teamplay->value || team_round_going || !ff_afterround->value)  {
@@ -643,79 +638,79 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		case MOD_MK23:	// zucc
 			switch (loc) {
 			case LOC_HDAM:
-				snprintf(message, sizeof(message), "%s has a hole in %s head from %s's Mark 23 pistol", 
+				snprintf(death_msg, sizeof(death_msg), "%s has a hole in %s head from %s's Mark 23 pistol", 
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				snprintf(message, sizeof(message), "%s loses a vital chest organ thanks to %s's Mark 23 pistol", 
+				snprintf(death_msg, sizeof(death_msg), "%s loses a vital chest organ thanks to %s's Mark 23 pistol", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(message, sizeof(message), "%s loses %s lunch to %s's .45 caliber pistol round", 
+				snprintf(death_msg, sizeof(death_msg), "%s loses %s lunch to %s's .45 caliber pistol round", 
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(message, sizeof(message), "%s is legless because of %s's .45 caliber pistol round", 
+				snprintf(death_msg, sizeof(death_msg), "%s is legless because of %s's .45 caliber pistol round", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(message, sizeof(message), "%s was shot by %s's Mark 23 pistol", 
+				snprintf(death_msg, sizeof(death_msg), "%s was shot by %s's Mark 23 pistol", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_MP5:
 			switch (loc) {
 			case LOC_HDAM:
-				snprintf(message, sizeof(message), "%s 's brains are on the wall thanks to %s's 10mm MP5/10 round", 
+				snprintf(death_msg, sizeof(death_msg), "%s 's brains are on the wall thanks to %s's 10mm MP5/10 round", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				snprintf(message, sizeof(message), "%s feels some chest pain via %s's MP5/10 Submachinegun", 
+				snprintf(death_msg, sizeof(death_msg), "%s feels some chest pain via %s's MP5/10 Submachinegun", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(message, sizeof(message), "%s needs some Pepto Bismol after %s's 10mm MP5 round", 
+				snprintf(death_msg, sizeof(death_msg), "%s needs some Pepto Bismol after %s's 10mm MP5 round", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(message, sizeof(message), "%s had %s legs blown off thanks to %s's MP5/10 Submachinegun", 
+				snprintf(death_msg, sizeof(death_msg), "%s had %s legs blown off thanks to %s's MP5/10 Submachinegun", 
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(message, sizeof(message), "%s was shot by %s's MP5/10 Submachinegun", 
+				snprintf(death_msg, sizeof(death_msg), "%s was shot by %s's MP5/10 Submachinegun", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_M4:
 			switch (loc) {
 			case LOC_HDAM:
-				snprintf(message, sizeof(message), "%s had a makeover by %s's M4 Assault Rifle", 
+				snprintf(death_msg, sizeof(death_msg), "%s had a makeover by %s's M4 Assault Rifle", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				snprintf(message, sizeof(message), "%s feels some heart burn thanks to %s's M4 Assault Rifle", 
+				snprintf(death_msg, sizeof(death_msg), "%s feels some heart burn thanks to %s's M4 Assault Rifle", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(message, sizeof(message), "%s has an upset stomach thanks to %s's M4 Assault Rifle", 
+				snprintf(death_msg, sizeof(death_msg), "%s has an upset stomach thanks to %s's M4 Assault Rifle", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(message, sizeof(message), "%s is now shorter thanks to %s's M4 Assault Rifle", 
+				snprintf(death_msg, sizeof(death_msg), "%s is now shorter thanks to %s's M4 Assault Rifle", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(message, sizeof(message), "%s was shot by %s's M4 Assault Rifle", 
+				snprintf(death_msg, sizeof(death_msg), "%s was shot by %s's M4 Assault Rifle", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_M3:
 			n = rand() % 2 + 1;
 			if (n == 1) {
-				snprintf(message, sizeof(message), "%s accepts %s's M3 Super 90 Assault Shotgun in hole-y matrimony", 
+				snprintf(death_msg, sizeof(death_msg), "%s accepts %s's M3 Super 90 Assault Shotgun in hole-y matrimony", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			} else {
-				snprintf(message, sizeof(message), "%s is full of buckshot from %s's M3 Super 90 Assault Shotgun", 
+				snprintf(death_msg, sizeof(death_msg), "%s is full of buckshot from %s's M3 Super 90 Assault Shotgun", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
@@ -724,24 +719,24 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			if (n == 1) {
 				if (attacker->client->pers.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
 				{
-					snprintf(message, sizeof(message), "%s underestimated %s's single barreled handcannon shot", 
+					snprintf(death_msg, sizeof(death_msg), "%s underestimated %s's single barreled handcannon shot", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				} else {
-					snprintf(message, sizeof(message), "%s ate %s's sawed-off 12 gauge", 
+					snprintf(death_msg, sizeof(death_msg), "%s ate %s's sawed-off 12 gauge", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				}
 			} else if (n == 2 ){
 				if (attacker->client->pers.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
 				{
-					snprintf(message, sizeof(message), "%s won't be able to pass a metal detector anymore thanks to %s's single barreled handcannon shot", 
+					snprintf(death_msg, sizeof(death_msg), "%s won't be able to pass a metal detector anymore thanks to %s's single barreled handcannon shot", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				} else {
-					snprintf(message, sizeof(message), "%s is full of buckshot from %s's sawed off shotgun", 
+					snprintf(death_msg, sizeof(death_msg), "%s is full of buckshot from %s's sawed off shotgun", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				} 
 			} else {
 				// minch <3
-				snprintf(message, sizeof(message), "%s was minched by %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s was minched by %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
@@ -749,168 +744,167 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			switch (loc) {
 			case LOC_HDAM:
 				if (self->client->ps.fov < 90) {
-					snprintf(message, sizeof(message), "%s saw the sniper bullet go through %s scope thanks to %s", 
+					snprintf(death_msg, sizeof(death_msg), "%s saw the sniper bullet go through %s scope thanks to %s", 
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				} else {
-					snprintf(message, sizeof(message), "%s caught a sniper bullet between the eyes from %s", 
+					snprintf(death_msg, sizeof(death_msg), "%s caught a sniper bullet between the eyes from %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				}
 				break;
 			case LOC_CDAM:
-				snprintf(message, sizeof(message), "%s was picked off by %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s was picked off by %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(message, sizeof(message), "%s was sniped in the stomach by %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s was sniped in the stomach by %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(message, sizeof(message), "%s was shot in the legs by %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s was shot in the legs by %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(message, sizeof(message), "%s was sniped by %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s was sniped by %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_DUAL:
 			switch (loc) {
 			case LOC_HDAM:
-				snprintf(message, sizeof(message), "%s was trepanned by %s's akimbo Mark 23 pistols", 
+				snprintf(death_msg, sizeof(death_msg), "%s was trepanned by %s's akimbo Mark 23 pistols", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				snprintf(message, sizeof(message), "%s was John Woo'd by %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s was John Woo'd by %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(message, sizeof(message), "%s needs some new kidneys thanks to %s's akimbo Mark 23 pistols", 
+				snprintf(death_msg, sizeof(death_msg), "%s needs some new kidneys thanks to %s's akimbo Mark 23 pistols", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(message, sizeof(message), "%s was shot in the legs by %s's akimbo Mark 23 pistols", 
+				snprintf(death_msg, sizeof(death_msg), "%s was shot in the legs by %s's akimbo Mark 23 pistols", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(message, sizeof(message), "%s was shot by %s's pair of Mark 23 Pistols", 
+				snprintf(death_msg, sizeof(death_msg), "%s was shot by %s's pair of Mark 23 Pistols", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_KNIFE:
 			switch (loc) {
 			case LOC_HDAM:
-				snprintf(message, sizeof(message), "%s had %s throat slit by %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s had %s throat slit by %s", 
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				snprintf(message, sizeof(message), "%s had open heart surgery, compliments of %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s had open heart surgery, compliments of %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(message, sizeof(message), "%s was gutted by %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s was gutted by %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(message, sizeof(message), "%s was stabbed repeatedly in the legs by %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s was stabbed repeatedly in the legs by %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(message, sizeof(message), "%s was slashed apart by %s's Combat Knife", 
+				snprintf(death_msg, sizeof(death_msg), "%s was slashed apart by %s's Combat Knife", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_KNIFE_THROWN:
 			switch (loc) {
 				case LOC_HDAM:
-				snprintf(message, sizeof(message), "%s caught %s's flying knife with his forehead %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s caught %s's flying knife with his forehead %s", 
 					self->client->pers.netname, attacker->client->pers.netname, GetPossesiveAdjective(self));
 				break;
 			case LOC_CDAM:
-				snprintf(message, sizeof(message), "%s's ribs don't help against %s's flying knife", 
+				snprintf(death_msg, sizeof(death_msg), "%s's ribs don't help against %s's flying knife", 
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(message, sizeof(message), "%s sees the contents of %s own stomach thanks to %s's flying knife", 
+				snprintf(death_msg, sizeof(death_msg), "%s sees the contents of %s own stomach thanks to %s's flying knife", 
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(message, sizeof(message), "%s had %s legs cut off thanks to %s's flying knife", 
+				snprintf(death_msg, sizeof(death_msg), "%s had %s legs cut off thanks to %s's flying knife", 
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(message, sizeof(message), "%s was hit by %s's flying Combat Knife", 
+				snprintf(death_msg, sizeof(death_msg), "%s was hit by %s's flying Combat Knife", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_KICK:
 			n = rand() % 3 + 1;
 			if (n == 1) {
-				snprintf(message, sizeof(message), "%s got %s ass kicked by %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s got %s ass kicked by %s", 
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 			} else if (n == 2) {
-				snprintf(message, sizeof(message), "%s couldn't remove %s's boot from %s ass", 
+				snprintf(death_msg, sizeof(death_msg), "%s couldn't remove %s's boot from %s ass", 
 					self->client->pers.netname, attacker->client->pers.netname, GetPossesiveAdjective(self));
 			} else {
-				snprintf(message, sizeof(message), "%s had a Bruce Lee put on %s by %s, with a quickness", 
+				snprintf(death_msg, sizeof(death_msg), "%s had a Bruce Lee put on %s by %s, with a quickness", 
 					self->client->pers.netname, GetPossesiveAdjectiveSingular(self), attacker->client->pers.netname);
 			}
 			break;
 		case MOD_PUNCH:
 			n = rand() % 3 + 1;
 			if (n == 1) {
-				snprintf(message, sizeof(message), "%s got a free facelift by %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s got a free facelift by %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			} else if (n == 2) {
-				snprintf(message, sizeof(message), "%s was knocked out by %s", 
+				snprintf(death_msg, sizeof(death_msg), "%s was knocked out by %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			} else {
-				snprintf(message, sizeof(message), "%s caught %s's iron fist", 
+				snprintf(death_msg, sizeof(death_msg), "%s caught %s's iron fist", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_BLASTER:
-			snprintf(message, sizeof(message), "%s was blasted by %s", 
+			snprintf(death_msg, sizeof(death_msg), "%s was blasted by %s", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_GRENADE:
-			snprintf(message, sizeof(message), "%s was popped by %s's grenade", 
+			snprintf(death_msg, sizeof(death_msg), "%s was popped by %s's grenade", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_G_SPLASH:
-			snprintf(message, sizeof(message), "%s was shredded by %s's shrapnel", 
+			snprintf(death_msg, sizeof(death_msg), "%s was shredded by %s's shrapnel", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_HYPERBLASTER:
-			snprintf(message, sizeof(message), "%s was melted by %s's hyperblaster", 
+			snprintf(death_msg, sizeof(death_msg), "%s was melted by %s's hyperblaster", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_HANDGRENADE:
-			snprintf(message, sizeof(message), "%s caught %s's handgrenade", 
+			snprintf(death_msg, sizeof(death_msg), "%s caught %s's handgrenade", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_HG_SPLASH:
-			snprintf(message, sizeof(message), "%s didn't see %s's handgrenade", 
+			snprintf(death_msg, sizeof(death_msg), "%s didn't see %s's handgrenade", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_HELD_GRENADE:
-			snprintf(message, sizeof(message), "%s feels %s's pain", 
+			snprintf(death_msg, sizeof(death_msg), "%s feels %s's pain", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_TELEFRAG:
-			snprintf(message, sizeof(message), "%s tried to invade %s's personal space", 
+			snprintf(death_msg, sizeof(death_msg), "%s tried to invade %s's personal space", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_GRAPPLE:
-			snprintf(message, sizeof(message), "%s was caught by %s's grapple", 
+			snprintf(death_msg, sizeof(death_msg), "%s was caught by %s's grapple", 
 					self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		}	//end of case (mod)
 
-		if (message)
+		if (death_msg)
 		{
 			//sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname, message, attacker->client->pers.netname, message2);
 			//snprintf(death_msg, sizeof(death_msg), message);
-			death_msg = strdup(message);
 			PrintDeathMessage(death_msg, self);
 			AddKilledPlayer(attacker, self);
 
