@@ -3972,6 +3972,27 @@ void PlaceHolder(edict_t* ent)
 	ent->nextthink = level.time + 1_sec;
 }
 
+edict_t *FindSpecWeapSpawn(edict_t* ent)
+{
+	edict_t* spot = NULL;
+
+	//gi.bprintf (PRINT_HIGH, "Calling the FindSpecWeapSpawn\n");
+	spot = G_Find(spot, FOFS(classname), ent->classname);
+	//gi.bprintf (PRINT_HIGH, "spot = %p and spot->think = %p and playerholder = %p, spot, (spot ? spot->think : 0), PlaceHolder\n");
+	while (spot && spot->think != PlaceHolder)	//(spot->spawnflags & DROPPED_ITEM ) && spot->think != PlaceHolder )//spot->solid == SOLID_NOT )        
+	{
+		//              gi.bprintf (PRINT_HIGH, "Calling inside the loop FindSpecWeapSpawn\n");
+		spot = G_Find(spot, FOFS(classname), ent->classname);
+	}
+	return spot;
+}
+
+static void SpawnSpecWeap(gitem_t* item, edict_t* spot)
+{
+	SetRespawn(spot, 1);
+	gi.linkentity(spot);
+}
+
 void ThinkSpecWeap(edict_t* ent)
 {
 	edict_t* spot;
@@ -3983,7 +4004,7 @@ void ThinkSpecWeap(edict_t* ent)
 	}
 	else
 	{
-		ent->nextthink = level.time + 10_msec;
+		ent->nextthink = level.time + 10_ms;
 		ent->think = G_FreeEdict;
 	}
 }
@@ -3993,7 +4014,7 @@ void temp_think_specweap(edict_t* ent)
 	ent->touch = Touch_Item;
 
 	if (allweapon->value) { // allweapon set
-		ent->nextthink = level.time + 10_msec;
+		ent->nextthink = level.time + 10_ms;
 		ent->think = G_FreeEdict;
 		return;
 	}
@@ -4005,7 +4026,7 @@ void temp_think_specweap(edict_t* ent)
 	}
 
 	if (gameSettings & GS_WEAPONCHOOSE) {
-		ent->nextthink = level.time + 60_msec;
+		ent->nextthink = level.time + 60_ms;
 		ent->think = ThinkSpecWeap;
 	}
 	// else if (DMFLAGS(DF_WEAPON_RESPAWN)) {
