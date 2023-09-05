@@ -310,169 +310,6 @@ int newrand (int top)
 	return (int) (random () * top);
 }
 
-void SelectRandomWeapon(edict_t *ent, pmenu_t *p)
-{
-	menu_list_weapon weapon_list[7] = {
-		{ .num = IT_WEAPON_MP5, .sound = "weapons/mp5slide.wav", .name = MP5_NAME },
-		{ .num = IT_WEAPON_M3, .sound = "weapons/m3in.wav", .name = M3_NAME },
-		{ .num = IT_WEAPON_HANDCANNON, .sound = "weapons/cclose.wav", .name = HC_NAME },
-		{ .num = IT_WEAPON_SNIPER, .sound = "weapons/ssgbolt.wav", .name = SNIPER_NAME },
-		{ .num = IT_WEAPON_M4, .sound = "weapons/m4a1slide.wav", .name = M4_NAME },
-		{ .num = IT_WEAPON_KNIFE, .sound = "weapons/swish.wav", .name = KNIFE_NAME },
-		{ .num = IT_WEAPON_DUALMK23, .sound = "weapons/mk23slide.wav", .name = DUAL_NAME }
-	};
-
-	int rand = newrand(7);
-	menu_list_weapon selected_weapon = weapon_list[rand];
-	// prevent picking current weapon
-	if (ent->client->pers.chosenWeapon) {
-		while (selected_weapon.num == ent->client->pers.chosenWeapon->typeNum)
-		{
-			rand = newrand(7);
-			selected_weapon = weapon_list[rand];
-		}
-	}
-	
-	ent->client->pers.chosenWeapon = GetItemByIndex(selected_weapon.num);
-	unicastSound(ent, gi.soundindex(selected_weapon.sound), 1.0);
-	gi.LocCenter_Print(ent, "You selected %s", selected_weapon.name);
-	PMenu_Close(ent);
-	OpenItemMenu(ent);
-}
-
-void SelectRandomItem(edict_t *ent, pmenu_t *p)
-{
-	int selected_weapon = ent->client->pers.chosenWeapon->typeNum;
-
-	// Create array with limited items on certain weapons to not have silly kombos
-	menu_list_item item_list[6] = {
-		{ .num = IT_ITEM_VEST, .sound = "misc/veston.wav", .name = KEV_NAME },
-		{ .num = IT_ITEM_SLIPPERS, .sound = "misc/veston.wav", .name = SLIP_NAME },
-		{ .num = IT_ITEM_BANDOLIER, .sound = "misc/veston.wav", .name = BAND_NAME },
-		{ .num = IT_ITEM_HELM, .sound = "misc/veston.wav", .name = HELM_NAME },
-    };
-	int listCount = 4;
-
-	menu_list_item item_sil = { .num = IT_ITEM_SLIPPERS, .sound = "misc/screw.wav", .name = SIL_NAME };
-	menu_list_item item_las = { .num = IT_ITEM_LASERSIGHT, .sound = "misc/lasersight.wav", .name = LASER_NAME };
-
-	if (selected_weapon == IT_WEAPON_SNIPER)
-	{
-		item_list[4] = item_sil;
-		listCount = 5;
-	}
-	if (selected_weapon == IT_WEAPON_M4)
-	{
-		item_list[4] = item_las;
-		listCount = 5;
-	}
-	if (selected_weapon == IT_WEAPON_MP5)
-	{
-		item_list[4] = item_sil;
-		item_list[5] = item_las;
-		listCount = 6;
-	}
-
-	int rand = newrand(listCount);
-	menu_list_item selected_item = item_list[rand];
-
-	if (ent->client->pers.chosenItem) {
-		while (selected_item.num == ent->client->pers.chosenItem->typeNum && selected_item.num < IT_ITEM_SLIPPERS)
-		{
-			rand = newrand(listCount);
-			selected_item = item_list[rand];
-		}
-	} else {
-		while (selected_item.num < IT_ITEM_SLIPPERS)
-		{
-			rand = newrand(listCount);
-			selected_item = item_list[rand];
-		}
-	}
-
-	ent->client->pers.chosenItem = GetItemByIndex(selected_item.num);
-	unicastSound(ent, gi.soundindex(selected_item.sound), 1.0);
-	gi.LocCenter_Print(ent, "You selected %s", selected_item.name);
-	PMenu_Close(ent);
-}
-
-void SelectRandomWeaponAndItem(edict_t *ent, pmenu_t *p)
-{
-	// WEAPON
-	menu_list_weapon weapon_list[7] = {
-		{ .num = IT_WEAPON_MP5, .sound = "weapons/mp5slide.wav", .name = MP5_NAME },
-		{ .num = IT_WEAPON_M3, .sound = "weapons/m3in.wav", .name = M3_NAME },
-		{ .num = IT_WEAPON_HANDCANNON, .sound = "weapons/cclose.wav", .name = HC_NAME },
-		{ .num = IT_WEAPON_SNIPER, .sound = "weapons/ssgbolt.wav", .name = SNIPER_NAME },
-		{ .num = IT_WEAPON_M4, .sound = "weapons/m4a1slide.wav", .name = M4_NAME },
-		{ .num = IT_WEAPON_KNIFE, .sound = "weapons/swish.wav", .name = KNIFE_NAME },
-		{ .num = IT_WEAPON_DUALMK23, .sound = "weapons/mk23slide.wav", .name = DUAL_NAME }
-	};
-
-	int rand = newrand(7);
-	menu_list_weapon selected_weapon = weapon_list[rand];
-	// prevent picking current weapon
-	if (ent->client->pers.chosenWeapon) {
-		while (selected_weapon.num == ent->client->pers.chosenWeapon->typeNum)
-		{
-			rand = newrand(7);
-			selected_weapon = weapon_list[rand];
-		}
-	}
-	
-	ent->client->pers.chosenWeapon = GetItemByIndex(selected_weapon.num);
-	unicastSound(ent, gi.soundindex(selected_weapon.sound), 1.0);
-
-	// ITEM
-	// Create array with limited items on certain weapons to not have silly kombos
-	menu_list_item item_list[6] = {
-		{ .num = IT_ITEM_VEST, .sound = "misc/veston.wav", .name = KEV_NAME },
-		{ .num = IT_ITEM_SLIPPERS, .sound = "misc/veston.wav", .name = SLIP_NAME },
-		{ .num = IT_ITEM_BANDOLIER, .sound = "misc/veston.wav", .name = BAND_NAME },
-		{ .num = IT_ITEM_HELM, .sound = "misc/veston.wav", .name = HELM_NAME },
-	};
-	int listCount = 4;
-
-	menu_list_item item_sil = { .num = IT_ITEM_SLIPPERS, .sound = "misc/screw.wav", .name = SIL_NAME };
-	menu_list_item item_las = { .num = IT_ITEM_LASERSIGHT, .sound = "misc/lasersight.wav", .name = LASER_NAME };
-
-	if (selected_weapon.num == IT_WEAPON_SNIPER)
-	{
-		item_list[4] = item_sil;
-		listCount = 5;
-	}
-	if (selected_weapon.num == IT_WEAPON_M4)
-	{
-		item_list[4] = item_las;
-		listCount = 5;
-	}
-	if (selected_weapon.num == IT_WEAPON_MP5)
-	{
-		item_list[4] = item_sil;
-		item_list[5] = item_las;
-		listCount = 6;
-	}
-
-	rand = newrand(listCount);
-	menu_list_item selected_item = item_list[rand];
-
-	if (ent->client->pers.chosenItem) {
-		while (selected_item.num == ent->client->pers.chosenItem->typeNum)
-		{
-			rand = newrand(listCount);
-			selected_item = item_list[rand];
-		}
-	}
-
-	for (int i = 0; i < listCount; i++) {
-		gi.cprintf(ent, PRINT_HIGH, "%i %s\n", item_list[i].num, item_list[i].name);
-	}
-
-	ent->client->pers.chosenItem = GetItemByIndex(selected_item.num);
-	unicastSound(ent, gi.soundindex(selected_item.sound), 1.0);
-	gi.LocCenter_Print(ent, "You selected %s and %s", selected_weapon.name, selected_item.name);
-	PMenu_Close(ent);
-}
 
 void CreditsReturnToMain (edict_t * ent, pmenu_t * p)
 {
@@ -483,7 +320,7 @@ void CreditsReturnToMain (edict_t * ent, pmenu_t * p)
 }
 
 //PG BUND BEGIN
-void DoAGoodie (edict_t * ent, pmenu_t * p)
+void DoAGoodie (edict_t * ent, pmenuhnd_t * p)
 {
   //PG BUND
 	unicastSound(ent, gi.soundindex("boss3/bs3idle1.wav"), 1.0);
@@ -522,32 +359,32 @@ void QuakeNigguhz (edict_t * ent, pmenu_t * p)
 
 // AQ2:TNG Deathwatch - Editing all menus to show the correct credits, version, names, locations, urls, etc
 pmenu_t creditsmenu[] = {
-  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL, NULL},
-  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL, NULL},
-  {"*Design Team", PMENU_ALIGN_LEFT, NULL, NULL},
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Deathwatch", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
-	{"Elviz", PMENU_ALIGN_LEFT, NULL, DoAGoodie},
-	{"Freud [QNI]", PMENU_ALIGN_LEFT, NULL, QuakeNigguhz},
-  {"Igor[Rock]", PMENU_ALIGN_LEFT, NULL, RockClan},
-  {"JBravo[QNI]", PMENU_ALIGN_LEFT, NULL, QuakeNigguhz},
-  {"sLiCeR [dW]", PMENU_ALIGN_LEFT, NULL, SlicersCat},
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"*Credits", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"(in no particular order)", PMENU_ALIGN_LEFT, NULL, NULL},
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Clan Rock, dW, QNI & DP,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Kobra, Zarjazz,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Killerbee, Rookie[Rock],", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"PG Bund[Rock], Mort,", PMENU_ALIGN_LEFT, NULL, NULL},
-  {"ICE-M, Palmtree,", PMENU_ALIGN_LEFT, NULL, NULL},
-	{"Tempfile, Blackmonk,", PMENU_ALIGN_LEFT, NULL, NULL},
-	{"Dome, Papst, Apr/ Maniac", PMENU_ALIGN_LEFT, NULL, NULL},
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Return to main menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
-  {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
-  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL, NULL},
+  {"*" TNG_TITLE, PMENU_ALIGN_CENTER, NULL},
+  {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, NULL},
+  {"*Design Team", PMENU_ALIGN_LEFT, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL},
+  {"Deathwatch", PMENU_ALIGN_LEFT, DoAGoodie},
+	{"Elviz", PMENU_ALIGN_LEFT, DoAGoodie},
+	{"Freud [QNI]", PMENU_ALIGN_LEFT, QuakeNigguhz},
+  {"Igor[Rock]", PMENU_ALIGN_LEFT, RockClan},
+  {"JBravo[QNI]", PMENU_ALIGN_LEFT, QuakeNigguhz},
+  {"sLiCeR [dW]", PMENU_ALIGN_LEFT, SlicersCat},
+  {NULL, PMENU_ALIGN_LEFT, NULL},
+  {"*Credits", PMENU_ALIGN_LEFT, NULL},
+  {"(in no particular order)", PMENU_ALIGN_LEFT, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL},
+  {"Clan Rock, dW, QNI & DP,", PMENU_ALIGN_LEFT, NULL},
+  {"Kobra, Zarjazz,", PMENU_ALIGN_LEFT, NULL},
+  {"Killerbee, Rookie[Rock],", PMENU_ALIGN_LEFT, NULL},
+  {"PG Bund[Rock], Mort,", PMENU_ALIGN_LEFT, NULL},
+  {"ICE-M, Palmtree,", PMENU_ALIGN_LEFT, NULL},
+	{"Tempfile, Blackmonk,", PMENU_ALIGN_LEFT, NULL},
+	{"Dome, Papst, Apr/ Maniac", PMENU_ALIGN_LEFT, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL},
+  {"Return to main menu", PMENU_ALIGN_LEFT, CreditsReturnToMain},
+  {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL},
+  {NULL, PMENU_ALIGN_LEFT, NULL},
+  {"v" VERSION, PMENU_ALIGN_RIGHT, NULL},
 //PG BUND END
 };
 
@@ -565,8 +402,6 @@ pmenu_t weapmenu[] = {
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Combat Knives", SelectWeapon0
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},	// "Akimbo Pistols", SelectWeapon9
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {"Random Weapon", PMENU_ALIGN_LEFT, NULL, SelectRandomWeapon},
-  {"Random Weapon and Item", PMENU_ALIGN_LEFT, NULL, SelectRandomWeaponAndItem},
   //AQ2:TNG End adding wp_flags
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG - Slicer: changing this
@@ -936,12 +771,6 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	if (oldTeam == desired_team || ent->client->pers.mvdspec)
 		return;
 
-#ifndef NO_BOTS
-	// Bots are always allowed to join their selected team.
-	if( ent->is_bot )
-		;
-	else
-#endif
 	if (matchmode->value)
 	{
 		if (mm_allowlock->value && teams[desired_team].locked) {
@@ -1016,11 +845,6 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	//AQ2:TNG END
 	if (!skip_menuclose && (gameSettings & GS_WEAPONCHOOSE) && !use_randoms->value)
 		OpenWeaponMenu(ent);
-
-	if (use_randoms->value)
-	{
-		SelectRandomWeaponAndItem(ent, weapmenu);
-	}
 
 	teams_changed = true;
 }
@@ -1672,18 +1496,6 @@ static void SpawnPlayers(void)
 			ent->client->pers.chosenItem = GetItemByIndex(IT_ITEM_VEST);
 		}
 
-		// Random weapons and items mode.
-		// Force random weapon and item on spawn.
-		if (use_randoms->value)
-		{
-			SelectRandomWeaponAndItem(ent, weapmenu);
-		}
-
-#ifndef NO_BOTS
-		if( !Q_stricmp( ent->classname, "bot" ) )
-			ACESP_PutClientInServer( ent, true, ent->client->resp.team );
-		else
-#endif
 		PutClientInServer(ent);
 		AddToTransparentList(ent);
 	}
@@ -3059,11 +2871,6 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 				}
 				else if( field == 'P' )
 				{
-#ifndef NO_BOTS
-					if( cl_ent->is_bot )
-						strcpy( buf, " BOT" );
-					else
-#endif
 						snprintf( buf, sizeof(buf), "%4i", min( 9999, cl->ping ) );
 				}
 				else if( field == 'C' ) snprintf( buf, sizeof(buf), "%4i", min( 9999, cl->resp.ctf_caps ) );

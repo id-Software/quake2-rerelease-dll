@@ -1954,7 +1954,7 @@ extern gitem_t itemlist[IT_TOTAL];
 #define CROUCHING_VIEWHEIGHT		8
 #define STANDING_VIEWHEIGHT			22
 
-int32_t gameSettings;  // Round based, deathmatch, etc?
+extern int gameSettings;  // Round based, deathmatch, etc?
 
 extern cvar_t *allitem;
 extern cvar_t *allweapon;
