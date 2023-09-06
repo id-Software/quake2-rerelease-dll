@@ -783,9 +783,9 @@ void G_SetStats(edict_t *ent)
 	//
 	// armor
 	//
-	power_armor_type = PowerArmorType(ent);
-	if (power_armor_type)
-		cells = ent->client->pers.inventory[IT_AMMO_CELLS];
+	// power_armor_type = PowerArmorType(ent);
+	// if (power_armor_type)
+	// 	cells = ent->client->pers.inventory[IT_AMMO_CELLS];
 
 	//index = ArmorIndex(ent);
 	// if (power_armor_type && (!index || (level.time.milliseconds() % 3000) < 1500))

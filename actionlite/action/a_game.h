@@ -37,7 +37,6 @@ void GetNearbyTeammates (edict_t * self, char *buf);
 
 void ResetScores (bool playerScores);
 void AddKilledPlayer (edict_t * self, edict_t * ent);
-void VideoCheckClient (edict_t * ent);
 //AQ2:TNG END
 //TempFile
 void GetLastLoss (edict_t * self, char *buf, char team);

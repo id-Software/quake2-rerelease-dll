@@ -1614,8 +1614,8 @@ void ai_run(edict_t *self, float dist)
         {
             // check for hint_paths.
             self->monsterinfo.last_hint_time = level.time;
-            if (monsterlost_checkhint(self))
-                return;
+            // if (monsterlost_checkhint(self))
+            //     return;
         }
     }
     // PGM

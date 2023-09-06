@@ -279,10 +279,10 @@ Must NOT be on the team with the rest of the turret parts.
 Instead it must target the turret_breach.
 */
 
-void infantry_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t &point, const mod_t &mod);
-void infantry_stand(edict_t *self);
-void infantry_pain(edict_t *self, edict_t *other, float kick, int damage, const mod_t &mod);
-void infantry_setskin(edict_t *self);
+// void infantry_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t &point, const mod_t &mod);
+// void infantry_stand(edict_t *self);
+// void infantry_pain(edict_t *self, edict_t *other, float kick, int damage, const mod_t &mod);
+// void infantry_setskin(edict_t *self);
 
 DIE(turret_driver_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t &point, const mod_t &mod) -> void
 {
@@ -312,7 +312,7 @@ DIE(turret_driver_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, in
 		self->think = monster_think;
 	}
 
-	infantry_die(self, inflictor, attacker, damage, point, mod);
+	//infantry_die(self, inflictor, attacker, damage, point, mod);
 
 	G_FixStuckObject(self, self->s.origin);
 	AngleVectors(self->s.angles, self->velocity, nullptr, nullptr);
@@ -431,9 +431,9 @@ void SP_turret_driver(edict_t *self)
 	self->mass = 200;
 	self->viewheight = 24;
 
-	self->pain = infantry_pain;
+	//self->pain = infantry_pain;
 	self->die = turret_driver_die;
-	self->monsterinfo.stand = infantry_stand;
+	//self->monsterinfo.stand = infantry_stand;
 
 	self->flags |= FL_NO_KNOCKBACK;
 
@@ -447,7 +447,7 @@ void SP_turret_driver(edict_t *self)
 	self->clipmask = MASK_MONSTERSOLID;
 	self->s.old_origin = self->s.origin;
 	self->monsterinfo.aiflags |= AI_STAND_GROUND;
-	self->monsterinfo.setskin = infantry_setskin;
+	//self->monsterinfo.setskin = infantry_setskin;
 
 	if (st.item)
 	{

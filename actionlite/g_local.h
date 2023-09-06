@@ -11,6 +11,7 @@
 #include "action/a_game.h"
 #include "action/cgf_sfx_glass.h"
 #include "action/a_radio.h"
+#include "action/a_xgame.h"
 
 // the "gameversion" client command will print this plus compile date
 constexpr const char *GAMEVERSION = "action";
@@ -2149,7 +2150,7 @@ void	  ChangeWeapon(edict_t *ent);
 void	  SpawnItem(edict_t *ent, gitem_t *item);
 void	  Think_Weapon(edict_t *ent);
 item_id_t ArmorIndex(edict_t *ent);
-item_id_t PowerArmorType(edict_t *ent);
+//item_id_t PowerArmorType(edict_t *ent);
 gitem_t	*GetItemByIndex(item_id_t index);
 gitem_t *GetItemByAmmo(ammo_t ammo);
 gitem_t *GetItemByPowerup(powerup_t powerup);
@@ -2704,7 +2705,7 @@ enum class blocked_jump_result_t
 };
 
 blocked_jump_result_t blocked_checkjump(edict_t *self, float dist);
-bool	 monsterlost_checkhint(edict_t *self);
+//bool	 monsterlost_checkhint(edict_t *self);
 bool	 inback(edict_t *self, edict_t *other);
 float	 realrange(edict_t *self, edict_t *other);
 edict_t *SpawnBadArea(const vec3_t &mins, const vec3_t &maxs, gtime_t lifespan, edict_t *owner);
