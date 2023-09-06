@@ -2127,8 +2127,8 @@ struct gunStats_t
 	int damage;		//Damage dealt
 };
 
-// C++ External symbol linker fixes
-extern bool team_round_going;
+// C++ External symbol linker fixes?
+bool team_round_going = false;	// is an actual round of a team game going right now?
 
 //======================================================================
 // Action Add End
