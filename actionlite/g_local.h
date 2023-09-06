@@ -2127,6 +2127,9 @@ struct gunStats_t
 	int damage;		//Damage dealt
 };
 
+// C++ External symbol linker fixes
+extern bool team_round_going;
+
 //======================================================================
 // Action Add End
 //======================================================================
