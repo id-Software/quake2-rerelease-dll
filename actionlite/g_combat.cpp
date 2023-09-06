@@ -242,56 +242,56 @@ dflags		these flags are used to control how T_Damage works
 // 	return save;
 // }
 
-static int CheckArmor(edict_t *ent, const vec3_t &point, const vec3_t &normal, int damage, int te_sparks,
-					  damageflags_t dflags)
-{
-	gclient_t *client;
-	int		   save;
-	item_id_t  index;
-	gitem_t	*armor;
-	int *power;
+// static int CheckArmor(edict_t *ent, const vec3_t &point, const vec3_t &normal, int damage, int te_sparks,
+// 					  damageflags_t dflags)
+// {
+// 	gclient_t *client;
+// 	int		   save;
+// 	item_id_t  index;
+// 	gitem_t	*armor;
+// 	int *power;
 
-	if (!damage)
-		return 0;
+// 	if (!damage)
+// 		return 0;
 
-	// ROGUE
-	if (dflags & (DAMAGE_NO_ARMOR | DAMAGE_NO_REG_ARMOR))
-		// ROGUE
-		return 0;
+// 	// ROGUE
+// 	if (dflags & (DAMAGE_NO_ARMOR | DAMAGE_NO_REG_ARMOR))
+// 		// ROGUE
+// 		return 0;
 
-	client = ent->client;
-	// index = ArmorIndex(ent);
+// 	client = ent->client;
+// 	// index = ArmorIndex(ent);
 
-	// if (!index)
-	// 	return 0;
+// 	// if (!index)
+// 	// 	return 0;
 
-	// armor = GetItemByIndex(index);
+// 	// armor = GetItemByIndex(index);
 
-	if (dflags & DAMAGE_ENERGY)
-		save = (int) ceilf(armor->armor_info->energy_protection * damage);
-	else
-		save = (int) ceilf(armor->armor_info->normal_protection * damage);
+// 	if (dflags & DAMAGE_ENERGY)
+// 		save = (int) ceilf(armor->armor_info->energy_protection * damage);
+// 	else
+// 		save = (int) ceilf(armor->armor_info->normal_protection * damage);
 
-	if (client)
-		power = &client->pers.inventory[index];
-	else
-		power = &ent->monsterinfo.armor_power;
+// 	if (client)
+// 		power = &client->pers.inventory[index];
+// 	else
+// 		power = &ent->monsterinfo.armor_power;
 
-	if (save >= *power)
-		save = *power;
+// 	if (save >= *power)
+// 		save = *power;
 
-	if (!save)
-		return 0;
+// 	if (!save)
+// 		return 0;
 
-	*power -= save;
+// 	*power -= save;
 
-	if (!client && !ent->monsterinfo.armor_power)
-		ent->monsterinfo.armor_type = IT_NULL;
+// 	if (!client && !ent->monsterinfo.armor_power)
+// 		ent->monsterinfo.armor_type = IT_NULL;
 
-	SpawnDamage(te_sparks, point, normal, save);
+// 	SpawnDamage(te_sparks, point, normal, save);
 
-	return save;
-}
+// 	return save;
+// }
 
 void M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 {
@@ -655,15 +655,15 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	{
 		psave = asave = 0;
 	}
-	else
-	{
+	//else
+	//{
 		// ZOID
 		// psave = CheckPowerArmor(targ, point, normal, take, dflags);
 		// take -= psave;
 
-		asave = CheckArmor(targ, point, normal, take, te_sparks, dflags);
-		take -= asave;
-	}
+		//asave = CheckArmor(targ, point, normal, take, te_sparks, dflags);
+		//take -= asave;
+	//}
 
 	// treat cheat/powerup savings the same as armor
 	asave += save;
