@@ -980,7 +980,7 @@ void Weapon_Repeating(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST
 
 void DropSpecialWeapon(edict_t* ent)
 {
-	int itemNum = ent->client->pers.weapon->id ? : 0;
+	int itemNum = ent->client->pers.weapon->id;
 
 	// first check if their current weapon is a special weapon, if so, drop it.
 	if (itemNum >= MP5_NUM && itemNum <= SNIPER_NUM)
