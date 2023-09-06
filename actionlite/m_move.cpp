@@ -785,7 +785,7 @@ bool SV_movestep(edict_t *ent, vec3_t move, bool relink)
 				{
 					if ((!(ent->enemy)) || (!(ent->enemy->inuse)))
 					{
-						TargetTesla(ent, new_bad->owner);
+						//TargetTesla(ent, new_bad->owner);
 						ent->monsterinfo.aiflags |= AI_BLOCKED;
 					}
 					else if (!strcmp(ent->enemy->classname, "tesla_mine"))
@@ -795,13 +795,13 @@ bool SV_movestep(edict_t *ent, vec3_t move, bool relink)
 					{
 						if (!visible(ent, ent->enemy))
 						{
-							TargetTesla(ent, new_bad->owner);
+							//TargetTesla(ent, new_bad->owner);
 							ent->monsterinfo.aiflags |= AI_BLOCKED;
 						}
 					}
 					else
 					{
-						TargetTesla(ent, new_bad->owner);
+						//TargetTesla(ent, new_bad->owner);
 						ent->monsterinfo.aiflags |= AI_BLOCKED;
 					}
 				}

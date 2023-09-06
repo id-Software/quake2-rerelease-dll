@@ -93,7 +93,7 @@ bool blocked_checkplat(edict_t *self, float dist)
 
 inline void monster_jump_start(edict_t *self)
 {
-	monster_done_dodge(self);
+	//monster_done_dodge(self);
 
 	self->monsterinfo.jump_time = level.time + 3_sec;
 }
@@ -1400,7 +1400,7 @@ MONSTERINFO_DODGE(M_MonsterDodge) (edict_t *self, edict_t *attacker, gtime_t eta
 		if (self->monsterinfo.next_duck_time > level.time)
 			return;
 
-		monster_done_dodge(self);
+		//monster_done_dodge(self);
 
 		if (self->monsterinfo.duck(self, eta))
 		{

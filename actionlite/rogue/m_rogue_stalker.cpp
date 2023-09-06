@@ -716,7 +716,7 @@ mframe_t stalker_frames_dodge_run[] = {
 	{ ai_run, 13 },
 	{ ai_run, 17 },
 	{ ai_run, 21 },
-	{ ai_run, 18, monster_done_dodge }
+	{ ai_run, 18 }
 };
 MMOVE_T(stalker_move_dodge_run) = { FRAME_run01, FRAME_run04, stalker_frames_dodge_run, nullptr };
 #endif

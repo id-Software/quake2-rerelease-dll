@@ -23,7 +23,7 @@ solid_edge items only clip against bsp models.
 
 */
 
-void SV_Physics_NewToss(edict_t *ent); // PGM
+//void SV_Physics_NewToss(edict_t *ent); // PGM
 
 // [Paril-KEX] fetch the clipmask for this entity; certain modifiers
 // affect the clipping behavior of objects.
@@ -994,9 +994,9 @@ void G_RunEntity(edict_t *ent)
 		SV_Physics_Toss(ent);
 		break;
 	// ROGUE
-	case MOVETYPE_NEWTOSS:
-		SV_Physics_NewToss(ent);
-		break;
+	// case MOVETYPE_NEWTOSS:
+	// 	SV_Physics_NewToss(ent);
+	// 	break;
 	// ROGUE
 	default:
 		gi.Com_ErrorFmt("SV_Physics: bad movetype {}", (int32_t) ent->movetype);

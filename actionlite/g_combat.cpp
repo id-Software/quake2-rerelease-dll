@@ -89,10 +89,10 @@ void Killed(edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, co
 	// [Paril-KEX]
 	if ((targ->svflags & SVF_MONSTER) && targ->monsterinfo.aiflags & AI_MEDIC)
 	{
-		if (targ->enemy && targ->enemy->inuse && (targ->enemy->svflags & SVF_MONSTER)) // god, I hope so
-		{
-			cleanupHealTarget(targ->enemy);
-		}
+		// if (targ->enemy && targ->enemy->inuse && (targ->enemy->svflags & SVF_MONSTER)) // god, I hope so
+		// {
+		// 	cleanupHealTarget(targ->enemy);
+		// }
 
 		// clean up self
 		targ->monsterinfo.aiflags &= ~AI_MEDIC;
@@ -306,13 +306,13 @@ void M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 	// logic for tesla - if you are hit by a tesla, and can't see who you should be mad at (attacker)
 	// attack the tesla
 	// also, target the tesla if it's a "new" tesla
-	if ((inflictor) && (!strcmp(inflictor->classname, "tesla_mine")))
-	{
-		new_tesla = MarkTeslaArea(targ, inflictor);
-		if ((new_tesla || brandom()) && (!targ->enemy || !targ->enemy->classname || strcmp(targ->enemy->classname, "tesla_mine")))
-			TargetTesla(targ, inflictor);
-		return;
-	}
+	// if ((inflictor) && (!strcmp(inflictor->classname, "tesla_mine")))
+	// {
+	// 	new_tesla = MarkTeslaArea(targ, inflictor);
+	// 	if ((new_tesla || brandom()) && (!targ->enemy || !targ->enemy->classname || strcmp(targ->enemy->classname, "tesla_mine")))
+	// 		TargetTesla(targ, inflictor);
+	// 	return;
+	// }
 	// ROGUE
 	//=======
 
@@ -363,7 +363,7 @@ void M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 			return;
 
 		// remove the medic flag
-		cleanupHealTarget(targ->enemy);
+		//cleanupHealTarget(targ->enemy);
 		targ->monsterinfo.aiflags &= ~AI_MEDIC;
 	}
 	// PMM
@@ -393,10 +393,10 @@ void M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 			// [Paril-KEX]
 			if ((targ->svflags & SVF_MONSTER) && targ->monsterinfo.aiflags & AI_MEDIC)
 			{
-				if (targ->enemy && targ->enemy->inuse && (targ->enemy->svflags & SVF_MONSTER)) // god, I hope so
-				{
-					cleanupHealTarget(targ->enemy);
-				}
+				// if (targ->enemy && targ->enemy->inuse && (targ->enemy->svflags & SVF_MONSTER)) // god, I hope so
+				// {
+				// 	//cleanupHealTarget(targ->enemy);
+				// }
 
 				// clean up self
 				targ->monsterinfo.aiflags &= ~AI_MEDIC;
@@ -421,10 +421,10 @@ void M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 			// [Paril-KEX]
 			if ((targ->svflags & SVF_MONSTER) && targ->monsterinfo.aiflags & AI_MEDIC)
 			{
-				if (targ->enemy && targ->enemy->inuse && (targ->enemy->svflags & SVF_MONSTER)) // god, I hope so
-				{
-					cleanupHealTarget(targ->enemy);
-				}
+				// if (targ->enemy && targ->enemy->inuse && (targ->enemy->svflags & SVF_MONSTER)) // god, I hope so
+				// {
+				// 	cleanupHealTarget(targ->enemy);
+				// }
 
 				// clean up self
 				targ->monsterinfo.aiflags &= ~AI_MEDIC;
@@ -445,10 +445,10 @@ void M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 			// [Paril-KEX]
 			if ((targ->svflags & SVF_MONSTER) && targ->monsterinfo.aiflags & AI_MEDIC)
 			{
-				if (targ->enemy && targ->enemy->inuse && (targ->enemy->svflags & SVF_MONSTER)) // god, I hope so
-				{
-					cleanupHealTarget(targ->enemy);
-				}
+				// if (targ->enemy && targ->enemy->inuse && (targ->enemy->svflags & SVF_MONSTER)) // god, I hope so
+				// {
+				// 	cleanupHealTarget(targ->enemy);
+				// }
 
 				// clean up self
 				targ->monsterinfo.aiflags &= ~AI_MEDIC;

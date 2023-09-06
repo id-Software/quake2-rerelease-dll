@@ -434,7 +434,7 @@ MOVEINFO_ENDFUNC(plat_hit_bottom) (edict_t *ent) -> void
 	ent->moveinfo.state = STATE_BOTTOM;
 
 	// ROGUE
-	plat2_kill_danger_area(ent);
+	//plat2_kill_danger_area(ent);
 	// ROGUE
 }
 
@@ -466,7 +466,7 @@ void plat_go_up(edict_t *ent)
 	Move_Calc(ent, ent->moveinfo.start_origin, plat_hit_top);
 
 	// ROGUE
-	plat2_spawn_danger_area(ent);
+	//plat2_spawn_danger_area(ent);
 	// ROGUE
 }
 

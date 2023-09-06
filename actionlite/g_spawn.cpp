@@ -165,34 +165,34 @@ void SP_monster_medic(edict_t *self);
 // void SP_monster_chick_heat(edict_t *self);
 // void SP_monster_gladb(edict_t *self);
 // void SP_monster_boss5(edict_t *self);
-void SP_rotating_light(edict_t *self);
-void SP_object_repair(edict_t *self);
-void SP_misc_crashviper(edict_t *ent);
-void SP_misc_viper_missile(edict_t *self);
-void SP_misc_amb4(edict_t *ent);
-void SP_target_mal_laser(edict_t *ent);
-void SP_misc_transport(edict_t *ent);
+// void SP_rotating_light(edict_t *self);
+// void SP_object_repair(edict_t *self);
+// void SP_misc_crashviper(edict_t *ent);
+// void SP_misc_viper_missile(edict_t *self);
+// void SP_misc_amb4(edict_t *ent);
+// void SP_target_mal_laser(edict_t *ent);
+// void SP_misc_transport(edict_t *ent);
 // END 14-APR-98
 
 void SP_misc_nuke(edict_t *ent);
 
 //===========
 // ROGUE
-void SP_func_plat2(edict_t *ent);
-void SP_func_door_secret2(edict_t *ent);
-void SP_func_force_wall(edict_t *ent);
-void SP_info_player_coop_lava(edict_t *self);
-void SP_info_teleport_destination(edict_t *self);
-void SP_trigger_teleport(edict_t *self);
-void SP_trigger_disguise(edict_t *self);
+// void SP_func_plat2(edict_t *ent);
+// void SP_func_door_secret2(edict_t *ent);
+// void SP_func_force_wall(edict_t *ent);
+// void SP_info_player_coop_lava(edict_t *self);
+// void SP_info_teleport_destination(edict_t *self);
+// void SP_trigger_teleport(edict_t *self);
+// void SP_trigger_disguise(edict_t *self);
 // void SP_monster_stalker(edict_t *self);
 // void SP_monster_turret(edict_t *self);
-void SP_target_steam(edict_t *self);
-void SP_target_anger(edict_t *self);
-void SP_target_killplayers(edict_t *self);
+// void SP_target_steam(edict_t *self);
+// void SP_target_anger(edict_t *self);
+// void SP_target_killplayers(edict_t *self);
 // PMM - still experimental!
-void SP_target_blacklight(edict_t *self);
-void SP_target_orb(edict_t *self);
+// void SP_target_blacklight(edict_t *self);
+// void SP_target_orb(edict_t *self);
 // pmm
 void SP_hint_path(edict_t *self);
 // void SP_monster_carrier(edict_t *self);
@@ -370,14 +370,14 @@ static const std::initializer_list<spawn_t> spawns = {
 	//{ "turret_driver", SP_turret_driver },
 
 	// RAFAEL
-	{ "func_object_repair", SP_object_repair },
-	{ "rotating_light", SP_rotating_light },
-	{ "target_mal_laser", SP_target_mal_laser },
-	{ "misc_crashviper", SP_misc_crashviper },
-	{ "misc_viper_missile", SP_misc_viper_missile },
-	{ "misc_amb4", SP_misc_amb4 },
-	{ "misc_transport", SP_misc_transport },
-	{ "misc_nuke", SP_misc_nuke },
+	// { "func_object_repair", SP_object_repair },
+	// { "rotating_light", SP_rotating_light },
+	// { "target_mal_laser", SP_target_mal_laser },
+	// { "misc_crashviper", SP_misc_crashviper },
+	// { "misc_viper_missile", SP_misc_viper_missile },
+	// { "misc_amb4", SP_misc_amb4 },
+	// { "misc_transport", SP_misc_transport },
+	// { "misc_nuke", SP_misc_nuke },
 	// { "monster_soldier_hypergun", SP_monster_soldier_hypergun },
 	// { "monster_soldier_lasergun", SP_monster_soldier_lasergun },
 	// { "monster_soldier_ripper", SP_monster_soldier_ripper },
@@ -390,38 +390,38 @@ static const std::initializer_list<spawn_t> spawns = {
 
 	//==============
 	// ROGUE
-	{ "func_plat2", SP_func_plat2 },
-	{ "func_door_secret2", SP_func_door_secret2 },
-	{ "func_force_wall", SP_func_force_wall },
-	{ "trigger_teleport", SP_trigger_teleport },
-	{ "trigger_disguise", SP_trigger_disguise },
-	{ "info_teleport_destination", SP_info_teleport_destination },
-	{ "info_player_coop_lava", SP_info_player_coop_lava },
-	// { "monster_stalker", SP_monster_stalker },
-	// { "monster_turret", SP_monster_turret },
-	{ "target_steam", SP_target_steam },
-	{ "target_anger", SP_target_anger },
-	{ "target_killplayers", SP_target_killplayers },
-	// PMM - experiment
-	{ "target_blacklight", SP_target_blacklight },
-	{ "target_orb", SP_target_orb },
-	// pmm
-	//{ "monster_daedalus", SP_monster_hover },
-	{ "hint_path", SP_hint_path },
+	// { "func_plat2", SP_func_plat2 },
+	// { "func_door_secret2", SP_func_door_secret2 },
+	// { "func_force_wall", SP_func_force_wall },
+	// { "trigger_teleport", SP_trigger_teleport },
+	// { "trigger_disguise", SP_trigger_disguise },
+	// { "info_teleport_destination", SP_info_teleport_destination },
+	// { "info_player_coop_lava", SP_info_player_coop_lava },
+	// // { "monster_stalker", SP_monster_stalker },
+	// // { "monster_turret", SP_monster_turret },
+	// { "target_steam", SP_target_steam },
+	// { "target_anger", SP_target_anger },
+	// { "target_killplayers", SP_target_killplayers },
+	// // PMM - experiment
+	// { "target_blacklight", SP_target_blacklight },
+	// { "target_orb", SP_target_orb },
+	// // pmm
+	// //{ "monster_daedalus", SP_monster_hover },
+	// { "hint_path", SP_hint_path },
 	// { "monster_carrier", SP_monster_carrier },
 	// { "monster_widow", SP_monster_widow },
 	// { "monster_widow2", SP_monster_widow2 },
 	// { "monster_medic_commander", SP_monster_medic },
-	{ "dm_tag_token", SP_dm_tag_token },
-	{ "dm_dball_goal", SP_dm_dball_goal },
-	{ "dm_dball_ball", SP_dm_dball_ball },
-	{ "dm_dball_team1_start", SP_dm_dball_team1_start },
-	{ "dm_dball_team2_start", SP_dm_dball_team2_start },
-	{ "dm_dball_ball_start", SP_dm_dball_ball_start },
-	{ "dm_dball_speed_change", SP_dm_dball_speed_change },
-	//{ "monster_kamikaze", SP_monster_kamikaze },
-	{ "turret_invisible_brain", SP_turret_invisible_brain },
-	{ "misc_nuke_core", SP_misc_nuke_core },
+	// { "dm_tag_token", SP_dm_tag_token },
+	// { "dm_dball_goal", SP_dm_dball_goal },
+	// { "dm_dball_ball", SP_dm_dball_ball },
+	// { "dm_dball_team1_start", SP_dm_dball_team1_start },
+	// { "dm_dball_team2_start", SP_dm_dball_team2_start },
+	// { "dm_dball_ball_start", SP_dm_dball_ball_start },
+	// { "dm_dball_speed_change", SP_dm_dball_speed_change },
+	// //{ "monster_kamikaze", SP_monster_kamikaze },
+	// { "turret_invisible_brain", SP_turret_invisible_brain },
+	// { "misc_nuke_core", SP_misc_nuke_core },
 	// ROGUE
 	//==============
 	// ZOID
@@ -482,17 +482,17 @@ void ED_CallSpawn(edict_t *ent)
 		{
 			// found it
 			// before spawning, pick random item replacement
-			if (g_dm_random_items->integer)
-			{
-				ent->item = item;
-				item_id_t new_item = DoRandomRespawn(ent);
+			// if (g_dm_random_items->integer)
+			// {
+			// 	ent->item = item;
+			// 	item_id_t new_item = DoRandomRespawn(ent);
 
-				if (new_item)
-				{
-					item = GetItemByIndex(new_item);
-					ent->classname = item->classname;
-				}
-			}
+			// 	if (new_item)
+			// 	{
+			// 		item = GetItemByIndex(new_item);
+			// 		ent->classname = item->classname;
+			// 	}
+			// }
 
 			SpawnItem(ent, item);
 			return;
@@ -1247,15 +1247,15 @@ void SpawnEntities(const char *mapname, const char *entities, const char *spawnp
 	// ZOID
 
 	// ROGUE
-	if (deathmatch->integer)
-	{
-		if (g_dm_random_items->integer)
-			PrecacheForRandomRespawn();
-	}
-	else
-	{
-		InitHintPaths(); // if there aren't hintpaths on this map, enable quick aborts
-	}
+	// if (deathmatch->integer)
+	// {
+	// 	if (g_dm_random_items->integer)
+	// 		PrecacheForRandomRespawn();
+	// }
+	// else
+	// {
+	// 	InitHintPaths(); // if there aren't hintpaths on this map, enable quick aborts
+	// }
 	// ROGUE
 
 	// ROGUE	-- allow dm games to do init stuff right before game starts.

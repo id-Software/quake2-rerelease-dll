@@ -2272,7 +2272,7 @@ void Killed(edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, co
 void T_RadiusNukeDamage(edict_t *inflictor, edict_t *attacker, float damage, edict_t *ignore, float radius, mod_t mod);
 void T_RadiusClassDamage(edict_t *inflictor, edict_t *attacker, float damage, char *ignoreClass, float radius,
 						 mod_t mod);
-void cleanupHealTarget(edict_t *ent);
+//void cleanupHealTarget(edict_t *ent);
 // ROGUE
 
 constexpr int32_t DEFAULT_BULLET_HSPREAD = 300;
@@ -2310,8 +2310,7 @@ void monster_fire_shotgun(edict_t *self, const vec3_t &start, const vec3_t &aimd
 						  int vspread, int count, monster_muzzleflash_id_t flashtype);
 void monster_fire_blaster(edict_t *self, const vec3_t &start, const vec3_t &dir, int damage, int speed,
 						  monster_muzzleflash_id_t flashtype, effects_t effect);
-void monster_fire_flechette(edict_t *self, const vec3_t &start, const vec3_t &dir, int damage, int speed,
-						    monster_muzzleflash_id_t flashtype);
+//void monster_fire_flechette(edict_t *self, const vec3_t &start, const vec3_t &dir, int damage, int speed, monster_muzzleflash_id_t flashtype);
 void monster_fire_grenade(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int damage, int speed,
 						  monster_muzzleflash_id_t flashtype, float right_adjust, float up_adjust);
 void monster_fire_rocket(edict_t *self, const vec3_t &start, const vec3_t &dir, int damage, int speed,
@@ -2369,7 +2368,7 @@ void monster_fire_tracker(edict_t *self, const vec3_t &start, const vec3_t &dir,
 void monster_fire_heatbeam(edict_t *self, const vec3_t &start, const vec3_t &dir, const vec3_t &offset, int damage,
 						   int kick, monster_muzzleflash_id_t flashtype);
 void stationarymonster_start(edict_t *self);
-void monster_done_dodge(edict_t *self);
+//void monster_done_dodge(edict_t *self);
 // ROGUE
 
 stuck_result_t G_FixStuckObject(edict_t *self, vec3_t check);
@@ -2680,16 +2679,16 @@ void GetChaseTarget(edict_t *ent);
 //
 // g_newweap.c
 //
-void fire_flechette(edict_t *self, const vec3_t &start, const vec3_t &dir, int damage, int speed, int kick);
-void fire_prox(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int damage, int speed);
-void fire_nuke(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int speed);
-bool fire_player_melee(edict_t *self, const vec3_t &start, const vec3_t &aim, int reach, int damage, int kick, mod_t mod);
-void fire_tesla(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int damage, int speed);
-void fire_blaster2(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int damage, int speed, effects_t effect,
-				   bool hyper);
-void fire_heatbeam(edict_t *self, const vec3_t &start, const vec3_t &aimdir, const vec3_t &offset, int damage, int kick,
-				   bool monster);
-void fire_tracker(edict_t *self, const vec3_t &start, const vec3_t &dir, int damage, int speed, edict_t *enemy);
+// void fire_flechette(edict_t *self, const vec3_t &start, const vec3_t &dir, int damage, int speed, int kick);
+// void fire_prox(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int damage, int speed);
+// void fire_nuke(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int speed);
+// bool fire_player_melee(edict_t *self, const vec3_t &start, const vec3_t &aim, int reach, int damage, int kick, mod_t mod);
+// void fire_tesla(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int damage, int speed);
+// void fire_blaster2(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int damage, int speed, effects_t effect,
+// 				   bool hyper);
+// void fire_heatbeam(edict_t *self, const vec3_t &start, const vec3_t &aimdir, const vec3_t &offset, int damage, int kick,
+// 				   bool monster);
+// void fire_tracker(edict_t *self, const vec3_t &start, const vec3_t &dir, int damage, int speed, edict_t *enemy);
 
 //
 // g_newai.c
@@ -2710,8 +2709,8 @@ bool	 inback(edict_t *self, edict_t *other);
 float	 realrange(edict_t *self, edict_t *other);
 edict_t *SpawnBadArea(const vec3_t &mins, const vec3_t &maxs, gtime_t lifespan, edict_t *owner);
 edict_t *CheckForBadArea(edict_t *ent);
-bool	 MarkTeslaArea(edict_t *self, edict_t *tesla);
-void	 InitHintPaths();
+//bool	 MarkTeslaArea(edict_t *self, edict_t *tesla);
+//void	 InitHintPaths();
 void PredictAim(edict_t *self, edict_t *target, const vec3_t &start, float bolt_speed, bool eye_height, float offset, vec3_t *aimdir,
 				vec3_t *aimpoint);
 bool M_CalculatePitchToFire(edict_t *self, const vec3_t &target, const vec3_t &start, vec3_t &aim, float speed, float time_remaining, bool mortar, bool destroy_on_touch = false);
@@ -2722,16 +2721,16 @@ void monster_duck_down(edict_t *self);
 void monster_duck_hold(edict_t *self);
 void monster_duck_up(edict_t *self);
 bool has_valid_enemy(edict_t *self);
-void TargetTesla(edict_t *self, edict_t *tesla);
-void hintpath_stop(edict_t *self);
+//void TargetTesla(edict_t *self, edict_t *tesla);
+//void hintpath_stop(edict_t *self);
 edict_t *PickCoopTarget(edict_t *self);
 int		 CountPlayers();
 bool	 monster_jump_finished(edict_t *self);
 void BossExplode(edict_t *self);
 
 // g_rogue_func
-void plat2_spawn_danger_area(edict_t *ent);
-void plat2_kill_danger_area(edict_t *ent);
+// void plat2_spawn_danger_area(edict_t *ent);
+// void plat2_kill_danger_area(edict_t *ent);
 
 // g_rogue_spawn
 edict_t *CreateMonster(const vec3_t &origin, const vec3_t &angles, const char *classname);
@@ -2748,18 +2747,18 @@ void	 SpawnGrow_Spawn(const vec3_t &startpos, float start_size, float end_size);
 void	 Widowlegs_Spawn(const vec3_t &startpos, const vec3_t &angles);
 
 // g_rogue_items
-bool Pickup_Nuke(edict_t *ent, edict_t *other);
-void Use_IR(edict_t *ent, gitem_t *item);
-void Use_Double(edict_t *ent, gitem_t *item);
-void Use_Nuke(edict_t *ent, gitem_t *item);
-void Use_Doppleganger(edict_t *ent, gitem_t *item);
-bool Pickup_Doppleganger(edict_t *ent, edict_t *other);
-bool Pickup_Sphere(edict_t *ent, edict_t *other);
-void Use_Defender(edict_t *ent, gitem_t *item);
-void Use_Hunter(edict_t *ent, gitem_t *item);
-void Use_Vengeance(edict_t *ent, gitem_t *item);
-void Item_TriggeredSpawn(edict_t *self, edict_t *other, edict_t *activator);
-void SetTriggeredSpawn(edict_t *ent);
+// bool Pickup_Nuke(edict_t *ent, edict_t *other);
+// void Use_IR(edict_t *ent, gitem_t *item);
+// void Use_Double(edict_t *ent, gitem_t *item);
+// void Use_Nuke(edict_t *ent, gitem_t *item);
+// void Use_Doppleganger(edict_t *ent, gitem_t *item);
+// bool Pickup_Doppleganger(edict_t *ent, edict_t *other);
+// bool Pickup_Sphere(edict_t *ent, edict_t *other);
+// void Use_Defender(edict_t *ent, gitem_t *item);
+// void Use_Hunter(edict_t *ent, gitem_t *item);
+// void Use_Vengeance(edict_t *ent, gitem_t *item);
+// void Item_TriggeredSpawn(edict_t *self, edict_t *other, edict_t *activator);
+// void SetTriggeredSpawn(edict_t *ent);
 
 //
 // g_sphere.c
@@ -2771,12 +2770,12 @@ void Hunter_Launch(edict_t *self);
 //
 // g_newdm.c
 //
-void	 InitGameRules();
-item_id_t DoRandomRespawn(edict_t *ent);
-void	 PrecacheForRandomRespawn();
-bool	 Tag_PickupToken(edict_t *ent, edict_t *other);
-void	 Tag_DropToken(edict_t *ent, gitem_t *item);
-void	 fire_doppleganger(edict_t *ent, const vec3_t &start, const vec3_t &aimdir);
+//void	 InitGameRules();
+//item_id_t DoRandomRespawn(edict_t *ent);
+//void	 PrecacheForRandomRespawn();
+//bool	 Tag_PickupToken(edict_t *ent, edict_t *other);
+//void	 Tag_DropToken(edict_t *ent, gitem_t *item);
+//void	 fire_doppleganger(edict_t *ent, const vec3_t &start, const vec3_t &aimdir);
 
 //
 // p_client.c
@@ -3636,23 +3635,23 @@ enum
 	RDM_DEATHBALL = 3
 };
 
-struct dm_game_rt
-{
-	void (*GameInit)();
-	void (*PostInitSetup)();
-	void (*ClientBegin)(edict_t *ent);
-	bool (*SelectSpawnPoint)(edict_t *ent, vec3_t &origin, vec3_t &angles, bool force_spawn);
-	void (*PlayerDeath)(edict_t *targ, edict_t *inflictor, edict_t *attacker);
-	void (*Score)(edict_t *attacker, edict_t *victim, int scoreChange, const mod_t &mod);
-	void (*PlayerEffects)(edict_t *ent);
-	void (*DogTag)(edict_t *ent, edict_t *killer, const char **pic);
-	void (*PlayerDisconnect)(edict_t *ent);
-	int (*ChangeDamage)(edict_t *targ, edict_t *attacker, int damage, mod_t mod);
-	int (*ChangeKnockback)(edict_t *targ, edict_t *attacker, int knockback, mod_t mod);
-	int (*CheckDMRules)();
-};
+// struct dm_game_rt
+// {
+// 	void (*GameInit)();
+// 	void (*PostInitSetup)();
+// 	void (*ClientBegin)(edict_t *ent);
+// 	bool (*SelectSpawnPoint)(edict_t *ent, vec3_t &origin, vec3_t &angles, bool force_spawn);
+// 	void (*PlayerDeath)(edict_t *targ, edict_t *inflictor, edict_t *attacker);
+// 	void (*Score)(edict_t *attacker, edict_t *victim, int scoreChange, const mod_t &mod);
+// 	void (*PlayerEffects)(edict_t *ent);
+// 	void (*DogTag)(edict_t *ent, edict_t *killer, const char **pic);
+// 	void (*PlayerDisconnect)(edict_t *ent);
+// 	int (*ChangeDamage)(edict_t *targ, edict_t *attacker, int damage, mod_t mod);
+// 	int (*ChangeKnockback)(edict_t *targ, edict_t *attacker, int knockback, mod_t mod);
+// 	int (*CheckDMRules)();
+// };
 
-extern dm_game_rt DMGame;
+// extern dm_game_rt DMGame;
 
 // ROGUE
 //============

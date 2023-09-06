@@ -644,10 +644,10 @@ void M_ProcessPain(edict_t *e)
 		// ROGUE
 		if (e->monsterinfo.aiflags & AI_MEDIC)
 		{
-			if (e->enemy && e->enemy->inuse && (e->enemy->svflags & SVF_MONSTER)) // god, I hope so
-			{
-				cleanupHealTarget(e->enemy);
-			}
+			// if (e->enemy && e->enemy->inuse && (e->enemy->svflags & SVF_MONSTER)) // god, I hope so
+			// {
+			// 	cleanupHealTarget(e->enemy);
+			// }
 
 			// clean up self
 			e->monsterinfo.aiflags &= ~AI_MEDIC;

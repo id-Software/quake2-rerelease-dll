@@ -180,21 +180,21 @@ THINK(DoRespawn) (edict_t *ent) -> void
 	ent->s.event = EV_ITEM_RESPAWN;
 
 	// ROGUE
-	if (g_dm_random_items->integer)
-	{
-		item_id_t new_item = DoRandomRespawn(ent);
+	// if (g_dm_random_items->integer)
+	// {
+	// 	item_id_t new_item = DoRandomRespawn(ent);
 
-		// if we've changed entities, then do some sleight of hand.
-		// otherwise, the old entity will respawn
-		if (new_item)
-		{
-			ent->item = GetItemByIndex(new_item);
+	// 	// if we've changed entities, then do some sleight of hand.
+	// 	// otherwise, the old entity will respawn
+	// 	if (new_item)
+	// 	{
+	// 		ent->item = GetItemByIndex(new_item);
 
-			ent->classname = ent->item->classname;
-			ent->s.effects = ent->item->world_model_flags;
-			gi.setmodel(ent, ent->item->world_model);
-		}
-	}
+	// 		ent->classname = ent->item->classname;
+	// 		ent->s.effects = ent->item->world_model_flags;
+	// 		gi.setmodel(ent, ent->item->world_model);
+	// 	}
+	// }
 	// ROGUE
 }
 
@@ -1082,7 +1082,7 @@ void SpawnItem(edict_t *ent, gitem_t *item)
 		// [Kex] In instagib, spawn no pickups!
 		if (g_instagib->value)
 		{
-			if (item->pickup == Pickup_Powerup || item->pickup == Pickup_Sphere || item->pickup == Pickup_Doppleganger ||
+			if (item->pickup == Pickup_Powerup ||
 				(item->flags & IF_HEALTH) || (item->flags & IF_AMMO) || item->pickup == Pickup_Weapon || item->pickup == Pickup_Pack)
 			{
 				G_FreeEdict(ent);
@@ -1097,21 +1097,21 @@ void SpawnItem(edict_t *ent, gitem_t *item)
 				G_FreeEdict(ent);
 				return;
 			}
-			//=====
-			// ROGUE
-			if (item->pickup == Pickup_Sphere)
-			{
-				G_FreeEdict(ent);
-				return;
-			}
-			if (item->pickup == Pickup_Doppleganger)
-			{
-				G_FreeEdict(ent);
-				return;
-			}
-			// ROGUE
-			//=====
-		}
+		// 	//=====
+		// 	// ROGUE
+		// 	if (item->pickup == Pickup_Sphere)
+		// 	{
+		// 		G_FreeEdict(ent);
+		// 		return;
+		// 	}
+		// 	if (item->pickup == Pickup_Doppleganger)
+		// 	{
+		// 		G_FreeEdict(ent);
+		// 		return;
+		// 	}
+		// 	// ROGUE
+		// 	//=====
+		// }
 		if (g_no_health->integer)
 		{
 			if (item->flags & IF_HEALTH)
@@ -1129,14 +1129,14 @@ void SpawnItem(edict_t *ent, gitem_t *item)
 			}
 		}
 
-		if (g_no_spheres->integer)
-		{
-			if (item->pickup == Pickup_Sphere)
-			{
-				G_FreeEdict(ent);
-				return;
-			}
-		}
+		// if (g_no_spheres->integer)
+		// {
+		// 	if (item->pickup == Pickup_Sphere)
+		// 	{
+		// 		G_FreeEdict(ent);
+		// 		return;
+		// 	}
+		// }
 		// ROGUE
 		//==========
 	}
@@ -1144,21 +1144,21 @@ void SpawnItem(edict_t *ent, gitem_t *item)
 	//==========
 	// ROGUE
 	// DM only items
-	if (!deathmatch->integer)
-	{
-		if (item->pickup == Pickup_Doppleganger || item->pickup == Pickup_Nuke)
-		{
-			gi.Com_PrintFmt("{} spawned in non-DM; freeing...\n", *ent);
-			G_FreeEdict(ent);
-			return;
-		}
-		if ((item->use == Use_Vengeance) || (item->use == Use_Hunter))
-		{
-			gi.Com_PrintFmt("{} spawned in non-DM; freeing...\n", *ent);
-			G_FreeEdict(ent);
-			return;
-		}
-	}
+	// if (!deathmatch->integer)
+	// {
+	// 	if (item->pickup == Pickup_Doppleganger || item->pickup == Pickup_Nuke)
+	// 	{
+	// 		gi.Com_PrintFmt("{} spawned in non-DM; freeing...\n", *ent);
+	// 		G_FreeEdict(ent);
+	// 		return;
+	// 	}
+	// 	if ((item->use == Use_Vengeance) || (item->use == Use_Hunter))
+	// 	{
+	// 		gi.Com_PrintFmt("{} spawned in non-DM; freeing...\n", *ent);
+	// 		G_FreeEdict(ent);
+	// 		return;
+	// 	}
+	// }
 	// ZOID
 	// Don't spawn the flags unless enabled
 	if (!ctf->integer && (item->id == IT_FLAG1 || item->id == IT_FLAG2))
@@ -1188,8 +1188,8 @@ void SpawnItem(edict_t *ent, gitem_t *item)
 	if (ent->model)
 		gi.modelindex(ent->model);
 
-	if (ent->spawnflags.has(SPAWNFLAG_ITEM_TRIGGER_SPAWN))
-		SetTriggeredSpawn(ent);
+	// if (ent->spawnflags.has(SPAWNFLAG_ITEM_TRIGGER_SPAWN))
+	// 	SetTriggeredSpawn(ent);
 
 	// ZOID
 	// flags are server animated and have special handling
