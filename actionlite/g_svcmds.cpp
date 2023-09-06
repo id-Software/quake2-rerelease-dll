@@ -302,26 +302,47 @@ void ServerCommand()
 		gi.LocClient_Print(nullptr, PRINT_HIGH, "Unknown server command \"{}\"\n", cmd);
 }
 
+// /*
+// ==========================
+// Kick a client entity
+// ==========================
+// */
+// void Kick_Client (edict_t * ent)
+// {
+// 	if (!ent || !ent->client || !ent->client->pers.connected)
+// 		return;
+
+// 	int clientId = ent->client - game.clients;
+// 	char *kick_msg;
+
+// 	// We used to kick on names, but people got crafty and figured
+// 	// out that putting in a space after their name let them get
+// 	// around the stupid 'kick' function. So now we kick by number.
+
+// 	snprintf(kick_msg, sizeof(kick_msg), "kick %d\n", clientId);
+// 	gi.AddCommandString(kick_msg);
+// }
+
 /*
 ==========================
 Kick a client entity
 ==========================
 */
-void Kick_Client (edict_t * ent)
-{
-	if (!ent || !ent->client || !ent->client->pers.connected)
-		return;
+void Kick_Client(edict_t *ent) {
+    if (!ent || !ent->client || !ent->client->pers.connected)
+        return;
 
-	int clientId = ent->client - game.clients;
-	char *kick_msg;
+    int clientId = ent - g_edicts - 1; // Adjusted to match the correct client index
+    char kick_msg[64]; // Changed to specify a buffer size
 
-	// We used to kick on names, but people got crafty and figured
-	// out that putting in a space after their name let them get
-	// around the stupid 'kick' function. So now we kick by number.
+    // We used to kick on names, but people got crafty and figured
+    // out that putting in a space after their name let them get
+    // around the stupid 'kick' function. So now we kick by number.
 
-	snprintf(kick_msg, sizeof(kick_msg), "kick %d\n", clientId);
-	gi.AddCommandString(kick_msg);
+    snprintf(kick_msg, sizeof(kick_msg), "kick %d\n", clientId);
+    gi.AddCommandString(kick_msg);
 }
+
 
 
 /*

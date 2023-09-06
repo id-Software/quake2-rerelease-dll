@@ -1057,10 +1057,10 @@ void TossClientWeapon(edict_t * self)
 	// else
 	// 	quad = (self->client->quad_framenum > (level.framenum + HZ));
 
-	if (item && quad)
-		spread = 22.5;
-	else
-		spread = 0.0;
+	// if (item && quad)
+	// 	spread = 22.5;
+	// else
+	spread = 0.0;
 
 	if (item) {
 		self->client->v_angle[YAW] -= spread;

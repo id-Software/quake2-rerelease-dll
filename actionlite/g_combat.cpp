@@ -658,8 +658,8 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	else
 	{
 		// ZOID
-		psave = CheckPowerArmor(targ, point, normal, take, dflags);
-		take -= psave;
+		// psave = CheckPowerArmor(targ, point, normal, take, dflags);
+		// take -= psave;
 
 		asave = CheckArmor(targ, point, normal, take, te_sparks, dflags);
 		take -= asave;
