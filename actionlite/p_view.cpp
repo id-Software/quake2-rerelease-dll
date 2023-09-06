@@ -883,14 +883,14 @@ void G_SetClientEffects(edict_t *ent)
 
 	//=========
 	// PGM
-	if (ent->flags & FL_DISGUISED)
-		ent->s.renderfx |= RF_USE_DISGUISE;
+	// if (ent->flags & FL_DISGUISED)
+	// 	ent->s.renderfx |= RF_USE_DISGUISE;
 
-	if (gamerules->integer)
-	{
-		if (DMGame.PlayerEffects)
-			DMGame.PlayerEffects(ent);
-	}
+	// if (gamerules->integer)
+	// {
+	// 	if (DMGame.PlayerEffects)
+	// 		DMGame.PlayerEffects(ent);
+	// }
 	// PGM
 	//=========
 

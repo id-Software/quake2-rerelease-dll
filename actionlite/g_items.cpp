@@ -1112,6 +1112,8 @@ void SpawnItem(edict_t *ent, gitem_t *item)
 		// 	// ROGUE
 		// 	//=====
 		// }
+		}
+		
 		if (g_no_health->integer)
 		{
 			if (item->flags & IF_HEALTH)

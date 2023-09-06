@@ -38,8 +38,8 @@ set(GAME_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/g_utils.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/g_weapon.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/m_actor.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_infantry.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/m_medic.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/m_infantry.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/m_medic.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/m_move.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/p_client.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/p_hud.cpp 

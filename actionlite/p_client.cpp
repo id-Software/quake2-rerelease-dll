@@ -1388,11 +1388,11 @@ DIE(player_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 		}
 	}
 
-	if (gamerules->integer) // if we're in a dm game, alert the game
-	{
-		if (DMGame.PlayerDeath)
-			DMGame.PlayerDeath(self, inflictor, attacker);
-	}
+	// if (gamerules->integer) // if we're in a dm game, alert the game
+	// {
+	// 	if (DMGame.PlayerDeath)
+	// 		DMGame.PlayerDeath(self, inflictor, attacker);
+	// }
 
 	// remove powerups
 	self->client->quad_time = 0_ms;
@@ -2767,8 +2767,8 @@ void PutClientInServer(edict_t *ent)
 		spawn_angles = squad_respawn_angles;
 		valid_spawn = true;
 	}
-	else if (gamerules->integer && DMGame.SelectSpawnPoint) // PGM
-		valid_spawn = DMGame.SelectSpawnPoint(ent, spawn_origin, spawn_angles, force_spawn); // PGM
+	// else if (gamerules->integer && DMGame.SelectSpawnPoint) // PGM
+	// 	valid_spawn = DMGame.SelectSpawnPoint(ent, spawn_origin, spawn_angles, force_spawn); // PGM
 	else										  // PGM
 		valid_spawn = SelectSpawnPoint(ent, spawn_origin, spawn_angles, force_spawn, is_landmark);
 
@@ -3072,10 +3072,10 @@ void ClientBeginDeathmatch(edict_t *ent)
 	InitClientResp(ent->client);
 
 	// PGM
-	if (gamerules->integer && DMGame.ClientBegin)
-	{
-		DMGame.ClientBegin(ent);
-	}
+	// if (gamerules->integer && DMGame.ClientBegin)
+	// {
+	// 	DMGame.ClientBegin(ent);
+	// }
 	// PGM
 
 	// locate ent at a spawn point
@@ -3695,21 +3695,21 @@ void ClientDisconnect(edict_t *ent)
 	//============
 	// ROGUE
 	// make sure no trackers are still hurting us.
-	if (ent->client->tracker_pain_time)
-		RemoveAttackingPainDaemons(ent);
+	// if (ent->client->tracker_pain_time)
+	// 	RemoveAttackingPainDaemons(ent);
 
-	if (ent->client->owned_sphere)
-	{
-		if (ent->client->owned_sphere->inuse)
-			G_FreeEdict(ent->client->owned_sphere);
-		ent->client->owned_sphere = nullptr;
-	}
+	// if (ent->client->owned_sphere)
+	// {
+	// 	if (ent->client->owned_sphere->inuse)
+	// 		G_FreeEdict(ent->client->owned_sphere);
+	// 	ent->client->owned_sphere = nullptr;
+	// }
 
-	if (gamerules->integer)
-	{
-		if (DMGame.PlayerDisconnect)
-			DMGame.PlayerDisconnect(ent);
-	}
+	// if (gamerules->integer)
+	// {
+	// 	if (DMGame.PlayerDisconnect)
+	// 		DMGame.PlayerDisconnect(ent);
+	// }
 	// ROGUE
 	//============
 

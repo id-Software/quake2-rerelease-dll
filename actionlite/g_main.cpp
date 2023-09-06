@@ -782,11 +782,11 @@ void CheckDMRules()
 
 	//=======
 	// ROGUE
-	if (gamerules->integer && DMGame.CheckDMRules)
-	{
-		if (DMGame.CheckDMRules())
-			return;
-	}
+	// if (gamerules->integer && DMGame.CheckDMRules)
+	// {
+	// 	if (DMGame.CheckDMRules())
+	// 		return;
+	// }
 	// ROGUE
 	//=======
 

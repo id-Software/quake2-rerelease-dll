@@ -2716,10 +2716,10 @@ void PredictAim(edict_t *self, edict_t *target, const vec3_t &start, float bolt_
 bool M_CalculatePitchToFire(edict_t *self, const vec3_t &target, const vec3_t &start, vec3_t &aim, float speed, float time_remaining, bool mortar, bool destroy_on_touch = false);
 bool below(edict_t *self, edict_t *other);
 void drawbbox(edict_t *self);
-void M_MonsterDodge(edict_t *self, edict_t *attacker, gtime_t eta, trace_t *tr, bool gravity);
-void monster_duck_down(edict_t *self);
-void monster_duck_hold(edict_t *self);
-void monster_duck_up(edict_t *self);
+//void M_MonsterDodge(edict_t *self, edict_t *attacker, gtime_t eta, trace_t *tr, bool gravity);
+// void monster_duck_down(edict_t *self);
+// void monster_duck_hold(edict_t *self);
+// void monster_duck_up(edict_t *self);
 bool has_valid_enemy(edict_t *self);
 //void TargetTesla(edict_t *self, edict_t *tesla);
 //void hintpath_stop(edict_t *self);

@@ -44,12 +44,12 @@ void monster_fire_blaster(edict_t *self, const vec3_t &start, const vec3_t &dir,
 	monster_muzzleflash(self, start, flashtype);
 }
 
-void monster_fire_flechette(edict_t *self, const vec3_t &start, const vec3_t &dir, int damage, int speed,
-						    monster_muzzleflash_id_t flashtype)
-{
-	fire_flechette(self, start, dir, damage, speed, damage / 2);
-	monster_muzzleflash(self, start, flashtype);
-}
+// void monster_fire_flechette(edict_t *self, const vec3_t &start, const vec3_t &dir, int damage, int speed,
+// 						    monster_muzzleflash_id_t flashtype)
+// {
+// 	fire_flechette(self, start, dir, damage, speed, damage / 2);
+// 	monster_muzzleflash(self, start, flashtype);
+// }
 
 void monster_fire_grenade(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int damage, int speed,
 						  monster_muzzleflash_id_t flashtype, float right_adjust, float up_adjust)

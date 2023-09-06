@@ -1259,11 +1259,11 @@ void SpawnEntities(const char *mapname, const char *entities, const char *spawnp
 	// ROGUE
 
 	// ROGUE	-- allow dm games to do init stuff right before game starts.
-	if (deathmatch->integer && gamerules->integer)
-	{
-		if (DMGame.PostInitSetup)
-			DMGame.PostInitSetup();
-	}
+	// if (deathmatch->integer && gamerules->integer)
+	// {
+	// 	if (DMGame.PostInitSetup)
+	// 		DMGame.PostInitSetup();
+	// }
 	// ROGUE
 
 	setup_shadow_lights();
