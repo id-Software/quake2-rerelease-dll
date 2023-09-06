@@ -122,49 +122,49 @@ void SP_misc_flare(edict_t* ent); // [Sam-KEX]
 void SP_misc_hologram(edict_t *ent);
 void SP_misc_lavaball(edict_t *ent);
 
-void SP_monster_berserk(edict_t *self);
-void SP_monster_gladiator(edict_t *self);
-void SP_monster_gunner(edict_t *self);
+// void SP_monster_berserk(edict_t *self);
+// void SP_monster_gladiator(edict_t *self);
+// void SP_monster_gunner(edict_t *self);
 void SP_monster_infantry(edict_t *self);
-void SP_monster_soldier_light(edict_t *self);
-void SP_monster_soldier(edict_t *self);
-void SP_monster_soldier_ss(edict_t *self);
-void SP_monster_tank(edict_t *self);
+// void SP_monster_soldier_light(edict_t *self);
+// void SP_monster_soldier(edict_t *self);
+// void SP_monster_soldier_ss(edict_t *self);
+// void SP_monster_tank(edict_t *self);
 void SP_monster_medic(edict_t *self);
-void SP_monster_flipper(edict_t *self);
-void SP_monster_chick(edict_t *self);
-void SP_monster_parasite(edict_t *self);
-void SP_monster_flyer(edict_t *self);
-void SP_monster_brain(edict_t *self);
-void SP_monster_floater(edict_t *self);
-void SP_monster_hover(edict_t *self);
-void SP_monster_mutant(edict_t *self);
-void SP_monster_supertank(edict_t *self);
-void SP_monster_boss2(edict_t *self);
-void SP_monster_jorg(edict_t *self);
-void SP_monster_boss3_stand(edict_t *self);
-void SP_monster_makron(edict_t *self);
-// Paril
-void SP_monster_tank_stand(edict_t *self);
-void SP_monster_guardian(edict_t *self);
-void SP_monster_arachnid(edict_t *self);
-void SP_monster_guncmdr(edict_t *self);
+// void SP_monster_flipper(edict_t *self);
+// void SP_monster_chick(edict_t *self);
+// void SP_monster_parasite(edict_t *self);
+// void SP_monster_flyer(edict_t *self);
+// void SP_monster_brain(edict_t *self);
+// void SP_monster_floater(edict_t *self);
+// void SP_monster_hover(edict_t *self);
+// void SP_monster_mutant(edict_t *self);
+// void SP_monster_supertank(edict_t *self);
+// void SP_monster_boss2(edict_t *self);
+// void SP_monster_jorg(edict_t *self);
+// void SP_monster_boss3_stand(edict_t *self);
+// void SP_monster_makron(edict_t *self);
+// // Paril
+// void SP_monster_tank_stand(edict_t *self);
+// void SP_monster_guardian(edict_t *self);
+// void SP_monster_arachnid(edict_t *self);
+// void SP_monster_guncmdr(edict_t *self);
 
-void SP_monster_commander_body(edict_t *self);
+// void SP_monster_commander_body(edict_t *self);
 
-void SP_turret_breach(edict_t *self);
-void SP_turret_base(edict_t *self);
-void SP_turret_driver(edict_t *self);
+// void SP_turret_breach(edict_t *self);
+// void SP_turret_base(edict_t *self);
+// void SP_turret_driver(edict_t *self);
 
-// RAFAEL 14-APR-98
-void SP_monster_soldier_hypergun(edict_t *self);
-void SP_monster_soldier_lasergun(edict_t *self);
-void SP_monster_soldier_ripper(edict_t *self);
-void SP_monster_fixbot(edict_t *self);
-void SP_monster_gekk(edict_t *self);
-void SP_monster_chick_heat(edict_t *self);
-void SP_monster_gladb(edict_t *self);
-void SP_monster_boss5(edict_t *self);
+// // RAFAEL 14-APR-98
+// void SP_monster_soldier_hypergun(edict_t *self);
+// void SP_monster_soldier_lasergun(edict_t *self);
+// void SP_monster_soldier_ripper(edict_t *self);
+// void SP_monster_fixbot(edict_t *self);
+// void SP_monster_gekk(edict_t *self);
+// void SP_monster_chick_heat(edict_t *self);
+// void SP_monster_gladb(edict_t *self);
+// void SP_monster_boss5(edict_t *self);
 void SP_rotating_light(edict_t *self);
 void SP_object_repair(edict_t *self);
 void SP_misc_crashviper(edict_t *ent);
@@ -185,8 +185,8 @@ void SP_info_player_coop_lava(edict_t *self);
 void SP_info_teleport_destination(edict_t *self);
 void SP_trigger_teleport(edict_t *self);
 void SP_trigger_disguise(edict_t *self);
-void SP_monster_stalker(edict_t *self);
-void SP_monster_turret(edict_t *self);
+// void SP_monster_stalker(edict_t *self);
+// void SP_monster_turret(edict_t *self);
 void SP_target_steam(edict_t *self);
 void SP_target_anger(edict_t *self);
 void SP_target_killplayers(edict_t *self);
@@ -195,9 +195,9 @@ void SP_target_blacklight(edict_t *self);
 void SP_target_orb(edict_t *self);
 // pmm
 void SP_hint_path(edict_t *self);
-void SP_monster_carrier(edict_t *self);
-void SP_monster_widow(edict_t *self);
-void SP_monster_widow2(edict_t *self);
+// void SP_monster_carrier(edict_t *self);
+// void SP_monster_widow(edict_t *self);
+// void SP_monster_widow2(edict_t *self);
 void SP_dm_tag_token(edict_t *self);
 void SP_dm_dball_goal(edict_t *self);
 void SP_dm_dball_ball(edict_t *self);
@@ -205,7 +205,7 @@ void SP_dm_dball_team1_start(edict_t *self);
 void SP_dm_dball_team2_start(edict_t *self);
 void SP_dm_dball_ball_start(edict_t *self);
 void SP_dm_dball_speed_change(edict_t *self);
-void SP_monster_kamikaze(edict_t *self);
+// void SP_monster_kamikaze(edict_t *self);
 void SP_turret_invisible_brain(edict_t *self);
 void SP_misc_nuke_core(edict_t *self);
 // ROGUE
@@ -332,38 +332,38 @@ static const std::initializer_list<spawn_t> spawns = {
 	{ "misc_hologram", SP_misc_hologram }, // Paril
 	{ "misc_lavaball", SP_misc_lavaball }, // Paril
 
-	{ "monster_berserk", SP_monster_berserk },
-	{ "monster_gladiator", SP_monster_gladiator },
-	{ "monster_gunner", SP_monster_gunner },
-	{ "monster_infantry", SP_monster_infantry },
-	{ "monster_soldier_light", SP_monster_soldier_light },
-	{ "monster_soldier", SP_monster_soldier },
-	{ "monster_soldier_ss", SP_monster_soldier_ss },
-	{ "monster_tank", SP_monster_tank },
-	{ "monster_tank_commander", SP_monster_tank },
-	{ "monster_medic", SP_monster_medic },
-	{ "monster_flipper", SP_monster_flipper },
-	{ "monster_chick", SP_monster_chick },
-	{ "monster_parasite", SP_monster_parasite },
-	{ "monster_flyer", SP_monster_flyer },
-	{ "monster_brain", SP_monster_brain },
-	{ "monster_floater", SP_monster_floater },
-	{ "monster_hover", SP_monster_hover },
-	{ "monster_mutant", SP_monster_mutant },
-	{ "monster_supertank", SP_monster_supertank },
-	{ "monster_boss2", SP_monster_boss2 },
-	{ "monster_boss3_stand", SP_monster_boss3_stand },
-	{ "monster_jorg", SP_monster_jorg },
-	// Paril: allow spawning makron
-	{ "monster_makron", SP_monster_makron },
-	// Paril: N64
-	{ "monster_tank_stand", SP_monster_tank_stand },
-	// Paril: PSX
-	{ "monster_guardian", SP_monster_guardian },
-	{ "monster_arachnid", SP_monster_arachnid },
-	{ "monster_guncmdr", SP_monster_guncmdr },
+	// { "monster_berserk", SP_monster_berserk },
+	// { "monster_gladiator", SP_monster_gladiator },
+	// { "monster_gunner", SP_monster_gunner },
+	// { "monster_infantry", SP_monster_infantry },
+	// { "monster_soldier_light", SP_monster_soldier_light },
+	// { "monster_soldier", SP_monster_soldier },
+	// { "monster_soldier_ss", SP_monster_soldier_ss },
+	// { "monster_tank", SP_monster_tank },
+	// { "monster_tank_commander", SP_monster_tank },
+	// { "monster_medic", SP_monster_medic },
+	// { "monster_flipper", SP_monster_flipper },
+	// { "monster_chick", SP_monster_chick },
+	// { "monster_parasite", SP_monster_parasite },
+	// { "monster_flyer", SP_monster_flyer },
+	// { "monster_brain", SP_monster_brain },
+	// { "monster_floater", SP_monster_floater },
+	// { "monster_hover", SP_monster_hover },
+	// { "monster_mutant", SP_monster_mutant },
+	// { "monster_supertank", SP_monster_supertank },
+	// { "monster_boss2", SP_monster_boss2 },
+	// { "monster_boss3_stand", SP_monster_boss3_stand },
+	// { "monster_jorg", SP_monster_jorg },
+	// // Paril: allow spawning makron
+	// { "monster_makron", SP_monster_makron },
+	// // Paril: N64
+	// { "monster_tank_stand", SP_monster_tank_stand },
+	// // Paril: PSX
+	// { "monster_guardian", SP_monster_guardian },
+	// { "monster_arachnid", SP_monster_arachnid },
+	// { "monster_guncmdr", SP_monster_guncmdr },
 
-	{ "monster_commander_body", SP_monster_commander_body },
+	// { "monster_commander_body", SP_monster_commander_body },
 
 	{ "turret_breach", SP_turret_breach },
 	{ "turret_base", SP_turret_base },
@@ -378,14 +378,14 @@ static const std::initializer_list<spawn_t> spawns = {
 	{ "misc_amb4", SP_misc_amb4 },
 	{ "misc_transport", SP_misc_transport },
 	{ "misc_nuke", SP_misc_nuke },
-	{ "monster_soldier_hypergun", SP_monster_soldier_hypergun },
-	{ "monster_soldier_lasergun", SP_monster_soldier_lasergun },
-	{ "monster_soldier_ripper", SP_monster_soldier_ripper },
-	{ "monster_fixbot", SP_monster_fixbot },
-	{ "monster_gekk", SP_monster_gekk },
-	{ "monster_chick_heat", SP_monster_chick_heat },
-	{ "monster_gladb", SP_monster_gladb },
-	{ "monster_boss5", SP_monster_boss5 },
+	// { "monster_soldier_hypergun", SP_monster_soldier_hypergun },
+	// { "monster_soldier_lasergun", SP_monster_soldier_lasergun },
+	// { "monster_soldier_ripper", SP_monster_soldier_ripper },
+	// { "monster_fixbot", SP_monster_fixbot },
+	// { "monster_gekk", SP_monster_gekk },
+	// { "monster_chick_heat", SP_monster_chick_heat },
+	// { "monster_gladb", SP_monster_gladb },
+	// { "monster_boss5", SP_monster_boss5 },
 	// RAFAEL
 
 	//==============
@@ -397,8 +397,8 @@ static const std::initializer_list<spawn_t> spawns = {
 	{ "trigger_disguise", SP_trigger_disguise },
 	{ "info_teleport_destination", SP_info_teleport_destination },
 	{ "info_player_coop_lava", SP_info_player_coop_lava },
-	{ "monster_stalker", SP_monster_stalker },
-	{ "monster_turret", SP_monster_turret },
+	// { "monster_stalker", SP_monster_stalker },
+	// { "monster_turret", SP_monster_turret },
 	{ "target_steam", SP_target_steam },
 	{ "target_anger", SP_target_anger },
 	{ "target_killplayers", SP_target_killplayers },
@@ -406,12 +406,12 @@ static const std::initializer_list<spawn_t> spawns = {
 	{ "target_blacklight", SP_target_blacklight },
 	{ "target_orb", SP_target_orb },
 	// pmm
-	{ "monster_daedalus", SP_monster_hover },
+	//{ "monster_daedalus", SP_monster_hover },
 	{ "hint_path", SP_hint_path },
-	{ "monster_carrier", SP_monster_carrier },
-	{ "monster_widow", SP_monster_widow },
-	{ "monster_widow2", SP_monster_widow2 },
-	{ "monster_medic_commander", SP_monster_medic },
+	// { "monster_carrier", SP_monster_carrier },
+	// { "monster_widow", SP_monster_widow },
+	// { "monster_widow2", SP_monster_widow2 },
+	// { "monster_medic_commander", SP_monster_medic },
 	{ "dm_tag_token", SP_dm_tag_token },
 	{ "dm_dball_goal", SP_dm_dball_goal },
 	{ "dm_dball_ball", SP_dm_dball_ball },
@@ -419,7 +419,7 @@ static const std::initializer_list<spawn_t> spawns = {
 	{ "dm_dball_team2_start", SP_dm_dball_team2_start },
 	{ "dm_dball_ball_start", SP_dm_dball_ball_start },
 	{ "dm_dball_speed_change", SP_dm_dball_speed_change },
-	{ "monster_kamikaze", SP_monster_kamikaze },
+	//{ "monster_kamikaze", SP_monster_kamikaze },
 	{ "turret_invisible_brain", SP_turret_invisible_brain },
 	{ "misc_nuke_core", SP_misc_nuke_core },
 	// ROGUE
@@ -433,7 +433,7 @@ static const std::initializer_list<spawn_t> spawns = {
 	{ "info_player_team2", SP_info_player_team2 },
 	// ZOID
 
-	{ "monster_shambler", SP_monster_shambler }
+	//{ "monster_shambler", SP_monster_shambler }
 };
 // clang-format on
 

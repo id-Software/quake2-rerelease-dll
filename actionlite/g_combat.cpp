@@ -260,12 +260,12 @@ static int CheckArmor(edict_t *ent, const vec3_t &point, const vec3_t &normal, i
 		return 0;
 
 	client = ent->client;
-	index = ArmorIndex(ent);
+	// index = ArmorIndex(ent);
 
-	if (!index)
-		return 0;
+	// if (!index)
+	// 	return 0;
 
-	armor = GetItemByIndex(index);
+	// armor = GetItemByIndex(index);
 
 	if (dflags & DAMAGE_ENERGY)
 		save = (int) ceilf(armor->armor_info->energy_protection * damage);

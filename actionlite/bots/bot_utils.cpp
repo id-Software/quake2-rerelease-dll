@@ -116,9 +116,9 @@ void Player_UpdateState( edict_t * player ) {
 
 	player->sv.buttons = player->client->buttons;
 
-	const item_id_t armorType = ArmorIndex( player );
-	player->sv.armor_type = armorType;
-	player->sv.armor_value = persistant.inventory[ armorType ];
+	// const item_id_t armorType = ArmorIndex( player );
+	// player->sv.armor_type = armorType;
+	// player->sv.armor_value = persistant.inventory[ armorType ];
 
 	player->sv.health = ( player->deadflag != true ) ? player->health : -1;
 	player->sv.weapon = ( persistant.weapon != nullptr ) ? persistant.weapon->id : IT_NULL;

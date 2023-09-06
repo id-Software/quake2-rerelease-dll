@@ -787,24 +787,24 @@ void G_SetStats(edict_t *ent)
 	if (power_armor_type)
 		cells = ent->client->pers.inventory[IT_AMMO_CELLS];
 
-	index = ArmorIndex(ent);
+	//index = ArmorIndex(ent);
 	// if (power_armor_type && (!index || (level.time.milliseconds() % 3000) < 1500))
 	// { // flash between power armor and other armor icon
 	// 	ent->client->ps.stats[STAT_ARMOR_ICON] = power_armor_type == IT_ITEM_POWER_SHIELD ? gi.imageindex("i_powershield") : gi.imageindex("i_powerscreen");
 	// 	ent->client->ps.stats[STAT_ARMOR] = cells;
 	// }
 	//else 
-	if (index)
-	{
-		item = GetItemByIndex(index);
-		ent->client->ps.stats[STAT_ARMOR_ICON] = gi.imageindex(item->icon);
-		ent->client->ps.stats[STAT_ARMOR] = ent->client->pers.inventory[index];
-	}
-	else
-	{
-		ent->client->ps.stats[STAT_ARMOR_ICON] = 0;
-		ent->client->ps.stats[STAT_ARMOR] = 0;
-	}
+	// if (index)
+	// {
+	// 	item = GetItemByIndex(index);
+	// 	ent->client->ps.stats[STAT_ARMOR_ICON] = gi.imageindex(item->icon);
+	// 	ent->client->ps.stats[STAT_ARMOR] = ent->client->pers.inventory[index];
+	// }
+	// else
+	// {
+	ent->client->ps.stats[STAT_ARMOR_ICON] = 0;
+	ent->client->ps.stats[STAT_ARMOR] = 0;
+	//}
 
 	//
 	// pickup message
