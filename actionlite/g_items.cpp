@@ -332,7 +332,7 @@ inline bool G_AddAmmoAndCap(edict_t *other, item_id_t item, int32_t max, int32_t
 	if (other->client->pers.inventory[item] > max)
 		other->client->pers.inventory[item] = max;
 
-	G_CheckPowerArmor(other);
+	//G_CheckPowerArmor(other);
 
 	return true;
 }
@@ -596,7 +596,7 @@ void Drop_Ammo(edict_t *ent, gitem_t *item)
 	}
 
 	ent->client->pers.inventory[index] -= dropped->count;
-	G_CheckPowerArmor(ent);
+	//G_CheckPowerArmor(ent);
 }
 
 //======================================================================

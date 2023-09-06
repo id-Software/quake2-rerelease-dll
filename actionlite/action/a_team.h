@@ -28,7 +28,7 @@
 
 edict_t *SelectTeamplaySpawnPoint (edict_t *);
 bool FallingDamageAmnesty (edict_t * targ);
-char * TeamName (int team);
+const char * TeamName (int team);
 void UpdateJoinMenu( void );
 void OpenJoinMenu (edict_t *);
 void OpenWeaponMenu (edict_t *);

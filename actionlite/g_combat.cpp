@@ -152,93 +152,95 @@ dflags		these flags are used to control how T_Damage works
 	DAMAGE_NO_PROTECTION	kills godmode, armor, everything
 ============
 */
-static int CheckPowerArmor(edict_t *ent, const vec3_t &point, const vec3_t &normal, int damage, damageflags_t dflags)
-{
-	gclient_t *client;
-	int		   save;
-	item_id_t  power_armor_type;
-	int		   damagePerCell;
-	int		   pa_te_type;
-	int		*power;
-	int		   power_used;
 
-	if (ent->health <= 0)
-		return 0;
+// Action: No need for this
+// static int CheckPowerArmor(edict_t *ent, const vec3_t &point, const vec3_t &normal, int damage, damageflags_t dflags)
+// {
+// 	gclient_t *client;
+// 	int		   save;
+// 	item_id_t  power_armor_type;
+// 	int		   damagePerCell;
+// 	int		   pa_te_type;
+// 	int		*power;
+// 	int		   power_used;
 
-	if (!damage)
-		return 0;
+// 	if (ent->health <= 0)
+// 		return 0;
 
-	client = ent->client;
+// 	if (!damage)
+// 		return 0;
 
-	if (dflags & (DAMAGE_NO_ARMOR | DAMAGE_NO_POWER_ARMOR)) // PGM
-		return 0;
+// 	client = ent->client;
 
-	if (client)
-	{
-		power_armor_type = PowerArmorType(ent);
-		power = &client->pers.inventory[IT_AMMO_CELLS];
-	}
-	else if (ent->svflags & SVF_MONSTER)
-	{
-		power_armor_type = ent->monsterinfo.power_armor_type;
-		power = &ent->monsterinfo.power_armor_power;
-	}
-	else
-		return 0;
+// 	if (dflags & (DAMAGE_NO_ARMOR | DAMAGE_NO_POWER_ARMOR)) // PGM
+// 		return 0;
 
-	if (power_armor_type == IT_NULL)
-		return 0;
-	if (!*power)
-		return 0;
+// 	if (client)
+// 	{
+// 		power_armor_type = PowerArmorType(ent);
+// 		power = &client->pers.inventory[IT_AMMO_CELLS];
+// 	}
+// 	else if (ent->svflags & SVF_MONSTER)
+// 	{
+// 		power_armor_type = ent->monsterinfo.power_armor_type;
+// 		power = &ent->monsterinfo.power_armor_power;
+// 	}
+// 	else
+// 		return 0;
 
-	// Paril: fix small amounts of damage not
-	// being absorbed
-	damage = max(1, damage);
+// 	if (power_armor_type == IT_NULL)
+// 		return 0;
+// 	if (!*power)
+// 		return 0;
 
-	save = *power * damagePerCell;
+// 	// Paril: fix small amounts of damage not
+// 	// being absorbed
+// 	damage = max(1, damage);
 
-	if (!save)
-		return 0;
+// 	save = *power * damagePerCell;
 
-	// [Paril-KEX] energy damage should do more to power armor, not ETF Rifle shots.
-	if (dflags & DAMAGE_ENERGY)
-		save = max(1, save / 2);
+// 	if (!save)
+// 		return 0;
 
-	if (save > damage)
-		save = damage;
+// 	// [Paril-KEX] energy damage should do more to power armor, not ETF Rifle shots.
+// 	if (dflags & DAMAGE_ENERGY)
+// 		save = max(1, save / 2);
 
-	// [Paril-KEX] energy damage should do more to power armor, not ETF Rifle shots.
-	if (dflags & DAMAGE_ENERGY)
-		power_used = (save / damagePerCell) * 2;
-	else
-		power_used = save / damagePerCell;
+// 	if (save > damage)
+// 		save = damage;
 
-	power_used = max(1, power_used);
+// 	// [Paril-KEX] energy damage should do more to power armor, not ETF Rifle shots.
+// 	// if (dflags & DAMAGE_ENERGY)
+// 	// 	power_used = (save / damagePerCell) * 2;
+// 	// else
+// 	// 	power_used = save / damagePerCell;
 
-	SpawnDamage(pa_te_type, point, normal, save);
-	ent->powerarmor_time = level.time + 200_ms;
+// 	power_used = max(1, power_used);
 
-	// Paril: adjustment so that power armor
-	// always uses damagePerCell even if it does
-	// only a single point of damage
-	//*power = max(0, *power - max(damagePerCell, power_used));
+// 	SpawnDamage(pa_te_type, point, normal, save);
+// 	ent->powerarmor_time = level.time + 200_ms;
 
-	// // check power armor turn-off states
-	// if (ent->client)
-	// 	G_CheckPowerArmor(ent);
-	// else if (!*power)
-	// {
-	// 	gi.sound(ent, CHAN_AUTO, gi.soundindex("misc/mon_power2.wav"), 1.f, ATTN_NORM, 0.f);
+// 	// Paril: adjustment so that power armor
+// 	// always uses damagePerCell even if it does
+// 	// only a single point of damage
+// 	//*power = max(0, *power - max(damagePerCell, power_used));
 
-	// 	gi.WriteByte(svc_temp_entity);
-	// 	gi.WriteByte(TE_POWER_SPLASH);
-	// 	gi.WriteEntity(ent);
-	// 	gi.WriteByte((power_armor_type == IT_ITEM_POWER_SCREEN) ? 1 : 0);
-	// 	gi.multicast(ent->s.origin, MULTICAST_PHS, false);
-	// }
+// 	// // check power armor turn-off states
+// 	// if (ent->client)
+// 	// 	G_CheckPowerArmor(ent);
+// 	// else if (!*power)
+// 	// {
+// 	// 	gi.sound(ent, CHAN_AUTO, gi.soundindex("misc/mon_power2.wav"), 1.f, ATTN_NORM, 0.f);
 
-	return save;
-}
+// 	// 	gi.WriteByte(svc_temp_entity);
+// 	// 	gi.WriteByte(TE_POWER_SPLASH);
+// 	// 	gi.WriteEntity(ent);
+// 	// 	gi.WriteByte((power_armor_type == IT_ITEM_POWER_SCREEN) ? 1 : 0);
+// 	// 	gi.multicast(ent->s.origin, MULTICAST_PHS, false);
+// 	// }
+
+// 	return save;
+// }
 
 static int CheckArmor(edict_t *ent, const vec3_t &point, const vec3_t &normal, int damage, int te_sparks,
 					  damageflags_t dflags)

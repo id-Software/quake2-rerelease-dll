@@ -585,7 +585,7 @@ void Cmd_Give_f(edict_t *ent)
 			ent->client->pers.inventory[i] = (it->flags & IF_KEY) ? 8 : 1;
 		}
 
-		G_CheckPowerArmor(ent);
+		//G_CheckPowerArmor(ent);
 		ent->client->pers.power_cubes = 0xFF;
 		return;
 	}

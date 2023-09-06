@@ -437,8 +437,8 @@ void G_RemoveAmmo(edict_t *ent, int32_t quantity)
 	if (!pre_warning && post_warning)
 		gi.local_sound(ent, CHAN_AUTO, gi.soundindex("weapons/lowammo.wav"), 1, ATTN_NORM, 0);
 
-	if (ent->client->pers.weapon->ammo == IT_AMMO_CELLS)
-		G_CheckPowerArmor(ent);
+	// if (ent->client->pers.weapon->ammo == IT_AMMO_CELLS)
+	// 	G_CheckPowerArmor(ent);
 }
 
 void G_RemoveAmmo(edict_t *ent)
@@ -2554,7 +2554,10 @@ void M4_Fire(edict_t* ent)
 		P_AddWeaponKick(ent, kick_origin, kick_angles);
 	kick_origin[0] = crandom() * 0.35;
 	kick_angles[0] = ent->client->machinegun_shots * -.7;
-
+	VectorAdd(ent->client->v_angle, kick_angles, angles);
+	AngleVectors(angles, forward, right, NULL);
+	VectorSet(offset, 0, 8, ent->viewheight - height);
+	
 	P_ProjectSource(ent, ent->client->v_angle, { 0, 7, -8 }, start, dir);
 	P_AddWeaponKick(ent, kick_origin, kick_angles);
 	// get start / end positions

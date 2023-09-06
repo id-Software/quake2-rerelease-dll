@@ -2158,7 +2158,7 @@ gitem_t	*GetItemByIndex(item_id_t index);
 gitem_t *GetItemByAmmo(ammo_t ammo);
 gitem_t *GetItemByPowerup(powerup_t powerup);
 bool	  Add_Ammo(edict_t *ent, gitem_t *item, int count);
-void      G_CheckPowerArmor(edict_t *ent);
+//void      G_CheckPowerArmor(edict_t *ent);
 void	  Touch_Item(edict_t *ent, edict_t *other, const trace_t &tr, bool other_touching_self);
 void	  droptofloor(edict_t *ent);
 void      P_ToggleFlashlight(edict_t *ent, bool state);

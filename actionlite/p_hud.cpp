@@ -696,12 +696,12 @@ void G_SetCoopStats(edict_t *ent)
 		ent->client->ps.stats[STAT_COOP_RESPAWN] = 0;
 }
 
-struct powerup_info_t
-{
-	item_id_t item;
-	gtime_t gclient_t::*time_ptr = nullptr;
-	int32_t gclient_t::*count_ptr = nullptr;
-} powerup_table[] = {
+// struct powerup_info_t
+// {
+// 	item_id_t item;
+// 	gtime_t gclient_t::*time_ptr = nullptr;
+// 	int32_t gclient_t::*count_ptr = nullptr;
+// } powerup_table[] = {
 	// { IT_ITEM_QUAD, &gclient_t::quad_time },
 	// { IT_ITEM_QUADFIRE, &gclient_t::quadfire_time },
 	// { IT_ITEM_DOUBLE, &gclient_t::double_time },
@@ -711,7 +711,7 @@ struct powerup_info_t
 	// { IT_ITEM_REBREATHER, &gclient_t::breather_time },
 	// { IT_ITEM_IR_GOGGLES, &gclient_t::ir_time },
 	// { IT_ITEM_SILENCER, nullptr, &gclient_t::silencer_shots }
-};
+//};
 
 /*
 ===============
@@ -869,51 +869,53 @@ void G_SetStats(edict_t *ent)
 
 		ent->client->ps.stats[STAT_TIMER] = ceil(ent->client->owned_sphere->wait - level.time.seconds());
 	}
-	else
-	{
-		powerup_info_t *best_powerup = nullptr;
 
-		for (auto &powerup : powerup_table)
-		{
-			auto *powerup_time = powerup.time_ptr ? &(ent->client->*powerup.time_ptr) : nullptr;
-			auto *powerup_count = powerup.count_ptr ? &(ent->client->*powerup.count_ptr) : nullptr;
+	// Action: No need for powerup_info_t anymore
+	// else
+	// {
+	// 	powerup_info_t *best_powerup = nullptr;
 
-			if (powerup_time && *powerup_time <= level.time)
-				continue;
-			else if (powerup_count && !*powerup_count)
-				continue;
+	// 	for (auto &powerup : powerup_table)
+	// 	{
+	// 		auto *powerup_time = powerup.time_ptr ? &(ent->client->*powerup.time_ptr) : nullptr;
+	// 		auto *powerup_count = powerup.count_ptr ? &(ent->client->*powerup.count_ptr) : nullptr;
 
-			if (!best_powerup)
-			{
-				best_powerup = &powerup;
-				continue;
-			}
+	// 		if (powerup_time && *powerup_time <= level.time)
+	// 			continue;
+	// 		else if (powerup_count && !*powerup_count)
+	// 			continue;
+
+	// 		if (!best_powerup)
+	// 		{
+	// 			best_powerup = &powerup;
+	// 			continue;
+	// 		}
 			
-			if (powerup_time && *powerup_time < ent->client->*best_powerup->time_ptr)
-			{
-				best_powerup = &powerup;
-				continue;
-			}
-			else if (powerup_count && !best_powerup->time_ptr)
-			{
-				best_powerup = &powerup;
-				continue;
-			}
-		}
+	// 		if (powerup_time && *powerup_time < ent->client->*best_powerup->time_ptr)
+	// 		{
+	// 			best_powerup = &powerup;
+	// 			continue;
+	// 		}
+	// 		else if (powerup_count && !best_powerup->time_ptr)
+	// 		{
+	// 			best_powerup = &powerup;
+	// 			continue;
+	// 		}
+	// 	}
 
-		if (best_powerup)
-		{
-			int16_t value;
+	// 	if (best_powerup)
+	// 	{
+	// 		int16_t value;
 
-			if (best_powerup->count_ptr)
-				value = (ent->client->*best_powerup->count_ptr);
-			else
-				value = ceil((ent->client->*best_powerup->time_ptr - level.time).seconds());
+	// 		if (best_powerup->count_ptr)
+	// 			value = (ent->client->*best_powerup->count_ptr);
+	// 		else
+	// 			value = ceil((ent->client->*best_powerup->time_ptr - level.time).seconds());
 
-			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex(GetItemByIndex(best_powerup->item)->icon);
-			ent->client->ps.stats[STAT_TIMER] = value;
-		}
-	}
+	// 		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex(GetItemByIndex(best_powerup->item)->icon);
+	// 		ent->client->ps.stats[STAT_TIMER] = value;
+	// 	}
+	// }
 	// PGM
 
 	//
