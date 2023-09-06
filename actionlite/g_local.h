@@ -1803,10 +1803,6 @@ bool CheckForUnevenTeams (edict_t *);
 bool IsAllowedToJoin(edict_t *, int);
 void TransparentListSet (solid_t solid_type);
 
-const char *GetPossesiveAdjectiveSingular(edict_t *ent);
-const char *GetPossesiveAdjective(edict_t *ent);
-const char *GetReflexivePronoun(edict_t *ent);
-
 // Action Add end
 
 extern edict_t *g_edicts;

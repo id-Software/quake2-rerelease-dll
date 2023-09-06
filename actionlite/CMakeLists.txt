@@ -49,39 +49,39 @@ set(GAME_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/p_weapon.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/q_std.cpp 
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_combat.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_func.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_items.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_misc.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_monster.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_newai.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_newdm.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_newfnc.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_newtarg.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_newtrig.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_newweap.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_phys.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_spawn.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_sphere.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_utils.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/m_rogue_carrier.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/m_rogue_stalker.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/m_rogue_turret.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/m_rogue_widow.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/m_rogue_widow2.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/p_rogue_weapon.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/rogue_dm_ball.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/rogue/rogue_dm_tag.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_combat.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_func.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_items.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_misc.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_monster.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_newai.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_newdm.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_newfnc.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_newtarg.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_newtrig.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_newweap.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_phys.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_spawn.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_sphere.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/g_rogue_utils.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/m_rogue_carrier.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/m_rogue_stalker.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/m_rogue_turret.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/m_rogue_widow.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/m_rogue_widow2.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/p_rogue_weapon.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/rogue_dm_ball.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/rogue/rogue_dm_tag.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/g_xatrix_func.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/g_xatrix_items.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/g_xatrix_misc.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/g_xatrix_monster.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/g_xatrix_target.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/g_xatrix_weapon.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/m_xatrix_fixbot.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/m_xatrix_gekk.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/p_xatrix_weapon.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/g_xatrix_func.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/g_xatrix_items.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/g_xatrix_misc.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/g_xatrix_monster.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/g_xatrix_target.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/g_xatrix_weapon.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/m_xatrix_fixbot.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/m_xatrix_gekk.cpp 
+    # ${CMAKE_CURRENT_SOURCE_DIR}/xatrix/p_xatrix_weapon.cpp 
 )
 
 set(CMAKE_CXX_FLAGS "-lm -ldl -fPIE -pie -lfmt" CACHE STRING "compile flags" FORCE)

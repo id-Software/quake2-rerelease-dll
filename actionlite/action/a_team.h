@@ -53,7 +53,7 @@ void AddToTransparentList (edict_t *);
 void RemoveFromTransparentList (edict_t *);
 bool OnTransparentList( const edict_t *ent );
 void PrintTransparentList ();
-void CenterPrintAll (const char *msg);
+//void CenterPrintAll (const char *msg);
 int TeamHasPlayers( int team );
 
 //TNG:Freud - new spawning system

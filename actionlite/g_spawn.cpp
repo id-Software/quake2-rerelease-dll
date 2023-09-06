@@ -105,7 +105,7 @@ void SP_misc_actor(edict_t *self);
 void SP_misc_gib_arm(edict_t *self);
 void SP_misc_gib_leg(edict_t *self);
 void SP_misc_gib_head(edict_t *self);
-void SP_misc_insane(edict_t *self);
+//void SP_misc_insane(edict_t *self);
 void SP_misc_deadsoldier(edict_t *self);
 void SP_misc_viper(edict_t *self);
 void SP_misc_viper_bomb(edict_t *self);
@@ -316,7 +316,7 @@ static const std::initializer_list<spawn_t> spawns = {
 	{ "misc_gib_arm", SP_misc_gib_arm },
 	{ "misc_gib_leg", SP_misc_gib_leg },
 	{ "misc_gib_head", SP_misc_gib_head },
-	{ "misc_insane", SP_misc_insane },
+	//{ "misc_insane", SP_misc_insane },
 	{ "misc_deadsoldier", SP_misc_deadsoldier },
 	{ "misc_viper", SP_misc_viper },
 	{ "misc_viper_bomb", SP_misc_viper_bomb },

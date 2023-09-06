@@ -40,15 +40,15 @@ void Announce_Reward(edict_t *ent, int rewardType){
 
 	if (rewardType == IMPRESSIVE) {
 		sprintf(buf, "IMPRESSIVE %s!", ent->client->pers.netname);
-		CenterPrintAll(buf);
+		gi.Broadcast_Print(PRINT_HIGH, buf);
 		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
 	} else if (rewardType == EXCELLENT) {
 		sprintf(buf, "EXCELLENT %s (%dx)!", ent->client->pers.netname,ent->client->resp.streakKills/12);
-		CenterPrintAll(buf);
+		gi.Broadcast_Print(PRINT_HIGH, buf);
 		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
 	} else if (rewardType == ACCURACY) {
 		sprintf(buf, "ACCURACY %s!", ent->client->pers.netname);
-		CenterPrintAll(buf);
+		gi.Broadcast_Print(PRINT_HIGH, buf);
 		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
 	}
 }
@@ -124,21 +124,21 @@ void Add_Frag(edict_t * ent, int mod)
 		if (fraglimit->value && use_warnings->value) {
 			if (ent->client->resp.score == fraglimit->value - 1) {
 				if (fragwarning < 3) {
-					CenterPrintAll("1 FRAG LEFT...");
+					gi.Broadcast_Print(PRINT_HIGH, "1 FRAG LEFT...");
 					gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 						gi.soundindex("tng/1_frag.wav"), 1.0, ATTN_NONE, 0.0);
 					fragwarning = 3;
 				}
 			} else if (ent->client->resp.score == fraglimit->value - 2) {
 				if (fragwarning < 2) {
-					CenterPrintAll("2 FRAGS LEFT...");
+					gi.Broadcast_Print(PRINT_HIGH, "2 FRAGS LEFT...");
 					gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 						gi.soundindex("tng/2_frags.wav"), 1.0, ATTN_NONE, 0.0);
 					fragwarning = 2;
 				}
 			} else if (ent->client->resp.score == fraglimit->value - 3) {
 				if (fragwarning < 1) {
-					CenterPrintAll("3 FRAGS LEFT...");
+					gi.Broadcast_Print(PRINT_HIGH, "3 FRAGS LEFT...");
 					gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 						gi.soundindex("tng/3_frags.wav"), 1.0, ATTN_NONE, 0.0);
 					fragwarning = 1;
@@ -457,6 +457,57 @@ void CL_FixUpGender(edict_t *ent, const char *userinfo)
         Q_strlcpy(val, "female", sizeof(val));
     else
         Q_strlcpy(val, "none", sizeof(val));
+}
+
+// Messaging adjectives/pronouns
+// Borrowed from https://github.com/VortexQuake2/Vortex, thank you!
+
+const char *GetPossesiveAdjectiveSingular(edict_t *ent) {
+	int gender = ent->client->pers.gender;
+	char *info;
+
+	switch( gender ) {
+		case GENDER_MALE:
+			return "his";
+		case GENDER_FEMALE:
+			return "her";
+		case GENDER_NEUTRAL:
+			return "it";
+		default:
+			return "their";
+	}
+}
+
+const char *GetPossesiveAdjective(edict_t *ent) {
+	int gender = ent->client->pers.gender;
+	char *info;
+
+	switch( gender ) {
+		case GENDER_MALE:
+			return "his";
+		case GENDER_FEMALE:
+			return "her";
+		case GENDER_NEUTRAL:
+			return "its";
+		default:
+			return "their";
+	}
+}
+
+const char *GetReflexivePronoun(edict_t *ent) {
+	int gender = ent->client->pers.gender;
+	char *info;
+
+	switch( gender ) {
+		case GENDER_MALE:
+			return "himself";
+		case GENDER_FEMALE:
+			return "herself";
+		case GENDER_NEUTRAL:
+			return "itself";
+		default:
+			return "themselves";
+	}
 }
 
 //=======================================================================

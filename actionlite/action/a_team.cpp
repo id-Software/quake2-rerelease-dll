@@ -133,7 +133,7 @@ void PrintMatchRules ()
 		// If nothing else matches, just say glhf
 		snprintf( rulesmsg, sizeof( rulesmsg ), "Frag 'em all!  Good luck and have fun!\n");
 	}
-	CenterPrintAll(rulesmsg);
+	gi.Broadcast_Print(PRINT_HIGH, rulesmsg);
 }
 
 void JoinTeamAuto (edict_t * ent, pmenuhnd_t * p)
@@ -1384,7 +1384,7 @@ static void StartLCA(void)
 		CleanLevel();
 
 
-	CenterPrintAll ("LIGHTS...");
+	gi.Broadcast_Print(PRINT_HIGH, "LIGHTS...");
 	gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_lights, 1.0, ATTN_NONE, 0.0);
 	lights_camera_action = 43;	// TempFile changed from 41
 
@@ -1420,12 +1420,12 @@ void ContinueLCA ()
 {
 	if (lights_camera_action == 23)
 	{
-		CenterPrintAll("CAMERA...");
+		gi.Broadcast_Print(PRINT_HIGH, "CAMERA...");
 		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_camera , 1.0, ATTN_NONE, 0.0);
 	}
 	else if (lights_camera_action == 3)
 	{
-		CenterPrintAll("ACTION!");
+		gi.Broadcast_Print(PRINT_HIGH, "ACTION!");
 		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, level.snd_action, 1.0, ATTN_NONE, 0.0);
 	}
 	else if (lights_camera_action == 1)
@@ -1557,13 +1557,13 @@ bool CheckTimelimit( void )
 			}
 			else if( timewarning < 2 && level.matchTime >= (timelimit->value - 1) * 60 )
 			{
-				CenterPrintAll( "1 MINUTE LEFT..." );
+				gi.Broadcast_Print(PRINT_HIGH,  "1 MINUTE LEFT..." );
 				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/1_minute.wav"), 1.0, ATTN_NONE, 0.0 );
 				timewarning = 2;
 			}
 			else if( timewarning < 1 && (! ctf->value) && timelimit->value > 3 && level.matchTime >= (timelimit->value - 3) * 60 )
 			{
-				CenterPrintAll( "3 MINUTES LEFT..." );
+				gi.Broadcast_Print(PRINT_HIGH,  "3 MINUTES LEFT..." );
 				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/3_minutes.wav"), 1.0, ATTN_NONE, 0.0 );
 				timewarning = 1;
 			}
@@ -1606,13 +1606,13 @@ static bool CheckRoundTimeLimit( void )
 			
 			if (roundLimitFrames <= 600)
 			{
-				CenterPrintAll( "1 MINUTE LEFT..." );
+				gi.Broadcast_Print(PRINT_HIGH,  "1 MINUTE LEFT..." );
 				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex( "tng/1_minute.wav" ), 1.0, ATTN_NONE, 0.0 );
 				timewarning = 2;
 			}
 			else if (roundLimitFrames <= 1800 && timewarning < 1 && roundtimelimit->value > 3)
 			{
-				CenterPrintAll( "3 MINUTES LEFT..." );
+				gi.Broadcast_Print(PRINT_HIGH,  "3 MINUTES LEFT..." );
 				gi.sound( &g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex( "tng/3_minutes.wav" ), 1.0, ATTN_NONE, 0.0 );
 				timewarning = 1;
 			}
@@ -1771,9 +1771,9 @@ int CheckTeamRules (void)
 			else
 			{
 				if (!matchmode->value || TeamsReady())
-					CenterPrintAll ("Not enough players to play!");
+					gi.Broadcast_Print(PRINT_HIGH, "Not enough players to play!");
 				else
-					CenterPrintAll ("Both Teams Must Be Ready!");
+					gi.Broadcast_Print(PRINT_HIGH, "Both Teams Must Be Ready!");
 
 				team_round_going = team_round_countdown = team_game_going = 0;
 				MakeAllLivePlayersObservers ();
@@ -1810,7 +1810,7 @@ int CheckTeamRules (void)
 	// 			{
 	// 				teams[i].locked = 0;
 	// 				sprintf( buf, "%s unlocked (no players)", TeamName( i ) );
-	// 				CenterPrintAll( buf );
+	// 				gi.Broadcast_Print(PRINT_HIGH,  buf );
 	// 			}
 	// 		}
 	// 	}
@@ -1835,7 +1835,7 @@ int CheckTeamRules (void)
 				int warmup_length = max( warmup->value, round_begin->value );
 				char buf[64] = "";
 				sprintf( buf, "The round will begin in %d seconds!", warmup_length );
-				CenterPrintAll( buf );
+				gi.Broadcast_Print(PRINT_HIGH,  buf );
 				team_round_countdown = warmup_length * 10 + 2;
 
 				// JBravo: Autostart q2pro MVD2 recording on the server
@@ -1878,9 +1878,9 @@ int CheckTeamRules (void)
 			if (!BothTeamsHavePlayers())
 			{
 				if (!matchmode->value || TeamsReady())
-					CenterPrintAll( "Not enough players to play!" );
+					gi.Broadcast_Print(PRINT_HIGH,  "Not enough players to play!" );
 				else
-					CenterPrintAll( "Both Teams Must Be Ready!" );
+					gi.Broadcast_Print(PRINT_HIGH,  "Both Teams Must Be Ready!" );
 
 				team_round_going = team_round_countdown = team_game_going = 0;
 				MakeAllLivePlayersObservers();
