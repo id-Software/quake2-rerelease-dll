@@ -2127,9 +2127,6 @@ struct gunStats_t
 	int damage;		//Damage dealt
 };
 
-// C++ External symbol linker fixes?
-bool team_round_going = false;	// is an actual round of a team game going right now?
-
 //======================================================================
 // Action Add End
 //======================================================================
@@ -2483,9 +2480,8 @@ void kick_attack(edict_t *ent);
 void punch_attack(edict_t *ent);
 int knife_attack(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick);
 void knife_throw(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed);
-void knife_touch(edict_t* ent, edict_t* other, cplane_t* plane, csurface_t* surf);
-void fire_bullet_sparks(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod);
-void fire_bullet_sniper(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod);
+void fire_bullet_sparks(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, mod_id_t mod);
+void fire_bullet_sniper(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, mod_id_t mod);
 void setFFState(edict_t* ent);
 
 // ACTION
@@ -2794,8 +2790,14 @@ void PrintDeathMessage(char *msg, edict_t * gibee);
 // ACTION
 void CL_FixUpGender(edict_t *ent, const char *userinfo);
 void ClientFixLegs(edict_t *ent);
+void PrintDeathMessage(char *msg, edict_t * gibee);
+bool Pickup_Special (edict_t * ent, edict_t * other);
+edict_t *FindEdictByClassnum (const char *classname, int classnum);
+void DropSpecialWeapon (edict_t * ent);
+void ReadySpecialWeapon (edict_t * ent);
+void DropSpecialItem (edict_t * ent);
 
-// ACTION
+// ACTION END
 
 constexpr spawnflags_t SPAWNFLAG_LANDMARK_KEEP_Z = 1_spawnflag;
 
@@ -3309,6 +3311,7 @@ struct gclient_t
 	edict_t		    *chase_target;
 	int32_t			chase_mode;
 	bool			team_force;		// are we forcing a team change
+	int				jumping;
 	// ammo capacities
 	int32_t			ammo_index;
 	int32_t			max_pistolmags;
@@ -3618,6 +3621,10 @@ struct edict_t
 
 	// Action
 	int32_t			light_level;
+	// action
+	bool			splatted;
+	int32_t			classnum;
+	int32_t			typeNum;
 };
 
 //=============

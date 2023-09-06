@@ -978,6 +978,29 @@ void Weapon_Repeating(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST
 	}
 }
 
+void DropSpecialWeapon(edict_t* ent)
+{
+	int itemNum = ent->client->pers.weapon->id ? : 0;
+
+	// first check if their current weapon is a special weapon, if so, drop it.
+	if (itemNum >= MP5_NUM && itemNum <= SNIPER_NUM)
+		Drop_Weapon(ent, ent->client->pers.weapon);
+	else if (INV_AMMO(ent, SNIPER_NUM) > 0)
+		Drop_Weapon(ent, GET_ITEM(SNIPER_NUM));
+	else if (INV_AMMO(ent, HC_NUM) > 0)
+		Drop_Weapon(ent, GET_ITEM(HC_NUM));
+	else if (INV_AMMO(ent, M3_NUM) > 0)
+		Drop_Weapon(ent, GET_ITEM(M3_NUM));
+	else if (INV_AMMO(ent, MP5_NUM) > 0)
+		Drop_Weapon(ent, GET_ITEM(MP5_NUM));
+	else if (INV_AMMO(ent, M4_NUM) > 0)
+		Drop_Weapon(ent, GET_ITEM(M4_NUM));
+	// special case, aq does this, guess I can support it
+	else if (itemNum == DUAL_NUM)
+		ent->client->newweapon = GET_ITEM(MK23_NUM);
+
+}
+
 /*
 ======================================================================
 
@@ -2459,9 +2482,18 @@ static void fire_lead_ap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 
 }
 
+// zucc - for the M4
 void fire_bullet_sparks (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, mod_id_t mod)
 {
+	setFFState(self);
 	fire_lead_ap(self, start, aimdir, damage, kick, TE_BULLET_SPARKS, hspread, vspread, mod);
+}
+
+// zucc - for sniper
+void fire_bullet_sniper (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, mod_id_t mod)
+{
+	setFFState (self);
+	fire_lead_ap (self, start, aimdir, damage, kick, TE_GUNSHOT, hspread, vspread, mod);
 }
 
 void M4_Fire(edict_t* ent)
@@ -2570,7 +2602,7 @@ void M4_Fire(edict_t* ent)
 		damage *= 1.5f;
 
 	G_LagCompensate(ent, start, dir);
-	fire_bullet_sparks(ent, start, forward, damage, kick, spread, spread, IT_WEAPON_M4);
+	fire_bullet_sparks(ent, start, forward, damage, kick, spread, spread, MOD_M4);
 	G_UnLagCompensate();
 	//Stats_AddShot(ent, MOD_M4);
 
@@ -2878,7 +2910,7 @@ void Sniper_Fire(edict_t* ent)
 	P_ProjectSource(ent, ent->client->v_angle, forward, start, dir);
 	G_LagCompensate(ent, start, dir);
 	//If no reload, fire normally.
-	fire_bullet_sniper(ent, start, forward, damage, kick, spread, spread, IT_WEAPON_SNIPER);
+	fire_bullet_sniper(ent, start, forward, damage, kick, spread, spread, MOD_SNIPER);
 	//Stats_AddShot(ent, MOD_SNIPER);
 	G_UnLagCompensate();
 

@@ -719,20 +719,20 @@ void PlaceHolder( edict_t * ent );  // p_weapon.c
    FindEdictByClassnum
    ==================
  */
-// edict_t *FindEdictByClassnum(char *classname, int classnum)
-// {
-// 	int i;
-// 	edict_t *it;
-// 	for (i = 0; i < globals.num_edicts; i++)
-// 	{
-// 		it = &g_edicts[i];
-// 		if (it->classname && (it->classnum == classnum) && (strcmp(it->classname, classname) == 0))
-// 			return it;
-// 	}
+edict_t *FindEdictByClassnum(const char *classname, int classnum)
+{
+	int i;
+	edict_t *it;
+	for (i = 0; i < globals.num_edicts; i++)
+	{
+		it = &g_edicts[i];
+		if (it->classname && (it->classnum == classnum) && (strcmp(it->classname, classname) == 0))
+			return it;
+	}
 
-// 	return NULL;
+	return NULL;
 
-// }
+}
 
 // /********* Bulletholes/wall stuff ***********/
 

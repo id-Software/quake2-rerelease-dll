@@ -1278,6 +1278,388 @@ void fire_disintegrator(edict_t *self, const vec3_t &start, const vec3_t &forwar
 	gi.linkentity(bfg);
 }
 
+void kick_attack (edict_t *ent)
+{
+	vec3_t start;
+	vec3_t forward, right;
+	vec3_t offset;
+	int damage = 20, kick = 400, friendlyFire = 0;
+	trace_t tr;
+	vec3_t end;
+	char *genderstr;
+
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	VectorScale(forward, 0, ent->client->kick_origin);
+
+	VectorSet(offset, 0, 0, ent->viewheight - 20);
+	P_ProjectSource(ent, ent->client->v_angle, offset, start, forward);
+
+	VectorMA(start, 25, forward, end);
+
+	PRETRACE();
+	tr = gi.trace(ent->s.origin, vec3_origin, vec3_origin, end, ent, MASK_SHOT);
+	POSTTRACE();
+
+	// don't need to check for water
+	if (tr.surface && (tr.surface->flags & SURF_SKY))
+		return;
+
+	if (tr.fraction >= 1.0)
+		return;
+
+	if (tr.ent->takedamage || KickDoor(&tr, ent, forward))
+	{
+		ent->client->jumping = 0;	// only 1 jumpkick per jump
+
+		if (tr.ent->health <= 0)
+			return;
+
+		if (tr.ent->client)
+		{
+			if (tr.ent->client->uvTime)
+				return;
+			
+			if (tr.ent != ent && ent->client && OnSameTeam( tr.ent, ent ))
+				friendlyFire = 1;
+
+			if (friendlyFire/* && DMFLAGS(DF_NO_FRIENDLY_FIRE)*/){
+				if (!teamplay->value || team_round_going || !ff_afterround->value)
+					return;
+			}
+		}
+		// zucc stop powerful upwards kicking
+		//forward[2] = 0;
+		// glass fx
+		// if (strcmp(tr.ent->classname, "func_explosive") == 0)
+		// 	CGF_SFX_ShootBreakableGlass(tr.ent, ent, &tr, MOD_KICK);
+		// else
+		T_Damage(tr.ent, ent, ent, forward, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_NONE, MOD_KICK);
+
+		// Stat add
+		//Stats_AddHit(ent, MOD_KICK, LOC_NO);
+		// Stat end
+		gi.sound(ent, CHAN_WEAPON, level.snd_kick, 1, ATTN_NORM, 0);
+		PlayerNoise (ent, ent->s.origin, PNOISE_SELF);
+		if (tr.ent->client && (tr.ent->client->pers.weapon->id == IT_WEAPON_M4
+			|| tr.ent->client->pers.weapon->id == IT_WEAPON_MP5
+			|| tr.ent->client->pers.weapon->id == IT_WEAPON_M3
+			|| tr.ent->client->pers.weapon->id == IT_WEAPON_SNIPER
+			|| tr.ent->client->pers.weapon->id == IT_WEAPON_HANDCANNON))		// crandom() > .8 ) 
+		{
+			// zucc fix this so reloading won't happen on the new gun!
+			tr.ent->client->reload_attempts = 0;
+			DropSpecialWeapon(tr.ent);
+
+			gi.LocClient_Print(ent, PRINT_HIGH, "You kick %s's %s from their hands!\n",
+				tr.ent->client->pers.netname,tr.ent->client->pers.weapon->pickup_name);
+
+			gi.LocClient_Print(tr.ent, PRINT_HIGH,	"%s kicked your weapon from your hands!\n", ent->client->pers.netname);
+
+		} else if(tr.ent->client && tr.ent->client->ctf_grapple && tr.ent->client->ctf_grapplestate == CTF_GRAPPLE_STATE_FLY) {
+			// hifi: if the player is shooting a grapple, lose it's focus
+			CTFPlayerResetGrapple(tr.ent);
+		}
+	}
+}
+
+#include "m_player.h"
+void punch_attack(edict_t * ent)
+{
+	vec3_t start, forward, right, offset, end;
+	int damage = 7, kick = 100, friendlyFire = 0;
+	int randmodify;
+	trace_t tr;
+	char *genderstr;
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	VectorScale(forward, 0, ent->client->kick_origin);
+	VectorSet(offset, 0, 0, ent->viewheight - 20);
+	P_ProjectSource(ent, ent->client->v_angle, offset, start, forward);
+	VectorMA(start, 50, forward, end);
+	PRETRACE();
+	tr = gi.trace(ent->s.origin, vec3_origin, vec3_origin, end, ent, MASK_SHOT);
+	POSTTRACE();
+
+	if (!((tr.surface) && (tr.surface->flags & SURF_SKY)))
+	{
+		if (tr.fraction < 1.0 && tr.ent->takedamage)
+		{
+			if (tr.ent->health <= 0)
+				return;
+
+			if (tr.ent->client)
+			{
+				if (tr.ent->client->uvTime)
+					return;
+
+				if (tr.ent != ent && ent->client && OnSameTeam(tr.ent, ent))
+					friendlyFire = 1;
+
+				if (friendlyFire && !g_friendly_fire->integer){
+					if (!teamplay->value || team_round_going || !ff_afterround->value)
+						return;
+				}
+			}
+
+			// add some random damage, damage range from 8 to 20.
+			randmodify = rand() % 13 + 1;
+			damage += randmodify;
+			// modify kick by damage
+			kick += (randmodify * 10);
+
+			// reduce damage, if he tries to punch within or out of water
+			if (ent->waterlevel)
+				damage -= rand() % 10 + 1;
+			// reduce kick, if victim is in water
+			if (tr.ent->waterlevel)
+				kick /= 2;
+
+			T_Damage(tr.ent, ent, ent, forward, tr.endpos, tr.plane.normal,
+				damage, kick, DAMAGE_NONE, MOD_PUNCH);
+			// Stat add
+			//Stats_AddHit(ent, MOD_PUNCH, LOC_NO);
+			// Stat end
+			gi.sound(ent, CHAN_WEAPON, level.snd_kick, 1, ATTN_NORM, 0);
+			PlayerNoise(ent, ent->s.origin, PNOISE_SELF);
+
+			//only hit weapon out of hand if damage >= 15
+			if (tr.ent->client && (tr.ent->client->pers.weapon->id == IT_WEAPON_M4
+				|| tr.ent->client->pers.weapon->id == IT_WEAPON_MP5
+				|| tr.ent->client->pers.weapon->id == IT_WEAPON_M3
+				|| tr.ent->client->pers.weapon->id == IT_WEAPON_SNIPER
+				|| tr.ent->client->pers.weapon->id == IT_WEAPON_HANDCANNON) && damage >= 15)
+			{
+				DropSpecialWeapon(tr.ent);
+
+				gi.LocClient_Print(ent, PRINT_HIGH, "You hit %s's %s from their hands!\n",
+					tr.ent->client->pers.netname, tr.ent->client->pers.weapon->pickup_name);
+
+				gi.LocClient_Print(tr.ent, PRINT_HIGH, "%s hit your weapon from your hands!\n",
+					ent->client->pers.netname);
+			}
+			return;
+		}
+	}
+	gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/swish.wav"), 1, ATTN_NORM, 0);
+
+	// animate the punch
+	// can't animate a punch when ducked
+	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+		return;
+	if (ent->client->anim_priority >= ANIM_WAVE)
+		return;
+
+	ent->s.frame = FRAME_flip01 - 1;
+	ent->client->anim_end = FRAME_attack8;
+	ent->client->anim_time = 0_ms;
+}
+
+// zucc
+// return values
+// 0 - missed
+// 1 - hit player
+// 2 - hit wall
+
+int knife_attack (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick)
+{
+	trace_t tr;
+	vec3_t end;
+
+	VectorMA (start, 45, aimdir, end);
+
+	PRETRACE();
+	tr = gi.trace(self->s.origin, vec3_origin, vec3_origin, end, self, MASK_SHOT);
+	POSTTRACE();
+
+	// don't need to check for water
+	if (tr.surface && (tr.surface->flags & SURF_SKY))
+		return 0;	// we hit the sky, call it a miss
+
+	if (tr.fraction < 1.0)
+	{
+		//glass fx
+		// if (0 == strcmp(tr.ent->classname, "func_explosive"))
+		// {
+		// 	CGF_SFX_ShootBreakableGlass(tr.ent, self, &tr, MOD_KNIFE);
+		// }
+		// else 
+		if (tr.ent->takedamage)
+		{
+			setFFState(self);
+			T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_NONE, MOD_KNIFE);
+			return -2;
+		}
+		else
+		{
+			gi.WriteByte(svc_temp_entity);
+			gi.WriteByte(TE_SPARKS);
+			gi.WritePosition (tr.endpos);
+			gi.WriteDir(tr.plane.normal);
+			gi.multicast(tr.endpos, MULTICAST_PVS, false);
+			return -1;
+		}
+	}
+	return 0;
+}
+
+static int knives = 0;
+
+TOUCH(knife_touch) (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf) -> void
+{
+	vec3_t origin;
+	edict_t *dropped, *knife;
+	vec3_t move_angles;
+	gitem_t *item;
+
+
+	if (other == ent->owner)
+		return;
+
+	if (surf && (surf->flags & SURF_SKY)) {
+		G_FreeEdict (ent);
+		return;
+	}
+
+	if (ent->owner->client)
+	{
+		gi.positioned_sound(ent->s.origin, ent, CHAN_WEAPON, gi.soundindex("weapons/clank.wav"), 1, ATTN_NORM, 0);
+		PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
+	}
+
+	// calculate position for the explosion entity
+	VectorMA(ent->s.origin, -0.02, ent->velocity, origin);
+
+	//glass fx
+	// if (0 == strcmp(other->classname, "func_explosive"))
+	// 	return; // ignore it, so it can bounce
+
+
+	if (other->takedamage)
+	{
+		// Players hit by throwing knives add it to their inventory.
+		if( other->client && (INV_AMMO(other,KNIFE_NUM) < other->client->knife_max) )
+			INV_AMMO(other,KNIFE_NUM) ++;
+
+		T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin, plane->normal, ent->dmg, 0, DAMAGE_NONE, MOD_KNIFE_THROWN);
+	}
+	else
+	{
+		// code to manage excess knives in the game, guarantees that
+		// no more than knifelimit knives will be stuck in walls.  
+		// if knifelimit == 0 then it won't be in effect and it can
+		// start removing knives even when less than the limit are
+		// out there.
+		if (knifelimit->value != 0)
+		{
+			knives++;
+
+			if (knives > knifelimit->value)
+				knives = 1;
+
+			knife = FindEdictByClassnum("weapon_Knife", knives);
+			if (knife)
+				knife->nextthink = level.time + gtime_t::from_ms(4);
+		}
+
+		dropped = G_Spawn();
+		item = GET_ITEM(KNIFE_NUM);
+
+		dropped->classname = item->classname;
+		dropped->item = item;
+		dropped->spawnflags = SPAWNFLAG_ITEM_DROPPED;
+		dropped->s.effects = item->world_model_flags;
+		dropped->s.renderfx = RF_GLOW;
+		VectorSet(dropped->mins, -15, -15, -15);
+		VectorSet(dropped->maxs, 15, 15, 15);
+		gi.setmodel(dropped, dropped->item->world_model);
+		dropped->solid = SOLID_TRIGGER;
+		dropped->movetype = MOVETYPE_TOSS;
+		dropped->touch = Touch_Item;
+		dropped->owner = ent;
+		dropped->gravity = 0;
+		//dropped->classnum = knives;
+
+		move_angles = vectoangles(ent->velocity);
+		//AngleVectors (ent->s.angles, forward, right, up);
+		VectorCopy(ent->s.origin, dropped->s.origin);
+		//VectorCopy(dropped->s.origin, dropped->old_origin);
+		VectorCopy(move_angles, dropped->s.angles);
+
+		dropped->nextthink = level.time + gtime_t::from_hz(120);
+		dropped->think = G_FreeEdict;
+
+		// Stick to moving doors, platforms, etc.
+		if( CanBeAttachedTo(other) )
+			AttachToEntity( dropped, other );
+
+		gi.linkentity(dropped);
+
+		if (!(ent->waterlevel))
+		{
+			gi.WriteByte(svc_temp_entity);
+			gi.WriteByte(TE_SPARKS);
+			gi.WritePosition(origin);
+			gi.WriteDir(plane->normal);
+			gi.multicast(ent->s.origin, MULTICAST_PVS, false);
+		}
+	}
+	G_FreeEdict(ent);
+}
+
+
+void knife_throw(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
+{
+	edict_t *knife;
+	trace_t tr;
+	vec3_t angles;
+
+	knife = G_Spawn();
+
+	VectorNormalize(dir);
+	VectorCopy(start, knife->s.origin);
+	//vectoangles(knife->s.angles);
+	angles = vectoangles(dir);
+	VectorCopy(angles, knife->s.angles);
+
+	VectorScale(dir, speed, knife->velocity);
+	knife->movetype = MOVETYPE_TOSS;
+
+	VectorSet(knife->avelocity, 1200, 0, 0);
+
+	knife->movetype = MOVETYPE_TOSS;
+	knife->clipmask = MASK_SHOT;
+	knife->solid = SOLID_BBOX;
+	knife->s.effects = EF_NONE;		//EF_ROTATE?
+	VectorClear(knife->mins);
+	VectorClear(knife->maxs);
+	knife->s.modelindex = gi.modelindex ("models/objects/knife/tris.md2");
+	knife->owner = self;
+	knife->touch = knife_touch;
+	knife->nextthink = level.time + gtime_t::from_ms((8000 * 10) / speed);
+	knife->think = G_FreeEdict;
+	knife->dmg = damage;
+	knife->s.sound = level.snd_knifethrow;
+	knife->classname = "thrown_knife";
+	//knife->typeNum = KNIFE_NUM;
+
+	PRETRACE();
+	tr = gi.trace(self->s.origin, vec3_origin, vec3_origin, knife->s.origin, knife, MASK_SHOT);
+	POSTTRACE();
+	if (tr.fraction < 1.0)
+	{
+		VectorMA(knife->s.origin, -10, dir, knife->s.origin);
+		knife->touch(knife, tr.ent, tr, false);
+	}
+
+	if (knife->inuse) {
+		VectorCopy(knife->s.origin, knife->s.old_origin);
+		//VectorCopy(knife->s.origin, knife->old_origin);
+		gi.linkentity(knife);
+	}
+}
+
 /*
 =====================================================================
 setFFState: Save team wound count & warning state before an attack
