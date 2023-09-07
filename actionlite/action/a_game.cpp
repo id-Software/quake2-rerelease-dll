@@ -736,69 +736,69 @@ edict_t *FindEdictByClassnum(const char *classname, int classnum)
 
 // /********* Bulletholes/wall stuff ***********/
 
-// void UpdateAttachedPos( edict_t *self )
-// {
-// 	vec3_t fwd, right, up;
+void UpdateAttachedPos( edict_t *self )
+{
+	vec3_t fwd, right, up;
 
-// 	if( (self->wait && (level.framenum >= self->wait)) || ! self->movetarget->inuse )
-// 	{
-// 		G_FreeEdict(self);
-// 		return;
-// 	}
+	if( (self->wait && (level.time.milliseconds() >= self->wait)) || ! self->movetarget->inuse )
+	{
+		G_FreeEdict(self);
+		return;
+	}
 
-// 	self->nextthink = level.framenum + 1;
+	self->nextthink = level.time + gtime_t::from_ms(1);
 
-// 	if( self < self->movetarget )
-// 	{
-// 		// If the object we're attached to hasn't been updated yet this frame,
-// 		// we need to move ahead one frame's worth so we stay aligned with it.
-// 		VectorScale( self->movetarget->velocity, FRAMETIME, self->s.origin );
-// 		VectorAdd( self->movetarget->s.origin, self->s.origin, self->s.origin );
-// 		VectorScale( self->movetarget->avelocity, FRAMETIME, self->s.angles );
-// 		VectorAdd( self->movetarget->s.angles, self->s.angles, self->s.angles );
-// 	}
-// 	else
-// 	{
-// 		VectorCopy( self->movetarget->s.origin, self->s.origin );
-// 		VectorCopy( self->movetarget->s.angles, self->s.angles );
-// 	}
+	if( self < self->movetarget )
+	{
+		// If the object we're attached to hasn't been updated yet this frame,
+		// we need to move ahead one frame's worth so we stay aligned with it.
+		VectorScale( self->movetarget->velocity, level.time.milliseconds(), self->s.origin );
+		VectorAdd( self->movetarget->s.origin, self->s.origin, self->s.origin );
+		VectorScale( self->movetarget->avelocity, level.time.milliseconds(), self->s.angles );
+		VectorAdd( self->movetarget->s.angles, self->s.angles, self->s.angles );
+	}
+	else
+	{
+		VectorCopy( self->movetarget->s.origin, self->s.origin );
+		VectorCopy( self->movetarget->s.angles, self->s.angles );
+	}
 
-// 	AngleVectors( self->s.angles, fwd, right, up ); // At this point, this is the angles of the entity we attached to.
-// 	self->s.origin[0] += fwd[0] * self->move_origin[0] + right[0] * self->move_origin[1] + up[0] * self->move_origin[2];
-// 	self->s.origin[1] += fwd[1] * self->move_origin[0] + right[1] * self->move_origin[1] + up[1] * self->move_origin[2];
-// 	self->s.origin[2] += fwd[2] * self->move_origin[0] + right[2] * self->move_origin[1] + up[2] * self->move_origin[2];
-// 	VectorAdd( self->s.angles, self->move_angles, self->s.angles );
-// 	VectorCopy( self->movetarget->velocity, self->velocity );
-// 	VectorCopy( self->movetarget->avelocity, self->avelocity );
-// }
+	AngleVectors( self->s.angles, fwd, right, up ); // At this point, this is the angles of the entity we attached to.
+	self->s.origin[0] += fwd[0] * self->move_origin[0] + right[0] * self->move_origin[1] + up[0] * self->move_origin[2];
+	self->s.origin[1] += fwd[1] * self->move_origin[0] + right[1] * self->move_origin[1] + up[1] * self->move_origin[2];
+	self->s.origin[2] += fwd[2] * self->move_origin[0] + right[2] * self->move_origin[1] + up[2] * self->move_origin[2];
+	VectorAdd( self->s.angles, self->move_angles, self->s.angles );
+	VectorCopy( self->movetarget->velocity, self->velocity );
+	VectorCopy( self->movetarget->avelocity, self->avelocity );
+}
 
 // // Decal/splat/knife attached to some moving entity.
-// void AttachedThink( edict_t *self )
-// {
-// 	UpdateAttachedPos( self );
-// 	gi.linkentity( self );
-// }
+void AttachedThink( edict_t *self )
+{
+	UpdateAttachedPos( self );
+	gi.linkentity( self );
+}
 
 // // Attach a splat/decal/knife to a moving entity.
-// void AttachToEntity( edict_t *self, edict_t *onto )
-// {
-// 	vec3_t fwd, right, up, offset;
+void AttachToEntity( edict_t *self, edict_t *onto )
+{
+	vec3_t fwd, right, up, offset;
 
-// 	self->wait = self->nextthink;  // Use old nextthink as despawn framenum (0 is never).
-// 	self->movetype = MOVETYPE_NONE;
+	self->wait = self->nextthink.frames();  // Use old nextthink as despawn framenum (0 is never).
+	self->movetype = MOVETYPE_NONE;
 
-// 	self->movetarget = onto;
-// 	AngleVectors( onto->s.angles, fwd, right, up );
-// 	VectorSubtract( self->s.origin, onto->s.origin, offset );
-// 	self->move_origin[0] = DotProduct( offset, fwd );
-// 	self->move_origin[1] = DotProduct( offset, right );
-// 	self->move_origin[2] = DotProduct( offset, up );
-// 	VectorSubtract( self->s.angles, onto->s.angles, self->move_angles );
+	self->movetarget = onto;
+	AngleVectors( onto->s.angles, fwd, right, up );
+	VectorSubtract( self->s.origin, onto->s.origin, offset );
+	self->move_origin[0] = DotProduct( offset, fwd );
+	self->move_origin[1] = DotProduct( offset, right );
+	self->move_origin[2] = DotProduct( offset, up );
+	VectorSubtract( self->s.angles, onto->s.angles, self->move_angles );
 
-// 	self->think = AttachedThink;
+	self->think = AttachedThink;
 
-// 	UpdateAttachedPos( self );
-// }
+	UpdateAttachedPos( self );
+}
 
 // bool CanBeAttachedTo( const edict_t *ent )
 // {

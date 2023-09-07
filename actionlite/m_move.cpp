@@ -567,17 +567,17 @@ static bool SV_flystep(edict_t *ent, vec3_t move, bool relink, edict_t *current_
 		}
 
 		// ROGUE
-		if ((trace.fraction == 1) && (!trace.allsolid) && (!trace.startsolid))
+		//if ((trace.fraction == 1) && (!trace.allsolid) && (!trace.startsolid))
 		// ROGUE
 		{
 			ent->s.origin = trace.endpos;
 			//=====
 			// PGM
-			if (!current_bad && CheckForBadArea(ent))
+			if (!current_bad) // && CheckForBadArea(ent))
 				ent->s.origin = oldorg;
 			else
 			{
-				if (relink)
+			if (relink)
 				{
 					gi.linkentity(ent);
 					G_TouchTriggers(ent);
@@ -619,19 +619,20 @@ bool SV_movestep(edict_t *ent, vec3_t move, bool relink)
 	// PMM - who cares about bad areas if you're dead?
 	if (ent->health > 0)
 	{
-		current_bad = CheckForBadArea(ent);
-		if (current_bad)
-		{
-			ent->bad_area = current_bad;
+		// current_bad = CheckForBadArea(ent);
+		// if (current_bad)
+		// {
+		// 	ent->bad_area = current_bad;
 
-			if (ent->enemy && !strcmp(ent->enemy->classname, "tesla_mine"))
-			{
-				// if the tesla is in front of us, back up...
-				if (IsBadAhead(ent, current_bad, move))
-					move *= -1;
-			}
-		}
-		else if (ent->bad_area)
+		// 	if (ent->enemy && !strcmp(ent->enemy->classname, "tesla_mine"))
+		// 	{
+		// 		// if the tesla is in front of us, back up...
+		// 		if (IsBadAhead(ent, current_bad, move))
+		// 			move *= -1;
+		// 	}
+		// }
+		// else 
+		if (ent->bad_area)
 		{
 			// if we're no longer in a bad area, get back to business.
 			ent->bad_area = nullptr;
@@ -776,8 +777,8 @@ bool SV_movestep(edict_t *ent, vec3_t move, bool relink)
 	if (ent->health > 0)
 	{
 		// use AI_BLOCKED to tell the calling layer that we're now mad at a tesla
-		new_bad = CheckForBadArea(ent);
-		if (!current_bad && new_bad)
+		//new_bad = CheckForBadArea(ent);
+		if (!current_bad) // && new_bad)
 		{
 			if (new_bad->owner)
 			{

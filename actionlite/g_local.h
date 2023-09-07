@@ -2708,7 +2708,7 @@ blocked_jump_result_t blocked_checkjump(edict_t *self, float dist);
 bool	 inback(edict_t *self, edict_t *other);
 float	 realrange(edict_t *self, edict_t *other);
 edict_t *SpawnBadArea(const vec3_t &mins, const vec3_t &maxs, gtime_t lifespan, edict_t *owner);
-edict_t *CheckForBadArea(edict_t *ent);
+//edict_t *CheckForBadArea(edict_t *ent);
 //bool	 MarkTeslaArea(edict_t *self, edict_t *tesla);
 //void	 InitHintPaths();
 void PredictAim(edict_t *self, edict_t *target, const vec3_t &start, float bolt_speed, bool eye_height, float offset, vec3_t *aimdir,
