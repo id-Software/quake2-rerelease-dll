@@ -19,13 +19,16 @@
 
 #include "../g_local.h"
 
-#define STATE_TOP               0
-#define STATE_BOTTOM            1
-#define STATE_UP                2
-#define STATE_DOWN              3
+// #define STATE_TOP               0
+// #define STATE_BOTTOM            1
+// #define STATE_UP                2
+// #define STATE_DOWN              3
 
-#define DOOR_START_OPEN         1
-#define DOOR_REVERSE            2
+// From g_func.cpp
+constexpr spawnflags_t SPAWNFLAG_DOOR_START_OPEN = 1_spawnflag;
+
+// It's only used here that I'm aware of, so I'm putting it here
+#define M_PI 3.14159265358979323846
 
 extern void door_use(edict_t * self, edict_t * other, edict_t * activator);
 
@@ -73,14 +76,16 @@ int KickDoor(trace_t * tr_old, edict_t * ent, vec3_t forward)
 
 		tr = *tr_old;
 #if 1
-		if ((!(tr.ent->spawnflags & DOOR_START_OPEN) &&
-		     !(tr.ent->moveinfo.state == STATE_TOP)) ||
-		    ((tr.ent->spawnflags & DOOR_START_OPEN) && !(tr.ent->moveinfo.state == STATE_BOTTOM)))
+		if ((!(!(tr.ent->spawnflags).has(SPAWNFLAG_DOOR_START_OPEN)) &&
+			(!(tr.ent->moveinfo.state == STATE_TOP))) ||
+			((tr.ent->spawnflags).has(SPAWNFLAG_DOOR_START_OPEN) && !(tr.ent->moveinfo.state == STATE_BOTTOM)))
+
+
 #else
-		if ((!(tr.ent->spawnflags & DOOR_START_OPEN) &&
+		if ((!(tr.ent->spawnflags).has(SPAWNFLAG_DOOR_START_OPEN) &&
 		     ((tr.ent->moveinfo.state == STATE_BOTTOM) ||
 		      (tr.ent->moveinfo.state == STATE_DOWN))) ||
-		    ((tr.ent->spawnflags & DOOR_START_OPEN) &&
+		    ((tr.ent->spawnflags).has & SPAWNFLAG_DOOR_START_OPEN) &&
 		     ((tr.ent->moveinfo.state == STATE_TOP) || (tr.ent->moveinfo.state == STATE_UP))))
 #endif
 		{
@@ -105,7 +110,7 @@ int KickDoor(trace_t * tr_old, edict_t * ent, vec3_t forward)
 			VectorRotate(d_forward, right, d_forward);
 
 			d = DotProduct(forward, d_forward);
-			if (tr.ent->spawnflags & DOOR_REVERSE)
+			if ((tr.ent->spawnflags).has(SPAWNFLAG_DOOR_REVERSE))
 				d = -d;
 			// d = sin( acos( d ) );
 			if (d > 0.0) {
@@ -113,9 +118,9 @@ int KickDoor(trace_t * tr_old, edict_t * ent, vec3_t forward)
 				//if ( tr.ent->spawnflags & DOOR_REVERSE )
 				//  gi.dprintf( "but DOOR_REVERSE is set\n" );
 				// Only use the door if it's not already opening
-				if ((!(tr.ent->spawnflags & DOOR_START_OPEN) &&
+				if ((!(tr.ent->spawnflags).has(SPAWNFLAG_DOOR_START_OPEN) &&
 				     !(tr.ent->moveinfo.state == STATE_UP)) ||
-				    ((tr.ent->spawnflags & DOOR_START_OPEN) && (tr.ent->moveinfo.state == STATE_DOWN)))
+				    ((tr.ent->spawnflags).has(SPAWNFLAG_DOOR_START_OPEN) && (tr.ent->moveinfo.state == STATE_DOWN)))
 					door_use(tr.ent, ent, ent);
 				// Find out if someone else is on the other side
 				VectorMA(tr.endpos, 25, forward, end);

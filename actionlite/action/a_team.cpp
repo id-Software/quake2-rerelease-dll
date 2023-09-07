@@ -306,7 +306,7 @@ void SelectItem6(edict_t *ent, pmenuhnd_t *p)
 // newrand returns n, where 0 >= n < top
 int newrand (int top)
 {
-	return (int) (random () * top);
+	return (int) (rand () * top);
 }
 
 
