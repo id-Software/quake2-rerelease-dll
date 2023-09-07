@@ -800,14 +800,15 @@ void AttachToEntity( edict_t *self, edict_t *onto )
 	UpdateAttachedPos( self );
 }
 
-// bool CanBeAttachedTo( const edict_t *ent )
-// {
-// 	return (ent && ( (Q_strnicmp( ent->classname, "func_door", 9 ) == 0)
-// 	               || (strcmp( ent->classname, "func_plat" ) == 0)
-// 	               || (strcmp( ent->classname, "func_rotating" ) == 0)
-// 	               || (strcmp( ent->classname, "func_train" ) == 0)
-// 	               || (strcmp( ent->classname, "func_button" ) == 0) ));
-// }
+bool CanBeAttachedTo( const edict_t *ent )
+{
+	// return (ent && ( (Q_strnicmp( ent->classname, "func_door", 9 ) == 0)
+	return (ent && ( (strcmp( ent->classname, "func_door" ) == 0)
+	               || (strcmp( ent->classname, "func_plat" ) == 0)
+	               || (strcmp( ent->classname, "func_rotating" ) == 0)
+	               || (strcmp( ent->classname, "func_train" ) == 0)
+	               || (strcmp( ent->classname, "func_button" ) == 0) ));
+}
 
 // void AddDecal(edict_t * self, trace_t * tr)
 // {
