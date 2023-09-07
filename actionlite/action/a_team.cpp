@@ -527,6 +527,8 @@ void CreditsMenu (edict_t * ent, pmenuhnd_t * p)
 
 void killPlayer( edict_t *ent, bool suicidePunish )
 {
+	mod_id_t meansOfDeath = MOD_SUICIDE;
+
 	if (!IS_ALIVE(ent))
 		return;
 	

@@ -520,6 +520,7 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 	bool friendlyFire;
 	char *special_message = NULL;
 	int n;
+	mod_id_t meansOfDeath = mod.id;
 
 	const char *base = nullptr;
 
