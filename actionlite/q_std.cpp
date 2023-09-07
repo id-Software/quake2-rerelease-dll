@@ -117,6 +117,27 @@ skipwhite:
 	return buffer;
 }
 
+// Action Add
+float VectorNormalize (vec3_t v)
+{
+	float	length, ilength;
+
+	length = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
+
+	if (length)
+	{
+		length = sqrtf(length);		// FIXME
+		ilength = 1/length;
+		v[0] *= ilength;
+		v[1] *= ilength;
+		v[2] *= ilength;
+	}
+		
+	return length;
+
+}
+// Action Add end
+
 /*
 ============================================================================
 
