@@ -56,4 +56,5 @@ void AddKilledPlayer (edict_t * self, edict_t * ent);
 void MakeAllLivePlayersObservers( void );
 
 //a_cmds.c
-void Cmd_NextMap_f( edict_t * ent );
+// Superceded by SVCmd_NextMap_f ?
+//void Cmd_NextMap_f( edict_t * ent );

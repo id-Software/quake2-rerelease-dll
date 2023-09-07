@@ -703,7 +703,7 @@ void Team_f (edict_t * ent)
 
 void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 {
-	char *s;
+	char s[MAX_SKINLEN];
 	const char *a;
 	int oldTeam;
 
@@ -1012,9 +1012,11 @@ void CleanLevel ()
 	edict_t *ent;
 	base = 1 + game.maxclients + BODY_QUEUE_SIZE;
 	ent = g_edicts + base;
-	action_weapon_num_t weapNum;
-	action_item_num_t itemNum;
-	action_ammo_num_t ammoNum;
+
+	// Setting defaults
+	action_weapon_num_t weapNum = MK23_NUM;
+	action_item_num_t itemNum = KEV_NUM;
+	action_ammo_num_t ammoNum = MK23_ANUM;
 	
 	for (i = base; i < globals.num_edicts; i++, ent++)
 	{
@@ -1074,7 +1076,7 @@ void ResetScores (bool playerScores)
 {
 	int i;
 	edict_t *ent;
-	ctfgame_t *ctfgame;
+	ctfgame_t ctfgame;
 
 	team_round_going = team_round_countdown = team_game_going = 0;
 	current_round_length = 0;
@@ -1095,13 +1097,13 @@ void ResetScores (bool playerScores)
 	}
 
 
-	ctfgame->team1 = 0;
-	ctfgame->team2 = 0;
-	ctfgame->total1 = 0;
-	ctfgame->total2 = 0;
-	ctfgame->last_flag_capture = 0_ms;
-	ctfgame->last_capture_team = 0;
-	ctfgame->halftime = 0;
+	ctfgame.team1 = 0;
+	ctfgame.team2 = 0;
+	ctfgame.total1 = 0;
+	ctfgame.total2 = 0;
+	ctfgame.last_flag_capture = 0_ms;
+	ctfgame.last_capture_team = 0;
+	ctfgame.halftime = 0;
 
 	if(!playerScores)
 		return;
