@@ -973,7 +973,6 @@ enum
 enum item_id_t : int32_t {
 	IT_NULL, // must always be zero
 
-	IT_WEAPON_GRAPPLE,
 	IT_WEAPON_MK23,
 	IT_WEAPON_MP5,
 	IT_WEAPON_M4,
@@ -983,6 +982,7 @@ enum item_id_t : int32_t {
 	IT_WEAPON_DUALMK23,
 	IT_WEAPON_KNIFE,
 	IT_WEAPON_GRENADES,
+	IT_WEAPON_GRAPPLE,
 
 	IT_AMMO_SHELLS,
 	IT_AMMO_BULLETS,
