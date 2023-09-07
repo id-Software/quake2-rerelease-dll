@@ -1506,106 +1506,104 @@ int knife_attack (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int ki
 
 static int knives = 0;
 
-TOUCH(knife_touch) (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf) -> void
+TOUCH(knife_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool other_touching_self) -> void
 {
-	vec3_t origin;
-	edict_t *dropped, *knife;
-	vec3_t move_angles;
-	gitem_t *item;
+    vec3_t origin;
+    edict_t *dropped, *knife;
+    vec3_t move_angles;
+    gitem_t *item;
 
+    if (other == self->owner)
+        return;
 
-	if (other == ent->owner)
-		return;
+    if (tr.surface->flags & SURF_SKY) {
+        G_FreeEdict (self);
+        return;
+    }
 
-	if (surf && (surf->flags & SURF_SKY)) {
-		G_FreeEdict (ent);
-		return;
-	}
+    if (self->owner->client)
+    {
+        gi.positioned_sound(self->s.origin, self, CHAN_WEAPON, gi.soundindex("weapons/clank.wav"), 1, ATTN_NORM, 0);
+        PlayerNoise(self->owner, self->s.origin, PNOISE_IMPACT);
+    }
 
-	if (ent->owner->client)
-	{
-		gi.positioned_sound(ent->s.origin, ent, CHAN_WEAPON, gi.soundindex("weapons/clank.wav"), 1, ATTN_NORM, 0);
-		PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
-	}
+    // calculate position for the explosion entity
+    VectorMA(self->s.origin, -0.02, self->velocity, origin);
 
-	// calculate position for the explosion entity
-	VectorMA(ent->s.origin, -0.02, ent->velocity, origin);
+    //glass fx
+    // if (0 == strcmp(other->classname, "func_explosive"))
+    // 	return; // ignore it, so it can bounce
 
-	//glass fx
-	// if (0 == strcmp(other->classname, "func_explosive"))
-	// 	return; // ignore it, so it can bounce
+    if (other->takedamage)
+    {
+        // Players hit by throwing knives add it to their inventory.
+        if( other->client && (INV_AMMO(other,KNIFE_NUM) < other->client->knife_max) )
+            INV_AMMO(other,KNIFE_NUM) ++;
 
+        T_Damage(other, self, self->owner, self->velocity, self->s.origin, tr.plane.normal, self->dmg, 0, DAMAGE_NONE, MOD_KNIFE_THROWN);
+    }
+    else
+    {
+        // code to manage excess knives in the game, guarantees that
+        // no more than knifelimit knives will be stuck in walls.
+        // if knifelimit == 0 then it won't be in effect and it can
+        // start removing knives even when less than the limit are
+        // out there.
+        if (knifelimit->value != 0)
+        {
+            knives++;
 
-	if (other->takedamage)
-	{
-		// Players hit by throwing knives add it to their inventory.
-		if( other->client && (INV_AMMO(other,KNIFE_NUM) < other->client->knife_max) )
-			INV_AMMO(other,KNIFE_NUM) ++;
+            if (knives > knifelimit->value)
+                knives = 1;
 
-		T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin, plane->normal, ent->dmg, 0, DAMAGE_NONE, MOD_KNIFE_THROWN);
-	}
-	else
-	{
-		// code to manage excess knives in the game, guarantees that
-		// no more than knifelimit knives will be stuck in walls.  
-		// if knifelimit == 0 then it won't be in effect and it can
-		// start removing knives even when less than the limit are
-		// out there.
-		if (knifelimit->value != 0)
-		{
-			knives++;
+            knife = FindEdictByClassnum("weapon_Knife", knives);
+            if (knife)
+                knife->nextthink = level.time + gtime_t::from_ms(4);
+        }
 
-			if (knives > knifelimit->value)
-				knives = 1;
+        dropped = G_Spawn();
+        item = GET_ITEM(KNIFE_NUM);
 
-			knife = FindEdictByClassnum("weapon_Knife", knives);
-			if (knife)
-				knife->nextthink = level.time + gtime_t::from_ms(4);
-		}
+        dropped->classname = item->classname;
+        dropped->item = item;
+        dropped->spawnflags = SPAWNFLAG_ITEM_DROPPED;
+        dropped->s.effects = item->world_model_flags;
+        dropped->s.renderfx = RF_GLOW;
+        VectorSet(dropped->mins, -15, -15, -15);
+        VectorSet(dropped->maxs, 15, 15, 15);
+        gi.setmodel(dropped, dropped->item->world_model);
+        dropped->solid = SOLID_TRIGGER;
+        dropped->movetype = MOVETYPE_TOSS;
+        dropped->touch = Touch_Item;
+        dropped->owner = self;
+        dropped->gravity = 0;
+        //dropped->classnum = knives;
 
-		dropped = G_Spawn();
-		item = GET_ITEM(KNIFE_NUM);
+        move_angles = vectoangles(self->velocity);
+        //AngleVectors (self->s.angles, forward, right, up);
+        VectorCopy(self->s.origin, dropped->s.origin);
+        //VectorCopy(dropped->s.origin, dropped->old_origin);
+        VectorCopy(move_angles, dropped->s.angles);
 
-		dropped->classname = item->classname;
-		dropped->item = item;
-		dropped->spawnflags = SPAWNFLAG_ITEM_DROPPED;
-		dropped->s.effects = item->world_model_flags;
-		dropped->s.renderfx = RF_GLOW;
-		VectorSet(dropped->mins, -15, -15, -15);
-		VectorSet(dropped->maxs, 15, 15, 15);
-		gi.setmodel(dropped, dropped->item->world_model);
-		dropped->solid = SOLID_TRIGGER;
-		dropped->movetype = MOVETYPE_TOSS;
-		dropped->touch = Touch_Item;
-		dropped->owner = ent;
-		dropped->gravity = 0;
-		//dropped->classnum = knives;
+        dropped->nextthink = level.time + gtime_t::from_hz(120);
+        dropped->think = G_FreeEdict;
 
-		move_angles = vectoangles(ent->velocity);
-		//AngleVectors (ent->s.angles, forward, right, up);
-		VectorCopy(ent->s.origin, dropped->s.origin);
-		//VectorCopy(dropped->s.origin, dropped->old_origin);
-		VectorCopy(move_angles, dropped->s.angles);
+        // Stick to moving doors, platforms, etc.
+        if( CanBeAttachedTo(other) )
+            AttachToEntity( dropped, other );
 
-		dropped->nextthink = level.time + gtime_t::from_hz(120);
-		dropped->think = G_FreeEdict;
+        gi.linkentity(dropped);
 
-		// Stick to moving doors, platforms, etc.
-		if( CanBeAttachedTo(other) )
-			AttachToEntity( dropped, other );
-
-		gi.linkentity(dropped);
-
-		if (!(ent->waterlevel))
-		{
-			gi.WriteByte(svc_temp_entity);
-			gi.WriteByte(TE_SPARKS);
-			gi.WritePosition(origin);
-			gi.WriteDir(plane->normal);
-			gi.multicast(ent->s.origin, MULTICAST_PVS, false);
-		}
-	}
-	G_FreeEdict(ent);
+        if (!(self->waterlevel))
+        {
+            gi.WriteByte(svc_temp_entity);
+            gi.WriteByte(TE_SPARKS);
+            gi.WritePosition(origin);
+            gi.WriteDir(tr.plane.normal);
+            gi.multicast(self->s.origin, MULTICAST_PVS, false);
+        }
+        G_FreeEdict(self);
+    }
 }
 
 
