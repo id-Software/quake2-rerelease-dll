@@ -1,5 +1,5 @@
 #include "../g_local.h"
-#include "cgf_sfx_glass.h"
+//#include "cgf_sfx_glass.h"
 
 bool team_game_going = false;	// is a team game going right now?
 bool team_round_going = false;	// is an actual round of a team game going right now?

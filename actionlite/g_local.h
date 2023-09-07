@@ -9,7 +9,7 @@
 // Action includes
 #include "action/a_team.h"
 #include "action/a_game.h"
-#include "action/cgf_sfx_glass.h"
+//#include "action/cgf_sfx_glass.h"
 #include "action/a_radio.h"
 #include "action/a_xgame.h"
 
@@ -1789,8 +1789,6 @@ extern cvar_t *warmup;
 extern cvar_t *rrot;
 extern cvar_t *vrot;
 extern cvar_t *e_enhancedSlippers;
-
-
 extern mod_id_t meansOfDeath;
 
 // zucc for hitlocation of death
