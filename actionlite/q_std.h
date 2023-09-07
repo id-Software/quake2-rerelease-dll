@@ -219,7 +219,25 @@ size_t Q_strlcat(char* dst, const char* src, size_t siz);
 // Action Add
 //======================================================================
 
+//void AddPointToBounds (const vec3_t v, vec3_t mins, vec3_t maxs);
+vec3_t VectorNormalize (vec3_t v);	// returns vector length
+vec3_t VectorNormalize2 (const vec3_t v, vec3_t out);
 
+int Q_log2 (int val);
+
+void R_ConcatRotations (float in1[3][3], float in2[3][3], float out[3][3]);
+void R_ConcatTransforms (float in1[3][4], float in2[3][4], float out[3][4]);
+
+//void AngleVectors (const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
+int BoxOnPlaneSide (const vec3_t emins, const vec3_t emaxs, const struct cplane_s *plane);
+float anglemod (float a);
+//float LerpAngle (float a1, float a2, float frac);
+
+#define Q_isupper( c )	( (c) >= 'A' && (c) <= 'Z' )
+#define Q_islower( c )	( (c) >= 'a' && (c) <= 'z' )
+#define Q_isdigit( c )	( (c) >= '0' && (c) <= '9' )
+#define Q_isalpha( c )	( Q_isupper( c ) || Q_islower( c ) )
+#define Q_isalnum( c )	( Q_isalpha( c ) || Q_isdigit( c ) )
 
 //======================================================================
 // Action Add End
@@ -254,29 +272,5 @@ size_t Q_strlcat(char* dst, const char* src, size_t siz);
 #define Distance(v1,v2)			(sqrtf(DistanceSquared(v1,v2)))
 
 #define ClearBounds(mins,maxs)	((mins)[0]=(mins)[1]=(mins)[2]=99999,(maxs)[0]=(maxs)[1]=(maxs)[2]=-99999)
-
-
-//void AddPointToBounds (const vec3_t v, vec3_t mins, vec3_t maxs);
-vec3_t VectorNormalize (vec3_t v);	// returns vector length
-vec3_t VectorNormalize2 (const vec3_t v, vec3_t out);
-
-int Q_log2 (int val);
-
-void R_ConcatRotations (float in1[3][3], float in2[3][3], float out[3][3]);
-void R_ConcatTransforms (float in1[3][4], float in2[3][4], float out[3][4]);
-
-//void AngleVectors (const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
-int BoxOnPlaneSide (const vec3_t emins, const vec3_t emaxs, const struct cplane_s *plane);
-float anglemod (float a);
-//float LerpAngle (float a1, float a2, float frac);
-
-#define Q_isupper( c )	( (c) >= 'A' && (c) <= 'Z' )
-#define Q_islower( c )	( (c) >= 'a' && (c) <= 'z' )
-#define Q_isdigit( c )	( (c) >= '0' && (c) <= '9' )
-#define Q_isalpha( c )	( Q_isupper( c ) || Q_islower( c ) )
-#define Q_isalnum( c )	( Q_isalpha( c ) || Q_isdigit( c ) )
-
-char *Q_strlwr( char *s );
-char *Q_strupr( char *s );
 
 // EOF

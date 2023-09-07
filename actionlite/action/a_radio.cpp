@@ -593,16 +593,16 @@ void Cmd_Deny_f (edict_t * ent)
 	}
 }
 
-void Cmd_Say_partner_f (edict_t * ent)
-{
-	if (ent->client->resp.radio.partner == NULL)
-	{
-		gi.LocClient_Print (ent, PRINT_HIGH, "You don't have a partner.\n");
-		return;
-	}
+// void Cmd_Say_partner_f (edict_t * ent)
+// {
+// 	if (ent->client->resp.radio.partner == NULL)
+// 	{
+// 		gi.LocClient_Print (ent, PRINT_HIGH, "You don't have a partner.\n");
+// 		return;
+// 	}
 
-	Cmd_Say_f (ent, false, false, true);
-}
+// 	Cmd_Say_f (ent, false, false, true);
+// }
 
 //SLIC2 Redesigned and optimized these two functions
 

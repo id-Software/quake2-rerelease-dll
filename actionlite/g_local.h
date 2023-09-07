@@ -1789,7 +1789,7 @@ extern cvar_t *warmup;
 extern cvar_t *rrot;
 extern cvar_t *vrot;
 extern cvar_t *e_enhancedSlippers;
-extern mod_id_t meansOfDeath;
+//extern mod_id_t meansOfDeath;
 
 // zucc for hitlocation of death
 extern int locOfDeath;
@@ -1801,6 +1801,8 @@ extern cvar_t *use_balancer;
 bool CheckForUnevenTeams (edict_t *);
 bool IsAllowedToJoin(edict_t *, int);
 void TransparentListSet (solid_t solid_type);
+
+
 
 // Action Add end
 

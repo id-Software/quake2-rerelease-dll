@@ -437,6 +437,12 @@ static const std::initializer_list<spawn_t> spawns = {
 };
 // clang-format on
 
+//AQ2:TNG - Slicer New location code
+int ml_count = 0;
+char ml_creator[101];
+//AQ2:TNG END
+placedata_t locationbase[MAX_LOCATIONS_IN_BASE];
+
 /*
 ===============
 ED_CallSpawn

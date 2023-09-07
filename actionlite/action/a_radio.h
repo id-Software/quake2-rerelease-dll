@@ -70,7 +70,7 @@ void Cmd_Radio_power_f (edict_t *);
 void Cmd_Radiopartner_f (edict_t *);
 void Cmd_Radioteam_f (edict_t *);
 void Cmd_Channel_f (edict_t *);
-void Cmd_Say_partner_f (edict_t *);
+//void Cmd_Say_partner_f (edict_t *);
 void Cmd_Partner_f (edict_t *);
 void Cmd_Deny_f (edict_t *);
 void Cmd_Unpartner_f (edict_t *);

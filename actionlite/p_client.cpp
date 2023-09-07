@@ -2376,6 +2376,21 @@ void G_PostRespawn(edict_t *self)
 	self->client->respawn_time = level.time;
 }
 
+void CleanBodies()
+{
+	int i;
+	edict_t *ent;
+
+	ent = g_edicts + game.maxclients + 1;
+	for (i = 0; i < BODY_QUEUE_SIZE; i++, ent++) {
+		gi.unlinkentity( ent );
+		ent->solid = SOLID_NOT;
+		ent->movetype = MOVETYPE_NOCLIP;
+		ent->svflags |= SVF_NOCLIENT;
+	}
+	level.body_que = 0;
+}
+
 void respawn(edict_t *self)
 {
 	if (deathmatch->integer || coop->integer)

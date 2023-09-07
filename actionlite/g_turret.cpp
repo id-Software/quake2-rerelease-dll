@@ -408,7 +408,7 @@ THINK(turret_driver_link) (edict_t *self) -> void
 	self->flags |= FL_TEAMSLAVE;
 }
 
-void InfantryPrecache();
+//void InfantryPrecache();
 
 void SP_turret_driver(edict_t *self)
 {
@@ -418,7 +418,7 @@ void SP_turret_driver(edict_t *self)
 		return;
 	}
 
-	InfantryPrecache();
+	//InfantryPrecache();
 
 	self->movetype = MOVETYPE_PUSH;
 	self->solid = SOLID_BBOX;

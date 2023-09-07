@@ -1149,7 +1149,7 @@ int TeamHasPlayers (int team)
 	return players;
 }
 
-int _numclients( void );  // a_vote.c
+//int _numclients( void );  // a_vote.c
 
 bool TeamsReady( void )
 {
@@ -1175,8 +1175,8 @@ bool BothTeamsHavePlayers()
 		return false;
 	//AQ2:TNG END
 
-	if( ! _numclients() )
-		return false;
+	// if( ! _numclients() )
+	// 	return false;
 
 	for (i = 0; i < game.maxclients; i++)
 	{
