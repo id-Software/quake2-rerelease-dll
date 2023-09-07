@@ -997,10 +997,12 @@ enum item_id_t : int32_t {
 	IT_ITEM_LASERSIGHT,
 	IT_ITEM_HELM,
 
+	IT_HEALTH_MEDIUM,
+	
 	IT_FLAG1,
 	IT_FLAG2,
 	
-	IT_HEALTH_MEDIUM,
+	
 
 	IT_TOTAL
 };
