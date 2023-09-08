@@ -247,6 +247,65 @@ void InitSave();
 
 /*
 ============
+
+Action Cvars Add
+
+============
+
+*/
+void ActionInit()
+{
+	teamdm = gi.cvar("teamdm", "0", CVAR_LATCH);
+	teamdm_respawn = gi.cvar("teamdm_respawn", "2", CVAR_NOFLAGS);
+	ff_afterround = gi.cvar("ff_afterround", "1", CVAR_NOFLAGS);
+	respawn_effect = gi.cvar("respawn_effect", "0", CVAR_NOFLAGS);
+	use_warnings = gi.cvar("use_warnings", "1", CVAR_NOFLAGS);
+	use_killcounts = gi.cvar("use_killcounts", "0", CVAR_NOFLAGS);
+	use_rewards = gi.cvar("use_rewards", "1", CVAR_NOFLAGS);
+	motd_time = gi.cvar("motd_time", "3", CVAR_NOFLAGS);
+
+	actionmaps = gi.cvar("actionmaps", "1", CVAR_NOFLAGS);
+	if (actionmaps->value && num_maps < 1)
+	{
+		gi.Com_Print("No maps were read from the config file, \"actionmaps\" won't be used.\n");
+		gi.cvar_forceset("actionmaps", "0");
+	}
+
+	roundtimelimit = gi.cvar("roundtimelimit", "0", CVAR_SERVERINFO);
+	maxteamkills = gi.cvar("maxteamkills", "0", CVAR_NOFLAGS);
+	twbanrounds = gi.cvar("twbanrounds", "2", CVAR_NOFLAGS);
+	tkbanrounds = gi.cvar("tkbanrounds", "2", CVAR_NOFLAGS);
+	limchasecam = gi.cvar("limchasecam", "0", CVAR_LATCH);
+	roundlimit = gi.cvar("roundlimit", "0", CVAR_SERVERINFO);
+	medkit_drop = gi.cvar("medkit_drop", "0", CVAR_NOFLAGS);
+	medkit_time = gi.cvar("medkit_time", "30", CVAR_NOFLAGS);
+	medkit_instant = gi.cvar("medkit_instant", "0", CVAR_NOFLAGS);
+	medkit_max = gi.cvar("medkit_max", "0", CVAR_NOFLAGS);
+	medkit_value = gi.cvar("medkit_value", "0", CVAR_NOFLAGS);
+	stats_endmap = gi.cvar("stats_endmap", "1", CVAR_NOFLAGS);
+	stats_afterround = gi.cvar("stats_afterround", "1", CVAR_NOFLAGS);
+	printrules = gi.cvar("printrules", "1", CVAR_NOFLAGS);
+	auto_join = gi.cvar("auto_join", "0", CVAR_NOFLAGS);
+	auto_equip = gi.cvar("auto_equip", "0", CVAR_NOFLAGS);
+	auto_menu = gi.cvar("auto_menu", "1", CVAR_NOFLAGS);
+	use_newscore = gi.cvar("use_newscore", "0", CVAR_NOFLAGS);
+	noscore = gi.cvar("noscore", "0", CVAR_NOFLAGS);
+	scoreboard = gi.cvar("scoreboard", "", CVAR_NOFLAGS);
+	ir = gi.cvar("ir", "1", CVAR_NOFLAGS);
+	knifelimit = gi.cvar("knifelimit", "40", CVAR_NOFLAGS);
+	tgren = gi.cvar("tgren", "0", CVAR_SERVERINFO);
+	dm_choose = gi.cvar("dm_choose", "0", CVAR_SERVERINFO);
+	dm_shield = gi.cvar("dm_shield", "0", CVAR_NOFLAGS);
+	uvtime = gi.cvar("uvtime", "40", CVAR_NOFLAGS);
+	warmup = gi.cvar("warmup", "1", CVAR_NOFLAGS);
+	rrot = gi.cvar("rrot", "0", CVAR_NOFLAGS);
+	vrot = gi.cvar("vrot", "0", CVAR_NOFLAGS);
+	e_enhancedSlippers = gi.cvar("e_enhancedSlippers", "0", CVAR_SERVERINFO);
+
+}
+
+/*
+============
 PreInitGame
 
 This will be called when the dll is first loaded, which
@@ -265,7 +324,9 @@ void PreInitGame()
 	CTFInit();
 	// ZOID
 
-	// ZOID
+	// ACTION
+	ActionInit();
+
 	// This gamemode only supports deathmatch
 	if (ctf->integer)
 	{
