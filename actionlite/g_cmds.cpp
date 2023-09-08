@@ -2735,12 +2735,12 @@ void ClientCommand(edict_t *ent)
 		Cmd_Voice_f(ent);
 	else if (Q_strcasecmp(cmd, "whereami") == 0)
 		Cmd_WhereAmI_f(ent);
-	else if (Q_strcasecmp(cmd, "setflag1") == 0)
-		Cmd_SetFlag1_f(ent);
-	else if (Q_strcasecmp(cmd, "setflag2") == 0)
-		Cmd_SetFlag2_f(ent);
-	else if (Q_strcasecmp(cmd, "saveflags") == 0)
-		Cmd_SaveFlags_f(ent);
+	// else if (Q_strcasecmp(cmd, "setflag1") == 0)
+	// 	Cmd_SetFlag1_f(ent);
+	// else if (Q_strcasecmp(cmd, "setflag2") == 0)
+	// 	Cmd_SetFlag2_f(ent);
+	// else if (Q_strcasecmp(cmd, "saveflags") == 0)
+	// 	Cmd_SaveFlags_f(ent);
 	else if (Q_strcasecmp(cmd, "punch") == 0)
 		Cmd_Punch_f(ent);
 	// else if (Q_strcasecmp(cmd, "rules") == 0)

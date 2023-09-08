@@ -191,6 +191,7 @@ cvar_t *printrules;	// Print the rules at the start of the game
 cvar_t *use_newscore;	// Use the new scoreboard
 cvar_t *noscore;	// Don't show the scoreboard
 cvar_t *scoreboard; 
+cvar_t *use_voice;
 
 // Weapon and Item Settings
 cvar_t *allitem;
