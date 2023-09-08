@@ -1002,8 +1002,6 @@ enum item_id_t : int32_t {
 	
 	IT_FLAG1,
 	IT_FLAG2,
-	
-	
 
 	IT_TOTAL
 };
@@ -1803,7 +1801,7 @@ extern cvar_t *use_balancer;
 bool CheckForUnevenTeams (edict_t *);
 bool IsAllowedToJoin(edict_t *, int);
 void TransparentListSet (solid_t solid_type);
-
+bool OnLadder( edict_t *ent );
 
 
 // Action Add end

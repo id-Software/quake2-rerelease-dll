@@ -689,6 +689,31 @@ void SV_CalcBlend(edict_t *ent)
 }
 
 /*
+========
+OnLadder
+========
+*/
+bool OnLadder( edict_t *ent )
+{
+	float yaw_rad = 0;
+	vec3_t fwd = {0}, end = {0};
+	trace_t tr;
+
+	if( ! IS_ALIVE(ent) )
+		return false;
+
+	yaw_rad = DEG2RAD(ent->s.angles[YAW]);
+	fwd[0] = cos(yaw_rad);
+	fwd[1] = sin(yaw_rad);
+
+	VectorMA( ent->s.origin, 1, fwd, end );
+
+	tr = gi.trace( ent->s.origin, ent->mins, ent->maxs, end, ent, MASK_PLAYERSOLID );
+
+	return ((tr.fraction < 1) && (tr.contents & CONTENTS_LADDER));
+}
+
+/*
 =============
 P_WorldEffects
 =============
