@@ -747,6 +747,25 @@ enum award_t {
 	EXCELLENT
 };
 
+enum action_gamemodes_t
+{
+	GM_TEAMPLAY,
+	GM_TEAMDM,
+	GM_CTF,
+	GM_TOURNEY,
+	GM_DEATHMATCH,
+	GM_DOMINATION,
+	GM_ESPIONAGE
+};
+
+enum action_gamemodeflags_t
+{
+	GMF_NONE,
+	GMF_3TEAMS,
+	GMF_DARKMATCH,
+	GMF_MATCHMODE
+};
+
 enum gender_t {
 	GENDER_MALE,
 	GENDER_FEMALE,
@@ -1789,6 +1808,7 @@ extern cvar_t *warmup;
 extern cvar_t *rrot;
 extern cvar_t *vrot;
 extern cvar_t *e_enhancedSlippers;
+extern cvar_t *use_voice;
 //extern mod_id_t meansOfDeath;
 
 // zucc for hitlocation of death
@@ -2090,6 +2110,8 @@ extern gitem_t itemlist[IT_TOTAL];
 #define CROUCHING_MAXS2                 16
 #define CROUCHING_VIEWHEIGHT		8
 #define STANDING_VIEWHEIGHT			22
+
+#define PG_SNDPATH "user/"
 
 extern int gameSettings;  // Round based, deathmatch, etc?
 

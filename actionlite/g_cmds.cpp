@@ -1928,6 +1928,628 @@ static void Cmd_ListMonsters_f(edict_t *ent)
 
 /*
 =================
+Action Commands
+=================
+*/
+
+static void Cmd_Streak_f (edict_t * ent) {
+	gi.LocClient_Print(ent, PRINT_HIGH, "Your Killing Streak is: %d\n", ent->client->resp.streakKills);
+}
+
+void Cmd_Choose_f(edict_t * ent)
+{
+	const char *s;
+	const char *wpnText, *itmText;
+	int itemNum = 0;
+	gitem_t *item;
+
+	// only works in teamplay
+	if (!(gameSettings & GS_WEAPONCHOOSE))
+		return;
+
+	// s = gi.args();
+	// if (*s) {
+	// 	itemNum = GetItemNumFromArg(s);
+	// 	if (!itemNum)
+	// 		itemNum = GetWeaponNumFromArg(s);
+	// }
+
+	// switch(itemNum) {
+	// case DUAL_NUM:
+	// case M3_NUM:
+	// case HC_NUM:
+	// case MP5_NUM:
+	// case SNIPER_NUM:
+	// case KNIFE_NUM:
+	// case M4_NUM:
+	// 	// Weapon bans maybe later
+	// 	// if (!WPF_ALLOWED(itemNum)) {
+	// 	// 	gi.LocClient_Print(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
+	// 	// 	return;
+	// 	// }
+	// 	// ent->client->pers.chosenWeapon = GET_ITEM(itemNum);
+	// 	// break;
+	// case LASER_NUM:
+	// case KEV_NUM:
+	// case SLIP_NUM:
+	// case SIL_NUM:
+	// case HELM_NUM:
+	// case BAND_NUM:
+	// 	// Item bans maybe later
+	// 	// if (!ITF_ALLOWED(itemNum)) {
+	// 	// 	gi.LocClient_Print(ent, PRINT_HIGH, "Item disabled on this server.\n");
+	// 	// 	return;
+	// 	// }
+	// 	// ent->client->pers.chosenItem = GET_ITEM(itemNum);
+	// 	// break;
+	// default:
+	// 	gi.LocClient_Print(ent, PRINT_HIGH, "Invalid weapon or item choice.\n");
+	// 	return;
+	// }
+
+	item = ent->client->pers.chosenWeapon;
+	//item = ent->client->pers.weapon;
+	wpnText = (item && item->pickup_name) ? item->pickup_name : "NONE";
+
+	item = ent->client->pers.chosenItem;
+	itmText = (item && item->pickup_name) ? item->pickup_name : "NONE";
+
+}
+
+// AQ:TNG - JBravo adding tkok
+void Cmd_TKOk(edict_t * ent)
+{
+	if (!ent->enemy || !ent->enemy->inuse || !ent->enemy->client || (ent == ent->enemy)) {
+		gi.LocClient_Print(ent, PRINT_HIGH, "Nothing to forgive\n");
+	} else if (ent->client->resp.team == ent->enemy->client->resp.team) {
+		if (ent->enemy->client->resp.team_kills) {
+			gi.LocClient_Print(ent, PRINT_HIGH, "You forgave %s\n", ent->enemy->client->pers.netname);
+			gi.LocClient_Print(ent->enemy, PRINT_HIGH, "%s forgave you\n", ent->client->pers.netname);
+			ent->enemy->client->resp.team_kills--;
+			if (ent->enemy->client->resp.team_wounds)
+				ent->enemy->client->resp.team_wounds /= 2;
+		}
+	} else {
+		gi.LocClient_Print(ent, PRINT_HIGH, "That's very noble of you...\n");
+		gi.LocBroadcast_Print(PRINT_HIGH, "%s turned the other cheek\n", ent->client->pers.netname);
+	}
+	ent->enemy = NULL;
+	return;
+}
+
+void Cmd_FF_f( edict_t *ent )
+{
+	if( teamplay->value )
+		gi.LocClient_Print(ent, PRINT_MEDIUM, "Friendly Fire {}\n", g_friendly_fire->integer ? "OFF" : "ON");
+	else
+		gi.LocClient_Print( ent, PRINT_MEDIUM, "FF only applies to teamplay.\n" );
+}
+
+void Cmd_Time(edict_t * ent)
+{
+	int mins = 0, secs = 0, remaining = 0, rmins = 0, rsecs = 0, gametime = 0;
+
+	gametime = level.matchTime;
+
+	mins = gametime / 60;
+	secs = gametime % 60;
+	remaining = (timelimit->value * 60) - gametime;
+	if( remaining >= 0 )
+	{
+		rmins = remaining / 60;
+		rsecs = remaining % 60;
+	}
+
+	if( timelimit->value )
+		gi.LocClient_Print( ent, PRINT_HIGH, "Elapsed time: %d:%02d. Remaining time: %d:%02d\n", mins, secs, rmins, rsecs );
+	else
+		gi.LocClient_Print( ent, PRINT_HIGH, "Elapsed time: %d:%02d\n", mins, secs );
+}
+
+void Cmd_Roundtimeleft_f(edict_t * ent)
+{
+	int remaining;
+
+	if(!teamplay->value) {
+		gi.LocClient_Print(ent, PRINT_HIGH, "This command need teamplay to be enabled\n");
+		return;
+	}
+
+	if (!(gameSettings & GS_ROUNDBASED) || !team_round_going)
+		return;
+
+	if ((int)roundtimelimit->value <= 0)
+		return;
+
+	remaining = (roundtimelimit->value * 60) - (current_round_length/10);
+	gi.LocClient_Print(ent, PRINT_HIGH, "There is %d:%02i left in this round\n", remaining / 60, remaining % 60);
+}
+
+void Cmd_Voice_f (edict_t * self)
+{
+	const char *s;
+	char fullpath[MAX_QPATH];
+
+	if (!use_voice->integer)
+		return;
+
+	s = gi.args ();
+	//check if no sound is given
+	if (!*s)
+	{
+		gi.LocClient_Print (self, PRINT_MEDIUM,
+			"\nCommand needs argument, use voice <soundfile.wav>.\n");
+		return;
+	}
+	if (strlen (s) > 32)
+	{
+		gi.LocClient_Print (self, PRINT_MEDIUM,
+			"\nArgument is too long. Maximum length is 32 characters.\n");
+		return;
+	}
+	// AQ2:TNG Disabled this message: why? -M
+	if (strstr (s, ".."))
+	{
+		gi.LocClient_Print (self, PRINT_MEDIUM,
+			"\nArgument must not contain \"..\".\n");
+		return;
+	}
+	
+	//check if player is dead
+	if (!IS_ALIVE(self))
+		return;
+
+	strcpy(fullpath, PG_SNDPATH);
+	strcat(fullpath, s);
+	// SLIC2 Taking this out.
+	/*if (radio_repeat->value)
+	{
+	if ((d = CheckForRepeat (self, s)) == false)
+	return;
+	}*/
+	if (radio_max->value)
+	{
+		if (CheckForFlood (self)== false)
+			return;
+	}
+	// AQ2:TNG Deathwatch - This should be IDLE not NORM
+	gi.sound (self, CHAN_VOICE, gi.soundindex (fullpath), 1, ATTN_IDLE, 0);
+	// AQ2:TNG END
+}
+
+void Cmd_WhereAmI_f( edict_t * self )
+{
+	char location[ 128 ] = "";
+	bool found = GetPlayerLocation( self, location );
+
+	if( found )
+		gi.LocClient_Print( self, PRINT_MEDIUM, "Location: %s\n", location );
+	else if( ! sv_cheats->value )
+		gi.LocClient_Print( self, PRINT_MEDIUM, "Location unknown.\n" );
+
+	if( sv_cheats->value )
+	{
+		gi.LocClient_Print( self, PRINT_MEDIUM, "Origin: %5.0f,%5.0f,%5.0f  Facing: %3.0f\n",
+			self->s.origin[0], self->s.origin[1], self->s.origin[2], self->s.angles[1] );
+	}
+}
+
+
+// Timing here may be broken, test!
+void Cmd_Punch_f (edict_t * self)
+{
+	if (!use_punch->value || !IS_ALIVE(self) || self->client->resp.sniper_mode != SNIPER_1X)
+		return;
+
+	if (self->client->weaponstate != WEAPON_READY && self->client->weaponstate != WEAPON_END_MAG)
+		return;
+	
+	float punch_delay = 0.5;
+
+    if ((level.time.milliseconds() + punch_delay) > self->client->punch_framenum) {
+        self->client->punch_framenum = level.time.milliseconds(); // Update the punch_framenum to the current time
+        self->client->punch_desired = true;
+    }
+}
+
+// void _Cmd_Rules_f (edict_t * self, const char *argument)
+// {
+// 	char section[32], mbuf[1024], *p, buf[30][INI_STR_LEN];
+// 	int i, j = 0;
+// 	ini_t ini;
+
+// 	strcpy (mbuf, "\n");
+// 	if (*argument)
+// 		Q_strncpyz(section, argument, sizeof(section));
+// 	else
+// 		strcpy (section, "main");
+
+// 	if (OpenIniFile (GAMEVERSION "/prules.ini", &ini))
+// 	{
+// 		i = ReadIniSection (&ini, section, buf, 30);
+// 		while (j < i)
+// 		{
+// 			p = buf[j++];
+// 			if (*p == '.')
+// 				p++;
+// 			Q_strncatz(mbuf, p, sizeof(mbuf));
+// 			Q_strncatz(mbuf, "\n", sizeof(mbuf));
+// 		}
+// 		CloseIniFile (&ini);
+// 	}
+// 	if (!j)
+// 		gi.LocClient_Print (self, PRINT_MEDIUM, "No rules on %s available\n", section);
+// 	else
+// 		gi.LocClient_Print (self, PRINT_MEDIUM, "%s", mbuf);
+// }
+
+// void Cmd_Rules_f (edict_t * self)
+// {
+// 	const char *s;
+
+// 	s = gi.args ();
+// 	_Cmd_Rules_f (self, s);
+// }
+
+static void Cmd_Ent_Count_f (edict_t * ent)
+{
+	int x = 0;
+	edict_t *e;
+
+	for (e = g_edicts; e < &g_edicts[globals.num_edicts]; e++)
+	{
+		if (e->inuse)
+			x++;
+	}
+
+	gi.LocClient_Print(ent, PRINT_HIGH, "%d entities counted\n", x);
+}
+
+void _SetSniper(edict_t * ent, int zoom)
+{
+	int desired_fov, sniper_mode, oldmode;
+
+	switch (zoom) {
+	default:
+	case 1:
+		desired_fov = SNIPER_FOV1;
+		sniper_mode = SNIPER_1X;
+		break;
+	case 2:
+		desired_fov = SNIPER_FOV2;
+		sniper_mode = SNIPER_2X;
+		break;
+	case 4:
+		desired_fov = SNIPER_FOV4;
+		sniper_mode = SNIPER_4X;
+		break;
+	case 6:
+		desired_fov = SNIPER_FOV6;
+		sniper_mode = SNIPER_6X;
+		break;
+	}
+
+	oldmode = ent->client->resp.sniper_mode;
+
+	if (sniper_mode == oldmode)
+		return;
+
+	//Moved here, no need to make sound if zoom isnt changed -M
+	gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/lensflik.wav"), 1, ATTN_NORM, 0);
+
+	ent->client->resp.sniper_mode = sniper_mode;
+	ent->client->desired_fov = desired_fov;
+
+	if (sniper_mode == SNIPER_1X && ent->client->pers.weapon)
+		ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
+	//show the model if switching to 1x
+
+	if (oldmode == SNIPER_1X && ent->client->weaponstate != WEAPON_RELOADING) {
+		//do idleness stuff when switching from 1x, see function below
+		ent->client->weaponstate = WEAPON_BUSY;
+		// if(zoom_comp->value) {
+		// 	ent->client->idle_weapon = calc_zoom_comp(ent);
+		// } else {
+		// 	ent->client->idle_weapon = 6;
+		// }
+		ent->client->ps.gunframe = 22;
+	}
+}
+
+//tempfile END
+
+void Cmd_New_Weapon_f(edict_t * ent)
+{
+	ent->client->weapon_attempts++;
+	if (ent->client->weapon_attempts == 1)
+		Cmd_Weapon_f(ent);
+}
+
+int _SniperMode(edict_t *ent)
+{
+	switch (ent->client->desired_zoom) { //lets update old desired zoom
+	case 1:
+		return SNIPER_1X;
+	case 2:
+		return SNIPER_2X;
+	case 4:
+		return SNIPER_4X;
+	case 6:
+		return SNIPER_6X;
+	}
+	return ent->client->resp.sniper_mode;
+}
+
+void _ZoomIn(edict_t * ent, bool overflow)
+{
+	switch (_SniperMode(ent)) {
+	case SNIPER_1X:
+		ent->client->desired_zoom = 2;
+		break;
+	case SNIPER_2X:
+		ent->client->desired_zoom = 4;
+		break;
+	case SNIPER_4X:
+		ent->client->desired_zoom = 6;
+		break;
+	case SNIPER_6X:
+		if (overflow)
+			ent->client->desired_zoom = 1;
+		break;
+	}
+}
+
+void _ZoomOut(edict_t * ent, bool overflow)
+{
+	switch (_SniperMode(ent)) {
+	case SNIPER_1X:
+		if (overflow)
+			ent->client->desired_zoom = 6;
+		break;
+	case SNIPER_2X:
+		ent->client->desired_zoom = 1;
+		break;
+	case SNIPER_4X:
+		ent->client->desired_zoom = 2;
+		break;
+	case SNIPER_6X:
+		ent->client->desired_zoom = 4;
+		break;
+	}
+}
+
+// void Cmd_NextMap_f(edict_t * ent)
+// {
+// 	int map_num = -1;
+// 	const char *next_map = level.nextmap;
+// 	const char *rot_type = "in rotation";
+// 	votelist_t *voted = NULL;
+
+// 	if( next_map[0] )
+// 		rot_type = "selected";
+// 	else if( vrot->value && ((voted = MapWithMostAllVotes())) )
+// 	{
+// 		next_map = voted->mapname;
+// 		rot_type = "by votes";
+// 	}
+
+// 	if( next_map[0] )
+// 	{
+// 		int i;
+// 		for( i = 0; i < num_maps; i ++ )
+// 		{
+// 			if( Q_stricmp( map_rotation[i], next_map ) == 0 )
+// 			{
+// 				map_num = i;
+// 				break;
+// 			}
+// 		}
+// 	}
+// 	else if( num_maps )
+// 	{
+// 		map_num = (cur_map + (rrot->value ? rand_map : 1)) % num_maps;
+// 		next_map = map_rotation[ map_num ];
+// 		rot_type = rrot->value ? "randomly" : "in rotation";
+// 	}
+
+// 	if( DMFLAGS(DF_SAME_LEVEL) )
+// 	{
+// 		map_num = cur_map;
+// 		next_map = level.mapname;
+// 		rot_type = "repeated";
+// 	}
+
+// 	gi.LocClient_Print( ent, PRINT_HIGH, "Next map %s is %s (%i/%i).\n", rot_type, next_map, map_num+1, num_maps );
+// }
+
+void Cmd_Weapon_f(edict_t * ent)
+{
+	int dead;
+
+	if (!ent->client->pers.weapon)
+		return;
+
+	dead = !IS_ALIVE(ent);
+
+	ent->client->weapon_attempts--;
+	if (ent->client->weapon_attempts < 0)
+		ent->client->weapon_attempts = 0;
+
+	if (ent->client->bandaging || ent->client->bandage_stopped) {
+		if (!ent->client->weapon_after_bandage_warned) {
+			ent->client->weapon_after_bandage_warned = true;
+			gi.LocClient_Print(ent, PRINT_HIGH, "You'll get to your weapon when you're done bandaging!\n");
+		}
+		ent->client->weapon_attempts++;
+		return;
+	}
+
+	ent->client->weapon_after_bandage_warned = false;
+
+	if (ent->client->weaponstate == WEAPON_FIRING || ent->client->weaponstate == WEAPON_BUSY)
+	{
+		//gi.LocClient_Print(ent, PRINT_HIGH, "Try again when you aren't using your weapon.\n");
+		ent->client->weapon_attempts++;
+		return;
+	}
+
+	switch(ent->client->pers.weapon->id) {
+	case IT_WEAPON_MK23:
+		if (!dead)
+			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/click.wav"), 1, ATTN_NORM, 0);
+		ent->client->pers.mk23_mode = !(ent->client->pers.mk23_mode);
+		if (ent->client->pers.mk23_mode)
+			gi.LocClient_Print(ent, PRINT_HIGH, "MK23 Pistol set for semi-automatic action\n");
+		else
+			gi.LocClient_Print(ent, PRINT_HIGH, "MK23 Pistol set for automatic action\n");
+		break;
+	case IT_WEAPON_MP5:
+		if (!dead)
+			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/click.wav"), 1, ATTN_NORM, 0);
+		ent->client->pers.mp5_mode = !(ent->client->pers.mp5_mode);
+		if (ent->client->pers.mp5_mode)
+			gi.LocClient_Print(ent, PRINT_HIGH, "MP5 set to 3 Round Burst mode\n");
+		else
+			gi.LocClient_Print(ent, PRINT_HIGH, "MP5 set to Full Automatic mode\n");
+		break;
+	case IT_WEAPON_M4:
+		if (!dead)
+			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/click.wav"), 1, ATTN_NORM, 0);
+		ent->client->pers.m4_mode = !(ent->client->pers.m4_mode);
+		if (ent->client->pers.m4_mode)
+			gi.LocClient_Print(ent, PRINT_HIGH, "M4 set to 3 Round Burst mode\n");
+		else
+			gi.LocClient_Print(ent, PRINT_HIGH, "M4 set to Full Automatic mode\n");
+		break;
+	case IT_WEAPON_SNIPER:
+		if (dead)
+			return;
+		
+		if (!ent->client->desired_zoom)
+			_ZoomIn(ent, true);	// standard behaviour
+
+		_SetSniper(ent, ent->client->desired_zoom);
+		ent->client->desired_zoom = 0;
+		break;
+	case IT_WEAPON_HANDCANNON:
+		// AQ2:TNG Deathwatch - Single Barreled HC
+		if(!hc_single->value)
+			return;
+
+		if (!dead)
+			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/click.wav"), 1, ATTN_NORM, 0);
+
+		ent->client->pers.hc_mode = !(ent->client->pers.hc_mode);
+		if (ent->client->pers.hc_mode)
+			gi.LocClient_Print(ent, PRINT_HIGH, "Single Barreled Handcannon\n");
+		else
+			gi.LocClient_Print(ent, PRINT_HIGH, "Double Barreled Handcannon\n");
+		// AQ2:TNG End
+		break;
+	case IT_WEAPON_KNIFE:
+		if (dead)
+			return;
+		if (ent->client->weaponstate == WEAPON_READY) {
+			ent->client->pers.knife_mode = !(ent->client->pers.knife_mode);
+			ent->client->weaponstate = WEAPON_ACTIVATING;
+			if (ent->client->pers.knife_mode) {
+				gi.LocClient_Print(ent, PRINT_HIGH, "Switching to throwing\n");
+				ent->client->ps.gunframe = 0;
+			} else {
+				gi.LocClient_Print(ent, PRINT_HIGH, "Switching to slashing\n");
+				ent->client->ps.gunframe = 106;
+			}
+		}
+		break;
+	case IT_WEAPON_GRENADES:
+		if (ent->client->pers.grenade_mode == 0) {
+			gi.LocClient_Print(ent, PRINT_HIGH, "Prepared to make a medium range throw\n");
+			ent->client->pers.grenade_mode = 1;
+		} else if (ent->client->pers.grenade_mode == 1) {
+			gi.LocClient_Print(ent, PRINT_HIGH, "Prepared to make a long range throw\n");
+			ent->client->pers.grenade_mode = 2;
+		} else {
+			gi.LocClient_Print(ent, PRINT_HIGH, "Prepared to make a short range throw\n");
+			ent->client->pers.grenade_mode = 0;
+		}
+		break;
+	}
+}
+
+void Cmd_IR_f(edict_t * ent)
+{
+	int band = 0;
+
+	if (!ir->value) {
+		gi.LocClient_Print(ent, PRINT_HIGH, "IR vision not enabled on this server.\n");
+		return;
+	}
+	if (INV_AMMO(ent, BAND_NUM))
+		band = 1;
+
+	ent->client->pers.irvision = !ent->client->pers.irvision;
+	if (ent->client->pers.irvision == 0)
+	{
+		if (band)
+			gi.LocClient_Print(ent, PRINT_HIGH, "IR vision disabled.\n");
+		else
+			gi.LocClient_Print(ent, PRINT_HIGH, "IR vision will be disabled when you get a bandolier.\n");
+	}
+	else
+	{
+		if (band)
+			gi.LocClient_Print(ent, PRINT_HIGH, "IR vision enabled.\n");
+		else
+			gi.LocClient_Print(ent, PRINT_HIGH, "IR vision will be enabled when you get a bandolier.\n");
+	}
+}
+
+// sets variable to toggle nearby door status
+void Cmd_OpenDoor_f(edict_t * ent)
+{
+	ent->client->doortoggle = 1;
+	return;
+}
+
+void Cmd_Lens_f(edict_t * ent)
+{
+	int nArg;
+	char args[8];
+
+	if (!ent->client->pers.weapon != IT_WEAPON_SNIPER)
+		return;
+
+	nArg = atoi(gi.args());
+
+	if (nArg == 0) {
+		Q_strlcpy(args, gi.args(), sizeof(args));
+		//perhaps in or out? let's see.
+		if (Q_strcasecmp(args, "in") == 0)
+			_ZoomIn(ent, false);
+		else if (Q_strcasecmp(args, "out") == 0)
+			_ZoomOut(ent, false);
+		else
+			_ZoomIn(ent, true);
+
+		if(!ent->client->desired_zoom)
+			return;
+	}
+	else if ((nArg == 1) || (!(nArg % 2) && (nArg <= 6)))
+		ent->client->desired_zoom = nArg;
+	else
+		_ZoomIn(ent, true);
+
+	if(ent->client->weapon_attempts > 0)
+		return; //Already waiting to change the zoom, otherwise it
+				//first change to desired zoom and then usual zoomin -M
+
+	ent->client->weapon_attempts++;
+	if (ent->client->weapon_attempts == 1)
+		Cmd_Weapon_f(ent);
+}
+
+/*
+=================
 ClientCommand
 =================
 */
@@ -2079,6 +2701,135 @@ void ClientCommand(edict_t *ent)
 	// ZOID
 	else if (Q_strcasecmp(cmd, "switchteam") == 0)
 		Cmd_Switchteam_f(ent);
+	// Action add
+	else if (Q_strcasecmp(cmd, "streak") == 0)
+		Cmd_Streak_f(ent);
+	else if (Q_strcasecmp(cmd, "reload") == 0)
+		Cmd_New_Reload_f(ent);
+	else if (Q_strcasecmp(cmd, "weapon") == 0)
+		Cmd_New_Weapon_f(ent);
+	else if (Q_strcasecmp(cmd, "opendoor") == 0)
+		Cmd_OpenDoor_f(ent);
+	else if (Q_strcasecmp(cmd, "bandage") == 0)
+		Cmd_Bandage_f(ent);
+	else if (Q_strcasecmp(cmd, "irvision") == 0)
+		Cmd_IR_f(ent);
+	else if (Q_strcasecmp(cmd, "radio") == 0)
+		Cmd_Radio_f(ent);
+	else if (Q_strcasecmp(cmd, "radiogender") == 0)
+		Cmd_Radiogender_f(ent);
+	else if (Q_strcasecmp(cmd, "radio_power") == 0)
+		Cmd_Radio_power_f(ent);
+	else if (Q_strcasecmp(cmd, "radio_team") == 0)
+		Cmd_Radioteam_f(ent);
+	else if (Q_strcasecmp(cmd, "channel") == 0)
+		Cmd_Channel_f(ent);
+	else if (Q_strcasecmp(cmd, "motd") == 0)
+		PrintMOTD(ent);
+	else if (Q_strcasecmp(cmd, "deny") == 0)
+		Cmd_Deny_f(ent);
+	else if (Q_strcasecmp(cmd, "choose") == 0)
+		Cmd_Choose_f(ent);
+	else if (Q_strcasecmp(cmd, "tkok") == 0)
+		Cmd_TKOk(ent);
+	else if (Q_strcasecmp(cmd, "forgive") == 0)
+		Cmd_TKOk(ent);
+	else if (Q_strcasecmp(cmd, "ff") == 0)
+		Cmd_FF_f(ent);
+	else if (Q_strcasecmp(cmd, "time") == 0)
+		Cmd_Time(ent);
+	else if (Q_strcasecmp(cmd, "voice") == 0)
+		Cmd_Voice_f(ent);
+	else if (Q_strcasecmp(cmd, "whereami") == 0)
+		Cmd_WhereAmI_f(ent);
+	else if (Q_strcasecmp(cmd, "setflag1") == 0)
+		Cmd_SetFlag1_f(ent);
+	else if (Q_strcasecmp(cmd, "setflag2") == 0)
+		Cmd_SetFlag2_f(ent);
+	else if (Q_strcasecmp(cmd, "saveflags") == 0)
+		Cmd_SaveFlags_f(ent);
+	else if (Q_strcasecmp(cmd, "punch") == 0)
+		Cmd_Punch_f(ent);
+	// else if (Q_strcasecmp(cmd, "rules") == 0)
+	// 	Cmd_Rules_f(ent);
+	else if (Q_strcasecmp(cmd, "lens") == 0)
+		Cmd_Lens_f(ent);
+	// else if (Q_strcasecmp(cmd, "nextmap") == 0)
+	// 	Cmd_NextMap_f(ent);
+	// Matchmode stuff
+	// else if (Q_strcasecmp(cmd, "sub") == 0)
+	// 	Cmd_Sub_f(ent);
+	// else if (Q_strcasecmp(cmd, "captain") == 0)
+	// 	Cmd_Captain_f(ent);
+	// else if (Q_strcasecmp(cmd, "ready") == 0)
+	// 	Cmd_Ready_f(ent);
+	// else if (Q_strcasecmp(cmd, "teamname") == 0)
+	// 	Cmd_Teamname_f(ent);
+	// else if (Q_strcasecmp(cmd, "teamskin") == 0)
+	// 	Cmd_Teamskin_f(ent);
+	// else if (Q_strcasecmp(cmd, "lock") == 0)
+	// 	Cmd_LockTeam_f(ent);
+	// else if (Q_strcasecmp(cmd, "unlock") == 0)
+	// 	Cmd_UnlockTeam_f(ent);
+	else if (Q_strcasecmp(cmd, "entcount") == 0)
+		Cmd_Ent_Count_f(ent);
+	// else if (Q_strcasecmp(cmd, "stats") == 0)
+	// 	Cmd_PrintStats_f(ent);
+	// else if (Q_strcasecmp(cmd, "flashlight") == 0)
+	// 	Use_Flashlight(ent);
+	// else if (Q_strcasecmp(cmd, "matchadmin") == 0)
+	// 	Cmd_SetAdmin_f(ent);
+	else if (Q_strcasecmp(cmd, "roundtimeleft") == 0)
+		Cmd_Roundtimeleft_f(ent);
+	// else if (Q_strcasecmp(cmd, "autorecord") == 0)
+	// 	Cmd_AutoRecord_f(ent);
+	// else if (Q_strcasecmp(cmd, "stat_mode") == 0)
+	// 	Cmd_Statmode_f(ent);
+	// else if (Q_strcasecmp(cmd, "cmd_stat_mode") == 0)
+	// 	Cmd_Statmode_f(ent);
+	// else if (Q_strcasecmp(cmd, "ghost") == 0)
+	// 	Cmd_Ghost_f(ent);
+	// else if (Q_strcasecmp(cmd, "resetscores") == 0)
+	// 	Cmd_ResetScores_f(ent);
+	// else if (Q_strcasecmp(cmd, "gamesettings") == 0)
+	// 	Cmd_PrintSettings_f(ent);
+	// else if (Q_strcasecmp(cmd, "follow") == 0)
+	// 	Cmd_Follow_f(ent);
+	//vote stuff
+	// else if (Q_strcasecmp(cmd, "menu") == 0)
+	// 	Cmd_Menu_f(ent);
+	// else if (Q_strcasecmp(cmd, "votemap") == 0)
+	// 	Cmd_Votemap_f(ent);
+	// else if (Q_strcasecmp(cmd, "maplist") == 0)
+	// 	Cmd_Maplist_f(ent);
+	// else if (Q_strcasecmp(cmd, "votekick") == 0)
+	// 	Cmd_Votekick_f(ent);
+	// else if (Q_strcasecmp(cmd, "votekicknum") == 0)
+	// 	Cmd_Votekicknum_f(ent);
+	// else if (Q_strcasecmp(cmd, "kicklist") == 0)
+	// 	Cmd_Kicklist_f(ent);
+	// else if (Q_strcasecmp(cmd, "ignore") == 0)
+	// 	Cmd_Ignore_f(ent);
+	// else if (Q_strcasecmp(cmd, "ignorenum") == 0)
+	// 	Cmd_Ignorenum_f(ent);
+	// else if (Q_strcasecmp(cmd, "ignorelist") == 0)
+	// 	Cmd_Ignorelist_f(ent);
+	// else if (Q_strcasecmp(cmd, "ignoreclear") == 0)
+	// 	Cmd_Ignoreclear_f(ent);
+	// else if (Q_strcasecmp(cmd, "ignorepart") == 0)
+	// 	Cmd_IgnorePart_f(ent);
+	// else if (Q_strcasecmp(cmd, "voteconfig") == 0)
+	// 	Cmd_Voteconfig_f(ent);
+	// else if (Q_strcasecmp(cmd, "configlist") == 0)
+	// 	Cmd_Configlist_f(ent);
+	// else if (Q_strcasecmp(cmd, "votescramble") == 0)
+	// 	Cmd_Votescramble_f(ent);
+	// Espionage, aliased command so it's easy to remember
+	// else if (Q_strcasecmp(cmd, "volunteer") == 0)
+	// 	Cmd_Volunteer_f(ent);
+	// else if (Q_strcasecmp(cmd, "leader") == 0)
+	// 	Cmd_Volunteer_f(ent);
+	// End Action add
 #ifndef KEX_Q2_GAME
 	else // anything that doesn't match a command will be a chat
 		Cmd_Say_f(ent, true);

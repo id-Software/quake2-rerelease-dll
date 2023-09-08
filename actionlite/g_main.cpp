@@ -301,7 +301,7 @@ void ActionInit()
 	rrot = gi.cvar("rrot", "0", CVAR_NOFLAGS);
 	vrot = gi.cvar("vrot", "0", CVAR_NOFLAGS);
 	e_enhancedSlippers = gi.cvar("e_enhancedSlippers", "0", CVAR_SERVERINFO);
-
+	use_voice = gi.cvar("use_voice", "0", CVAR_NOFLAGS);
 }
 
 /*

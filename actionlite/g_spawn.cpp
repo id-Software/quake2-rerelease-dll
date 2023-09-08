@@ -1412,6 +1412,204 @@ static void G_InitStatusbar()
 }
 
 
+static void PrecacheUserSounds(void)
+{
+	int count = 0;
+	size_t length;
+	//FILE *soundlist;
+	char buf[1024], fullpath[MAX_QPATH];
+
+	std::string filename = fmt::format("{}/sndlist.ini", GAMEVERSION);
+	FILE* soundlist = fopen(filename.c_str(), "r");
+	//soundlist = fopen(GAMEVERSION "/sndlist.ini", "r");
+	if (!soundlist) { // no "sndlist.ini" file...
+		gi.Com_PrintFmt("Cannot load %s, sound download is disabled.\n", GAMEVERSION "/sndlist.ini");
+		return;
+	}
+
+	// read the sndlist.ini file
+	while (fgets(buf, sizeof(buf), soundlist) != NULL)
+	{
+		length = strlen(buf);
+		//first remove trailing spaces
+		while (length > 0 && buf[length - 1] <= ' ')
+			buf[--length] = '\0';
+
+		//Comments are marked with # or // at line start
+		if (length < 5 || buf[0] == '#' || !strncmp(buf, "//", 2))
+			continue;
+
+		Q_strlcpy(fullpath, PG_SNDPATH, sizeof(fullpath));
+		Q_strlcat(fullpath, buf, sizeof(fullpath));
+		gi.soundindex(fullpath);
+		//gi.dprintf("Sound %s: precache %i",fullpath, gi.soundindex(fullpath)); 
+		count++;
+		if (count == 100)
+			break;
+	}
+	fclose(soundlist);
+	if (!count)
+		gi.Com_PrintFmt("%s is empty, no sounds to precache.\n", GAMEVERSION "/sndlist.ini");
+	else
+		gi.Com_PrintFmt("%i user sounds precached.\n", count);
+}
+
+void G_LoadLocations( void )
+{
+	//AQ2:TNG New Location Code
+	char	locfile[MAX_QPATH], buffer[256];
+	FILE	*f;
+	int		i, x, y, z, rx, ry, rz;
+	char	*locationstr, *param, *line;
+	cvar_t	*game_cvar;
+	placedata_t *loc;
+
+	memset( ml_creator, 0, sizeof( ml_creator ) );
+	ml_count = 0;
+
+	game_cvar = gi.cvar ("game", "action", 0);
+
+	if (!*game_cvar->string)
+		snprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", GAMEVERSION, level.mapname);
+	else
+		snprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", game_cvar->string, level.mapname);
+
+	f = fopen( locfile, "r" );
+	if (!f) {
+		gi.Com_PrintFmt( "No location file for %s\n", level.mapname );
+		return;
+	}
+
+	gi.Com_PrintFmt( "Location file: %s\n", level.mapname );
+
+	do
+	{
+		line = fgets( buffer, sizeof( buffer ), f );
+		if (!line) {
+			break;
+		}
+
+		if (strlen( line ) < 12)
+			continue;
+
+		if (line[0] == '#')
+		{
+			param = line + 1;
+			while (*param == ' ') { param++; }
+			if (*param && (strncasecmp(param, "creator", 7) == 0))
+			{
+				param += 8;
+				while (*param == ' ') { param++; }
+				for (i = 0; *param >= ' ' && i < sizeof( ml_creator ) - 1; i++) {
+					ml_creator[i] = *param++;
+				}
+				ml_creator[i] = 0;
+				while (i > 0 && ml_creator[i - 1] == ' ') //Remove railing spaces
+					ml_creator[--i] = 0;
+			}
+			continue;
+		}
+
+		param = strtok( line, " :\r\n\0" );
+		// TODO: better support for file comments
+		if (!param || param[0] == '#')
+			continue;
+
+		x = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		y = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		z = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		rx = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		ry = atoi( param );
+
+		param = strtok( NULL, " :\r\n\0" );
+		if (!param)
+			continue;
+		rz = atoi( param );
+
+		param = strtok( NULL, "\r\n\0" );
+		if (!param)
+			continue;
+		locationstr = param;
+
+		loc = &locationbase[ml_count++];
+		loc->x = x;
+		loc->y = y;
+		loc->z = z;
+		loc->rx = rx;
+		loc->ry = ry;
+		loc->rz = rz;
+		Q_strlcpy( loc->desc, locationstr, sizeof( loc->desc ) );
+
+		if (ml_count >= MAX_LOCATIONS_IN_BASE) {
+			gi.Com_PrintFmt( "Cannot read more than %d locations.\n", MAX_LOCATIONS_IN_BASE );
+			break;
+		}
+	} while (1);
+
+	fclose( f );
+	gi.Com_PrintFmt( "Found %d locations.\n", ml_count );
+}
+
+
+
+int Gamemode(void) // These are distinct game modes; you cannot have a teamdm tourney mode, for example
+{
+	int gamemode = 0;
+	if (teamdm->value) {
+		gamemode = GM_TEAMDM;
+	} else if (ctf->value) {
+		gamemode = GM_CTF;
+	// } else if (use_tourney->value) {
+	// 	gamemode = GM_TOURNEY;
+	} else if (teamplay->value) {
+		gamemode = GM_TEAMPLAY;
+	// } else if (dom->value) {
+	// 	gamemode = GM_DOMINATION;
+	// } else if (esp->value) {
+	// 	gamemode = GM_ESPIONAGE;
+	} else if (deathmatch->value) {
+		gamemode = GM_DEATHMATCH;
+	}
+	return gamemode;
+}
+
+int Gamemodeflag(void)
+// These are gamemode flags that change the rules of gamemodes.
+// For example, you can have a darkmatch matchmode 3team teamplay server
+{
+	int gamemodeflag = 0;
+	char gmfstr[16];
+
+	// if (use_3teams->value) {
+	// 	gamemodeflag += GMF_3TEAMS;
+	// }
+	// if (darkmatch->value) {
+	// 	gamemodeflag += GMF_DARKMATCH;
+	// }
+	if (matchmode->value) {
+		gamemodeflag += GMF_MATCHMODE;
+	}
+	sprintf(gmfstr, "%d", gamemodeflag);
+	gi.cvar_forceset("gmf", gmfstr);
+	return gamemodeflag;
+}
+
 /*QUAKED worldspawn (0 0 0) ?
 
 Only used for the world.
@@ -1572,7 +1770,8 @@ void SP_worldspawn(edict_t *ent)
 	level.snd_teamwins[3] = gi.soundindex("tng/team3_wins.wav");
 
 	PrecacheItem(GetItemByIndex(IT_WEAPON_MK23));
-
+	PrecacheRadioSounds();
+	PrecacheUserSounds();
 
 	if (g_dm_random_items->integer)
 		for (item_id_t i = static_cast<item_id_t>(IT_NULL + 1); i < IT_TOTAL; i = static_cast<item_id_t>(i + 1))
