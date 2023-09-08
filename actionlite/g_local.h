@@ -962,6 +962,7 @@ enum item_flags_t : uint32_t
 
 MAKE_ENUM_BITFLAGS(item_flags_t);
 
+
 // health edict_t->style
 enum
 {

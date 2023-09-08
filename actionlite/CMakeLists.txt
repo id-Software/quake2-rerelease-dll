@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23.1)
+cmake_minimum_required(VERSION 3.20)
 project(game)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
@@ -101,8 +101,8 @@ set_target_properties(game PROPERTIES OUTPUT_NAME "game")
 find_package(fmt CONFIG REQUIRED)
 
 # Fetch jsoncpp locally
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(JSONCPP jsoncpp)
+#find_package(PkgConfig REQUIRED)
+#pkg_check_modules(JSONCPP jsoncpp)
 find_library(JSONCPP jsoncpp)
 
 target_link_libraries(

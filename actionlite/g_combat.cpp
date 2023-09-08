@@ -504,8 +504,6 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	gclient_t *client;
 	int		   take;
 	int		   save;
-	int		   asave;
-	int		   psave;
 	int		   te_sparks;
 	bool	   sphere_notified; // PGM
 
@@ -647,14 +645,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 		save = damage;
 	}
 
-	// ZOID
-	// team armor protect
-	if (G_TeamplayEnabled() && targ->client && attacker->client &&
-		targ->client->resp.ctf_team == attacker->client->resp.ctf_team && targ != attacker &&
-		g_teamplay_armor_protect->integer)
-	{
-		psave = asave = 0;
-	}
+
 	//else
 	//{
 		// ZOID
@@ -666,7 +657,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	//}
 
 	// treat cheat/powerup savings the same as armor
-	asave += save;
+	//asave += save;
 
 	// ZOID
 	// resistance tech
@@ -689,8 +680,8 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	// ROGUE
 
 	// [Paril-KEX] player hit markers
-	if (targ != attacker && attacker->client && targ->health > 0 && !((targ->svflags & SVF_DEADMONSTER) || (targ->flags & FL_NO_DAMAGE_EFFECTS)) && mod.id != MOD_TARGET_LASER)
-		attacker->client->ps.stats[STAT_HIT_MARKER] += take + psave + asave;
+	//if (targ != attacker && attacker->client && targ->health > 0 && !((targ->svflags & SVF_DEADMONSTER) || (targ->flags & FL_NO_DAMAGE_EFFECTS)) && mod.id != MOD_TARGET_LASER)
+	//	attacker->client->ps.stats[STAT_HIT_MARKER] += take + psave + asave;
 
 	// do the damage
 	if (take)
@@ -792,14 +783,12 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	// at the end of the frame
 	if (client)
 	{
-		client->damage_parmor += psave;
-		client->damage_armor += asave;
 		client->damage_blood += take;
 		client->damage_knockback += knockback;
 		client->damage_from = point;
 		client->last_damage_time = level.time + COOP_DAMAGE_RESPAWN_TIME;
 
-		if (!(dflags & DAMAGE_NO_INDICATOR) && inflictor != world && attacker != world && (take || psave || asave))
+		if (!(dflags & DAMAGE_NO_INDICATOR) && inflictor != world && attacker != world && (take))
 		{
 			damage_indicator_t *indicator = nullptr;
 			size_t i;
@@ -826,8 +815,6 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 			if (indicator)
 			{
 				indicator->health += take;
-				indicator->power += psave;
-				indicator->armor += asave;
 			}
 		}
 	}

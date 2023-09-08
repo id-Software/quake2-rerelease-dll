@@ -1636,14 +1636,6 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
 			client->pers.max_ammo[AMMO_SHELLS] = 100;
 			client->pers.max_ammo[AMMO_CELLS] = 200;
 
-			// RAFAEL
-			client->pers.max_ammo[AMMO_TRAP] = 5;
-			// RAFAEL
-			// ROGUE
-			client->pers.max_ammo[AMMO_FLECHETTES] = 200;
-			client->pers.max_ammo[AMMO_DISRUPTOR] = 12;
-			client->pers.max_ammo[AMMO_TESLA] = 5;
-			// ROGUE
 
 			// if (!g_instagib->integer)
 			// 	client->pers.inventory[IT_WEAPON_BLASTER] = 1;
