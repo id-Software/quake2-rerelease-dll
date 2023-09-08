@@ -1674,26 +1674,27 @@ void SP_worldspawn(edict_t *ent)
 
 	gi.configstring(CS_SKYAXIS, G_Fmt("{}", st.skyaxis).data());
 
-	if (st.music && st.music[0])
-	{
-		gi.configstring(CS_CDTRACK, st.music);
-	}
-	else
-	{
-		gi.configstring(CS_CDTRACK, G_Fmt("{}", ent->sounds).data());
-	}
+	// No background music in AQ2
+	// if (st.music && st.music[0])
+	// {
+	// 	gi.configstring(CS_CDTRACK, st.music);
+	// }
+	// else
+	// {
+	// 	gi.configstring(CS_CDTRACK, G_Fmt("{}", ent->sounds).data());
+	// }
 
-	if (level.is_n64)
-		gi.configstring(CS_CD_LOOP_COUNT, "0");
-	else if (st.was_key_specified("loop_count"))
-		gi.configstring(CS_CD_LOOP_COUNT, G_Fmt("{}", st.loop_count).data());
-	else
-		gi.configstring(CS_CD_LOOP_COUNT, "");
+	// if (level.is_n64)
+	// 	gi.configstring(CS_CD_LOOP_COUNT, "0");
+	// else if (st.was_key_specified("loop_count"))
+	// 	gi.configstring(CS_CD_LOOP_COUNT, G_Fmt("{}", st.loop_count).data());
+	// else
+	// 	gi.configstring(CS_CD_LOOP_COUNT, "");
 
-	if (st.instantitems > 0 || level.is_n64)
-	{
-		level.instantitems = true;
-	}
+	// if (st.instantitems > 0 || level.is_n64)
+	// {
+	// 	level.instantitems = true;
+	// }
 
 	// [Paril-KEX]
 	if (!deathmatch->integer)
