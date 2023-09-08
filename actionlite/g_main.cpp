@@ -328,7 +328,8 @@ void ActionInit()
 		gi.cvar_forceset(teams[i].teamscore->name, "0");
 	}
 
-	day_cycle_at = 0;
+	// Darkmatch, maybe one day
+	//day_cycle_at = 0;
 	team_round_going = team_game_going = team_round_countdown = 0;
 	lights_camera_action = holding_on_tie_check = 0;
 	timewarning = fragwarning = 0;

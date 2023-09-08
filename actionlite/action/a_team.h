@@ -88,7 +88,10 @@ extern int fragwarning;
 extern transparent_list_t *transparent_list;
 extern trace_t trace_t_temp;
 extern int current_round_length; // For RoundTimeLeft
-extern int day_cycle_at;
+
+// Darkmatch, maybe one day
+//extern int day_cycle_at;
+
 extern int teamCount;
 extern int in_warmup;
 extern bool teams_changed;
