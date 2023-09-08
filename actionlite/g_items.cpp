@@ -1637,7 +1637,7 @@ always owned, never in the world
 	},
 	{
 		/* id */ IT_WEAPON_MP5,
-		/* classname */ "weapon_Mk23", 
+		/* classname */ "weapon_MP5", 
 		/* pickup */ Pickup_Weapon,
 		/* use */ Use_Weapon,
 		/* drop */ Drop_Weapon,
@@ -1663,7 +1663,7 @@ always owned, never in the world
 	},
 	{
 		/* id */ IT_WEAPON_M4,
-		/* classname */ "weapon_Mk23", 
+		/* classname */ "weapon_M4", 
 		/* pickup */ Pickup_Weapon,
 		/* use */ Use_Weapon,
 		/* drop */ Drop_Weapon,
@@ -1687,7 +1687,7 @@ always owned, never in the world
 	},
 	{
 		/* id */ IT_WEAPON_M3,
-		/* classname */ "weapon_Mk23", 
+		/* classname */ "weapon_M3", 
 		/* pickup */ Pickup_Weapon,
 		/* use */ Use_Weapon,
 		/* drop */ Drop_Weapon,
@@ -1711,7 +1711,7 @@ always owned, never in the world
 	},
 	{
 		/* id */ IT_WEAPON_HANDCANNON,
-		/* classname */ "weapon_Mk23", 
+		/* classname */ "weapon_HC", 
 		/* pickup */ Pickup_Weapon,
 		/* use */ Use_Weapon,
 		/* drop */ Drop_Weapon,
@@ -1957,8 +1957,8 @@ model="models/items/ammo/rockets/medium/tris.md2"
 		/* view_model */ nullptr,
 		/* icon */ "a_shells",
 		/* use_name */  SHOTGUN_AMMO_NAME,
-		/* pickup_name */  "$item_shells",
-		/* pickup_name_definite */ "$item_shells_def",
+		/* pickup_name */  SHOTGUN_AMMO_NAME,
+		/* pickup_name_definite */ SHOTGUN_AMMO_NAME,
 		/* quantity */ 7,
 		/* ammo */ IT_NULL,
 		/* chain */ IT_NULL,

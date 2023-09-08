@@ -4005,8 +4005,7 @@ void P_FallingDamage (edict_t * ent, const pmove_t &pm)
 
 		VectorSet (dir, 0, 0, 1);
 
-		T_Damage (ent, world, world, dir, ent->s.origin, vec3_origin,
-			damage, 0, DAMAGE_NONE, MOD_FALLING);
+		T_Damage(ent, world, world, dir, ent->s.origin, vec3_origin, damage, 0, DAMAGE_NONE, MOD_FALLING);
 		}
 }
 

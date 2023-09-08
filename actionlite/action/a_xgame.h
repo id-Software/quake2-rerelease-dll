@@ -16,6 +16,6 @@ bool GetPlayerLocation( edict_t *self, char *buf );
 
 void ParseSayText(edict_t *ent, char *text, size_t size);
 
-void Cmd_SetFlag1_f(edict_t *self);
-void Cmd_SetFlag2_f(edict_t *self);
-void Cmd_SaveFlags_f(edict_t *self);
+// void Cmd_SetFlag1_f(edict_t *self);
+// void Cmd_SetFlag2_f(edict_t *self);
+// void Cmd_SaveFlags_f(edict_t *self);

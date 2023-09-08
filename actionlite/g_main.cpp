@@ -158,6 +158,8 @@ cvar_t *dm_shield;
 cvar_t *uvtime;
 cvar_t *matchmode;
 cvar_t *warmup;
+cvar_t *gm;
+cvar_t *gmf;
 
 // Kick / Bans / Silences
 cvar_t *maxteamkills;
@@ -178,6 +180,8 @@ cvar_t *knifelimit;
 cvar_t *tgren;
 cvar_t *rrot;
 cvar_t *vrot;
+cvar_t *maptime;
+
 
 // UI / Menu / Messaging Settings
 cvar_t *motd_time;
@@ -256,6 +260,13 @@ Action Cvars Add
 */
 void ActionInit()
 {
+	edict_t *ent = NULL;
+	gclient_t   *client;
+	client_persistant_t pers;
+	int i, inhibit = 0;
+	char *com_token;
+	int saved_team;
+
 	teamdm = gi.cvar("teamdm", "0", CVAR_LATCH);
 	teamdm_respawn = gi.cvar("teamdm_respawn", "2", CVAR_NOFLAGS);
 	ff_afterround = gi.cvar("ff_afterround", "1", CVAR_NOFLAGS);
@@ -303,6 +314,69 @@ void ActionInit()
 	vrot = gi.cvar("vrot", "0", CVAR_NOFLAGS);
 	e_enhancedSlippers = gi.cvar("e_enhancedSlippers", "0", CVAR_SERVERINFO);
 	use_voice = gi.cvar("use_voice", "0", CVAR_NOFLAGS);
+	gm = gi.cvar("gm", "dm", CVAR_NOFLAGS);
+	gmf = gi.cvar("gmf", "0", CVAR_NOFLAGS);
+	maptime = gi.cvar("maptime", "0:00", CVAR_SERVERINFO | CVAR_NOSET);
+
+
+	// Reset teamplay stuff
+	for(i = TEAM1; i < TEAM_TOP; i++)
+	{
+		teams[i].score = teams[i].total = 0;
+		teams[i].ready = teams[i].locked = 0;
+		teams[i].pauses_used = teams[i].wantReset = 0;
+		gi.cvar_forceset(teams[i].teamscore->name, "0");
+	}
+
+	day_cycle_at = 0;
+	team_round_going = team_game_going = team_round_countdown = 0;
+	lights_camera_action = holding_on_tie_check = 0;
+	timewarning = fragwarning = 0;
+
+	teamCount = 2;
+	gameSettings = 0;
+
+	if(teamdm->integer)
+	{
+		gi.cvar_forceset(gm->name, "tdm");
+		gi.cvar_forceset(deathmatch->name, "1");
+		gameSettings |= GS_DEATHMATCH;
+
+		if (dm_choose->integer)
+			gameSettings |= GS_WEAPONCHOOSE;
+
+		if (!teamplay->integer)
+		{
+			gi.Com_Print("Team Deathmatch Enabled - Forcing teamplay on\n");
+			gi.cvar_forceset(teamplay->name, "1");
+		}
+		if (ctf->integer)
+		{
+			gi.Com_Print("Team Deathmatch Enabled - Forcing CTF off\n");
+			gi.cvar_forceset(ctf->name, "0");
+		}
+	} else if (teamplay->value)
+	{
+		gi.cvar_forceset(gm->name, "tp");
+		gi.cvar_forceset(teamplay->name, "1");
+		gameSettings |= (GS_ROUNDBASED | GS_WEAPONCHOOSE);
+	}
+	else { // All else fails, it's deathmatch
+		gi.cvar_forceset(gm->name, "dm");
+		gi.cvar_forceset(deathmatch->name, "1");
+		gameSettings |= GS_DEATHMATCH;
+		if (dm_choose->value)
+			gameSettings |= GS_WEAPONCHOOSE;
+	}
+
+	if (teamplay->value)
+	{
+		gameSettings |= GS_TEAMPLAY;
+	}
+
+	gi.cvar_forceset(maptime->name, "0:00");
+	// Set serverinfo correctly for gamemodeflags
+	Gamemodeflag();
 }
 
 /*
@@ -327,6 +401,7 @@ void PreInitGame()
 
 	// ACTION
 	ActionInit();
+	// ACTION
 
 	// This gamemode only supports deathmatch
 	if (ctf->integer)
@@ -354,6 +429,7 @@ void PreInitGame()
 		if (coop->integer)
 			gi.cvar_set("coop", "0");
 	}
+
 	// ZOID
 }
 

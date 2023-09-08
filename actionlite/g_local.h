@@ -2134,11 +2134,16 @@ extern cvar_t *radio_repeat;
 extern cvar_t *radio_repeat_time;
 extern cvar_t *warmup;
 extern cvar_t *round_begin;
+extern cvar_t *gm;
+extern cvar_t *gmf;
+extern cvar_t *maptime;
 
 void LaserSightThink (edict_t * self);
 void SP_LaserSight (edict_t * self, gitem_t * item);
 void Cmd_Reload_f (edict_t * ent);
 void Cmd_New_Reload_f (edict_t * ent);
+int Gamemodeflag(void);
+int Gamemode(void);
 
 struct gunStats_t
 {
