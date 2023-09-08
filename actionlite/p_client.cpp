@@ -4219,7 +4219,7 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 
 		if (pm.jump_sound && !(pm.s.pm_flags & PMF_ON_LADDER))
 		{
-			gi.sound(ent, CHAN_VOICE, gi.soundindex("*jump1.wav"), 1, ATTN_NORM, 0);
+			//gi.sound(ent, CHAN_VOICE, gi.soundindex("*jump1.wav"), 1, ATTN_NORM, 0);
 			// Paril: removed to make ambushes more effective and to
 			// not have monsters around corners come to jumps
 			// PlayerNoise(ent, ent->s.origin, PNOISE_SELF);
