@@ -1067,7 +1067,8 @@ void PM_CheckJump()
 		return; // in air, so no effect
 
 	pm->s.pm_flags |= PMF_JUMP_HELD;
-	pm->jump_sound = true;
+	// Action: Changed to false, we don't play jump sounds in AQ2
+	pm->jump_sound = false;
 	pm->groundentity = nullptr;
 	pm->s.pm_flags &= ~PMF_ON_GROUND;
 
