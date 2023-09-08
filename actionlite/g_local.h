@@ -2166,6 +2166,7 @@ void      Compass_Update(edict_t *ent, bool first);
 
 // ACTION
 void 	  DeadDropSpec(edict_t * ent);
+void      CheckItem(edict_t* ent);
 #define ITEM_INDEX(x) ((x)-itemlist)
 #define INV_AMMO(ent, num) ((ent)->client->pers.inventory[num])
 #define GET_ITEM(num) (&itemlist[num])

@@ -2382,3 +2382,45 @@ void SetItemNames()
 		cs_index++;
 	}
 }
+
+#define ITEM_SWITCH_COUNT 15
+
+const char* sp_item[ITEM_SWITCH_COUNT][2] = {
+  {"weapon_machinegun", "weapon_MP5"},
+  //{"weapon_supershotgun","weapon_HC"},
+  {"weapon_bfg", "weapon_M4"},
+  {"weapon_shotgun", "weapon_M3"},
+  //{"weapon_grenadelauncher","weapon_M203"},
+  {"weapon_chaingun", "weapon_Sniper"},
+  {"weapon_rocketlauncher", "weapon_HC"},
+  {"weapon_railgun", "weapon_Dual"},
+  {"ammo_bullets", "ammo_clip"},
+  {"ammo_rockets", "ammo_mag"},
+  {"ammo_cells", "ammo_m4"},
+  {"ammo_slugs", "ammo_sniper"},
+  {"ammo_shells", "ammo_m3"},
+  {"ammo_grenades", "weapon_Grenade"},
+  {"ammo_box", "ammo_m3"},
+  {"weapon_cannon", "weapon_HC"},
+  {"weapon_sniper", "weapon_Sniper"}
+
+};
+
+void CheckItem(edict_t* ent)
+{
+	int i;
+
+	for (i = 0; i < ITEM_SWITCH_COUNT; i++)
+	{
+		//If it's a null entry, bypass it
+		if (!sp_item[i][0])
+			continue;
+		//Do the passed ent and our list match?
+		if (strcmp(ent->classname, sp_item[i][0]) == 0)
+		{
+			//Yep. Replace the Q2 entity with our own.
+			ent->classname = sp_item[i][1];
+			return;
+		}
+	}
+}

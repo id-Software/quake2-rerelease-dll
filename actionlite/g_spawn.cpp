@@ -443,6 +443,7 @@ char ml_creator[101];
 //AQ2:TNG END
 placedata_t locationbase[MAX_LOCATIONS_IN_BASE];
 
+
 /*
 ===============
 ED_CallSpawn
@@ -461,6 +462,9 @@ void ED_CallSpawn(edict_t *ent)
 		G_FreeEdict(ent);
 		return;
 	}
+
+	// zucc - BD's item replacement idea
+	CheckItem(ent);
 
 	// PGM - do this before calling the spawn function so it can be overridden.
 	ent->gravityVector[0] = 0.0;
@@ -1568,6 +1572,7 @@ void SP_worldspawn(edict_t *ent)
 	level.snd_teamwins[3] = gi.soundindex("tng/team3_wins.wav");
 
 	PrecacheItem(GetItemByIndex(IT_WEAPON_MK23));
+
 
 	if (g_dm_random_items->integer)
 		for (item_id_t i = static_cast<item_id_t>(IT_NULL + 1); i < IT_TOTAL; i = static_cast<item_id_t>(i + 1))
