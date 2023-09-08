@@ -3869,7 +3869,7 @@ to ClientThink rather than being delayed.
 //Action Add
 void P_FallingDamage (edict_t * ent, const pmove_t &pm)
 {
-	float delta;
+	float delta = pm.impact_delta;
 	int damage;
 	vec3_t dir, oldvelocity;
 
@@ -3919,8 +3919,6 @@ void P_FallingDamage (edict_t * ent, const pmove_t &pm)
 	// 	delta *= 0.5;
     if (pm.waterlevel == WATER_UNDER)
 		return;
-
-	float delta = pm.impact_delta;
 
 	delta = delta * delta * 0.0001f;
 

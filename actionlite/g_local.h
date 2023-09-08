@@ -1822,7 +1822,7 @@ bool CheckForUnevenTeams (edict_t *);
 bool IsAllowedToJoin(edict_t *, int);
 void TransparentListSet (solid_t solid_type);
 bool OnLadder( edict_t *ent );
-
+void Cmd_Weapon_f(edict_t * ent);
 
 // Action Add end
 

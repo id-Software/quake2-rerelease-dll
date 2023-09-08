@@ -1423,7 +1423,7 @@ static void PrecacheUserSounds(void)
 	FILE* soundlist = fopen(filename.c_str(), "r");
 	//soundlist = fopen(GAMEVERSION "/sndlist.ini", "r");
 	if (!soundlist) { // no "sndlist.ini" file...
-		gi.Com_PrintFmt("Cannot load %s, sound download is disabled.\n", GAMEVERSION "/sndlist.ini");
+		gi.Com_PrintFmt("Cannot load %s/sndlist.ini, sound download is disabled.\n", GAMEVERSION);
 		return;
 	}
 
@@ -1449,7 +1449,7 @@ static void PrecacheUserSounds(void)
 	}
 	fclose(soundlist);
 	if (!count)
-		gi.Com_PrintFmt("%s is empty, no sounds to precache.\n", GAMEVERSION "/sndlist.ini");
+		gi.Com_PrintFmt("%s/sndlist.ini is empty, no sounds to precache.\n", GAMEVERSION);
 	else
 		gi.Com_PrintFmt("%i user sounds precached.\n", count);
 }
@@ -1467,7 +1467,7 @@ void G_LoadLocations( void )
 	memset( ml_creator, 0, sizeof( ml_creator ) );
 	ml_count = 0;
 
-	game_cvar = gi.cvar ("game", "action", 0);
+	game_cvar = gi.cvar ("game", "action", CVAR_NOFLAGS);
 
 	if (!*game_cvar->string)
 		snprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", GAMEVERSION, level.mapname);

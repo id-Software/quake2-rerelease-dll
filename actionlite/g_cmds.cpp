@@ -2504,13 +2504,6 @@ void Cmd_IR_f(edict_t * ent)
 	}
 }
 
-// sets variable to toggle nearby door status
-void Cmd_OpenDoor_f(edict_t * ent)
-{
-	ent->client->doortoggle = 1;
-	return;
-}
-
 void Cmd_Lens_f(edict_t * ent)
 {
 	int nArg;
