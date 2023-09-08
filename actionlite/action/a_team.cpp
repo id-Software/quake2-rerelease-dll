@@ -2109,7 +2109,7 @@ void A_NewScoreboardMessage(edict_t * ent)
 			alive = IS_ALIVE(cl_ent);
 			
 
-			snprintf( buf, sizeof( buf ), "xv 44 yv %d string%c \"%-15s %3d %3d %3d\"",
+			snprintf( buf, sizeof( buf ), "xv 44 yv %d string%c \"%-15s %3d %3f %3d\"",
 				line++ * lineh,
 				(alive && dead ? '2' : ' '),
 				cl->pers.netname,
@@ -2386,7 +2386,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 					Q_strlcat(playername, cl->pers.netname, sizeof(playername));
 					if (showExtra) {
 						sprintf( string + len,
-							"yv %d string%s \"%-15s %3d %3d %3d\" ",
+							"yv %d string%s \"%-15s %3d %3f %3d\" ",
 							line_y,
 							(deadview && cl_ent->solid != SOLID_NOT) ? "2" : "",
 							playername,

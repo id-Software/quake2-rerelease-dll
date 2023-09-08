@@ -1991,14 +1991,6 @@ extern cvar_t* g_dm_spawn_farthest;
 extern cvar_t* g_no_armor;
 extern cvar_t* g_dm_allow_exit;
 extern cvar_t* g_infinite_ammo;
-extern cvar_t* g_dm_no_quad_drop;
-extern cvar_t* g_dm_no_quadfire_drop;
-extern cvar_t* g_no_mines;
-extern cvar_t* g_dm_no_stack_double;
-extern cvar_t* g_no_nukes;
-extern cvar_t* g_no_spheres;
-extern cvar_t* g_teamplay_armor_protect;
-extern cvar_t* g_allow_techs;
 
 extern cvar_t* g_start_items;
 extern cvar_t* g_map_list;
@@ -2006,10 +1998,10 @@ extern cvar_t* g_map_list_shuffle;
 extern cvar_t *g_lag_compensation;
 
 // ROGUE
-extern cvar_t *gamerules;
-extern cvar_t *huntercam;
-extern cvar_t *g_dm_strong_mines;
-extern cvar_t *g_dm_random_items;
+// extern cvar_t *gamerules;
+// extern cvar_t *huntercam;
+// extern cvar_t *g_dm_strong_mines;
+// extern cvar_t *g_dm_random_items;
 // ROGUE
 
 // [Kex]

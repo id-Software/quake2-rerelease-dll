@@ -1467,12 +1467,13 @@ void G_LoadLocations( void )
 	memset( ml_creator, 0, sizeof( ml_creator ) );
 	ml_count = 0;
 
-	game_cvar = gi.cvar ("game", "action", CVAR_NOFLAGS);
+	//game_cvar = gi.cvar ("game", "action", CVAR_NOFLAGS);
+	snprintf(locfile, sizeof(locfile), "action/tng/%s.aqg", level.mapname);
 
-	if (!*game_cvar->string)
-		snprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", GAMEVERSION, level.mapname);
-	else
-		snprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", game_cvar->string, level.mapname);
+	// if (!*game_cvar->string)
+	// 	snprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", GAMEVERSION, level.mapname);
+	// else
+	// 	snprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", game_cvar->string, level.mapname);
 
 	f = fopen( locfile, "r" );
 	if (!f) {
@@ -1602,9 +1603,9 @@ int Gamemodeflag(void)
 	// if (darkmatch->value) {
 	// 	gamemodeflag += GMF_DARKMATCH;
 	// }
-	if (matchmode->value) {
-		gamemodeflag += GMF_MATCHMODE;
-	}
+	// if (matchmode->value) {
+	// 	gamemodeflag += GMF_MATCHMODE;
+	// }
 	sprintf(gmfstr, "%d", gamemodeflag);
 	gi.cvar_forceset("gmf", gmfstr);
 	return gamemodeflag;
@@ -1773,9 +1774,9 @@ void SP_worldspawn(edict_t *ent)
 	PrecacheRadioSounds();
 	PrecacheUserSounds();
 
-	if (g_dm_random_items->integer)
-		for (item_id_t i = static_cast<item_id_t>(IT_NULL + 1); i < IT_TOTAL; i = static_cast<item_id_t>(i + 1))
-			PrecacheItem(GetItemByIndex(i));
+	// if (g_dm_random_items->integer)
+	// 	for (item_id_t i = static_cast<item_id_t>(IT_NULL + 1); i < IT_TOTAL; i = static_cast<item_id_t>(i + 1))
+	// 		PrecacheItem(GetItemByIndex(i));
 
 	gi.soundindex("player/lava1.wav");
 	gi.soundindex("player/lava2.wav");

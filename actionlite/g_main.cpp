@@ -88,10 +88,10 @@ cvar_t *sv_stopspeed; // PGM	 (this was a define in g_phys.c)
 cvar_t *g_strict_saves;
 
 // ROGUE cvars
-cvar_t *gamerules;
-cvar_t *huntercam;
-cvar_t *g_dm_strong_mines;
-cvar_t *g_dm_random_items;
+// cvar_t *gamerules;
+// cvar_t *huntercam;
+// cvar_t *g_dm_strong_mines;
+// cvar_t *g_dm_random_items;
 // ROGUE
 
 // [Kex]
@@ -122,14 +122,6 @@ cvar_t* g_dm_spawn_farthest;
 cvar_t* g_no_armor;
 cvar_t* g_dm_allow_exit;
 cvar_t* g_infinite_ammo;
-cvar_t* g_dm_no_quad_drop;
-cvar_t* g_dm_no_quadfire_drop;
-cvar_t* g_no_mines;
-cvar_t* g_dm_no_stack_double;
-cvar_t* g_no_nukes;
-cvar_t* g_no_spheres;
-cvar_t* g_teamplay_armor_protect;
-cvar_t* g_allow_techs;
 cvar_t* g_start_items;
 cvar_t* g_map_list;
 cvar_t* g_map_list_shuffle;
@@ -325,7 +317,10 @@ void ActionInit()
 		teams[i].score = teams[i].total = 0;
 		teams[i].ready = teams[i].locked = 0;
 		teams[i].pauses_used = teams[i].wantReset = 0;
-		gi.cvar_forceset(teams[i].teamscore->name, "0");
+		
+
+		// This crashes, look into it
+		//gi.cvar_forceset(teams[i].teamscore->name, "0");
 	}
 
 	// Darkmatch, maybe one day
@@ -465,9 +460,9 @@ void InitGame()
 	sv_stopspeed = gi.cvar("sv_stopspeed", "100", CVAR_NOFLAGS); // PGM - was #define in g_phys.c
 
 	// ROGUE
-	huntercam = gi.cvar("huntercam", "1", CVAR_SERVERINFO | CVAR_LATCH);
-	g_dm_strong_mines = gi.cvar("g_dm_strong_mines", "0", CVAR_NOFLAGS);
-	g_dm_random_items = gi.cvar("g_dm_random_items", "0", CVAR_NOFLAGS);
+	// huntercam = gi.cvar("huntercam", "1", CVAR_SERVERINFO | CVAR_LATCH);
+	// g_dm_strong_mines = gi.cvar("g_dm_strong_mines", "0", CVAR_NOFLAGS);
+	// g_dm_random_items = gi.cvar("g_dm_random_items", "0", CVAR_NOFLAGS);
 	// ROGUE
 
 	// [Kex] Instagib
@@ -506,7 +501,7 @@ void InitGame()
 	maxspectators = gi.cvar("maxspectators", "4", CVAR_SERVERINFO);
 	skill = gi.cvar("skill", "1", CVAR_LATCH);
 	maxentities = gi.cvar("maxentities", G_Fmt("{}", MAX_EDICTS).data(), CVAR_LATCH);
-	gamerules = gi.cvar("gamerules", "0", CVAR_LATCH); // PGM
+	//gamerules = gi.cvar("gamerules", "0", CVAR_LATCH); // PGM
 
 	// change anytime vars
 	fraglimit = gi.cvar("fraglimit", "0", CVAR_SERVERINFO);
@@ -564,15 +559,14 @@ void InitGame()
 	g_no_armor = gi.cvar("g_no_armor", "0", CVAR_NOFLAGS);
 	g_dm_allow_exit = gi.cvar("g_dm_allow_exit", "0", CVAR_NOFLAGS);
 	g_infinite_ammo = gi.cvar("g_infinite_ammo", "0", CVAR_LATCH);
-	g_dm_no_quad_drop = gi.cvar("g_dm_no_quad_drop", "0", CVAR_NOFLAGS);
-	g_dm_no_quadfire_drop = gi.cvar("g_dm_no_quadfire_drop", "0", CVAR_NOFLAGS);
-	g_no_mines = gi.cvar("g_no_mines", "0", CVAR_NOFLAGS);
-	g_dm_no_stack_double = gi.cvar("g_dm_no_stack_double", "0", CVAR_NOFLAGS);
-	g_no_nukes = gi.cvar("g_no_nukes", "0", CVAR_NOFLAGS);
-	g_no_spheres = gi.cvar("g_no_spheres", "0", CVAR_NOFLAGS);
+	// g_dm_no_quadfire_drop = gi.cvar("g_dm_no_quadfire_drop", "0", CVAR_NOFLAGS);
+	// g_no_mines = gi.cvar("g_no_mines", "0", CVAR_NOFLAGS);
+	// g_dm_no_stack_double = gi.cvar("g_dm_no_stack_double", "0", CVAR_NOFLAGS);
+	// g_no_nukes = gi.cvar("g_no_nukes", "0", CVAR_NOFLAGS);
+	// g_no_spheres = gi.cvar("g_no_spheres", "0", CVAR_NOFLAGS);
 	g_teamplay_force_join = gi.cvar("g_teamplay_force_join", "0", CVAR_NOFLAGS);
-	g_teamplay_armor_protect = gi.cvar("g_teamplay_armor_protect", "0", CVAR_NOFLAGS);
-	g_allow_techs = gi.cvar("g_allow_techs", "auto", CVAR_NOFLAGS);
+	// g_teamplay_armor_protect = gi.cvar("g_teamplay_armor_protect", "0", CVAR_NOFLAGS);
+	// g_allow_techs = gi.cvar("g_allow_techs", "auto", CVAR_NOFLAGS);
 
 	g_start_items = gi.cvar("g_start_items", "", CVAR_LATCH);
 	g_map_list = gi.cvar("g_map_list", "", CVAR_NOFLAGS);

@@ -43,8 +43,8 @@ byte P_DamageModifier(edict_t *ent)
 		is_quad = 1;
 
 		// if we're quad and DF_NO_STACK_DOUBLE is on, return now.
-		if (g_dm_no_stack_double->integer)
-			return damage_multiplier;
+		// if (g_dm_no_stack_double->integer)
+		// 	return damage_multiplier;
 	}
 
 	if (ent->client->double_time > level.time)

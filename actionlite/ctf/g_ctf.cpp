@@ -3172,13 +3172,6 @@ void CTFAdmin_SettingsApply(edict_t *ent, pmenuhnd_t *p)
 		gi.cvar_set("g_dm_instant_items", settings->instantitems ? "1" : "0");
 	}
 
-	if (settings->quaddrop != (bool) !g_dm_no_quad_drop->integer)
-	{
-		gi.LocBroadcast_Print(PRINT_HIGH, "{} turned {} quad drop.\n",
-				   ent->client->pers.netname, settings->quaddrop ? "on" : "off");
-		gi.cvar_set("g_dm_no_quad_drop", !settings->quaddrop ? "1" : "0");
-	}
-
 	if (settings->instantweap != !!g_instant_weapon_switch->integer)
 	{
 		gi.LocBroadcast_Print(PRINT_HIGH, "{} turned {} instant weapons.\n",
@@ -3338,7 +3331,6 @@ void CTFAdmin_Settings(edict_t *ent, pmenuhnd_t *p)
 	settings->matchstartlen = matchstarttime->integer;
 	settings->weaponsstay = g_dm_weapons_stay->integer;
 	settings->instantitems = g_dm_instant_items->integer;
-	settings->quaddrop = !g_dm_no_quad_drop->integer;
 	settings->instantweap = g_instant_weapon_switch->integer != 0;
 	settings->matchlock = matchlock->integer != 0;
 
