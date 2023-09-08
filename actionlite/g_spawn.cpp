@@ -1496,7 +1496,7 @@ void G_LoadLocations( void )
 		{
 			param = line + 1;
 			while (*param == ' ') { param++; }
-			if (*param && (strncasecmp(param, "creator", 7) == 0))
+			if (*param && (Q_strncasecmp(param, "creator", 7) == 0))
 			{
 				param += 8;
 				while (*param == ' ') { param++; }
