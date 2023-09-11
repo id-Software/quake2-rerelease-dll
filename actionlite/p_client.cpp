@@ -3557,16 +3557,6 @@ void PutClientInServer(edict_t *ent)
 	if (allweapon->value)
 		AllWeapons(ent);
 
-	// my tribute to cash's level-specific hacks. I hope I live
-	// up to his trailblazing cheese.
-	if (Q_strcasecmp(level.mapname, "rboss") == 0)
-	{
-		// if you get on to rboss in single player or coop, ensure
-		// the player has the nuke key. (not in DM)
-		// if (!deathmatch->integer)
-		// 	client->pers.inventory[IT_KEY_NUKE] = 1;
-	}
-
 	// force the current weapon up
 	client->newweapon = client->pers.weapon;
 	ChangeWeapon(ent);
@@ -5330,7 +5320,7 @@ void ClientBeginServerFrame(edict_t *ent)
 		}
 		else if (client->uvTime % 40 == 0)
 		{
-			gi.LocCenter_Print(ent, "Shield %d", client->uvTime / 10);
+			gi.LocClient_Print(ent, PRINT_HIGH, "Shield %d", client->uvTime / 10);
 		}
 	}
 
