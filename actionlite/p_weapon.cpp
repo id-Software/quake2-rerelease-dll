@@ -238,54 +238,327 @@ inline bool G_WeaponShouldStay()
 
 void G_CheckAutoSwitch(edict_t *ent, gitem_t *item, bool is_new);
 
-bool Pickup_Weapon(edict_t *ent, edict_t *other)
+// Vanilla Pickup_Weapon
+// bool Pickup_Weapon(edict_t *ent, edict_t *other)
+// {
+// 	item_id_t index;
+// 	gitem_t	*ammo;
+
+// 	index = ent->item->id;
+
+// 	if (G_WeaponShouldStay() && other->client->pers.inventory[index])
+// 	{
+// 		if (!(ent->spawnflags & (SPAWNFLAG_ITEM_DROPPED | SPAWNFLAG_ITEM_DROPPED_PLAYER)))
+// 			return false; // leave the weapon for others to pickup
+// 	}
+
+// 	bool is_new = !other->client->pers.inventory[index];
+
+// 	other->client->pers.inventory[index]++;
+
+// 	if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
+// 	{
+// 		// give them some ammo with it
+// 		// PGM -- IF APPROPRIATE!
+// 		if (ent->item->ammo) // PGM
+// 		{
+// 			ammo = GetItemByIndex(ent->item->ammo);
+// 			// RAFAEL: Don't get infinite ammo with trap
+// 			if (G_CheckInfiniteAmmo(ammo))
+// 				Add_Ammo(other, ammo, 1000);
+// 			else
+// 				Add_Ammo(other, ammo, ammo->quantity);
+// 		}
+
+// 		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED_PLAYER))
+// 		{
+// 			if (deathmatch->integer)
+// 			{
+// 				if (g_dm_weapons_stay->integer)
+// 					ent->flags |= FL_RESPAWN;
+
+// 				SetRespawn( ent, gtime_t::from_sec(g_weapon_respawn_time->integer), !g_dm_weapons_stay->integer);
+// 			}
+// 			if (coop->integer)
+// 				ent->flags |= FL_RESPAWN;
+// 		}
+// 	}
+
+// 	G_CheckAutoSwitch(other, ent->item, is_new);
+
+// 	return true;
+// }
+
+
+bool Pickup_Weapon(edict_t* ent, edict_t* other)
 {
-	item_id_t index;
-	gitem_t	*ammo;
+	int index, index2;
+	gitem_t* ammo;
+	bool addAmmo;
+	int special = 0;
+	int band = 0;
+	action_weapon_num_t weapNum;
 
-	index = ent->item->id;
+	index = ITEM_INDEX(ent->item);
 
-	if (G_WeaponShouldStay() && other->client->pers.inventory[index])
+	if (g_dm_weapons_stay->value && other->client->inventory[index])
 	{
 		if (!(ent->spawnflags & (SPAWNFLAG_ITEM_DROPPED | SPAWNFLAG_ITEM_DROPPED_PLAYER)))
-			return false; // leave the weapon for others to pickup
+			return false;		// leave the weapon for others to pickup
 	}
 
-	bool is_new = !other->client->pers.inventory[index];
+	// find out if they have a bandolier
+	if (INV_AMMO(other, BAND_NUM))
+		band = 1;
+	else
+		band = 0;
 
-	other->client->pers.inventory[index]++;
 
-	if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
-	{
-		// give them some ammo with it
-		// PGM -- IF APPROPRIATE!
-		if (ent->item->ammo) // PGM
+	// zucc special cases for picking up weapons
+	// the mk23 should never be dropped, probably
+
+	switch (weapNum) {
+	case MK23_NUM:
+		// if (!WPF_ALLOWED(MK23_NUM))
+		// 	return false;
+
+		if (other->client->inventory[index])	// already has one
 		{
-			ammo = GetItemByIndex(ent->item->ammo);
-			// RAFAEL: Don't get infinite ammo with trap
-			if (G_CheckInfiniteAmmo(ammo))
+			if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
+			{
+				ammo = FindItem(ent->item->ammo.pickup_name);
+				addAmmo = Add_Ammo(other, ammo, ammo->quantity);
+				if (addAmmo && !(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED_PLAYER))
+					SetRespawn(ent, weapon_respawn->value);
+
+				return addAmmo;
+			}
+		}
+		other->client->inventory[index]++;
+		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED)) {
+			other->client->mk23_rds = other->client->mk23_max;
+			if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED_PLAYER))
+				SetRespawn(ent, weapon_respawn->value);
+		}
+		return true;
+
+	case MP5_NUM:
+		if (other->client->unique_weapon_total >= unique_weapons->value + band)
+			return false;		// we can't get it
+		if ((!allow_hoarding->value) && other->client->inventory[index])
+			return false;		// we already have one
+
+		other->client->inventory[index]++;
+		other->client->unique_weapon_total++;
+		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED)) {
+			other->client->mp5_rds = other->client->mp5_max;
+		}
+		special = 1;
+		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		break;
+
+	case M4_NUM:
+		if (other->client->unique_weapon_total >= unique_weapons->value + band)
+			return false;		// we can't get it
+		if ((!allow_hoarding->value) && other->client->inventory[index])
+			return false;		// we already have one
+
+		other->client->inventory[index]++;
+		other->client->unique_weapon_total++;
+		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED)) {
+			other->client->m4_rds = other->client->m4_max;
+		}
+		special = 1;
+		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		break;
+
+	case M3_NUM:
+		if (other->client->unique_weapon_total >= unique_weapons->value + band)
+			return false;		// we can't get it
+		if ((!allow_hoarding->value) && other->client->inventory[index])
+			return false;		// we already have one
+
+		other->client->inventory[index]++;
+		other->client->unique_weapon_total++;
+		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
+		{
+			// any weapon that doesn't completely fill up each reload can 
+			//end up in a state where it has a full weapon and pending reload(s)
+			if (other->client->weaponstate == WEAPON_RELOADING &&
+				other->client->curr_weap == M3_NUM)
+			{
+				if (other->client->fast_reload)
+					other->client->shot_rds = other->client->shot_max - 2;
+				else
+					other->client->shot_rds = other->client->shot_max - 1;
+			}
+			else
+			{
+				other->client->shot_rds = other->client->shot_max;
+			}
+		}
+		special = 1;
+		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		break;
+
+	case HC_NUM:
+		if (other->client->unique_weapon_total >= unique_weapons->value + band)
+			return false;		// we can't get it
+		if ((!allow_hoarding->value) && other->client->inventory[index])
+			return false;		// we already have one
+
+		other->client->inventory[index]++;
+		other->client->unique_weapon_total++;
+		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
+		{
+			other->client->cannon_rds = other->client->cannon_max;
+			index2 = ITEM_INDEX(FindItem(ent->item->ammo));
+			if (other->client->inventory[index2] + 5 > other->client->max_shells)
+				other->client->inventory[index2] = other->client->max_shells;
+			else
+				other->client->inventory[index2] += 5;
+		}
+		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		special = 1;
+		break;
+
+	case SNIPER_NUM:
+		if (other->client->unique_weapon_total >= unique_weapons->value + band)
+			return false;		// we can't get it
+		if ((!allow_hoarding->value) && other->client->inventory[index])
+			return false;		// we already have one
+
+		other->client->inventory[index]++;
+		other->client->unique_weapon_total++;
+		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
+		{
+			if (other->client->weaponstate == WEAPON_RELOADING &&
+				other->client->curr_weap == SNIPER_NUM)
+			{
+				if (other->client->fast_reload)
+					other->client->sniper_rds = other->client->sniper_max - 2;
+				else
+					other->client->sniper_rds = other->client->sniper_max - 1;
+			}
+			else
+			{
+				other->client->sniper_rds = other->client->sniper_max;
+			}
+		}
+		special = 1;
+		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		break;
+
+	case DUAL_NUM:
+		// if (!WPF_ALLOWED(MK23_NUM))
+		// 	return false;
+
+		if (other->client->inventory[index])	// already has one
+		{
+			if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
+			{
+				ammo = FindItem(ent->item->ammo);
+				addAmmo = Add_Ammo(other, ammo, ammo->quantity);
+				if (addAmmo && !(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED_PLAYER))
+					SetRespawn(ent, weapon_respawn->value);
+
+				return addAmmo;
+			}
+		}
+		other->client->inventory[index]++;
+		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
+		{
+			other->client->dual_rds += other->client->mk23_max;
+			// assume the player uses the new (full) pistol
+			other->client->mk23_rds = other->client->mk23_max;
+			if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED_PLAYER))
+				SetRespawn(ent, weapon_respawn->value);
+		}
+		return true;
+
+	case KNIFE_NUM:
+		if (other->client->inventory[index] < other->client->knife_max)
+		{
+			other->client->inventory[index]++;
+			return true;
+		}
+
+		return false;
+
+	case GRENADE_NUM:
+		if (!(gameSettings & GS_DEATHMATCH) && ctf->value != 2 && !band)
+			return false;
+
+		if (other->client->inventory[index] >= other->client->grenade_max)
+			return false;
+
+		other->client->inventory[index]++;
+		if (!(ent->spawnflags & (SPAWNFLAG_ITEM_DROPPED | SPAWNFLAG_ITEM_DROPPED_PLAYER)))
+		{
+			if (g_dm_weapons_stay->integer)
+				ent->flags |= FL_RESPAWN;
+			else
+				SetRespawn(ent, ammo_respawn->value);
+		}
+		return true;
+
+	default:
+		other->client->inventory[index]++;
+
+		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
+		{
+			// give them some ammo with it
+			ammo = FindItem(ent->item->ammo);
+
+			if (g_infinite_ammo->value)
 				Add_Ammo(other, ammo, 1000);
 			else
 				Add_Ammo(other, ammo, ammo->quantity);
-		}
 
-		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED_PLAYER))
-		{
-			if (deathmatch->integer)
+			if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED_PLAYER))
 			{
 				if (g_dm_weapons_stay->integer)
 					ent->flags |= FL_RESPAWN;
-
-				SetRespawn( ent, gtime_t::from_sec(g_weapon_respawn_time->integer), !g_dm_weapons_stay->integer);
+				else
+					SetRespawn(ent, 30_sec);
 			}
-			if (coop->integer)
-				ent->flags |= FL_RESPAWN;
 		}
+		break;
 	}
 
-	G_CheckAutoSwitch(other, ent->item, is_new);
+	if (!(ent->spawnflags & (SPAWNFLAG_ITEM_DROPPED | SPAWNFLAG_ITEM_DROPPED_PLAYER))
+		&& (SPEC_WEAPON_RESPAWN) && special)
+	{
+		if (g_weapon_respawn_time->integer && ((gameSettings & GS_DEATHMATCH) || ctf->value == 2))
+			SetRespawn(ent, weapon_respawn->value);
+		else
+			SetSpecWeapHolder(ent);
+	}
 
 	return true;
+}
+
+
+// zucc vwep 3.17(?) vwep support
+void ShowGun(edict_t* ent)
+{
+	int nIndex;
+
+	// No weapon?
+	if (!ent->client->pers.weapon) {
+		ent->s.modelindex2 = 0;
+		return;
+	}
+
+	// Determine the weapon's precache index.
+	nIndex = ent->client->pers.weapon->id;
+
+	// Clear previous weapon model.
+	ent->s.skinnum &= 255;
+
+	// Set new weapon model.
+	ent->s.skinnum |= (nIndex << 8);
+	ent->s.modelindex2 = 255;
 }
 
 static void Weapon_RunThink(edict_t *ent)
@@ -2122,7 +2395,7 @@ void Pistol_Fire(edict_t* ent)
 	if (ent->client->pers.mk23_mode)
 		spread *= .7;
 
-	//      gi.cprintf(ent, PRINT_HIGH, "Spread is %d\n", spread);
+	//      gi.LocClient_Print(ent, PRINT_HIGH, "Spread is %d\n", spread);
 
 	if (ent->client->mk23_rds == 1)
 	{
@@ -2573,7 +2846,7 @@ void M4_Fire(edict_t* ent)
 		spread *= .7;
 
 
-	//      gi.cprintf(ent, PRINT_HIGH, "Spread is %d\n", spread);
+	//      gi.LocClient_Print(ent, PRINT_HIGH, "Spread is %d\n", spread);
 
 
 	//Calculate the kick angles
@@ -3211,7 +3484,7 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 
 		if (ent->client->pers.knife_mode == 1 && ent->client->ps.gunframe == 0)
 		{
-			//                      gi.cprintf(ent, PRINT_HIGH, "NewKnifeFirst\n");
+			//                      gi.LocClient_Print(ent, PRINT_HIGH, "NewKnifeFirst\n");
 			ent->client->ps.gunframe = FRAME_PREPARETHROW_FIRST;
 			return;
 		}
@@ -3235,7 +3508,7 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 		ent->client->ps.fov = 90;
 
 		ent->client->ps.gunframe++;
-		//              gi.cprintf(ent, PRINT_HIGH, "After increment frames = %d\n", ent->client->ps.gunframe);
+		//              gi.LocClient_Print(ent, PRINT_HIGH, "After increment frames = %d\n", ent->client->ps.gunframe);
 		return;
 	}
 
@@ -3422,7 +3695,7 @@ Weapon_Generic_Knife(edict_t* ent, int FRAME_ACTIVATE_LAST,
 			return;
 		}
 			*/
-			//gi.cprintf(ent, PRINT_HIGH, "Before a gunframe additon frames = %d\n", ent->client->ps.gunframe);
+			//gi.LocClient_Print(ent, PRINT_HIGH, "Before a gunframe additon frames = %d\n", ent->client->ps.gunframe);
 		ent->client->ps.gunframe++;
 		return;
 	}
@@ -3802,7 +4075,7 @@ void Weapon_Gas(edict_t* ent)
 		ent->client->ps.fov = 90;
 
 		ent->client->ps.gunframe++;
-		//              gi.cprintf(ent, PRINT_HIGH, "After increment frames = %d\n", ent->client->ps.gunframe);
+		//              gi.LocClient_Print(ent, PRINT_HIGH, "After increment frames = %d\n", ent->client->ps.gunframe);
 		return;
 	}
 
@@ -4016,7 +4289,7 @@ edict_t *FindSpecWeapSpawn(edict_t* ent)
 	spot = G_FindByString<&edict_t::classname>(spot, ent->classname);
 	//spot = G_Find(spot, FOFS(classname), ent->classname);
 	//gi.bprintf (PRINT_HIGH, "spot = %p and spot->think = %p and playerholder = %p, spot, (spot ? spot->think : 0), PlaceHolder\n");
-	while (spot && spot->think != PlaceHolder)	//(spot->spawnflags & DROPPED_ITEM ) && spot->think != PlaceHolder )//spot->solid == SOLID_NOT )        
+	while (spot && spot->think != PlaceHolder)	//(spot->spawnflags & SPAWNFLAG_ITEM_DROPPED ) && spot->think != PlaceHolder )//spot->solid == SOLID_NOT )        
 	{
 		//              gi.bprintf (PRINT_HIGH, "Calling inside the loop FindSpecWeapSpawn\n");
 		spot = G_FindByString<&edict_t::classname>(spot, ent->classname);
