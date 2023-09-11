@@ -154,6 +154,8 @@ cvar_t *gm;
 cvar_t *gmf;
 
 // Kick / Bans / Silences
+cvar_t *sv_idleremove; // Remove idlers
+cvar_t *ppl_idletime;
 cvar_t *maxteamkills;
 cvar_t *twbanrounds;
 cvar_t *tkbanrounds;
@@ -309,6 +311,8 @@ void ActionInit()
 	gm = gi.cvar("gm", "dm", CVAR_NOFLAGS);
 	gmf = gi.cvar("gmf", "0", CVAR_NOFLAGS);
 	maptime = gi.cvar("maptime", "0:00", CVAR_SERVERINFO | CVAR_NOSET);
+	sv_idleremove = gi.cvar("sv_idleremove", "0", CVAR_NOFLAGS);
+	ppl_idletime = gi.cvar("ppl_idletime", "15", CVAR_NOFLAGS);
 
 
 	// Reset teamplay stuff

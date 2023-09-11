@@ -1824,6 +1824,7 @@ bool IsAllowedToJoin(edict_t *, int);
 void TransparentListSet (solid_t solid_type);
 bool OnLadder( edict_t *ent );
 void Cmd_Weapon_f(edict_t * ent);
+void Cmd_Inven_f(edict_t *ent);
 
 // Action Add end
 
@@ -2052,9 +2053,13 @@ extern gitem_t itemlist[IT_TOTAL];
 #define PARSE_BUFSIZE 256
 #define IS_ALIVE(ent) ((ent)->solid != SOLID_NOT && (ent)->deadflag)
 
-#define WEAPON_COUNT			9
-#define ITEM_COUNT				6
-#define AMMO_COUNT				5
+// 40hz
+#define FRAMEDIV        4
+#define FRAMESYNC       4
+
+#define WEAPON_COUNT	9
+#define ITEM_COUNT		6
+#define AMMO_COUNT		5
 
 #define GS_DEATHMATCH	1
 #define GS_TEAMPLAY		2
@@ -2130,6 +2135,8 @@ extern cvar_t *round_begin;
 extern cvar_t *gm;
 extern cvar_t *gmf;
 extern cvar_t *maptime;
+extern cvar_t *sv_idleremove; // Remove idlers
+extern cvar_t *ppl_idletime;
 
 void LaserSightThink (edict_t * self);
 void SP_LaserSight (edict_t * self, gitem_t * item);
@@ -2137,6 +2144,8 @@ void Cmd_Reload_f (edict_t * ent);
 void Cmd_New_Reload_f (edict_t * ent);
 int Gamemodeflag(void);
 int Gamemode(void);
+void PlayWeaponSound( edict_t *ent );
+void killPlayer(edict_t *ent, bool suicidePunish);
 
 struct gunStats_t
 {
@@ -3001,6 +3010,7 @@ struct client_persistant_t
 	int32_t spec_flags;
 	int32_t	firing_style;
 	int32_t *menu_shown;
+	bool 	dm_selected;		// if dm weapon selection has been done once
 	// Action Add End
 };
 
@@ -3217,6 +3227,7 @@ struct gclient_t
 	bool			anim_duck;
 	bool			anim_run;
 	gtime_t			anim_time;
+	int32_t			anim_started;
 
 	// powerup timers
 	gtime_t quad_time;
@@ -3323,12 +3334,15 @@ struct gclient_t
 	gtime_t	 last_attacker_time;
 
 	// Action Add
+	int32_t			weapon_last_activity;
+
 	layout_t		layout;		// set layout stat
 	int32_t			unique_item_total;
 	int32_t			unique_weapon_total;
 
 	int32_t			inventory[MAX_ITEMS];
 
+	int32_t			respawn_framenum;		// can respawn when time > this
 	edict_t		    *chase_target;
 	int32_t			chase_mode;
 	gitem_t			selected_item;

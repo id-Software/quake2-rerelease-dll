@@ -4695,6 +4695,15 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 
 		gi.linkentity(ent);
 
+		// stop manipulating doors
+		client->doortoggle = 0;
+
+		if( client->jumping && (ent->solid != SOLID_NOT) && ! lights_camera_action && ! client->uvTime )
+		{
+			kick_attack( ent );
+			client->punch_desired = false;
+		}
+
 		// PGM trigger_gravity support
 		ent->gravity = 1.0;
 		// PGM
@@ -5078,6 +5087,40 @@ static bool G_CoopRespawn(edict_t *ent)
 	return true;
 }
 
+// Raptor007: Allow weapon actions to start happening on any frame.
+static void ClientThinkWeaponIfReady( edict_t *ent, bool update_idle )
+{
+	int old_weaponstate, old_gunframe;
+
+	// If they just spawned, sync up the weapon animation with that.
+	if( ! ent->client->weapon_last_activity )
+		ent->client->weapon_last_activity = level.time.seconds();
+
+	// If it's too soon since the last non-idle think, keep waiting.
+	else if( level.time.frames() < ent->client->weapon_last_activity + FRAMEDIV )
+		return;
+
+	// Clear weapon kicks.
+	VectorClear( ent->client->kick_origin );
+	VectorClear( ent->client->kick_angles );
+
+	old_weaponstate = ent->client->weaponstate;
+	old_gunframe = ent->client->ps.gunframe;
+
+	Think_Weapon( ent );
+
+	// If the weapon is or was in any state other than ready, wait before thinking again.
+	if( (ent->client->weaponstate != WEAPON_READY) || (old_weaponstate != WEAPON_READY) )
+	{
+		ent->client->weapon_last_activity = level.time.milliseconds();
+		ent->client->anim_started = ent->client->weapon_last_activity;
+	}
+
+	// Only allow the idle animation to update if it's been enough time.
+	else if( ! update_idle || level.time.frames() % FRAMEDIV != ent->client->weapon_last_activity % FRAMEDIV )
+		ent->client->ps.gunframe = old_gunframe;
+}
+
 /*
 ==============
 ClientBeginServerFrame
@@ -5089,7 +5132,7 @@ any other entities in the world.
 void ClientBeginServerFrame(edict_t *ent)
 {
 	gclient_t *client;
-	int		   buttonMask;
+	int		   buttonMask, going_observer, randomValue = 0;
 
 	if (gi.ServerFrame() != ent->client->step_frame)
 		ent->s.renderfx &= ~RF_STAIR_STEP;
@@ -5108,6 +5151,166 @@ void ClientBeginServerFrame(edict_t *ent)
 
 	if ( ( ent->svflags & SVF_BOT ) != 0 ) {
 		Bot_BeginFrame( ent );
+	}
+
+	if( team_round_going && IS_ALIVE(ent) )
+		client->resp.motd_refreshes = motd_time->value;  // Stop showing motd if we're playing.
+	else if( lights_camera_action )
+		client->resp.last_motd_refresh = level.time.seconds();  // Don't interrupt LCA with motd.
+	else if ((int)motd_time->value > client->resp.motd_refreshes * 2 && ent->client->layout != LAYOUT_MENU) {
+		// TODO: Check the timing here
+		if (client->resp.last_motd_refresh + 2 < level.time.seconds()) {
+			client->resp.last_motd_refresh = level.time.seconds();
+			client->resp.motd_refreshes++;
+			PrintMOTD( ent );
+		}
+	}
+
+	// show team or weapon menu immediately when connected
+	if (auto_menu->value && ent->client->layout != LAYOUT_MENU && !client->pers.menu_shown && (teamplay->value || dm_choose->value)) {
+		Cmd_Inven_f( ent );
+	}
+
+	if (!teamplay->value)
+	{
+		// force spawn when weapon and item selected in dm
+		if (!ent->client->pers.spectator && dm_choose->value && !client->pers.dm_selected) {
+			if (client->pers.chosenWeapon && client->pers.chosenItem) {
+				client->pers.dm_selected = 1;
+
+				gi.LocBroadcast_Print(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
+
+				respawn(ent);
+
+				if (!(ent->svflags & SVF_NOCLIENT)) { // send effect
+					gi.WriteByte(svc_muzzleflash);
+					gi.WriteShort(ent - g_edicts);
+					gi.WriteByte(MZ_LOGIN);
+					gi.multicast(ent->s.origin, MULTICAST_PVS, false);
+				}
+			}
+			return;
+		}
+
+		if (level.time.seconds() > client->respawn_framenum && (!IS_ALIVE(ent)) != ent->client->pers.spectator)
+		{
+			if (ent->client->pers.spectator){
+				killPlayer(ent, false);
+			} else {
+				gi.LocBroadcast_Print(PRINT_HIGH, "%s rejoined the game\n", ent->client->pers.netname);
+				respawn(ent);
+			}
+		}
+	}
+
+	// run weapon animations if it hasn't been done by a ucmd_t
+	ClientThinkWeaponIfReady( ent, true );
+	PlayWeaponSound( ent );
+
+	if (ent->deadflag) {
+		// wait for any button just going down
+		if (level.time.seconds() > client->respawn_framenum)
+		{
+			// Special consideration here for Espionage, as we DO want to respawn in a GS_ROUNDBASED game
+			if (teamplay->value) {
+				going_observer = ((gameSettings & GS_ROUNDBASED) || !client->resp.team || client->resp.subteam);
+			}
+			else
+			{
+				going_observer = ent->client->pers.spectator;
+				if (going_observer) {
+					gi.LocBroadcast_Print(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
+				}
+			}
+
+			if (going_observer) {
+				CopyToBodyQue(ent);
+				ent->solid = SOLID_NOT;
+				ent->svflags |= SVF_NOCLIENT;
+				ent->movetype = MOVETYPE_NOCLIP;
+				ent->health = 100;
+				ent->deadflag = false;
+				ent->client->ps.gunindex = 0;
+				client->ps.pmove.delta_angles[PITCH] = ANGLE2SHORT(0 - client->resp.cmd_angles[PITCH]);
+				client->ps.pmove.delta_angles[YAW] = ANGLE2SHORT(client->killer_yaw - client->resp.cmd_angles[YAW]);
+				client->ps.pmove.delta_angles[ROLL] = ANGLE2SHORT(0 - client->resp.cmd_angles[ROLL]);
+				ent->s.angles[PITCH] = 0;
+				ent->s.angles[YAW] = client->killer_yaw;
+				ent->s.angles[ROLL] = 0;
+				VectorCopy(ent->s.angles, client->ps.viewangles);
+				VectorCopy(ent->s.angles, client->v_angle);
+				gi.linkentity(ent);
+
+				if (teamplay->value && !in_warmup && limchasecam->value) {
+					ent->client->chase_mode = 0;
+
+					// TODO: Add chase modes at some point
+					//NextChaseMode( ent );
+				}
+			}
+			else
+			{
+				// in deathmatch, only wait for attack button
+				buttonMask = BUTTON_ATTACK;
+				if ((client->latched_buttons & buttonMask) || g_dm_force_respawn->integer) {
+					respawn(ent);
+					client->latched_buttons = BUTTON_NONE;
+				}
+			}
+		}
+		return;
+	}
+
+	if (ent->solid != SOLID_NOT)
+	{
+		int idleframes = client->resp.idletime ? (level.time.seconds() - client->resp.idletime) : 0;
+
+		if( client->punch_desired && ! client->jumping && ! lights_camera_action && ! client->uvTime )
+			punch_attack( ent );
+		client->punch_desired = false;
+
+		if( (ppl_idletime->value > 0) && idleframes && (idleframes % (int)(ppl_idletime->value * level.time.seconds()) == 0) )
+			//plays a random sound/insane sound, insane1-9.wav
+			//gi.sound( ent, CHAN_VOICE, gi.soundindex(va( "insane/insane%i.wav", rand() % 9 + 1 )), 1, ATTN_NORM, 0 );
+
+			// ChatGPT'd: "plays a random sound/insane sound, insane1-9.wav"
+			int randomValue = std::rand() % 9 + 1;
+			// Format the string using fmt::format
+			std::string soundPath = fmt::format("insane/insane{}.wav", randomValue);
+			// Get the sound index using gi.soundindex
+			int soundIndex = gi.soundindex(soundPath.c_str());
+			gi.sound(ent, CHAN_VOICE, soundIndex, 1, ATTN_NORM, 0);
+			
+		if( (sv_idleremove->value > 0) && (idleframes > (sv_idleremove->value * level.time.seconds())) && client->resp.team )
+		{
+			// Removes member from team once sv_idleremove value in seconds has been reached
+			int idler_team = client->resp.team;
+			if( teamplay->value )
+				LeaveTeam( ent );
+			client->resp.idletime = 0;
+			gi.Com_PrintFmt( "%s has been removed from play due to reaching the sv_idleremove timer of %i seconds\n",
+				client->pers.netname, (int) sv_idleremove->value );
+		}
+
+		if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
+			&& (client->curr_weap == MK23_NUM)) {
+			client->autoreloading = false;
+			Cmd_New_Reload_f( ent );
+		}
+
+		if (client->uvTime && FRAMESYNC) {
+			client->uvTime--;
+			if (!client->uvTime)
+			{
+				if (team_round_going){
+					gi.Center_Print(ent, "ACTION!");
+				}
+			}
+		}
+		else if (client->uvTime % 10 == 0)
+		{
+			gi.LocCenter_Print(ent, "Shield %d", client->uvTime / 10);
+		}
 	}
 
 	if (deathmatch->integer && !G_TeamplayEnabled() &&
