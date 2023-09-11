@@ -5313,6 +5313,7 @@ void ClientBeginServerFrame(edict_t *ent)
 
 	if (ent->solid != SOLID_NOT)
 	{
+		gi.Com_PrintFmt("uvTime is %d\n", client->uvTime);
 		if (client->uvTime && FRAMESYNC) {
 			client->uvTime--;
 			if (!client->uvTime && team_round_going)
@@ -5320,7 +5321,7 @@ void ClientBeginServerFrame(edict_t *ent)
 		}
 		else if (client->uvTime % 40 == 0)
 		{
-			gi.LocClient_Print(ent, PRINT_HIGH, "Shield %d", client->uvTime / 10);
+			gi.LocClient_Print(ent, PRINT_CENTER, "Shield %d", client->uvTime / 10);
 		}
 	}
 
