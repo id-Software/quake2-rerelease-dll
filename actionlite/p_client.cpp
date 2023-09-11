@@ -2503,6 +2503,442 @@ void spectator_respawn(edict_t *ent)
 
 //==============================================================
 
+void AllWeapons(edict_t * ent)
+{
+	int i;
+	gitem_t *it;
+
+
+	// for (i = 0; i < IT_TOTAL; i++)
+	// 	{
+	// 		it = itemlist + i;
+	// 		if (!it->pickup)
+	// 			continue;
+	// 		if (!(it->flags & IF_WEAPON))
+	// 			continue;
+	// 		ent->client->pers.inventory[i] += 1;
+	// 	}
+
+	// Provide ammo for all of the weapons they were just given
+	// ent->client->mk23_rds = ent->client->mk23_max;
+	// ent->client->mp5_rds = ent->client->mp5_max;
+	// ent->client->m4_rds = ent->client->m4_max;	    
+	// ent->client->shot_rds = ent->client->shot_max;
+	// ent->client->cannon_rds = ent->client->cannon_max;
+	// ent->client->sniper_rds = ent->client->sniper_max;
+	// ent->client->dual_rds = ent->client->dual_max;
+	// ent->client->inventory[KNIFE_NUM] = 10;
+	// ent->client->inventory[GRENADE_NUM] = tgren->value;
+
+	// for (i = 0; i < game.num_items; i++) {
+	// 	it = itemlist + i;
+	// 	if (!it->pickup)
+	// 		continue;
+	// 	if (!(it->flags & IF_AMMO))
+	// 		continue;
+	// 	Add_Ammo(ent, it, 1000);
+	// }
+
+
+	for (i = 0; i < game.num_items; i++) {
+		it = itemlist + i;
+		if (!it->pickup)
+			continue;
+		if (!(it->flags & IF_WEAPON))
+			continue;
+
+		switch(it->id) {
+		case IT_WEAPON_MK23:
+			ent->client->inventory[i] = 1;
+			ent->client->mk23_rds = ent->client->mk23_max;
+			break;
+		case IT_WEAPON_MP5:
+			ent->client->inventory[i] = 1;
+			ent->client->mp5_rds = ent->client->mp5_max;
+			break;
+		case IT_WEAPON_M4:
+			ent->client->inventory[i] = 1;
+			ent->client->m4_rds = ent->client->m4_max;	    
+			break;
+		case IT_WEAPON_M3:
+			ent->client->inventory[i] = 1;
+			ent->client->shot_rds = ent->client->shot_max;
+			break;
+		case IT_WEAPON_HANDCANNON:
+			ent->client->inventory[i] = 1;
+			ent->client->cannon_rds = ent->client->cannon_max;
+			ent->client->shot_rds = ent->client->shot_max;
+			break;
+		case IT_WEAPON_SNIPER:
+			ent->client->inventory[i] = 1;
+			ent->client->sniper_rds = ent->client->sniper_max;
+			break;
+		case IT_WEAPON_DUALMK23:
+			ent->client->inventory[i] = 1;
+			ent->client->dual_rds = ent->client->dual_max;
+			break;
+		case IT_WEAPON_KNIFE:
+			ent->client->inventory[i] = 10;
+			break;
+		case IT_WEAPON_GRENADES:
+			ent->client->inventory[i] = tgren->value;
+			break;
+		}
+	}
+	
+	for (i = 0; i < game.num_items; i++) {
+		it = itemlist + i;
+		if (!it->pickup)
+			continue;
+		if (!(it->flags & IF_AMMO))
+			continue;
+		Add_Ammo(ent, it, 1000);
+	}
+}
+
+void AllItems(edict_t * ent)
+{
+	int i;
+	gitem_t *it;
+
+	for (i = 0; i < game.num_items; i++) {
+		it = itemlist + i;
+		if (!it->pickup)
+			continue;
+		if (!(it->flags & IF_POWERUP)) // Items are Powerups
+			continue;
+		ent->client->pers.inventory[i] += 1;
+
+		if (ent->client->unique_item_total >= unique_items->value)
+			ent->client->unique_item_total = unique_items->value - 1;
+	}
+}
+
+// equips a client with item/weapon in teamplay
+
+void EquipClient(edict_t * ent)
+{
+	gclient_t *client;
+	gitem_t *item;
+	int band = 0, itemNum = 0;
+
+	client = ent->client;
+
+	// if(use_grapple->value)
+	// 	client->inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
+
+	// Honor changes to wp_flags and itm_flags.
+	// if( client->pers.chosenWeapon && ! WPF_ALLOWED(client->pers.chosenWeapon->typeNum) )
+	// 	client->pers.chosenWeapon = NULL;
+	// if( client->pers.chosenItem && ! ITF_ALLOWED(client->pers.chosenItem->typeNum) )
+	// 	client->pers.chosenItem = NULL;
+
+	if (client->pers.chosenItem) {
+		if (client->pers.chosenItem->id == IT_ITEM_BANDOLIER) {
+			band = 1;
+			if (tgren->value > 0)	// team grenades is turned on
+			{
+				item = GET_ITEM(GRENADE_NUM);
+				client->inventory[ITEM_INDEX(item)] = tgren->value;
+			}
+		}
+		ent->client->pers.inventory[client->pers.chosenItem->id] += 1;
+	}
+
+	// set them up with initial pistol ammo
+	//if (WPF_ALLOWED(MK23_ANUM)) {
+	item = GET_ITEM(MK23_ANUM);
+	if (band)
+		client->inventory[ITEM_INDEX(item)] = 2;
+	else
+		client->inventory[ITEM_INDEX(item)] = 1;
+	//}
+
+	itemNum = client->pers.chosenWeapon ? client->pers.chosenWeapon->id : 0;
+
+	switch (itemNum) {
+	case MP5_NUM:
+		item = GET_ITEM(MP5_NUM);
+		//client->selected_item = ITEM_INDEX(item);
+		client->selected_item.id = IT_WEAPON_MP5;
+		client->inventory[ent->client->selected_item.id] = 1;
+		client->pers.weapon = item;
+		client->curr_weap = MP5_NUM;
+		client->unique_weapon_total = 1;
+		item = GET_ITEM(MP5_ANUM);
+		if (band)
+			client->inventory[ITEM_INDEX(item)] = 2;
+		else
+			client->inventory[ITEM_INDEX(item)] = 1;
+		client->mp5_rds = client->mp5_max;
+		break;
+	case M4_NUM:
+		item = GET_ITEM(M4_NUM);
+		client->selected_item.id = IT_WEAPON_M4;
+		client->inventory[ent->client->selected_item.id] = 1;
+		client->pers.weapon = item;
+		client->curr_weap = M4_NUM;
+		client->unique_weapon_total = 1;
+		item = GET_ITEM(M4_ANUM);
+		if (band)
+			client->inventory[ITEM_INDEX(item)] = 2;
+		else
+			client->inventory[ITEM_INDEX(item)] = 1;
+		client->m4_rds = client->m4_max;
+		break;
+	case M3_NUM:
+		item = GET_ITEM(M3_NUM);
+		client->selected_item.id = IT_WEAPON_M3;
+		client->inventory[ent->client->selected_item.id] = 1;
+		client->pers.weapon = item;
+		client->curr_weap = M3_NUM;
+		client->unique_weapon_total = 1;
+		item = GET_ITEM(SHELL_ANUM);
+		if (band)
+			client->inventory[ITEM_INDEX(item)] = 14;
+		else
+			client->inventory[ITEM_INDEX(item)] = 7;
+		client->shot_rds = client->shot_max;
+		break;
+	case HC_NUM:
+		item = GET_ITEM(HC_NUM);
+		client->selected_item.id = IT_WEAPON_HANDCANNON;
+		client->inventory[ent->client->selected_item.id] = 1;
+		client->pers.weapon = item;
+		client->curr_weap = HC_NUM;
+		client->unique_weapon_total = 1;
+		item = GET_ITEM(SHELL_ANUM);
+		if (band)
+			client->inventory[ITEM_INDEX(item)] = 24;
+		else
+			client->inventory[ITEM_INDEX(item)] = 12;
+		client->cannon_rds = client->cannon_max;
+		break;
+	case SNIPER_NUM:
+		item = GET_ITEM(SNIPER_NUM);
+		client->selected_item.id = IT_WEAPON_SNIPER;
+		client->inventory[ent->client->selected_item.id] = 1;
+		client->pers.weapon = item;
+		client->curr_weap = SNIPER_NUM;
+		client->unique_weapon_total = 1;
+		item = GET_ITEM(SNIPER_ANUM);
+		if (band)
+			client->inventory[ent->client->selected_item.id] = 20;
+		else
+			client->inventory[ent->client->selected_item.id] = 10;
+		client->sniper_rds = client->sniper_max;
+		break;
+	case DUAL_NUM:
+		item = GET_ITEM(DUAL_NUM);
+		client->selected_item.id = IT_WEAPON_DUALMK23;
+		client->inventory[ent->client->selected_item.id] = 1;
+		client->pers.weapon = item;
+		client->curr_weap = DUAL_NUM;
+		item = GET_ITEM(MK23_ANUM);
+		if (band)
+			client->inventory[ent->client->selected_item.id] = 4;
+		else
+			client->inventory[ent->client->selected_item.id] = 2;
+		client->dual_rds = client->dual_max;
+		break;
+	case KNIFE_NUM:
+		item = GET_ITEM(KNIFE_NUM);
+		client->selected_item.id = IT_WEAPON_KNIFE;
+		if (band)
+			client->inventory[ent->client->selected_item.id] = 20;
+		else
+			client->inventory[ent->client->selected_item.id] = 10;
+		client->pers.weapon = item;
+		client->curr_weap = KNIFE_NUM;
+		break;
+	}
+
+	// memset(&etemp, 0, sizeof(etemp));
+	// if (client->pers.chosenItem) {
+	// 	etemp.item = client->pers.chosenItem;
+	// 	Pickup_Special(&etemp, ent);
+	// }
+}
+
+// Igor[Rock] start
+void EquipClientDM(edict_t * ent)
+{
+	gclient_t *client;
+	gitem_t *item;
+	int itemNum = 0;
+
+	client = ent->client;
+
+	// if(use_grapple->value)
+	// 	client->inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
+
+	// TODO: Work with strtwpn
+	// if (*strtwpn->string)
+	// 	itemNum = GetWeaponNumFromArg(strtwpn->string);
+
+	// Give some ammo for the weapon
+	switch (itemNum) {
+	case MK23_NUM:
+		return;
+	case MP5_NUM:
+		item = GET_ITEM(MP5_NUM);
+		client->selected_item.id = IT_WEAPON_MP5;
+		client->inventory[ent->client->selected_item.id] = 1;
+		client->pers.weapon = item;
+		client->mp5_rds = client->mp5_max;
+		client->curr_weap = MP5_NUM;
+		if (!allweapon->value) {
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(MP5_ANUM);
+		client->inventory[ITEM_INDEX(item)] = 1;
+		break;
+	case M4_NUM:
+		item = GET_ITEM(M4_NUM);
+		client->selected_item.id = IT_WEAPON_M4;
+		client->inventory[ent->client->selected_item.id] = 1;
+		client->pers.weapon = item;
+		client->m4_rds = client->m4_max;
+		client->curr_weap = M4_NUM;
+		if (!allweapon->value) {
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(M4_ANUM);
+		client->inventory[ITEM_INDEX(item)] = 1;
+		break;
+	case M3_NUM:
+		item = GET_ITEM(M3_NUM);
+		client->selected_item.id = IT_WEAPON_M3;
+		client->inventory[ent->client->selected_item.id] = 1;
+		client->pers.weapon = item;
+		client->shot_rds = client->shot_max;
+		client->curr_weap = M3_NUM;
+		if (!allweapon->value) {
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(SHELL_ANUM);
+		client->inventory[ITEM_INDEX(item)] = 7;
+		break;
+	case HC_NUM:
+		item = GET_ITEM(HC_NUM);
+		client->selected_item.id = IT_WEAPON_HANDCANNON;
+		client->inventory[ent->client->selected_item.id] = 1;
+		client->pers.weapon = item;
+		client->cannon_rds = client->cannon_max;
+		client->shot_rds = client->shot_max;
+		client->curr_weap = HC_NUM;
+		if (!allweapon->value) {
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(SHELL_ANUM);
+		client->inventory[ITEM_INDEX(item)] = 12;
+		break;
+	case SNIPER_NUM:
+		item = GET_ITEM(SNIPER_NUM);
+		client->selected_item.id = IT_WEAPON_SNIPER;
+		client->inventory[ent->client->selected_item.id] = 1;
+		client->pers.weapon = item;
+		client->sniper_rds = client->sniper_max;
+		client->curr_weap = SNIPER_NUM;
+		if (!allweapon->value) {
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(SNIPER_ANUM);;
+		client->inventory[ITEM_INDEX(item)] = 10;
+		break;
+	case DUAL_NUM:
+		item = GET_ITEM(DUAL_NUM);
+		client->selected_item.id = IT_WEAPON_DUALMK23;
+		client->inventory[ent->client->selected_item.id] = 1;
+		client->pers.weapon = item;
+		client->dual_rds = client->dual_max;
+		client->mk23_rds = client->mk23_max;
+		client->curr_weap = DUAL_NUM;
+		item = GET_ITEM(MK23_ANUM);
+		client->inventory[ITEM_INDEX(item)] = 2;
+		break;
+	case GRENADE_NUM:
+		item = GET_ITEM(GRENADE_NUM);
+		client->selected_item.id = IT_WEAPON_GRENADES;
+		client->inventory[ent->client->selected_item.id] = tgren->value;
+		client->pers.weapon = item;
+		client->curr_weap = GRENADE_NUM;
+		break;
+	case KNIFE_NUM:
+		item = GET_ITEM(KNIFE_NUM);
+		client->selected_item.id = IT_WEAPON_KNIFE;
+		client->inventory[ent->client->selected_item.id] = 10;
+		client->pers.weapon = item;
+		client->curr_weap = KNIFE_NUM;
+		break;
+	}
+}
+
+// Igor[Rock] ende
+
+
+/*
+===========
+ClientLegDamage
+
+Called when a player takes leg damage
+============
+*/
+
+// TODO: Re-enable this
+// void ClientLegDamage(edict_t *ent)
+// {
+// 	ent->client->leg_damage = 1;
+// 	ent->client->leghits++;
+
+// 	// Reki: limp_nopred behavior
+// 	switch (ent->client->pers.limp_nopred & 255)
+// 	{
+// 		case 0:
+// 			break;
+// 		case 2:
+// 			if (sv_limp_highping->value <= 0)
+// 				break;
+// 			// if the 256 bit flag is set, we have to be cautious to only deactivate if ping swung significantly
+// 			// so each leg break doesn't flipflop between behavior if client ping is fluctuating
+// 			if (ent->client->pers.limp_nopred & 256)
+// 			{
+// 				if (ent->client->ping < (int)sv_limp_highping->value - 15)
+// 				{
+// 					ent->client->pers.limp_nopred &= ~256;
+// 					break;
+// 				}
+// 			}
+// 			else if (ent->client->ping < (int)sv_limp_highping->value)
+// 				break;
+// 			ent->client->pers.limp_nopred |= 256;
+// 		case 1:
+// 			if (e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM)) // we don't limp with enhanced slippers, so just ignore this leg damage.
+// 				break;
+
+// 			ent->client->ps.pmove.pm_flags |= PMF_NO_POSITIONAL_PREDICTION;
+// 			break;
+// 	}
+// 	//
+
+// }
+
+void ClientFixLegs(edict_t *ent)
+{
+	if (ent->client->leg_damage && ent->client->ctf_grapplestate <= CTF_GRAPPLE_STATE_FLY)
+	{
+		ent->client->ps.pmove.pm_flags &= ~PMF_NO_POSITIONAL_PREDICTION;
+	}
+
+	ent->client->leg_noise = 0;
+	ent->client->leg_damage = 0;
+	ent->client->leghits = 0;
+	ent->client->leg_dam_count = 0;
+}
+
+
+//==============================================================
+
 // [Paril-KEX]
 // skinnum was historically used to pack data
 // so we're going to build onto that.
@@ -4741,14 +5177,4 @@ void RemoveAttackingPainDaemons(edict_t *self)
 
 	if (self->client)
 		self->client->tracker_pain_time = 0_ms;
-}
-
-// Action Add
-
-void ClientFixLegs(edict_t *ent)
-{
-	ent->client->leg_noise = 0;
-	ent->client->leg_damage = 0;
-	ent->client->leghits = 0;
-	ent->client->leg_dam_count = 0;
 }

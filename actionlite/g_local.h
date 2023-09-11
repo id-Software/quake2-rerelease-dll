@@ -1187,6 +1187,7 @@ struct game_locals_t
 
 	// Action
 	int32_t roundNum;
+	int32_t num_items;
 };
 
 constexpr size_t MAX_HEALTH_BARS = 2;
@@ -3330,6 +3331,7 @@ struct gclient_t
 
 	edict_t		    *chase_target;
 	int32_t			chase_mode;
+	gitem_t			selected_item;
 	bool			team_force;		// are we forcing a team change
 	int				jumping;
 	// ammo capacities
@@ -3392,6 +3394,7 @@ struct gclient_t
 	int32_t			bleeddelay;			// how long until we bleed again
 
 	int32_t			doortoggle;			// set by player with opendoor command
+	int32_t			curr_weap;		// uses NAME_NUM values
 	int32_t			burst;			// remember if player is bursting or not
 	int32_t			fired;			// keep track of semi auto
 	int32_t			fast_reload;	// for shotgun/sniper rifle
