@@ -293,6 +293,152 @@ dflags		these flags are used to control how T_Damage works
 // 	return save;
 // }
 
+void BloodSprayThink(edict_t *self)
+{
+  G_FreeEdict (self);
+}
+
+
+//void blood_spray_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+TOUCH(blood_spray_touch) (edict_t *ent, edict_t *other, const trace_t &tr, bool other_touching_self) -> void
+{
+	if( (other == ent->owner) || other->client )  // Don't stop on players.
+		return;
+	ent->think = G_FreeEdict;
+	ent->nextthink = level.time + gtime_t::from_ms(1);
+}
+
+void spray_blood(edict_t *self, vec3_t start, vec3_t dir, int damage, int mod)
+{
+	edict_t *blood;
+	vec3_t	temp;
+	int speed;
+
+	switch (mod)
+	{
+	case MOD_MK23:
+		speed = 1800;
+		break;
+	case MOD_MP5:
+		speed = 1500;
+		break;
+	case MOD_M4:
+		speed = 2400;
+		break;
+	case MOD_KNIFE:
+		speed = 0;
+		break;
+	case MOD_KNIFE_THROWN:
+		speed = 0;
+		break;
+	case MOD_DUAL:
+		speed = 1800;
+		break;
+	case MOD_SNIPER:
+		speed = 4000;
+		break;
+	default:
+		speed = 1800;
+		break;
+	}
+
+	blood = G_Spawn();
+	VectorNormalize2(dir, temp);
+	VectorCopy(start, blood->s.origin);
+	//VectorCopy(start, blood->old_origin);
+	VectorCopy(temp, blood->movedir);
+	temp = vectoangles(blood->s.angles);
+	VectorScale(temp, speed, blood->velocity);
+	blood->movetype = MOVETYPE_BLOOD;
+	blood->clipmask = MASK_SHOT;
+	blood->solid = SOLID_BBOX;
+	blood->s.effects |= EF_GIB;
+	VectorClear(blood->mins);
+	VectorClear(blood->maxs);
+	blood->s.modelindex = level.model_null;
+	blood->owner = self;
+	blood->nextthink = level.time + gtime_t::from_hz(speed * 40 / 1000);  //3.2;
+	//blood->nextthink = level.framenum + speed * HZ / 1000;  //3.2;
+	blood->touch = blood_spray_touch;
+	blood->think = BloodSprayThink;
+	blood->dmg = damage;
+	blood->classname = "blood_spray";
+
+	gi.linkentity(blood);
+}
+
+// zucc based on some code in Action Quake
+void spray_sniper_blood(edict_t *self, vec3_t start, vec3_t dir)
+{
+	vec3_t forward;
+	int mod = MOD_SNIPER;
+
+	forward[0] = dir[0];
+	forward[1] = dir[1];
+	forward[2] = dir[2] + 0.03f;
+
+	spray_blood( self, start, forward, 0, mod );
+
+	forward[2] = dir[2] - 0.03f;
+	spray_blood( self, start, forward, 0, mod );
+	forward[2] = dir[2];
+
+	if (dir[0] && dir[1]) {
+		vec3_t diff = { 0.0f, 0.0f, 0.0f };
+		if (dir[0] > 0.0f)
+		{
+			if (dir[1] > 0.0f) {
+				diff[0] = -0.03f;
+				diff[1] = 0.03f;
+			}
+			else {
+				diff[0] = 0.03f;
+				diff[1] = 0.03f;
+			}
+		}
+		else
+		{
+			if (dir[1] > 0.0f) {
+				diff[0] = -0.03f;
+				diff[1] = -0.03f;
+			}
+			else {
+				diff[0] = 0.03f;
+				diff[1] = -0.03f;
+			}
+		}
+
+		forward[0] = dir[0] + diff[0];
+		forward[1] = dir[1] + diff[1];
+
+		spray_blood( self, start, forward, 0, mod );
+
+		forward[0] = dir[0] - diff[0];
+		forward[1] = dir[1] - diff[1];
+
+		spray_blood( self, start, forward, 0, mod );
+	}
+
+	spray_blood( self, start, dir, 0, mod );
+}
+
+void VerifyHeadShot(vec3_t point, vec3_t dir, float height, vec3_t newpoint)
+{
+	vec3_t normdir;
+
+	VectorNormalize2(dir, normdir);
+	VectorMA(point, height, normdir, newpoint);
+}
+
+// zucc adding location hit code
+// location hit code based off ideas by pyromage and shockman
+#define LEG_DAMAGE (height/2.2) - abs(targ->mins[2]) - 3
+#define STOMACH_DAMAGE (height/1.8) - abs(targ->mins[2])
+#define CHEST_DAMAGE (height/1.4) - abs(targ->mins[2])
+
+#define HEAD_HEIGHT 12.0f
+
+
 void M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 {
 	// pmm

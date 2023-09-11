@@ -1690,11 +1690,14 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
 	// Action Add
 
 	// Set max ammo and mag counts
+	// This is not how many you _start_ with
 	client->max_pistolmags = 2;
 	client->max_shells = 14;
 	client->max_mp5mags = 2;
 	client->max_m4mags = 1;
 	client->max_sniper_rnds = 20;
+
+	// Max ammo per weapon
 	client->knife_max = 10;
 	client->grenade_max = 2;
 	client->mk23_max = 12;
@@ -5313,7 +5316,6 @@ void ClientBeginServerFrame(edict_t *ent)
 
 	if (ent->solid != SOLID_NOT)
 	{
-		gi.Com_PrintFmt("uvTime is %d\n", client->uvTime);
 		if (client->uvTime && FRAMESYNC) {
 			client->uvTime--;
 			if (!client->uvTime && team_round_going)
@@ -5321,7 +5323,7 @@ void ClientBeginServerFrame(edict_t *ent)
 		}
 		else if (client->uvTime % 40 == 0)
 		{
-			gi.LocClient_Print(ent, PRINT_CENTER, "Shield %d", client->uvTime / 10);
+			gi.LocClient_Print(ent, PRINT_CENTER, "Shield {}", client->uvTime / 10);
 		}
 	}
 
