@@ -1602,88 +1602,117 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
 	memset(&client->pers, 0, sizeof(client->pers));
 	ClientUserinfoChanged(ent, userinfo);
 
+	// Commenting out Q2R stuff, may splice it back in at some point
+
+	// don't give us weapons if we shouldn't have any
+	// if ((G_TeamplayEnabled() && client->resp.ctf_team != CTF_NOTEAM) ||
+	// 	(!G_TeamplayEnabled() && !client->resp.spectator))
+	// {
+	// 	// in coop, if there's already a player in the game and we're new,
+	// 	// steal their loadout. this would fix a potential softlock where a new
+	// 	// player may not have weapons at all.
+	// 	bool taken_loadout = false;
+
+	// 	if (coop->integer)
+	// 	{
+	// 		for (auto player : active_players())
+	// 		{
+	// 			if (player == ent || !player->client->pers.spawned ||
+	// 				player->client->resp.spectator || player->movetype == MOVETYPE_NOCLIP)
+	// 				continue;
+
+	// 			client->pers.inventory = player->client->pers.inventory;
+	// 			client->pers.max_ammo = player->client->pers.max_ammo;
+	// 			client->pers.power_cubes = player->client->pers.power_cubes;
+	// 			taken_loadout = true;
+	// 			break;
+	// 		}
+	// 	}
+
+	// 	if (!taken_loadout)
+	// 	{
+	// 		// fill with 50s, since it's our most common value
+	// 		client->pers.max_ammo.fill(50);
+	// 		client->pers.max_ammo[AMMO_BULLETS] = 200;
+	// 		client->pers.max_ammo[AMMO_SHELLS] = 100;
+	// 		client->pers.max_ammo[AMMO_CELLS] = 200;
+
+
+	// 		if (!g_instagib->integer)
+	// 			client->pers.inventory[IT_WEAPON_MK23] = 1;
+
+	// 		// [Kex]
+	// 		// start items!
+	// 		if (*g_start_items->string)
+	// 			Player_GiveStartItems(ent, g_start_items->string);
+	// 		// else if (g_instagib->integer)
+	// 		// {
+	// 		// 	client->pers.inventory[IT_WEAPON_RAILGUN] = 1;
+	// 		// 	client->pers.inventory[IT_AMMO_SLUGS] = 99;
+	// 		// }
+
+	// 		if (level.start_items && *level.start_items)
+	// 			Player_GiveStartItems(ent, level.start_items);
+
+	// 		// if (!deathmatch->integer)
+	// 		// 	client->pers.inventory[IT_ITEM_COMPASS] = 1;
+
+	// 		// ZOID
+	// 		bool give_grapple = (!strcmp(g_allow_grapple->string, "auto")) ?
+	// 			(ctf->integer ? !level.no_grapple : 0) :
+	// 			g_allow_grapple->integer;
+
+	// 		if (give_grapple)
+	// 			client->pers.inventory[IT_WEAPON_GRAPPLE] = 1;
+	// 		// ZOID
+	// 	}
+
+	// 	NoAmmoWeaponChange(ent, false);
+
+	// 	client->pers.weapon = client->newweapon;
+	// 	if (client->newweapon)
+	// 		client->pers.selected_item = client->newweapon->id;
+	// 	client->newweapon = nullptr;
+	// 	// ZOID
+	// 	client->pers.lastweapon = client->pers.weapon;
+	// 	// ZOID
+	// }
+
+	// if (coop->value && g_coop_enable_lives->integer)
+	// 	client->pers.lives = g_coop_num_lives->integer + 1;
+
+	// if (ent->client->pers.autoshield >= AUTO_SHIELD_AUTO)
+	// 	ent->flags |= FL_WANTS_POWER_ARMOR;
+
 	client->pers.health = 100;
 	client->pers.max_health = 100;
 
-	// don't give us weapons if we shouldn't have any
-	if ((G_TeamplayEnabled() && client->resp.ctf_team != CTF_NOTEAM) ||
-		(!G_TeamplayEnabled() && !client->resp.spectator))
-	{
-		// in coop, if there's already a player in the game and we're new,
-		// steal their loadout. this would fix a potential softlock where a new
-		// player may not have weapons at all.
-		bool taken_loadout = false;
+	// Action Add
 
-		if (coop->integer)
-		{
-			for (auto player : active_players())
-			{
-				if (player == ent || !player->client->pers.spawned ||
-					player->client->resp.spectator || player->movetype == MOVETYPE_NOCLIP)
-					continue;
+	// Set max ammo and mag counts
+	client->max_pistolmags = 2;
+	client->max_shells = 14;
+	client->max_mp5mags = 2;
+	client->max_m4mags = 1;
+	client->max_sniper_rnds = 20;
+	client->knife_max = 10;
+	client->grenade_max = 2;
+	client->mk23_max = 12;
+	client->mp5_max = 30;
+	client->m4_max = 24;
+	client->shot_max = 7;
+	client->sniper_max = 6;
+	client->cannon_max = 2;
+	client->dual_max = 24;
 
-				client->pers.inventory = player->client->pers.inventory;
-				client->pers.max_ammo = player->client->pers.max_ammo;
-				client->pers.power_cubes = player->client->pers.power_cubes;
-				taken_loadout = true;
-				break;
-			}
-		}
+	// Initial ammo, set FOV
+	client->mk23_rds = client->mk23_max;
+	client->dual_rds = client->mk23_max;
+	client->knife_max = 10;
+	client->grenade_max = 2;
+	client->desired_fov = 90;
 
-		if (!taken_loadout)
-		{
-			// fill with 50s, since it's our most common value
-			client->pers.max_ammo.fill(50);
-			client->pers.max_ammo[AMMO_BULLETS] = 200;
-			client->pers.max_ammo[AMMO_SHELLS] = 100;
-			client->pers.max_ammo[AMMO_CELLS] = 200;
-
-
-			// if (!g_instagib->integer)
-			// 	client->pers.inventory[IT_WEAPON_BLASTER] = 1;
-
-			// [Kex]
-			// start items!
-			if (*g_start_items->string)
-				Player_GiveStartItems(ent, g_start_items->string);
-			// else if (g_instagib->integer)
-			// {
-			// 	client->pers.inventory[IT_WEAPON_RAILGUN] = 1;
-			// 	client->pers.inventory[IT_AMMO_SLUGS] = 99;
-			// }
-
-			if (level.start_items && *level.start_items)
-				Player_GiveStartItems(ent, level.start_items);
-
-			// if (!deathmatch->integer)
-			// 	client->pers.inventory[IT_ITEM_COMPASS] = 1;
-
-			// ZOID
-			bool give_grapple = (!strcmp(g_allow_grapple->string, "auto")) ?
-				(ctf->integer ? !level.no_grapple : 0) :
-				g_allow_grapple->integer;
-
-			if (give_grapple)
-				client->pers.inventory[IT_WEAPON_GRAPPLE] = 1;
-			// ZOID
-		}
-
-		NoAmmoWeaponChange(ent, false);
-
-		client->pers.weapon = client->newweapon;
-		if (client->newweapon)
-			client->pers.selected_item = client->newweapon->id;
-		client->newweapon = nullptr;
-		// ZOID
-		client->pers.lastweapon = client->pers.weapon;
-		// ZOID
-	}
-
-	if (coop->value && g_coop_enable_lives->integer)
-		client->pers.lives = g_coop_num_lives->integer + 1;
-
-	if (ent->client->pers.autoshield >= AUTO_SHIELD_AUTO)
-		ent->flags |= FL_WANTS_POWER_ARMOR;
+	ent->client->medkit = 0;
 
 	client->pers.connected = true;
 	client->pers.spawned = true;
@@ -3183,7 +3212,7 @@ a deathmatch.
 */
 void PutClientInServer(edict_t *ent)
 {
-	int					index;
+	int					index, going_observer;
 	vec3_t				spawn_origin, spawn_angles;
 	gclient_t		  *client;
 	client_persistant_t saved;
@@ -3207,16 +3236,16 @@ void PutClientInServer(edict_t *ent)
 	bool force_spawn = client->awaiting_respawn && level.time > client->respawn_timeout;
 	bool is_landmark = false;
 
-	if (use_squad_respawn)
-	{
-		spawn_origin = squad_respawn_position;
-		spawn_angles = squad_respawn_angles;
-		valid_spawn = true;
-	}
+	// if (use_squad_respawn)
+	// {
+	// 	spawn_origin = squad_respawn_position;
+	// 	spawn_angles = squad_respawn_angles;
+	// 	valid_spawn = true;
+	// }
 	// else if (gamerules->integer && DMGame.SelectSpawnPoint) // PGM
 	// 	valid_spawn = DMGame.SelectSpawnPoint(ent, spawn_origin, spawn_angles, force_spawn); // PGM
-	else										  // PGM
-		valid_spawn = SelectSpawnPoint(ent, spawn_origin, spawn_angles, force_spawn, is_landmark);
+	//else										  // PGM
+	valid_spawn = SelectSpawnPoint(ent, spawn_origin, spawn_angles, force_spawn, is_landmark);
 
 	// [Paril-KEX] if we didn't get a valid spawn, hold us in
 	// limbo for a while until we do get one
@@ -3296,41 +3325,44 @@ void PutClientInServer(edict_t *ent)
 		client->pers.health = 0;
 		resp = client->resp;
 	}
-	else
-	{
-		// [Kex] Maintain user info in singleplayer to keep the player skin. 
-		char userinfo[MAX_INFO_STRING];
-		memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
 
-		if (coop->integer)
-		{
-			resp = client->resp;
 
-			if (!P_UseCoopInstancedItems())
-			{
-				resp.coop_respawn.game_help1changed = client->pers.game_help1changed;
-				resp.coop_respawn.game_help2changed = client->pers.game_help2changed;
-				resp.coop_respawn.helpchanged = client->pers.helpchanged;
-				client->pers = resp.coop_respawn;
-			}
-			else
-			{
-				// fix weapon
-				if (!client->pers.weapon)
-					client->pers.weapon = client->pers.lastweapon;
-			}
-		}
+	// No Coop in Action (yet?)
+	// else
+	// {
+	// 	// [Kex] Maintain user info in singleplayer to keep the player skin. 
+	// 	char userinfo[MAX_INFO_STRING];
+	// 	memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
 
-		ClientUserinfoChanged(ent, userinfo);
+	// 	if (coop->integer)
+	// 	{
+	// 		resp = client->resp;
 
-		if (coop->integer)
-		{
-			if (resp.score > client->pers.score)
-				client->pers.score = resp.score;
-		}
-		else
-			memset(&resp, 0, sizeof(resp));
-	}
+	// 		if (!P_UseCoopInstancedItems())
+	// 		{
+	// 			resp.coop_respawn.game_help1changed = client->pers.game_help1changed;
+	// 			resp.coop_respawn.game_help2changed = client->pers.game_help2changed;
+	// 			resp.coop_respawn.helpchanged = client->pers.helpchanged;
+	// 			client->pers = resp.coop_respawn;
+	// 		}
+	// 		else
+	// 		{
+	// 			// fix weapon
+	// 			if (!client->pers.weapon)
+	// 				client->pers.weapon = client->pers.lastweapon;
+	// 		}
+	// 	}
+
+	// 	ClientUserinfoChanged(ent, userinfo);
+
+	// 	if (coop->integer)
+	// 	{
+	// 		if (resp.score > client->pers.score)
+	// 			client->pers.score = resp.score;
+	// 	}
+	// 	else
+	// 		memset(&resp, 0, sizeof(resp));
+	// }
 
 	// clear everything but the persistant data
 	saved = client->pers;
@@ -3435,6 +3467,22 @@ void PutClientInServer(edict_t *ent)
 		return;
 	// ZOID
 
+	if (teamplay->value) {
+		going_observer = (!ent->client->resp.team || ent->client->resp.subteam);
+	}
+	else {
+		going_observer = ent->client->pers.spectator;
+		if (dm_choose->value && !ent->client->pers.dm_selected)
+			going_observer = 1;
+	}
+
+	if (going_observer || level.level_intermission_set) {
+		ent->movetype = MOVETYPE_NOCLIP;
+		ent->solid = SOLID_NOT;
+		ent->svflags |= SVF_NOCLIENT;
+		ent->client->ps.gunindex = 0;
+	}
+
 	// spawn a spectator
 	if (client->pers.spectator)
 	{
@@ -3476,11 +3524,38 @@ void PutClientInServer(edict_t *ent)
 		ent->client->landmark_free_fall = true;
 	}
 
+	if (!teamplay->value) {	// this handles telefrags...
+		KillBox(ent, true, MOD_TELEFRAG_SPAWN);
+	} else {
+		ent->solid = SOLID_TRIGGER;
+	}
+
 	gi.linkentity(ent);
 
 	if (!KillBox(ent, true, MOD_TELEFRAG_SPAWN))
 	{ // could't spawn in?
 	}
+
+	if ((int)uvtime->value > 0) {
+		if (teamplay->value && ! in_warmup) {
+			if (!(gameSettings & GS_ROUNDBASED) && team_round_going && !lights_camera_action) {
+				client->uvTime = uvtime->value;
+			}
+		} else if (dm_shield->value) {
+			client->uvTime = uvtime->value;
+		}
+	}
+
+	if (allitem->value)
+		AllItems(ent);
+
+	if (gameSettings & GS_WEAPONCHOOSE)
+		EquipClient(ent);
+	else
+		EquipClientDM(ent);
+
+	if (allweapon->value)
+		AllWeapons(ent);
 
 	// my tribute to cash's level-specific hacks. I hope I live
 	// up to his trailblazing cheese.
@@ -5153,109 +5228,109 @@ void ClientBeginServerFrame(edict_t *ent)
 		Bot_BeginFrame( ent );
 	}
 
-	if( team_round_going && !IS_ALIVE(ent) )
-		client->resp.motd_refreshes = motd_time->value;  // Stop showing motd if we're playing.
-	else if( lights_camera_action )
-		client->resp.last_motd_refresh = level.time.seconds();  // Don't interrupt LCA with motd.
-	else if ((int)motd_time->value > client->resp.motd_refreshes * 2 && ent->client->layout != LAYOUT_MENU) {
-		// TODO: Check the timing here
-		if (client->resp.last_motd_refresh + 2 < level.time.seconds()) {
-			client->resp.last_motd_refresh = level.time.seconds();
-			client->resp.motd_refreshes++;
-			PrintMOTD( ent );
-		}
-	}
+	// TODO: MOTD stuff
+	// if( team_round_going && !IS_ALIVE(ent) )
+	// 	client->resp.motd_refreshes = motd_time->value;  // Stop showing motd if we're playing.
+	// else if( lights_camera_action )
+	// 	client->resp.last_motd_refresh = level.time.seconds();  // Don't interrupt LCA with motd.
+	// else if ((int)motd_time->value > client->resp.motd_refreshes * 2 && ent->client->layout != LAYOUT_MENU) {
+	// 	// TODO: Check the timing here
+	// 	if (client->resp.last_motd_refresh + 2 < level.time.seconds()) {
+	// 		client->resp.last_motd_refresh = level.time.seconds();
+	// 		client->resp.motd_refreshes++;
+	// 		PrintMOTD( ent );
+	// 	}
+	// }
 
+	// TODO: auto_menu
 	// show team or weapon menu immediately when connected
-	if (auto_menu->value && ent->client->layout != LAYOUT_MENU && !client->pers.menu_shown && (teamplay->value || dm_choose->value)) {
-		Cmd_Inven_f( ent );
-	}
+	// if (auto_menu->value && ent->client->layout != LAYOUT_MENU && !client->pers.menu_shown && (teamplay->value || dm_choose->value)) {
+	// 	Cmd_Inven_f( ent );
+	// }
 
-	if (!teamplay->value)
-	{
-		// force spawn when weapon and item selected in dm
-		if (!ent->client->pers.spectator && dm_choose->value && !client->pers.dm_selected) {
-			if (client->pers.chosenWeapon && client->pers.chosenItem) {
-				client->pers.dm_selected = 1;
+	// if (!teamplay->value)
+	// {
+	// 	// force spawn when weapon and item selected in dm
+	// 	if (!ent->client->pers.spectator && dm_choose->value && !client->pers.dm_selected) {
+	// 		if (client->pers.chosenWeapon && client->pers.chosenItem) {
+	// 			client->pers.dm_selected = 1;
 
-				gi.LocBroadcast_Print(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
+	// 			gi.LocBroadcast_Print(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
 
-				respawn(ent);
+	// 			respawn(ent);
 
-				if (!(ent->svflags & SVF_NOCLIENT)) { // send effect
-					gi.WriteByte(svc_muzzleflash);
-					gi.WriteShort(ent - g_edicts);
-					gi.WriteByte(MZ_LOGIN);
-					gi.multicast(ent->s.origin, MULTICAST_PVS, false);
-				}
-			}
-			return;
-		}
+	// 			if (!(ent->svflags & SVF_NOCLIENT)) { // send effect
+	// 				gi.WriteByte(svc_muzzleflash);
+	// 				gi.WriteShort(ent - g_edicts);
+	// 				gi.WriteByte(MZ_LOGIN);
+	// 				gi.multicast(ent->s.origin, MULTICAST_PVS, false);
+	// 			}
+	// 		}
+	// 		return;
+	// 	}
 
-		if (level.time.seconds() > client->respawn_framenum && (!IS_ALIVE(ent)) != ent->client->pers.spectator)
-		{
-			if (ent->client->pers.spectator){
-				killPlayer(ent, false);
-			} else {
-				gi.LocBroadcast_Print(PRINT_HIGH, "%s rejoined the game\n", ent->client->pers.netname);
-				respawn(ent);
-			}
-		}
-	}
+	// 	if (level.time.seconds() > client->respawn_framenum && (!IS_ALIVE(ent)) != ent->client->pers.spectator)
+	// 	{
+	// 		if (ent->client->pers.spectator){
+	// 			killPlayer(ent, false);
+	// 		} else {
+	// 			gi.LocBroadcast_Print(PRINT_HIGH, "%s rejoined the game\n", ent->client->pers.netname);
+	// 			respawn(ent);
+	// 		}
+	// 	}
+	// }
 
-	// run weapon animations if it hasn't been done by a ucmd_t
-	ClientThinkWeaponIfReady( ent, true );
-	PlayWeaponSound( ent );
+	// // run weapon animations if it hasn't been done by a ucmd_t
+	// ClientThinkWeaponIfReady( ent, true );
+	// PlayWeaponSound( ent );
+
+	// if (ent->solid != SOLID_NOT)
+	// {
+	// 	int idleframes = client->resp.idletime ? (level.time.seconds() - client->resp.idletime) : 0;
+
+	// 	if( client->punch_desired && ! client->jumping && ! lights_camera_action && ! client->uvTime )
+	// 		punch_attack( ent );
+	// 	client->punch_desired = false;
+
+	// 	if( (ppl_idletime->value > 0) && idleframes && (idleframes % (int)(ppl_idletime->value * level.time.seconds()) == 0) )
+	// 		//plays a random sound/insane sound, insane1-9.wav
+	// 		//gi.sound( ent, CHAN_VOICE, gi.soundindex(va( "insane/insane%i.wav", rand() % 9 + 1 )), 1, ATTN_NORM, 0 );
+
+	// 		// ChatGPT'd: "plays a random sound/insane sound, insane1-9.wav"
+	// 		int randomValue = std::rand() % 9 + 1;
+	// 		// Format the string using fmt::format
+	// 		std::string soundPath = fmt::format("insane/insane{}.wav", randomValue);
+	// 		// Get the sound index using gi.soundindex
+	// 		int soundIndex = gi.soundindex(soundPath.c_str());
+	// 		gi.sound(ent, CHAN_VOICE, soundIndex, 1, ATTN_NORM, 0);
+			
+	// 	if( (sv_idleremove->value > 0) && (idleframes > (sv_idleremove->value * level.time.seconds())) && client->resp.team )
+	// 	{
+	// 		// Removes member from team once sv_idleremove value in seconds has been reached
+	// 		int idler_team = client->resp.team;
+	// 		if( teamplay->value )
+	// 			LeaveTeam( ent );
+	// 		client->resp.idletime = 0;
+	// 		gi.Com_PrintFmt( "%s has been removed from play due to reaching the sv_idleremove timer of %i seconds\n",
+	// 			client->pers.netname, (int) sv_idleremove->value );
+	// 	}
+
+	// 	if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
+	// 		&& (client->curr_weap == MK23_NUM)) {
+	// 		client->autoreloading = false;
+	// 		Cmd_New_Reload_f( ent );
+	// 	}
 
 	if (ent->solid != SOLID_NOT)
 	{
-		int idleframes = client->resp.idletime ? (level.time.seconds() - client->resp.idletime) : 0;
-
-		if( client->punch_desired && ! client->jumping && ! lights_camera_action && ! client->uvTime )
-			punch_attack( ent );
-		client->punch_desired = false;
-
-		if( (ppl_idletime->value > 0) && idleframes && (idleframes % (int)(ppl_idletime->value * level.time.seconds()) == 0) )
-			//plays a random sound/insane sound, insane1-9.wav
-			//gi.sound( ent, CHAN_VOICE, gi.soundindex(va( "insane/insane%i.wav", rand() % 9 + 1 )), 1, ATTN_NORM, 0 );
-
-			// ChatGPT'd: "plays a random sound/insane sound, insane1-9.wav"
-			int randomValue = std::rand() % 9 + 1;
-			// Format the string using fmt::format
-			std::string soundPath = fmt::format("insane/insane{}.wav", randomValue);
-			// Get the sound index using gi.soundindex
-			int soundIndex = gi.soundindex(soundPath.c_str());
-			gi.sound(ent, CHAN_VOICE, soundIndex, 1, ATTN_NORM, 0);
-			
-		if( (sv_idleremove->value > 0) && (idleframes > (sv_idleremove->value * level.time.seconds())) && client->resp.team )
-		{
-			// Removes member from team once sv_idleremove value in seconds has been reached
-			int idler_team = client->resp.team;
-			if( teamplay->value )
-				LeaveTeam( ent );
-			client->resp.idletime = 0;
-			gi.Com_PrintFmt( "%s has been removed from play due to reaching the sv_idleremove timer of %i seconds\n",
-				client->pers.netname, (int) sv_idleremove->value );
-		}
-
-		if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
-			&& (client->curr_weap == MK23_NUM)) {
-			client->autoreloading = false;
-			Cmd_New_Reload_f( ent );
-		}
-
 		if (client->uvTime && FRAMESYNC) {
 			client->uvTime--;
-			if (!client->uvTime)
-			{
-				if (team_round_going){
+			if (!client->uvTime && team_round_going)
 					gi.Center_Print(ent, "ACTION!");
-				}
-			}
 		}
 		else if (client->uvTime % 40 == 0)
 		{
-			gi.LocCenter_Print(ent, "Shield %d", client->uvTime / 40);
+			gi.LocCenter_Print(ent, "Shield %d", client->uvTime / 10);
 		}
 	}
 
