@@ -5153,7 +5153,7 @@ void ClientBeginServerFrame(edict_t *ent)
 		Bot_BeginFrame( ent );
 	}
 
-	if( team_round_going && IS_ALIVE(ent) )
+	if( team_round_going && !IS_ALIVE(ent) )
 		client->resp.motd_refreshes = motd_time->value;  // Stop showing motd if we're playing.
 	else if( lights_camera_action )
 		client->resp.last_motd_refresh = level.time.seconds();  // Don't interrupt LCA with motd.
@@ -5207,60 +5207,6 @@ void ClientBeginServerFrame(edict_t *ent)
 	ClientThinkWeaponIfReady( ent, true );
 	PlayWeaponSound( ent );
 
-	if (ent->deadflag) {
-		// wait for any button just going down
-		if (level.time.seconds() > client->respawn_framenum)
-		{
-			// Special consideration here for Espionage, as we DO want to respawn in a GS_ROUNDBASED game
-			if (teamplay->value) {
-				going_observer = ((gameSettings & GS_ROUNDBASED) || !client->resp.team || client->resp.subteam);
-			}
-			else
-			{
-				going_observer = ent->client->pers.spectator;
-				if (going_observer) {
-					gi.LocBroadcast_Print(PRINT_HIGH, "%s became a spectator\n", ent->client->pers.netname);
-				}
-			}
-
-			if (going_observer) {
-				CopyToBodyQue(ent);
-				ent->solid = SOLID_NOT;
-				ent->svflags |= SVF_NOCLIENT;
-				ent->movetype = MOVETYPE_NOCLIP;
-				ent->health = 100;
-				ent->deadflag = false;
-				ent->client->ps.gunindex = 0;
-				client->ps.pmove.delta_angles[PITCH] = ANGLE2SHORT(0 - client->resp.cmd_angles[PITCH]);
-				client->ps.pmove.delta_angles[YAW] = ANGLE2SHORT(client->killer_yaw - client->resp.cmd_angles[YAW]);
-				client->ps.pmove.delta_angles[ROLL] = ANGLE2SHORT(0 - client->resp.cmd_angles[ROLL]);
-				ent->s.angles[PITCH] = 0;
-				ent->s.angles[YAW] = client->killer_yaw;
-				ent->s.angles[ROLL] = 0;
-				VectorCopy(ent->s.angles, client->ps.viewangles);
-				VectorCopy(ent->s.angles, client->v_angle);
-				gi.linkentity(ent);
-
-				if (teamplay->value && !in_warmup && limchasecam->value) {
-					ent->client->chase_mode = 0;
-
-					// TODO: Add chase modes at some point
-					//NextChaseMode( ent );
-				}
-			}
-			else
-			{
-				// in deathmatch, only wait for attack button
-				buttonMask = BUTTON_ATTACK;
-				if ((client->latched_buttons & buttonMask) || g_dm_force_respawn->integer) {
-					respawn(ent);
-					client->latched_buttons = BUTTON_NONE;
-				}
-			}
-		}
-		return;
-	}
-
 	if (ent->solid != SOLID_NOT)
 	{
 		int idleframes = client->resp.idletime ? (level.time.seconds() - client->resp.idletime) : 0;
@@ -5307,9 +5253,9 @@ void ClientBeginServerFrame(edict_t *ent)
 				}
 			}
 		}
-		else if (client->uvTime % 10 == 0)
+		else if (client->uvTime % 40 == 0)
 		{
-			gi.LocCenter_Print(ent, "Shield %d", client->uvTime / 10);
+			gi.LocCenter_Print(ent, "Shield %d", client->uvTime / 40);
 		}
 	}
 
@@ -5329,9 +5275,15 @@ void ClientBeginServerFrame(edict_t *ent)
 
 	if (ent->deadflag)
 	{
+		//going_observer = ent->client->pers.spectator;
 		// don't respawn if level is waiting to restart
 		if (level.time > client->respawn_time && !level.coop_level_restart_time)
 		{
+			if (teamplay->value && !in_warmup && limchasecam->value) {
+					ent->client->chase_mode = 0;
+					// TODO: Add chase modes at some point
+					//NextChaseMode( ent );
+			}
 			// check for coop handling
 			if (!G_CoopRespawn(ent))
 			{
@@ -5349,6 +5301,7 @@ void ClientBeginServerFrame(edict_t *ent)
 				}
 			}
 		}
+		
 		return;
 	}
 
