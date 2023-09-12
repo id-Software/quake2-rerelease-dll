@@ -2185,27 +2185,55 @@ GRENADE
 
 void weapon_grenade_fire(edict_t *ent, bool held)
 {
-	int	  damage = 125;
-	int	  speed;
-	float radius;
+	vec3_t offset;
+	vec3_t forward, right;
+	vec3_t start;
+	int damage = 125;
+	int timer;
+	int speed;
+	int damrad = GRENADE_DAMRAD;
 
-	radius = (float) (damage + 40);
 	if (is_quad)
-		damage *= damage_multiplier;
+		damage *= 4;
 
-	vec3_t start, dir;
-	// Paril: kill sideways angle on grenades
-	// limit upwards angle so you don't throw behind you
-	P_ProjectSource(ent, { max(-62.5f, ent->client->v_angle[0]), ent->client->v_angle[1], ent->client->v_angle[2] }, { 2, 0, -14 }, start, dir);
+	VectorSet(offset, 8, 8, ent->viewheight - 8);
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
 
-	gtime_t timer = ent->client->grenade_time - level.time;
-	speed = (int) (ent->health <= 0 ? GRENADE_MINSPEED : min(GRENADE_MINSPEED + (GRENADE_TIMER - timer).seconds() * ((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER.seconds()), GRENADE_MAXSPEED));
+	timer = ent->client->grenade_framenum - level.framenum;
+	speed = GRENADE_MINSPEED + (GRENADE_TIMER - timer) * ((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER);
 
-	ent->client->grenade_time = 0_ms;
+	// Reset Grenade Damage to 1.52 when requested:
+	damrad = use_classic->value ? GRENADE_DAMRAD_CLASSIC : GRENADE_DAMRAD;
+	fire_grenade2(ent, start, forward, damrad, speed, timer, damrad * 2, held);
 
-	fire_grenade2(ent, start, dir, damage, speed, timer, radius, held);
+	if (!g_infinite_ammo->integer)
+		ent->client->inventory[ent->client->ammo_index]--;
 
-	G_RemoveAmmo(ent, 1);
+	ent->client->grenade_framenum = level.time + 3_sec;
+
+	// Vanilla Q2R
+	// int	  damage = 125;
+	// int	  speed;
+	// float radius;
+
+	// radius = (float) (damage + 40);
+	// if (is_quad)
+	// 	damage *= damage_multiplier;
+
+	// vec3_t start, dir;
+	// // Paril: kill sideways angle on grenades
+	// // limit upwards angle so you don't throw behind you
+	// P_ProjectSource(ent, { max(-62.5f, ent->client->v_angle[0]), ent->client->v_angle[1], ent->client->v_angle[2] }, { 2, 0, -14 }, start, dir);
+
+	// gtime_t timer = ent->client->grenade_time - level.time;
+	// speed = (int) (ent->health <= 0 ? GRENADE_MINSPEED : min(GRENADE_MINSPEED + (GRENADE_TIMER - timer).seconds() * ((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER.seconds()), GRENADE_MAXSPEED));
+
+	// ent->client->grenade_time = 0_ms;
+
+	// fire_grenade2(ent, start, dir, damage, speed, timer, radius, held);
+
+	// G_RemoveAmmo(ent, 1);
 }
 
 void Throw_Generic(edict_t *ent, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int FRAME_PRIME_SOUND,
