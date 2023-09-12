@@ -5337,18 +5337,18 @@ void ClientBeginServerFrame(edict_t *ent)
 	// 		Cmd_New_Reload_f( ent );
 	// 	}
 
-	if (ent->solid != SOLID_NOT)
-	{
-		if (client->uvTime && FRAMESYNC) {
-			client->uvTime--;
-			if (!client->uvTime && team_round_going)
-					gi.Center_Print(ent, "ACTION!");
-		}
-		else if (client->uvTime % 40 == 0)
-		{
-			gi.LocClient_Print(ent, PRINT_CENTER, "Shield {}", client->uvTime / 10);
-		}
-	}
+	// if (ent->solid != SOLID_NOT)
+	// {
+	// 	if (client->uvTime && FRAMESYNC) {
+	// 		client->uvTime--;
+	// 		if (!client->uvTime && team_round_going)
+	// 				gi.Center_Print(ent, "ACTION!");
+	// 	}
+	// 	else if (client->uvTime % 40 == 0)
+	// 	{
+	// 		gi.LocClient_Print(ent, PRINT_CENTER, "Shield {}", client->uvTime / 10);
+	// 	}
+	// }
 
 	if (deathmatch->integer && !G_TeamplayEnabled() &&
 		client->pers.spectator != client->resp.spectator &&

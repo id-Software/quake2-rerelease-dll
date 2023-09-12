@@ -306,7 +306,7 @@ bool Pickup_Weapon(edict_t* ent, edict_t* other)
 	bool addAmmo;
 	int special = 0;
 	int band = 0;
-	action_weapon_num_t weapNum;
+	action_weapon_num_t weapNum = MK23_NUM;
 
 	index = ITEM_INDEX(ent->item);
 
