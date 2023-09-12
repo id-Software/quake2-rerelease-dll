@@ -317,7 +317,7 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 
 	for (auto other : active_players()) {
 	//for (j = 1; j <= game.maxclients; j++) {
-		other = &g_edicts[j];
+		//other = &g_edicts[j];
 		if (!other->inuse || !other->client)
 			continue;
 

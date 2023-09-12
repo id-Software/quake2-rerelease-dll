@@ -37,7 +37,7 @@ Returns entities that have origins within a spherical area
 findradius (origin, radius)
 =================
 */
-static edict_t *loc_findradius(edict_t *from, const vec3_t &org, float rad)
+edict_t *loc_findradius(edict_t *from, const vec3_t &org, float rad)
 {
 	vec3_t eorg;
 	int	   j;
@@ -61,7 +61,7 @@ static edict_t *loc_findradius(edict_t *from, const vec3_t &org, float rad)
 }
 #endif
 
-static void loc_buildboxpoints(vec3_t (&p)[8], const vec3_t &org, const vec3_t &mins, const vec3_t &maxs)
+void loc_buildboxpoints(vec3_t (&p)[8], const vec3_t &org, const vec3_t &mins, const vec3_t &maxs)
 {
 	p[0] = org + mins;
 	p[1] = p[0];
@@ -81,7 +81,7 @@ static void loc_buildboxpoints(vec3_t (&p)[8], const vec3_t &org, const vec3_t &
 	p[7][1] -= maxs[1];
 }
 
-static bool loc_CanSee(edict_t *targ, edict_t *inflictor)
+bool loc_CanSee(edict_t *targ, edict_t *inflictor)
 {
 	trace_t trace;
 	vec3_t	targpoints[8];

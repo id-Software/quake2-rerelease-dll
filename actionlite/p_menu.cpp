@@ -84,7 +84,7 @@ void PMenu_UpdateEntry(pmenu_t *entry, const char *text, int align, SelectFunc_t
 	entry->SelectFunc = SelectFunc;
 }
 
-#include "../g_statusbar.h"
+#include "g_statusbar.h"
 
 void PMenu_Do_Update(edict_t *ent)
 {
