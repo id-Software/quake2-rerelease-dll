@@ -2652,6 +2652,8 @@ void EquipClient(edict_t * ent)
 {
 	gclient_t *client;
 	gitem_t *item;
+	edict_t	*it_ent;
+	item_id_t index;
 	int band = 0, itemNum = 0;
 
 	client = ent->client;
@@ -2783,6 +2785,35 @@ void EquipClient(edict_t * ent)
 		client->pers.weapon = item;
 		client->curr_weap = KNIFE_NUM;
 		break;
+	}
+
+	index = item->id;
+
+	if (!item->pickup)
+	{
+		ent->client->pers.inventory[index] = 1;
+		return;
+	}
+
+	if (item->flags & IF_AMMO)
+	{
+		if (gi.argc() == 3)
+			ent->client->pers.inventory[index] = atoi(gi.argv(2));
+		else
+			ent->client->pers.inventory[index] += item->quantity;
+	}
+	else
+	{
+		it_ent = G_Spawn();
+		it_ent->classname = item->classname;
+		SpawnItem(it_ent, item);
+		// PMM - since some items don't actually spawn when you say to ..
+		if (!it_ent->inuse)
+			return;
+		// pmm
+		Touch_Item(it_ent, ent, null_trace, true);
+		if (it_ent->inuse)
+			G_FreeEdict(it_ent);
 	}
 
 	// memset(&etemp, 0, sizeof(etemp));
