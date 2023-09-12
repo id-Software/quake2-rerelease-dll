@@ -343,7 +343,7 @@ void spray_blood(edict_t *self, vec3_t start, vec3_t dir, int damage, int mod)
 	}
 
 	blood = G_Spawn();
-	VectorNormalize2(dir, temp);
+	temp = dir.normalized();
 	VectorCopy(start, blood->s.origin);
 	//VectorCopy(start, blood->old_origin);
 	VectorCopy(temp, blood->movedir);
@@ -424,9 +424,7 @@ void spray_sniper_blood(edict_t *self, vec3_t start, vec3_t dir)
 
 void VerifyHeadShot(vec3_t point, vec3_t dir, float height, vec3_t newpoint)
 {
-	vec3_t normdir;
-
-	VectorNormalize2(dir, normdir);
+	vec3_t normdir{ dir.normalized() };
 	VectorMA(point, height, normdir, newpoint);
 }
 
