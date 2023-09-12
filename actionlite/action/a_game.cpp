@@ -19,30 +19,48 @@ int motd_num_lines;
 void ReadConfigFile()
 {
 	char buf[MAX_STR_LEN], reading_section[MAX_STR_LEN], inipath[MAX_STR_LEN];
-	int lines_into_section = -1;
-	cvar_t *ininame;
-	std::string filename;
+    int lines_into_section = -1;
+    cvar_t* ininame;
 
-	ininame = gi.cvar("ininame", "action.ini", CVAR_NOFLAGS);
-	//std::string filename = fmt::format("{}", ininame);
-	
-	if (ininame->string && *(ininame->string))
-		std::string filename = fmt::format("{}", ininame->string);
-		//G_FmtTo(inipath, "{}/{}", GAMEVERSION, ininame->string);
-		//sprintf(inipath, "%s/%s", GAMEVERSION, ininame->string);
-	else
-		std::string filename = fmt::format("{}", "action.ini");
-		//G_FmtTo(inipath, "{}/{}", GAMEVERSION, "action.ini");
-		//sprintf(inipath, "%s/%s", GAMEVERSION, "action.ini");
+    ininame = gi.cvar("ininame", "action.ini", CVAR_NOFLAGS);
+    std::string filename;
+
+    if (ininame->string && *(ininame->string)){
+        filename = ininame->string;
+    } else {
+        filename = "action.ini";
+    }
 
 	FILE* config_file = fopen(filename.c_str(), "r");
 
+    if (config_file == NULL)
+    {
+        gi.Com_PrintFmt("Unable to read %s\n", filename.c_str());
+        return;
+    }
+
+    gi.Com_PrintFmt("INI PATH IS %s\n", filename.c_str());
+
+	//ininame = gi.cvar("ininame", "action.ini", CVAR_NOFLAGS);
+	//std::string filename = fmt::format("{}", ininame);
+	
+	// if (ininame->string && *(ininame->string))
+	// 	std::string filename = fmt::format("{}", ininame->string);
+	// 	//G_FmtTo(inipath, "{}/{}", GAMEVERSION, ininame->string);
+	// 	//sprintf(inipath, "%s/%s", GAMEVERSION, ininame->string);
+	// else
+	// 	std::string filename = fmt::format("{}", "action.ini");
+	// 	//G_FmtTo(inipath, "{}/{}", GAMEVERSION, "action.ini");
+	// 	//sprintf(inipath, "%s/%s", GAMEVERSION, "action.ini");
+
+	// FILE* config_file = fopen(filename.c_str(), "r");
+
 	//config_file = fopen(inipath, "r");
-	gi.Com_PrintFmt("INI PATH IS {}\n", inipath);
-	if (config_file == NULL) {
-		gi.Com_PrintFmt("Unable to read {}\n", inipath);
-		return;
-	}
+	// gi.Com_PrintFmt("INI PATH IS {}\n", inipath);
+	// if (config_file == NULL) {
+	// 	gi.Com_PrintFmt("Unable to read {}\n", inipath);
+	// 	return;
+	// }
 
 	while (fgets(buf, MAX_STR_LEN - 10, config_file) != NULL) {
 		int bs;
