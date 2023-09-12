@@ -368,7 +368,7 @@ void RadioBroadcast (edict_t * ent, int partner, const char *msg)
 	// for (j = 1; j <= game.maxclients; j++)
 	// {
 	// 	other = &g_edicts[j];
-	for (auto player : active_players()) {
+	for (auto other : active_players()) {
 		if (!other->inuse)
 			continue;
 		if (!other->client)
