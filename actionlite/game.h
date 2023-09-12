@@ -391,6 +391,8 @@ enum pmflags_t : uint16_t
     PMF_NO_ANGULAR_PREDICTION = bit_v<8>, // temporary disables angular prediction
     PMF_IGNORE_PLAYER_COLLISION = bit_v<9>, // don't collide with other players
     PMF_TIME_TRICK = bit_v<10>, // pm_time is trick jump time
+    PMF_ACTION_LIMPING = bit_v<11>, //used to disable jumping
+    PMF_ACTION_LIMPING_FREEZE = bit_v<12> //used in first part of limping pattern
 };
 
 MAKE_ENUM_BITFLAGS(pmflags_t);

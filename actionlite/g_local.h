@@ -2819,6 +2819,7 @@ void Add_Death( edict_t *ent, bool end_streak );
 void PrintDeathMessage(char *msg, edict_t * gibee);
 // ACTION
 void CL_FixUpGender(edict_t *ent, const char *userinfo);
+void ClientLegDamage(edict_t* ent);
 void ClientFixLegs(edict_t *ent);
 void PrintDeathMessage(char *msg, edict_t * gibee);
 bool Pickup_Special (edict_t * ent, edict_t * other);

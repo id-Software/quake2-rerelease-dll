@@ -2955,6 +2955,10 @@ Called when a player takes leg damage
 
 // }
 
+void ClientLegDamage(edict_t *ent) {
+	ent->client->leg_damage = 1;
+}
+
 void ClientFixLegs(edict_t *ent)
 {
 	if (ent->client->leg_damage && ent->client->ctf_grapplestate <= CTF_GRAPPLE_STATE_FLY)
@@ -4285,95 +4289,98 @@ Paril-KEX: this is moved here and now reacts directly
 to ClientThink rather than being delayed.
 =================
 */
-// This is the old P_FallingDamage
+void P_FallingDamage(edict_t* ent, const pmove_t& pm)
+{
+	int	   damage;
+	vec3_t dir;
 
-// void P_FallingDamage(edict_t *ent, const pmove_t &pm)
-// {
-// 	int	   damage;
-// 	vec3_t dir;
+	// dead stuff can't crater
+	if (ent->health <= 0 || ent->deadflag)
+		return;
 
-// 	// dead stuff can't crater
-// 	if (ent->health <= 0 || ent->deadflag)
-// 		return;
+	if (ent->s.modelindex != MODELINDEX_PLAYER)
+		return; // not in the player model
 
-// 	if (ent->s.modelindex != MODELINDEX_PLAYER)
-// 		return; // not in the player model
+	if (ent->movetype == MOVETYPE_NOCLIP)
+		return;
 
-// 	if (ent->movetype == MOVETYPE_NOCLIP)
-// 		return;
+	// never take falling damage if completely underwater
+	if (pm.waterlevel == WATER_UNDER)
+		return;
 
-// 	// never take falling damage if completely underwater
-// 	if (pm.waterlevel == WATER_UNDER)
-// 		return;
+	// ZOID
+	//  never take damage if just release grapple or on grapple
+	if (ent->client->ctf_grapplereleasetime >= level.time ||
+		(ent->client->ctf_grapple &&
+			ent->client->ctf_grapplestate > CTF_GRAPPLE_STATE_FLY))
+		return;
+	// ZOID
 
-// 	// ZOID
-// 	//  never take damage if just release grapple or on grapple
-// 	if (ent->client->ctf_grapplereleasetime >= level.time ||
-// 		(ent->client->ctf_grapple &&
-// 		 ent->client->ctf_grapplestate > CTF_GRAPPLE_STATE_FLY))
-// 		return;
-// 	// ZOID
+	if (lights_camera_action || ent->client->uvTime > 0)
+		return;
 
-// 	float delta = pm.impact_delta;
+	float delta = pm.impact_delta;
 
-// 	delta = delta * delta * 0.0001f;
+	delta = delta * delta * 0.0001f;
 
-// 	if (pm.waterlevel == WATER_WAIST)
-// 		delta *= 0.25f;
-// 	if (pm.waterlevel == WATER_FEET)
-// 		delta *= 0.5f;
+	if (pm.waterlevel == WATER_WAIST)
+		delta *= 0.25f;
+	if (pm.waterlevel == WATER_FEET)
+		delta *= 0.5f;
 
-// 	if (delta < 1)
-// 		return;
+	if (delta < 1)
+		return;
 
-// 	// restart footstep timer
-// 	ent->client->bobtime = 0;
+	// restart footstep timer
+	ent->client->bobtime = 0;
 
-// 	if (ent->client->landmark_free_fall)
-// 	{
-// 		delta = min(30.f, delta);
-// 		ent->client->landmark_free_fall = false;
-// 		ent->client->landmark_noise_time = level.time + 100_ms;
-// 	}
+	if (ent->client->landmark_free_fall)
+	{
+		delta = min(30.f, delta);
+		ent->client->landmark_free_fall = false;
+		ent->client->landmark_noise_time = level.time + 100_ms;
+	}
 
-// 	if (delta < 15)
-// 	{
-// 		if (!(pm.s.pm_flags & PMF_ON_LADDER))
-// 			ent->s.event = EV_FOOTSTEP;
-// 		return;
-// 	}
+	if (delta < 15)
+	{
+		if (!(pm.s.pm_flags & PMF_ON_LADDER))
+			ent->s.event = EV_FOOTSTEP;
+		return;
+	}
 
-// 	ent->client->fall_value = delta * 0.5f;
-// 	if (ent->client->fall_value > 40)
-// 		ent->client->fall_value = 40;
-// 	ent->client->fall_time = level.time + FALL_TIME();
+	ent->client->fall_value = delta * 0.5f;
+	if (ent->client->fall_value > 40)
+		ent->client->fall_value = 40;
+	ent->client->fall_time = level.time + FALL_TIME();
 
-// 	if (delta > 30)
-// 	{
-// 		if (delta >= 55)
-// 			ent->s.event = EV_FALLFAR;
-// 		else
-// 			ent->s.event = EV_FALL;
+	if (delta > 30)
+	{
+		if (delta >= 55)
+			ent->s.event = EV_FALLFAR;
+		else
+			ent->s.event = EV_FALL;
 
-// 		ent->pain_debounce_time = level.time + FRAME_TIME_S; // no normal pain sound
-// 		damage = (int) ((delta - 30) / 2);
-// 		if (damage < 1)
-// 			damage = 1;
-// 		dir = { 0, 0, 1 };
+		ent->pain_debounce_time = level.time + FRAME_TIME_S; // no normal pain sound
+		damage = (int)((delta - 30) / 2);
+		if (damage < 1)
+			damage = 1;
+		damage *= 10; //ACTION
+		if (e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM))
+			damage /= 2;
+		dir = { 0, 0, 1 };
 
-// 		if (!deathmatch->integer || !g_dm_no_fall_damage->integer)
-// 			T_Damage(ent, world, world, dir, ent->s.origin, vec3_origin, damage, 0, DAMAGE_NONE, MOD_FALLING);
-// 	}
-// 	else
-// 		ent->s.event = EV_FALLSHORT;
+		if (!deathmatch->integer || !g_dm_no_fall_damage->integer)
+			T_Damage(ent, world, world, dir, ent->s.origin, vec3_origin, damage, 0, DAMAGE_NONE, MOD_FALLING);
+	}
+	else
+		ent->s.event = EV_FALLSHORT;
 
-// 	// Paril: falling damage noises alert monsters
-// 	if (ent->health)
-// 		PlayerNoise(ent, pm.s.origin, PNOISE_SELF);
-// }
-
+	// Paril: falling damage noises alert monsters
+	if (ent->health)
+		PlayerNoise(ent, pm.s.origin, PNOISE_SELF);
+}
 //Action Add
-void P_FallingDamage (edict_t * ent, const pmove_t &pm)
+void P_FallingDamageAQ (edict_t * ent, const pmove_t &pm)
 {
 	float delta = pm.impact_delta;
 	int damage;
@@ -4667,7 +4674,23 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 		pm.clip = SV_PM_Clip;
 		pm.pointcontents = gi.pointcontents;
 		pm.viewoffset = ent->client->ps.viewoffset;
-
+		bool has_enhanced_slippers = e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM);
+		if (client->leg_damage && ent->groundentity && !has_enhanced_slippers) {
+			int limping_period = level.time.milliseconds() / 100;
+			limping_period %= 6;
+			pm.s.pm_flags &= ~PMF_ACTION_LIMPING_FREEZE;
+			if (limping_period < 3) {
+				pm.cmd.forwardmove = 0;
+				pm.cmd.sidemove = 0;
+				pm.s.pm_flags |= PMF_ACTION_LIMPING_FREEZE;
+			}
+			else if (limping_period == 3) {
+				pm.cmd.forwardmove /= 2;
+				pm.cmd.sidemove /= 2;
+			}
+			pm.s.pm_flags |= PMF_JUMP_HELD;
+			pm.s.pm_flags |= PMF_ACTION_LIMPING;
+		}
 		// perform a pmove
 		Pmove(&pm);
 

@@ -343,7 +343,7 @@ void spray_blood(edict_t *self, vec3_t start, vec3_t dir, int damage, int mod)
 	}
 
 	blood = G_Spawn();
-	VectorNormalize2(dir, temp);
+	temp = dir.normalized();
 	VectorCopy(start, blood->s.origin);
 	//VectorCopy(start, blood->old_origin);
 	VectorCopy(temp, blood->movedir);
@@ -424,9 +424,7 @@ void spray_sniper_blood(edict_t *self, vec3_t start, vec3_t dir)
 
 void VerifyHeadShot(vec3_t point, vec3_t dir, float height, vec3_t newpoint)
 {
-	vec3_t normdir;
-
-	VectorNormalize2(dir, normdir);
+	vec3_t normdir{ dir.normalized() };
 	VectorMA(point, height, normdir, newpoint);
 }
 
@@ -664,6 +662,11 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 
 	sphere_notified = false; // PGM
 
+	//ACTION
+	if (mod.id == mod_id_t::MOD_FALLING) {
+		ClientLegDamage(targ);
+	}
+	
 	// friendly fire avoidance
 	// if enabled you can't hurt teammates (but you can hurt yourself)
 	// knockback still occurs
