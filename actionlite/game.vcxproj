@@ -113,8 +113,10 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="g_local.h" />
     <ClInclude Include="g_statusbar.h" />
+    <ClInclude Include="g_team.h" />
     <ClInclude Include="m_actor.h" />
     <ClInclude Include="m_player.h" />
+    <ClInclude Include="p_menu.h" />
     <ClInclude Include="q_std.h" />
     <ClInclude Include="q_vec3.h" />
   </ItemGroup>
@@ -132,7 +134,6 @@
     <ClCompile Include="cg_main.cpp" />
     <ClCompile Include="cg_screen.cpp" />
     <ClCompile Include="ctf\g_ctf.cpp" />
-    <ClCompile Include="ctf\p_ctf_menu.cpp" />
     <ClCompile Include="g_ai.cpp" />
     <ClCompile Include="g_chase.cpp" />
     <ClCompile Include="g_cmds.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="g_spawn.cpp" />
     <ClCompile Include="g_svcmds.cpp" />
     <ClCompile Include="g_target.cpp" />
+    <ClCompile Include="g_team.cpp" />
     <ClCompile Include="g_trigger.cpp" />
     <ClCompile Include="g_turret.cpp" />
     <ClCompile Include="g_utils.cpp" />
@@ -155,6 +157,7 @@
     <ClCompile Include="m_move.cpp" />
     <ClCompile Include="p_client.cpp" />
     <ClCompile Include="p_hud.cpp" />
+    <ClCompile Include="p_menu.cpp" />
     <ClCompile Include="p_move.cpp" />
     <ClCompile Include="p_trail.cpp" />
     <ClCompile Include="p_view.cpp" />

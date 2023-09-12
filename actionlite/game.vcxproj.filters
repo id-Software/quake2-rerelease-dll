@@ -43,6 +43,8 @@
     <ClInclude Include="action\a_xgame.h">
       <Filter>action</Filter>
     </ClInclude>
+    <ClInclude Include="p_menu.h" />
+    <ClInclude Include="g_team.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cg_main.cpp" />
@@ -89,9 +91,6 @@
     <ClCompile Include="ctf\g_ctf.cpp">
       <Filter>ctf</Filter>
     </ClCompile>
-    <ClCompile Include="ctf\p_ctf_menu.cpp">
-      <Filter>ctf</Filter>
-    </ClCompile>
     <ClCompile Include="action\a_balancer.cpp">
       <Filter>action</Filter>
     </ClCompile>
@@ -110,6 +109,8 @@
     <ClCompile Include="action\a_xgame.cpp">
       <Filter>action</Filter>
     </ClCompile>
+    <ClCompile Include="p_menu.cpp" />
+    <ClCompile Include="g_team.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="bots">
