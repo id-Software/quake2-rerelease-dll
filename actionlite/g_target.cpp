@@ -1795,7 +1795,9 @@ USE(use_target_music) (edict_t* ent, edict_t* other, edict_t* activator) -> void
 
 void SP_target_music(edict_t* self)
 {
-	self->use = use_target_music;
+	return;
+	// No background music in AQ2
+	//self->use = use_target_music;
 }
 
 /*QUAKED target_healthbar (0 1 0) (-8 -8 -8) (8 8 8) PVS_ONLY
