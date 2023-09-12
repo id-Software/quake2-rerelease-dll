@@ -551,8 +551,9 @@ bool Pickup_Ammo(edict_t *ent, edict_t *other)
 	if (!Add_Ammo(other, ent->item, count))
 		return false;
 
-	if (weapon)
-		G_CheckAutoSwitch(other, ent->item, !oldcount);
+	// No autoswitching in Action
+	// if (weapon)
+	// 	G_CheckAutoSwitch(other, ent->item, !oldcount);
 
 	if (!(ent->spawnflags & (SPAWNFLAG_ITEM_DROPPED | SPAWNFLAG_ITEM_DROPPED_PLAYER)) && deathmatch->integer)
 		SetRespawn(ent, 30_sec);
@@ -1878,7 +1879,7 @@ always owned, never in the world
 		/* use_name */  MK23_AMMO_NAME,
 		/* pickup_name */  MK23_AMMO_NAME,
 		/* pickup_name_definite */ MK23_AMMO_NAME,
-		/* quantity */ 50,
+		/* quantity */ 1,
 		/* ammo */ IT_NULL,
 		/* chain */ IT_NULL,
 		/* flags */ IF_AMMO,
@@ -1905,7 +1906,7 @@ model="models/items/ammo/rockets/medium/tris.md2"
 		/* use_name */  MP5_AMMO_NAME,
 		/* pickup_name */  MP5_AMMO_NAME,
 		/* pickup_name_definite */ MP5_AMMO_NAME,
-		/* quantity */ 5,
+		/* quantity */ 1,
 		/* ammo */ IT_NULL,
 		/* chain */ IT_NULL,
 		/* flags */ IF_AMMO,
@@ -1932,7 +1933,7 @@ model="models/items/ammo/rockets/medium/tris.md2"
 		/* use_name */  M4_AMMO_NAME,
 		/* pickup_name */  M4_AMMO_NAME,
 		/* pickup_name_definite */ M4_AMMO_NAME,
-		/* quantity */ 50,
+		/* quantity */ 1,
 		/* ammo */ IT_NULL,
 		/* chain */ IT_NULL,
 		/* flags */ IF_AMMO,
