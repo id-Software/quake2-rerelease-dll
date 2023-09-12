@@ -941,9 +941,9 @@ void UpdateJoinMenu(edict_t *ent)
 	// }
 	// else
 	// {
-	Q_strlcpy(entries[8].text, nullptr, sizeof(entries[8].text));
+	//Q_strlcpy(entries[8].text, nullptr, sizeof(entries[8].text));
 	//joinmenu[8].text = NULL;
-	joinmenu[8].SelectFunc = NULL;
+	//joinmenu[8].SelectFunc = NULL;
 	//}
 	Q_strlcpy(entries[11].text, "Auto-join team", sizeof(entries[11].text));
 	//joinmenu[11].text = "Auto-join team";
