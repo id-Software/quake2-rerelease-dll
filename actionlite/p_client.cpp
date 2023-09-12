@@ -3423,9 +3423,10 @@ void PutClientInServer(edict_t *ent)
 	// clear playerstate values
 	memset(&ent->client->ps, 0, sizeof(client->ps));
 
-	char val[MAX_INFO_VALUE];
+	//char val[MAX_INFO_VALUE];
+	char val[90];  // 90 degree FOV is max, due to sniper rifle
 	gi.Info_ValueForKey(ent->client->pers.userinfo, "fov", val, sizeof(val));
-	ent->client->ps.fov = clamp((float) atoi(val), 1.f, 160.f);
+	ent->client->ps.fov = clamp((float) atoi(val), 1.f, 90.f);
 
 	ent->client->ps.pmove.viewheight = ent->viewheight;
 	ent->client->ps.team_id = ent->client->resp.ctf_team;
@@ -3888,7 +3889,7 @@ void ClientUserinfoChanged(edict_t *ent, const char *userinfo)
 
 	// fov
 	gi.Info_ValueForKey(userinfo, "fov", val, sizeof(val));
-	ent->client->ps.fov = clamp((float) atoi(val), 1.f, 160.f);
+	ent->client->ps.fov = clamp((float) atoi(val), 1.f, 90.f);
 
 	// handedness
 	if (gi.Info_ValueForKey(userinfo, "hand", val, sizeof(val)))
