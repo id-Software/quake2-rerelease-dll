@@ -732,7 +732,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	ent->flags &= ~FL_GODMODE;
 	killPlayer(ent, true);
 
-	gi.LocBroadcast_Print (PRINT_HIGH, "%s %s %s.\n", ent->client->pers.netname, a, TeamName(desired_team));
+	gi.LocBroadcast_Print (PRINT_HIGH, "{} {} {}.\n", ent->client->pers.netname, a, TeamName(desired_team));
 
 	ent->client->resp.joined_team = level.time.milliseconds();
 
