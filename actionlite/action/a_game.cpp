@@ -21,10 +21,10 @@ void ReadConfigFile()
 	char buf[MAX_STR_LEN], reading_section[MAX_STR_LEN], inipath[MAX_STR_LEN];
 	int lines_into_section = -1;
 	cvar_t *ininame;
-
+	std::string filename;
 
 	ininame = gi.cvar("ininame", "action.ini", CVAR_NOFLAGS);
-	std::string filename = fmt::format("{}", ininame);
+	//std::string filename = fmt::format("{}", ininame);
 	
 	if (ininame->string && *(ininame->string))
 		std::string filename = fmt::format("{}", ininame->string);
