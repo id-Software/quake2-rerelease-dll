@@ -7,20 +7,6 @@
 
 ctfgame_t ctfgame;
 
-cvar_t *ctf;
-cvar_t *teamplay;
-cvar_t *g_teamplay_force_join;
-cvar_t *ctf_mode = NULL;
-cvar_t *ctf_dropflag = NULL;
-cvar_t *ctf_respawn = NULL;
-cvar_t *ctf_model = NULL;
-
-// [Paril-KEX]
-bool G_TeamplayEnabled()
-{
-	return ctf->integer || teamplay->integer;
-}
-
 // [Paril-KEX]
 void G_AdjustTeamScore(ctfteam_t team, int32_t offset)
 {
@@ -29,17 +15,6 @@ void G_AdjustTeamScore(ctfteam_t team, int32_t offset)
 	else if (team == CTF_TEAM2)
 		ctfgame.total2 += offset;
 }
-
-cvar_t *competition;
-cvar_t *matchlock;
-cvar_t *electpercentage;
-cvar_t *matchtime;
-cvar_t *matchsetuptime;
-cvar_t *matchstarttime;
-cvar_t *admin_password;
-cvar_t *allow_admin;
-cvar_t *warp_list;
-cvar_t *warn_unbalanced;
 
 // Index for various CTF pics, this saves us from calling gi.imageindex
 // all the time and saves a few CPU cycles since we don't have to do
@@ -62,87 +37,6 @@ int modelindex_flag1, modelindex_flag2; // [Paril-KEX]
 //constexpr item_id_t tech_ids[] = { IT_TECH_RESISTANCE, IT_TECH_STRENGTH, IT_TECH_HASTE, IT_TECH_REGENERATION };
 
 /*--------------------------------------------------------------------------*/
-
-#ifndef KEX_Q2_GAME
-/*
-=================
-findradius
-
-Returns entities that have origins within a spherical area
-
-findradius (origin, radius)
-=================
-*/
-static edict_t *loc_findradius(edict_t *from, const vec3_t &org, float rad)
-{
-	vec3_t eorg;
-	int	   j;
-
-	if (!from)
-		from = g_edicts;
-	else
-		from++;
-	for (; from < &g_edicts[globals.num_edicts]; from++)
-	{
-		if (!from->inuse)
-			continue;
-		for (j = 0; j < 3; j++)
-			eorg[j] = org[j] - (from->s.origin[j] + (from->mins[j] + from->maxs[j]) * 0.5f);
-		if (eorg.length() > rad)
-			continue;
-		return from;
-	}
-
-	return nullptr;
-}
-#endif
-
-static void loc_buildboxpoints(vec3_t (&p)[8], const vec3_t &org, const vec3_t &mins, const vec3_t &maxs)
-{
-	p[0] = org + mins;
-	p[1] = p[0];
-	p[1][0] -= mins[0];
-	p[2] = p[0];
-	p[2][1] -= mins[1];
-	p[3] = p[0];
-	p[3][0] -= mins[0];
-	p[3][1] -= mins[1];
-	p[4] = org + maxs;
-	p[5] = p[4];
-	p[5][0] -= maxs[0];
-	p[6] = p[0];
-	p[6][1] -= maxs[1];
-	p[7] = p[0];
-	p[7][0] -= maxs[0];
-	p[7][1] -= maxs[1];
-}
-
-static bool loc_CanSee(edict_t *targ, edict_t *inflictor)
-{
-	trace_t trace;
-	vec3_t	targpoints[8];
-	int		i;
-	vec3_t	viewpoint;
-
-	// bmodels need special checking because their origin is 0,0,0
-	if (targ->movetype == MOVETYPE_PUSH)
-		return false; // bmodels not supported
-
-	loc_buildboxpoints(targpoints, targ->s.origin, targ->mins, targ->maxs);
-
-	viewpoint = inflictor->s.origin;
-	viewpoint[2] += inflictor->viewheight;
-
-	for (i = 0; i < 8; i++)
-	{
-		trace = gi.traceline(viewpoint, targpoints[i], inflictor, MASK_SOLID);
-		if (trace.fraction == 1.0f)
-			return true;
-	}
-
-	return false;
-}
-#
 
 /*--------------------------------------------------------------------------*/
 
@@ -2492,12 +2386,12 @@ void CTFJoinTeam2(edict_t *ent, pmenuhnd_t *p);
 void CTFReturnToMain(edict_t *ent, pmenuhnd_t *p);
 void CTFChaseCam(edict_t *ent, pmenuhnd_t *p);
 
-static const int jmenu_level = 1;
-static const int jmenu_match = 2;
-static const int jmenu_red = 4;
-static const int jmenu_blue = 7;
-static const int jmenu_chase = 10;
-static const int jmenu_reqmatch = 12;
+// static const int jmenu_level = 1;
+// static const int jmenu_match = 2;
+// static const int jmenu_red = 4;
+// static const int jmenu_blue = 7;
+// static const int jmenu_chase = 10;
+// static const int jmenu_reqmatch = 12;
 
 const pmenu_t joinmenu[] = {
 	{ "*$g_pc_3wctf", PMENU_ALIGN_CENTER, nullptr },

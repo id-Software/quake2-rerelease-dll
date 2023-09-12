@@ -300,7 +300,7 @@ void ActionInit()
 	ir = gi.cvar("ir", "1", CVAR_NOFLAGS);
 	knifelimit = gi.cvar("knifelimit", "40", CVAR_NOFLAGS);
 	tgren = gi.cvar("tgren", "0", CVAR_SERVERINFO);
-	dm_choose = gi.cvar("dm_choose", "0", CVAR_SERVERINFO);
+	dm_choose = gi.cvar("dm_choose", "0", CVAR_LATCH | CVAR_SERVERINFO);
 	dm_shield = gi.cvar("dm_shield", "0", CVAR_NOFLAGS);
 	uvtime = gi.cvar("uvtime", "40", CVAR_NOFLAGS);
 	warmup = gi.cvar("warmup", "1", CVAR_NOFLAGS);

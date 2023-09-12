@@ -13,8 +13,21 @@
 #include "action/a_radio.h"
 #include "action/a_xgame.h"
 
+// Teamplay adjustments (CTF is a team game, rather than all team games being CTF)
+#include "g_team.h"
+
 // the "gameversion" client command will print this plus compile date
 constexpr const char *GAMEVERSION = "action";
+
+// Menu Changes (moved from g_ctf.cpp)
+static const int jmenu_level = 1;
+static const int jmenu_match = 2;
+static const int jmenu_red = 4;
+static const int jmenu_blue = 7;
+// 3 Team support at some point
+//static const int jmenu_green = 10;
+static const int jmenu_chase = 10;
+static const int jmenu_reqmatch = 12;
 
 //==================================================================
 
@@ -2847,7 +2860,7 @@ constexpr spawnflags_t SPAWNFLAG_LANDMARK_KEEP_Z = 1_spawnflag;
 
 // ZOID
 #include "ctf/g_ctf.h"
-#include "ctf/p_ctf_menu.h"
+#include "p_menu.h" // Adjusted so that multiple modes can re-use menu systems
 // ZOID
 //============================================================================
 

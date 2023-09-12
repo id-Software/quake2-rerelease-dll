@@ -1468,13 +1468,13 @@ void G_LoadLocations( void )
 	ml_count = 0;
 
 	//game_cvar = gi.cvar ("game", "action", CVAR_NOFLAGS);
-	snprintf(locfile, sizeof(locfile), "action/tng/%s.aqg", level.mapname);
-
+	//snprintf(locfile, sizeof(locfile), "action/tng/%s.aqg", level.mapname);
 	// if (!*game_cvar->string)
 	// 	snprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", GAMEVERSION, level.mapname);
 	// else
 	// 	snprintf(locfile, sizeof(locfile), "%s/tng/%s.aqg", game_cvar->string, level.mapname);
-
+	
+	G_FmtTo(locfile, "action/tng/{}.aqg", level.mapname);
 	f = fopen( locfile, "r" );
 	if (!f) {
 		gi.Com_PrintFmt( "No location file for %s\n", level.mapname );

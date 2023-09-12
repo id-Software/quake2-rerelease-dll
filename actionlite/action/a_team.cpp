@@ -490,7 +490,7 @@ void VotingMenu (edict_t * ent, pmenuhnd_t * p)
 }
 //AQ2:TNG END
 
-const pmenu_t joinmenu[] = {
+pmenu_t joinmenu[] = {
   {"*" TNG_TITLE, PMENU_ALIGN_CENTER, nullptr},
   {"\x9D\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9E\x9F", PMENU_ALIGN_CENTER, nullptr},
   {"" /* lvl name */ , PMENU_ALIGN_CENTER, nullptr},
@@ -909,93 +909,90 @@ void OpenWeaponMenu (edict_t * ent)
 	//OpenItemMenu(ent);
 }
 
+static void SetGameName(pmenu_t *p)
+{
+	Q_strlcpy(p->text, "$g_pc_teamplay", sizeof(p->text));
+}
+
 // AQ2:TNG Deathwatch - Updated this for the new menu
-// void UpdateJoinMenu( void )
-// {
-// 	static char levelname[28];
-// 	static char team1players[28];
-// 	static char team2players[28];
-// 	static char team3players[28];
-// 	int num1 = 0, num2 = 0, num3 = 0, i;
+void UpdateJoinMenu(edict_t *ent)
+{
+	static char levelname[28];
+	static char team1players[28];
+	static char team2players[28];
+	static char team3players[28];
+	int num1 = 0, num2 = 0, num3 = 0, i;
 
-// 	if (ctf->value)
-// 	{
-// 		joinmenu[4].text = "Join Red Team";
-// 		joinmenu[4].SelectFunc = JoinTeam1;
-// 		joinmenu[6].text = "Join Blue Team";
-// 		joinmenu[6].SelectFunc = JoinTeam2;
-// 		joinmenu[8].text = NULL;
-// 		joinmenu[8].SelectFunc = NULL;
-// 		if (g_teamplay_force_join->string && *g_teamplay_force_join->string)
-// 		{
-// 			if (strcmp (g_teamplay_force_join->string, "red") == 0)
-// 			{
-// 				joinmenu[6].text = NULL;
-// 				joinmenu[6].SelectFunc = NULL;
-// 			}
-// 			else if (strcmp (g_teamplay_force_join->string, "blue") == 0)
-// 			{
-// 				joinmenu[4].text = NULL;
-// 				joinmenu[4].SelectFunc = NULL;
-// 			}
-// 		}
-// 	}
-// 	else
-// 	{
-// 		joinmenu[4].text = teams[TEAM1].name;
-// 		joinmenu[4].SelectFunc = JoinTeam1;
-// 		joinmenu[6].text = teams[TEAM2].name;
-// 		joinmenu[6].SelectFunc = JoinTeam2;
-// 		if (teamCount == 3)
-// 		{
-// 			joinmenu[8].text = teams[TEAM3].name;
-// 			joinmenu[8].SelectFunc = JoinTeam3;
-// 		}
-// 		else
-// 		{
-// 			joinmenu[8].text = NULL;
-// 			joinmenu[8].SelectFunc = NULL;
-// 		}
-// 	}
-// 	joinmenu[11].text = "Auto-join team";
-// 	joinmenu[11].SelectFunc = JoinTeamAuto;
+	pmenu_t		*entries = ent->client->menu->entries;
+	SetGameName(entries);
 
-// 	levelname[0] = '*';
-// 	if (g_edicts[0].message)
-// 		Q_strlcpy(levelname + 1, g_edicts[0].message, sizeof(levelname) - 1);
-// 	else
-// 		Q_strlcpy(levelname + 1, level.mapname, sizeof(levelname) - 1);
+	Q_strlcpy(entries[jmenu_red].text, teams[TEAM1].name, sizeof(entries[jmenu_red].text));
+	//joinmenu[4].text = teams[TEAM1].name;
+	joinmenu[4].SelectFunc = JoinTeam1;
+	Q_strlcpy(entries[jmenu_blue].text, teams[TEAM2].name, sizeof(entries[jmenu_blue].text));
+	//joinmenu[6].text = teams[TEAM2].name;
+	joinmenu[6].SelectFunc = JoinTeam2;
+	
+	// 3 Team Support eventually
+	// if (teamCount == 3)
+	// {
+	// 	joinmenu[8].text = teams[TEAM3].name;
+	// 	joinmenu[8].SelectFunc = JoinTeam3;
+	// }
+	// else
+	// {
+	Q_strlcpy(entries[8].text, nullptr, sizeof(entries[8].text));
+	//joinmenu[8].text = NULL;
+	joinmenu[8].SelectFunc = NULL;
+	//}
+	Q_strlcpy(entries[11].text, "Auto-join team", sizeof(entries[11].text));
+	//joinmenu[11].text = "Auto-join team";
+	joinmenu[11].SelectFunc = JoinTeamAuto;
 
-// 	for (i = 0; i < game.maxclients; i++)
-// 	{
-// 		if (!g_edicts[i + 1].inuse)
-// 			continue;
-// 		if (game.clients[i].resp.team == TEAM1)
-// 			num1++;
-// 		else if (game.clients[i].resp.team == TEAM2)
-// 			num2++;
-// 		else if (game.clients[i].resp.team == TEAM3)
-// 			num3++;
-// 	}
+	levelname[0] = '*';
+	if (g_edicts[0].message)
+		Q_strlcpy(levelname + 1, g_edicts[0].message, sizeof(levelname) - 1);
+	else
+		Q_strlcpy(levelname + 1, level.mapname, sizeof(levelname) - 1);
 
-// 	sprintf (team1players, "  (%d players)", num1);
-// 	sprintf (team2players, "  (%d players)", num2);
-// 	sprintf (team3players, "  (%d players)", num3);
+	for (i = 0; i < game.maxclients; i++)
+	{
+		if (!g_edicts[i + 1].inuse)
+			continue;
+		if (game.clients[i].resp.team == TEAM1)
+			num1++;
+		else if (game.clients[i].resp.team == TEAM2)
+			num2++;
+		else if (game.clients[i].resp.team == TEAM3)
+			num3++;
+	}
 
-// 	joinmenu[2].text = levelname;
-// 	if (joinmenu[4].text)
-// 		joinmenu[5].text = team1players;
-// 	else
-// 		joinmenu[5].text = NULL;
-// 	if (joinmenu[6].text)
-// 		joinmenu[7].text = team2players;
-// 	else
-// 		joinmenu[7].text = NULL;
-// 	if (joinmenu[8].text && (teamCount == 3))
-// 		joinmenu[9].text = team3players;
-// 	else
-// 		joinmenu[9].text = NULL;
-// }
+	sprintf (team1players, "  (%d players)", num1);
+	sprintf (team2players, "  (%d players)", num2);
+	sprintf (team3players, "  (%d players)", num3);
+
+	Q_strlcpy(entries[2].text, levelname, sizeof(entries[2].text));
+
+	//joinmenu[2].text = levelname;
+	if (joinmenu[4].text)
+		Q_strlcpy(entries[5].text, team1players, sizeof(entries[5].text));
+		//joinmenu[5].text = team1players;
+	else
+		Q_strlcpy(entries[5].text, nullptr, sizeof(entries[5].text));
+		//joinmenu[5].text = NULL;
+	if (joinmenu[6].text)
+		Q_strlcpy(entries[7].text, team2players, sizeof(entries[7].text));
+		//joinmenu[7].text = team2players;
+	else
+		Q_strlcpy(entries[7].text, nullptr, sizeof(entries[7].text));
+		//joinmenu[7].text = NULL;
+
+	// 3 Team support someday
+	// if (joinmenu[8].text && (teamCount == 3))
+	// 	joinmenu[9].text = team3players;
+	// else
+	// 	joinmenu[9].text = NULL;
+}
 
 // AQ2:TNG END
 
@@ -1003,7 +1000,8 @@ void OpenJoinMenu (edict_t * ent)
 {
 	//UpdateJoinMenu();
 
-	PMenu_Open (ent, joinmenu, 11 /* magic for Auto-join menu item */, sizeof (joinmenu) / sizeof (pmenu_t), nullptr, nullptr);
+	//PMenu_Open (ent, joinmenu, 11 /* magic for Auto-join menu item */, sizeof (joinmenu) / sizeof (pmenu_t), nullptr, nullptr);
+	PMenu_Open(ent, joinmenu, 11, sizeof(joinmenu) / sizeof(pmenu_t), nullptr, UpdateJoinMenu);
 }
 
 void gib_die( edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point );  // g_misc

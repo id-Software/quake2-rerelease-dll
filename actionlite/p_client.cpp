@@ -315,7 +315,8 @@ void PrintDeathMessage(char *msg, edict_t * gibee)
 	if(!team_round_going)
 		return;
 
-	for (j = 1; j <= game.maxclients; j++) {
+	for (auto other : active_players()) {
+	//for (j = 1; j <= game.maxclients; j++) {
 		other = &g_edicts[j];
 		if (!other->inuse || !other->client)
 			continue;
@@ -466,7 +467,6 @@ void CL_FixUpGender(edict_t *ent, const char *userinfo)
 
 const char *GetPossesiveAdjectiveSingular(edict_t *ent) {
 	int gender = ent->client->pers.gender;
-	char *info;
 
 	switch( gender ) {
 		case GENDER_MALE:
@@ -482,7 +482,6 @@ const char *GetPossesiveAdjectiveSingular(edict_t *ent) {
 
 const char *GetPossesiveAdjective(edict_t *ent) {
 	int gender = ent->client->pers.gender;
-	char *info;
 
 	switch( gender ) {
 		case GENDER_MALE:
@@ -498,7 +497,6 @@ const char *GetPossesiveAdjective(edict_t *ent) {
 
 const char *GetReflexivePronoun(edict_t *ent) {
 	int gender = ent->client->pers.gender;
-	char *info;
 
 	switch( gender ) {
 		case GENDER_MALE:
@@ -537,9 +535,10 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 
 	// Reki: Print killfeed to spectators who ask for easily parsable stuff
 	edict_t *other;
-	int j;
-	for (j = 1; j <= game.maxclients; j++) {
-		other = &g_edicts[j];
+	//int j;
+	//for (j = 1; j <= game.maxclients; j++) {
+	for (auto other : active_players()) {
+		//other = &g_edicts[j];
 		if (!other->inuse || !other->client || !teamplay->value)
 			continue;
 
@@ -1097,7 +1096,7 @@ void TossClientWeapon(edict_t * self)
 {
 	gitem_t *item;
 	edict_t *drop;
-	bool quad;
+	//bool quad;
 	float spread;
 
 	item = self->client->pers.weapon;

@@ -1445,9 +1445,9 @@ void Drop_Spec(edict_t * ent, gitem_t * item)
 
 void DeadDropSpec(edict_t * ent)
 {
-	gitem_t *spec;
+	//gitem_t *spec;
 	edict_t *dropped;
-	int i, itemNum;
+	int i; //, itemNum;
 
 	i = 0;
 	for (; i < q_countof(weap_ids); i++)

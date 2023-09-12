@@ -365,9 +365,10 @@ void RadioBroadcast (edict_t * ent, int partner, const char *msg)
 
 
 	//AQ2:TNG END
-	for (j = 1; j <= game.maxclients; j++)
-	{
-		other = &g_edicts[j];
+	// for (j = 1; j <= game.maxclients; j++)
+	// {
+	// 	other = &g_edicts[j];
+	for (auto player : active_players()) {
 		if (!other->inuse)
 			continue;
 		if (!other->client)
