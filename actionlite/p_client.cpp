@@ -2955,6 +2955,10 @@ Called when a player takes leg damage
 
 // }
 
+void ClientLegDamage(edict_t *ent) {
+	ent->client->leg_damage = 1;
+}
+
 void ClientFixLegs(edict_t *ent)
 {
 	if (ent->client->leg_damage && ent->client->ctf_grapplestate <= CTF_GRAPPLE_STATE_FLY)
@@ -4670,7 +4674,23 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 		pm.clip = SV_PM_Clip;
 		pm.pointcontents = gi.pointcontents;
 		pm.viewoffset = ent->client->ps.viewoffset;
-
+		bool has_enhanced_slippers = e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM);
+		if (client->leg_damage && ent->groundentity && !has_enhanced_slippers) {
+			int limping_period = level.time.milliseconds() / 100;
+			limping_period %= 6;
+			pm.s.pm_flags &= ~PMF_ACTION_LIMPING_FREEZE;
+			if (limping_period < 3) {
+				pm.cmd.forwardmove = 0;
+				pm.cmd.sidemove = 0;
+				pm.s.pm_flags |= PMF_ACTION_LIMPING_FREEZE;
+			}
+			else if (limping_period == 3) {
+				pm.cmd.forwardmove /= 2;
+				pm.cmd.sidemove /= 2;
+			}
+			pm.s.pm_flags |= PMF_JUMP_HELD;
+			pm.s.pm_flags |= PMF_ACTION_LIMPING;
+		}
 		// perform a pmove
 		Pmove(&pm);
 

@@ -1629,6 +1629,15 @@ void Pmove(pmove_t *pmove)
 
 	PM_CheckSpecialMovement();
 
+	//ACTION
+	if (pm->s.pm_flags & PMF_ACTION_LIMPING) {
+		pm->s.pm_flags |= PMF_JUMP_HELD;
+	}
+	if (pm->s.pm_flags & PMF_ACTION_LIMPING_FREEZE) {
+		pm->cmd.forwardmove = 0;
+		pm->cmd.sidemove = 0;
+	}
+
 	// drop timing counter
 	if (pm->s.pm_time)
 	{
