@@ -32,6 +32,7 @@ void ReadConfigFile()
 		//sprintf(inipath, "%s/%s", GAMEVERSION, "action.ini");
 
 	config_file = fopen(inipath, "r");
+	gi.Com_PrintFmt("INI PATH IS %s\n", inipath);
 	if (config_file == NULL) {
 		gi.Com_PrintFmt("Unable to read %s\n", inipath);
 		return;
