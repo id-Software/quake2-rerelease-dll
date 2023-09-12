@@ -1423,7 +1423,7 @@ static void PrecacheUserSounds(void)
 	FILE* soundlist = fopen(filename.c_str(), "r");
 	//soundlist = fopen(GAMEVERSION "/sndlist.ini", "r");
 	if (!soundlist) { // no "sndlist.ini" file...
-		gi.Com_PrintFmt("Cannot load %s/sndlist.ini, sound download is disabled.\n", GAMEVERSION);
+		gi.Com_PrintFmt("Cannot load {}/sndlist.ini, sound download is disabled.\n", GAMEVERSION);
 		return;
 	}
 
@@ -1449,7 +1449,7 @@ static void PrecacheUserSounds(void)
 	}
 	fclose(soundlist);
 	if (!count)
-		gi.Com_PrintFmt("%s/sndlist.ini is empty, no sounds to precache.\n", GAMEVERSION);
+		gi.Com_PrintFmt("{}/sndlist.ini is empty, no sounds to precache.\n", GAMEVERSION);
 	else
 		gi.Com_PrintFmt("%i user sounds precached.\n", count);
 }

@@ -18,20 +18,26 @@ int motd_num_lines;
  */
 void ReadConfigFile()
 {
-	FILE *config_file;
 	char buf[MAX_STR_LEN], reading_section[MAX_STR_LEN], inipath[MAX_STR_LEN];
 	int lines_into_section = -1;
 	cvar_t *ininame;
 
+
 	ininame = gi.cvar("ininame", "action.ini", CVAR_NOFLAGS);
+	std::string filename = fmt::format("{}", ininame);
+	
 	if (ininame->string && *(ininame->string))
-		G_FmtTo(inipath, "{}/{}", GAMEVERSION, ininame->string);
+		std::string filename = fmt::format("{}", ininame->string);
+		//G_FmtTo(inipath, "{}/{}", GAMEVERSION, ininame->string);
 		//sprintf(inipath, "%s/%s", GAMEVERSION, ininame->string);
 	else
-		G_FmtTo(inipath, "{}/{}", GAMEVERSION, "action.ini");
+		std::string filename = fmt::format("{}", "action.ini");
+		//G_FmtTo(inipath, "{}/{}", GAMEVERSION, "action.ini");
 		//sprintf(inipath, "%s/%s", GAMEVERSION, "action.ini");
 
-	config_file = fopen(inipath, "r");
+	FILE* config_file = fopen(filename.c_str(), "r");
+
+	//config_file = fopen(inipath, "r");
 	gi.Com_PrintFmt("INI PATH IS {}\n", inipath);
 	if (config_file == NULL) {
 		gi.Com_PrintFmt("Unable to read {}\n", inipath);
