@@ -1831,7 +1831,9 @@ void Cmd_Switchteam_f(edict_t* ent)
 		// check if we should even switch teams
 		edict_t *player;
 		uint32_t team1count = 0, team2count = 0;
+		// Support eventually //uint32_t team3count = 0;
 		ctfteam_t best_team;
+		uint32_t best_action_team = 0;
 
 		for (uint32_t i = 1; i <= game.maxclients; i++)
 		{
@@ -1842,37 +1844,68 @@ void Cmd_Switchteam_f(edict_t* ent)
 			if (!player->inuse)
 				continue;
 
-			switch (player->client->resp.ctf_team)
-			{
-			case CTF_TEAM1:
-				team1count++;
-				break;
-			case CTF_TEAM2:
-				team2count++;
-				break;
-			default:
-				break;
+			if (ctf->integer){
+				switch (player->client->resp.ctf_team)
+				{
+				case CTF_TEAM1:
+					team1count++;
+					break;
+				case CTF_TEAM2:
+					team2count++;
+					break;
+				default:
+					break;
+				}
+			} else {
+				switch (player->client->resp.team)
+				{
+				case TEAM1:
+					team1count++;
+					break;
+				case TEAM2:
+					team2count++;
+					break;
+				// 3 team some day
+				// case TEAM3:
+				// 	team3count++;
+				// 	break;
+				default:
+					break;
+				}
 			}
 		}
 
 		if (team1count < team2count)
-			best_team = CTF_TEAM1;
+				if (ctf->integer)
+					best_team = CTF_TEAM1;
+				else
+					best_action_team = TEAM1;
 		else
-			best_team = CTF_TEAM2;
+				if ((ctf->integer))
+					best_team = CTF_TEAM2;
+				else
+					best_action_team = TEAM2;
 
-		if (ent->client->resp.ctf_team != best_team)
+		if (ent->client->resp.ctf_team != best_team || ent->client->resp.team != best_action_team)
 		{
 			////
 			ent->svflags = SVF_NONE;
 			ent->flags &= ~FL_GODMODE;
-			ent->client->resp.ctf_team = best_team;
-			ent->client->resp.ctf_state = 0;
+
 			char value[MAX_INFO_VALUE] = { 0 };
 			gi.Info_ValueForKey(ent->client->pers.userinfo, "skin", value, sizeof(value));
-			CTFAssignSkin(ent, value);
-
-			// if anybody has a menu open, update it immediately
-			CTFDirtyTeamMenu();
+			if (ctf->value){
+				ent->client->resp.ctf_team = best_team;
+				ent->client->resp.ctf_state = 0;
+				CTFAssignSkin(ent, value);
+				// if anybody has a menu open, update it immediately
+				CTFDirtyTeamMenu();
+			} else {
+				ent->client->resp.team = best_action_team;
+				AssignSkin(ent, value, false);
+				// if anybody has a menu open, update it immediately
+				//CTFDirtyTeamMenu();
+			}
 
 			if (ent->solid == SOLID_NOT)
 			{
@@ -1881,9 +1914,15 @@ void Cmd_Switchteam_f(edict_t* ent)
 
 				G_PostRespawn(ent);
 
-				gi.LocBroadcast_Print(PRINT_HIGH, "$g_joined_team",
-					ent->client->pers.netname, CTFTeamName(best_team));
-				return;
+				if (ctf->value){
+					gi.LocBroadcast_Print(PRINT_HIGH, "$g_joined_team",
+						ent->client->pers.netname, CTFTeamName(best_team));
+					return;
+				} else {
+					gi.LocBroadcast_Print(PRINT_HIGH, "$g_joined_team",
+						ent->client->pers.netname, TeamName(best_action_team));
+					return;
+				}
 			}
 
 			ent->health = 0;
@@ -1895,18 +1934,26 @@ void Cmd_Switchteam_f(edict_t* ent)
 
 			ent->client->resp.score = 0;
 
-			gi.LocBroadcast_Print(PRINT_HIGH, "$g_changed_team",
-				ent->client->pers.netname, CTFTeamName(best_team));
+			if (ctf->value) {
+				gi.LocBroadcast_Print(PRINT_HIGH, "$g_changed_team",
+					ent->client->pers.netname, CTFTeamName(best_team));
+			} else {
+				gi.LocBroadcast_Print(PRINT_HIGH, "$g_changed_team",
+					ent->client->pers.netname, TeamName(best_action_team));
+			}
 		}
 
 		return;
 	}
 
-	if (ent->client->resp.ctf_team != CTF_NOTEAM)
+	if (ctf->value && ent->client->resp.ctf_team != CTF_NOTEAM)
 		CTFObserver(ent);
 
 	if (!ent->client->menu)
-		CTFOpenJoinMenu(ent);
+		if (ctf->value)
+			CTFOpenJoinMenu(ent);
+		else
+			OpenJoinMenu(ent);
 }
 
 static void Cmd_ListMonsters_f(edict_t *ent)
