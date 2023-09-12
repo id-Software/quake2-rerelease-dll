@@ -19,7 +19,6 @@ set(GAME_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/cg_main.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/cg_screen.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/ctf/g_ctf.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/ctf/p_ctf_menu.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/g_ai.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/g_chase.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/g_cmds.cpp 
@@ -34,6 +33,7 @@ set(GAME_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/g_spawn.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/g_svcmds.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/g_target.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/g_team.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/g_trigger.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/g_turret.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/g_utils.cpp 
@@ -44,6 +44,7 @@ set(GAME_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/m_move.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/p_client.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/p_hud.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/p_menu.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/p_move.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/p_trail.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/p_view.cpp 

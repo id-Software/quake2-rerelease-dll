@@ -25,9 +25,11 @@ void ReadConfigFile()
 
 	ininame = gi.cvar("ininame", "action.ini", CVAR_NOFLAGS);
 	if (ininame->string && *(ininame->string))
-		sprintf(inipath, "%s/%s", GAMEVERSION, ininame->string);
+		G_FmtTo(inipath, "{}/{}", GAMEVERSION, ininame->string);
+		//sprintf(inipath, "%s/%s", GAMEVERSION, ininame->string);
 	else
-		sprintf(inipath, "%s/%s", GAMEVERSION, "action.ini");
+		G_FmtTo(inipath, "{}/{}", GAMEVERSION, "action.ini");
+		//sprintf(inipath, "%s/%s", GAMEVERSION, "action.ini");
 
 	config_file = fopen(inipath, "r");
 	if (config_file == NULL) {

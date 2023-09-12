@@ -2393,7 +2393,7 @@ void CTFChaseCam(edict_t *ent, pmenuhnd_t *p);
 // static const int jmenu_chase = 10;
 // static const int jmenu_reqmatch = 12;
 
-const pmenu_t joinmenu[] = {
+const pmenu_t ctfjoinmenu[] = {
 	{ "*$g_pc_3wctf", PMENU_ALIGN_CENTER, nullptr },
 	{ "", PMENU_ALIGN_CENTER, nullptr },
 	{ "", PMENU_ALIGN_CENTER, nullptr },
@@ -2662,7 +2662,7 @@ void CTFOpenJoinMenu(edict_t *ent)
 		team = CTF_TEAM2;
 	team = brandom() ? CTF_TEAM1 : CTF_TEAM2;
 
-	PMenu_Open(ent, joinmenu, team, sizeof(joinmenu) / sizeof(pmenu_t), nullptr, CTFUpdateJoinMenu);
+	PMenu_Open(ent, ctfjoinmenu, team, sizeof(ctfjoinmenu) / sizeof(pmenu_t), nullptr, CTFUpdateJoinMenu);
 }
 
 bool CTFStartClient(edict_t *ent)

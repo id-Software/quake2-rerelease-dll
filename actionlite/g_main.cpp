@@ -314,6 +314,10 @@ void ActionInit()
 	sv_idleremove = gi.cvar("sv_idleremove", "0", CVAR_NOFLAGS);
 	ppl_idletime = gi.cvar("ppl_idletime", "15", CVAR_NOFLAGS);
 
+	teams[TEAM1].teamscore = gi.cvar("t1", "0", CVAR_SERVERINFO | CVAR_NOSET);
+	teams[TEAM2].teamscore = gi.cvar("t2", "0", CVAR_SERVERINFO | CVAR_NOSET);
+	teams[TEAM3].teamscore = gi.cvar("t3", "0", CVAR_SERVERINFO | CVAR_NOSET);
+
 
 	// Reset teamplay stuff
 	for(i = TEAM1; i < TEAM_TOP; i++)
@@ -326,6 +330,11 @@ void ActionInit()
 		// This crashes, look into it
 		//gi.cvar_forceset(teams[i].teamscore->name, "0");
 	}
+
+	// Moved from PreInitGame()
+	// ZOID
+	CTFInit();
+	// ZOID
 
 	// Darkmatch, maybe one day
 	//day_cycle_at = 0;
@@ -395,10 +404,6 @@ void PreInitGame()
 	coop = gi.cvar("coop", "0", CVAR_LATCH);
 	teamplay = gi.cvar("teamplay", "0", CVAR_LATCH);
 
-	// ZOID
-	CTFInit();
-	// ZOID
-
 	// ACTION
 	ActionInit();
 	// ACTION
@@ -444,6 +449,7 @@ void InitGame()
 {
 	gi.Com_Print("==== InitGame ====\n");
 
+	ReadConfigFile();
 	InitSave();
 
 	// seed RNG
