@@ -31,15 +31,17 @@ void ReadConfigFile()
         filename = "action.ini";
     }
 
-	FILE* config_file = fopen(filename.c_str(), "r");
+	std::string filepath = fmt::format("rerelease/{}/{}", GAMEVERSION, filename);
+
+	FILE* config_file = fopen(filepath.c_str(), "r");
 
     if (config_file == NULL)
     {
-        gi.Com_PrintFmt("Unable to read %s\n", filename.c_str());
+        gi.Com_PrintFmt("Unable to read %s\n", filepath.c_str());
         return;
     }
 
-    gi.Com_PrintFmt("INI PATH IS %s\n", filename.c_str());
+    //gi.Com_PrintFmt("INI PATH IS %s\n", filename.c_str());
 
 	//ininame = gi.cvar("ininame", "action.ini", CVAR_NOFLAGS);
 	//std::string filename = fmt::format("{}", ininame);
