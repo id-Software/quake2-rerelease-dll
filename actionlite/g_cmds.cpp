@@ -1085,10 +1085,15 @@ void Cmd_Inven_f(edict_t *ent)
 	}
 
 	// ZOID
-	if (G_TeamplayEnabled() && cl->resp.ctf_team == CTF_NOTEAM)
+	if (G_TeamplayEnabled())
 	{
-		CTFOpenJoinMenu(ent);
-		return;
+		if (ctf->integer && cl->resp.ctf_team == CTF_NOTEAM){
+			CTFOpenJoinMenu(ent);
+			return;
+		} else {
+			OpenJoinMenu(ent);
+			return;
+		}
 	}
 	// ZOID
 
