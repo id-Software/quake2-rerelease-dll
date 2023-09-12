@@ -2051,7 +2051,7 @@ extern gitem_t itemlist[IT_TOTAL];
 // Action Add
 //======================================================================
 #define PARSE_BUFSIZE 256
-#define IS_ALIVE(ent) ((ent)->solid != SOLID_NOT && (ent)->deadflag = false && (ent)->health > 0)
+#define IS_ALIVE(ent) ((ent)->solid != SOLID_NOT && (ent)->deadflag == false && (ent)->health > 0)
 
 // 40hz
 #define FRAMEDIV        4
