@@ -361,7 +361,7 @@ bool Pickup_WeaponAQ(edict_t* ent, edict_t* other)
 			other->client->mp5_rds = other->client->mp5_max;
 		}
 		special = 1;
-		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		gi.LocClient_Print(other, PRINT_HIGH, "{} - Unique Weapon\n", ent->item->pickup_name);
 		break;
 
 	case IT_WEAPON_M4:
@@ -376,7 +376,7 @@ bool Pickup_WeaponAQ(edict_t* ent, edict_t* other)
 			other->client->m4_rds = other->client->m4_max;
 		}
 		special = 1;
-		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		gi.LocClient_Print(other, PRINT_HIGH, "{} - Unique Weapon\n", ent->item->pickup_name);
 		break;
 
 	case IT_WEAPON_M3:
@@ -425,7 +425,7 @@ bool Pickup_WeaponAQ(edict_t* ent, edict_t* other)
 			else
 				other->client->inventory[index2] += 5;
 		}
-		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		gi.LocClient_Print(other, PRINT_HIGH, "{} - Unique Weapon\n", ent->item->pickup_name);
 		special = 1;
 		break;
 
@@ -453,7 +453,7 @@ bool Pickup_WeaponAQ(edict_t* ent, edict_t* other)
 			}
 		}
 		special = 1;
-		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		gi.LocClient_Print(other, PRINT_HIGH, "{} - Unique Weapon\n", ent->item->pickup_name);
 		break;
 
 	case IT_WEAPON_DUALMK23:
@@ -1199,10 +1199,10 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 		else if (ent->client->ps.gunframe < FRAME_RELOAD_LAST)
 		{
 			ent->client->ps.gunframe++;
-			switch (ent->client->curr_weap)
+			switch (ent->client->pers.weapon->id)
 			{
 				//+BD - Check weapon to find out when to play reload sounds
-			case MK23_NUM:
+			case IT_WEAPON_MK23:
 			{
 				if (ent->client->ps.gunframe == 46)
 					gi.sound(ent, CHAN_WEAPON,
@@ -1218,7 +1218,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 						ATTN_NORM, 0);
 				break;
 			}
-			case MP5_NUM:
+			case IT_WEAPON_MP5:
 			{
 				if (ent->client->ps.gunframe == 55)
 					gi.sound(ent, CHAN_WEAPON,
@@ -1234,7 +1234,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 						ATTN_NORM, 0);
 				break;
 			}
-			case M4_NUM:
+			case IT_WEAPON_M4:
 			{
 				if (ent->client->ps.gunframe == 52)
 					gi.sound(ent, CHAN_WEAPON,
@@ -1246,7 +1246,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 						ATTN_NORM, 0);
 				break;
 			}
-			case M3_NUM:
+			case IT_WEAPON_M3:
 			{
 				if (ent->client->shot_rds >= ent->client->shot_max)
 				{
@@ -1272,7 +1272,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 				}
 				break;
 			}
-			case HC_NUM:
+			case IT_WEAPON_HANDCANNON:
 			{
 				if (ent->client->ps.gunframe == 64)
 					gi.sound(ent, CHAN_WEAPON,
@@ -1292,7 +1292,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 						ATTN_NORM, 0);
 				break;
 			}
-			case SNIPER_NUM:
+			case IT_WEAPON_SNIPER:
 			{
 
 				if (ent->client->sniper_rds >= ent->client->sniper_max)
@@ -1331,7 +1331,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 				}
 				break;
 			}
-			case DUAL_NUM:
+			case IT_WEAPON_DUALMK23:
 			{
 				if (ent->client->ps.gunframe == 45)
 					gi.sound(ent, CHAN_WEAPON,
@@ -1357,9 +1357,9 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 		{
 			ent->client->ps.gunframe = FRAME_IDLE_FIRST;
 			ent->client->weaponstate = WEAPON_READY;
-			switch (ent->client->curr_weap)
+			switch (ent->client->pers.weapon->id)
 			{
-			case MK23_NUM:
+			case IT_WEAPON_MK23:
 			{
 				ent->client->dual_rds -= ent->client->mk23_rds;
 				ent->client->mk23_rds = ent->client->mk23_max;
@@ -1374,7 +1374,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 				//else
 				//      ent->client->mk23_rds = ent->client->inventory[ent->client->ammo_index];
 			}
-			case MP5_NUM:
+			case IT_WEAPON_MP5:
 			{
 
 				ent->client->mp5_rds = ent->client->mp5_max;
@@ -1387,7 +1387,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 				ent->client->burst = 0;	// reset any bursting
 				break;
 			}
-			case M4_NUM:
+			case IT_WEAPON_M4:
 			{
 
 				ent->client->m4_rds = ent->client->m4_max;
@@ -1401,7 +1401,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 				ent->client->machinegun_shots = 0;
 				break;
 			}
-			case M3_NUM:
+			case IT_WEAPON_M3:
 			{
 				ent->client->shot_rds++;
 				(ent->client->inventory[ent->client->ammo_index])--;
@@ -1411,7 +1411,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 				}
 				break;
 			}
-			case HC_NUM:
+			case IT_WEAPON_HANDCANNON:
 			{
 				if (hc_single->value)
 				{
@@ -1441,7 +1441,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 				}
 				break;
 			}
-			case SNIPER_NUM:
+			case IT_WEAPON_SNIPER:
 			{
 				ent->client->sniper_rds++;
 				(ent->client->inventory[ent->client->ammo_index])--;
@@ -1451,7 +1451,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 				}
 				return;
 			}
-			case DUAL_NUM:
+			case IT_WEAPON_DUALMK23:
 			{
 				ent->client->dual_rds = ent->client->dual_max;
 				ent->client->mk23_rds = ent->client->mk23_max;
@@ -1479,18 +1479,18 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 			ent->client->ps.gunframe = FRAME_LASTRD_LAST;
 		// see if our weapon has ammo (from something other than reloading)
 		if (
-			((ent->client->curr_weap == MK23_NUM)
+			((ent->client->pers.weapon->id == IT_WEAPON_MK23)
 				&& (ent->client->mk23_rds > 0))
-			|| ((ent->client->curr_weap == MP5_NUM)
+			|| ((ent->client->pers.weapon->id == IT_WEAPON_MP5)
 				&& (ent->client->mp5_rds > 0))
-			|| ((ent->client->curr_weap == M4_NUM) && (ent->client->m4_rds > 0))
-			|| ((ent->client->curr_weap == M3_NUM)
+			|| ((ent->client->pers.weapon->id == IT_WEAPON_M4) && (ent->client->m4_rds > 0))
+			|| ((ent->client->pers.weapon->id == IT_WEAPON_M3)
 				&& (ent->client->shot_rds > 0))
-			|| ((ent->client->curr_weap == HC_NUM)
+			|| ((ent->client->pers.weapon->id == IT_WEAPON_HANDCANNON)
 				&& (ent->client->cannon_rds > 0))
-			|| ((ent->client->curr_weap == SNIPER_NUM)
+			|| ((ent->client->pers.weapon->id == IT_WEAPON_SNIPER)
 				&& (ent->client->sniper_rds > 0))
-			|| ((ent->client->curr_weap == DUAL_NUM)
+			|| ((ent->client->pers.weapon->id == IT_WEAPON_DUALMK23)
 				&& (ent->client->dual_rds > 0)))
 		{
 			ent->client->weaponstate = WEAPON_READY;
@@ -1575,9 +1575,9 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 		}
 
 		// sounds for activation?
-		switch (ent->client->curr_weap)
+		switch (ent->client->pers.weapon->id)
 		{
-		case MK23_NUM:
+		case IT_WEAPON_MK23:
 		{
 			if (ent->client->dual_rds >= ent->client->mk23_max)
 				ent->client->mk23_rds = ent->client->mk23_max;
@@ -1602,7 +1602,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 			ent->client->fired = 0;	//reset any firing delays
 			break;
 		}
-		case MP5_NUM:
+		case IT_WEAPON_MP5:
 		{
 			if (ent->client->ps.gunframe == 3)	// 3
 				gi.sound(ent, CHAN_WEAPON,
@@ -1612,7 +1612,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 			ent->client->burst = 0;
 			break;
 		}
-		case M4_NUM:
+		case IT_WEAPON_M4:
 		{
 			if (ent->client->ps.gunframe == 3)	// 3
 				gi.sound(ent, CHAN_WEAPON,
@@ -1623,27 +1623,27 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 			ent->client->machinegun_shots = 0;
 			break;
 		}
-		case M3_NUM:
+		case IT_WEAPON_M3:
 		{
 			ent->client->fired = 0;	//reset any firing delays
 			ent->client->burst = 0;
 			ent->client->fast_reload = 0;
 			break;
 		}
-		case HC_NUM:
+		case IT_WEAPON_HANDCANNON:
 		{
 			ent->client->fired = 0;	//reset any firing delays
 			ent->client->burst = 0;
 			break;
 		}
-		case SNIPER_NUM:
+		case IT_WEAPON_SNIPER:
 		{
 			ent->client->fired = 0;	//reset any firing delays
 			ent->client->burst = 0;
 			ent->client->fast_reload = 0;
 			break;
 		}
-		case DUAL_NUM:
+		case IT_WEAPON_DUALMK23:
 		{
 			if (ent->client->dual_rds <= 0 && ent->client->ps.gunframe == 3)
 				gi.sound(ent, CHAN_WEAPON, level.snd_noammo, 1, ATTN_NORM, 0);
@@ -1790,9 +1790,9 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 				gi.Client_Print(ent, PRINT_CENTER, "Shields are DOWN!");
 			}
 			ent->client->latched_buttons &= ~BUTTON_ATTACK;
-			switch (ent->client->curr_weap)
+			switch (ent->client->pers.weapon->id)
 			{
-			case MK23_NUM:
+			case IT_WEAPON_MK23:
 			{
 				//      gi.cprintf (ent, PRINT_HIGH, "Calling ammo check %d\n", ent->client->mk23_rds);
 				if (ent->client->mk23_rds > 0)
@@ -1814,7 +1814,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 				break;
 
 			}
-			case MP5_NUM:
+			case IT_WEAPON_MP5:
 			{
 				if (ent->client->mp5_rds > 0)
 				{
@@ -1856,7 +1856,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 					bOut = 1;
 				break;
 			}
-			case M4_NUM:
+			case IT_WEAPON_M4:
 			{
 				if (ent->client->m4_rds > 0)
 				{
@@ -1897,7 +1897,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 					bOut = 1;
 				break;
 			}
-			case M3_NUM:
+			case IT_WEAPON_M3:
 			{
 				if (ent->client->shot_rds > 0)
 				{
@@ -1909,7 +1909,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 			}
 			// AQ2:TNG Deathwatch - Single Barreled HC
 			// DW: SingleBarrel HC
-			case HC_NUM:
+			case IT_WEAPON_HANDCANNON:
 
 				//if client is set to single shot mode, then allow
 				//fire if only have 1 round left
@@ -1935,7 +1935,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 				break;
 			}
 			// AQ2:TNG END
-			case SNIPER_NUM:
+			case IT_WEAPON_SNIPER:
 			{
 				if (ent->client->ps.fov != ent->client->desired_fov)
 					ent->client->ps.fov = ent->client->desired_fov;
@@ -1954,7 +1954,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 					bOut = 1;
 				break;
 			}
-			case DUAL_NUM:
+			case IT_WEAPON_DUALMK23:
 			{
 				if (ent->client->dual_rds > 0)
 				{
