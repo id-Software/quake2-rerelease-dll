@@ -2838,6 +2838,7 @@ void EquipClientDM(edict_t * ent)
 	//if (*strtwpn->string)
 	// 	itemNum = GetWeaponNumFromArg(strtwpn->string);
 
+	// Everyone starts with MK23
 	itemNum = MK23_NUM;
 
 	// Give some ammo for the weapon
