@@ -203,6 +203,7 @@ cvar_t *ammo_respawn;
 cvar_t *hc_single;
 cvar_t *use_punch;
 cvar_t *e_enhancedSlippers;
+cvar_t *strtwpn;
 
 // Radio Settings
 cvar_t *radiolog;
@@ -314,6 +315,7 @@ void ActionInit()
 	sv_idleremove = gi.cvar("sv_idleremove", "0", CVAR_NOFLAGS);
 	ppl_idletime = gi.cvar("ppl_idletime", "15", CVAR_NOFLAGS);
 	eventeams = gi.cvar("eventeams", "0", CVAR_NOFLAGS);
+	strtwpn = gi.cvar("dmweapon", MK23_NAME, CVAR_NOFLAGS);
 
 	teams[TEAM1].teamscore = gi.cvar("t1", "0", CVAR_SERVERINFO | CVAR_NOSET);
 	teams[TEAM2].teamscore = gi.cvar("t2", "0", CVAR_SERVERINFO | CVAR_NOSET);

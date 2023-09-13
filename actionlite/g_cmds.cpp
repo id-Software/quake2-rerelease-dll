@@ -1952,7 +1952,8 @@ void Cmd_Switchteam_f(edict_t* ent)
 	if (!ent->client->menu)
 		if (ctf->value)
 			CTFOpenJoinMenu(ent);
-		else
+		// Auto-show menu
+		else if (teamplay->integer && auto_menu->integer)
 			OpenJoinMenu(ent);
 }
 

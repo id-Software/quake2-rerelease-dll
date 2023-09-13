@@ -488,10 +488,48 @@ void Use_Silencer(edict_t *ent, gitem_t *item)
 
 bool Add_Ammo(edict_t *ent, gitem_t *item, int count)
 {
-	if (!ent->client || item->tag < AMMO_BULLETS || item->tag >= AMMO_MAX)
+	//if (!ent->client || item->tag < AMMO_BULLETS || item->tag >= AMMO_MAX)
+	//	return false;
+
+	//return G_AddAmmoAndCap(ent, item->id, ent->client->pers.max_ammo[item->tag], count);
+
+	int index;
+	int max = 0;
+
+	if (!ent->client)
 		return false;
 
-	return G_AddAmmoAndCap(ent, item->id, ent->client->pers.max_ammo[item->tag], count);
+	switch (item->id) {
+	case IT_AMMO_BULLETS: // MK23 and Dual MK23
+		max = ent->client->max_pistolmags;
+		break;
+	case IT_AMMO_SHELLS: // Shotgun and HC
+		max = ent->client->max_shells;
+		break;
+	case IT_AMMO_ROCKETS: // MP5
+		max = ent->client->max_mp5mags;
+		break;
+	case IT_AMMO_CELLS:  // M4
+		max = ent->client->max_m4mags;
+		break;
+	case IT_AMMO_SLUGS: // Sniper Rifle
+		max = ent->client->max_sniper_rnds;
+		break;
+	default:
+		return false;
+	}
+
+	index = ITEM_INDEX(item);
+
+	if (ent->client->inventory[index] == max)
+		return false;
+
+	ent->client->inventory[index] += count;
+
+	if (ent->client->inventory[index] > max)
+		ent->client->inventory[index] = max;
+
+	return true;
 }
 
 // we just got weapon `item`, check if we should switch to it
@@ -534,29 +572,48 @@ void G_CheckAutoSwitch(edict_t *ent, gitem_t *item, bool is_new)
 
 bool Pickup_Ammo(edict_t *ent, edict_t *other)
 {
-	int	 oldcount;
-	int	 count;
+	//int	 oldcount;
+	//int	 count;
+	//bool weapon;
+
+	//weapon = (ent->item->flags & IF_WEAPON);
+	//if (weapon && G_CheckInfiniteAmmo(ent->item))
+	//	count = 1000;
+	//else if (ent->count)
+	//	count = ent->count;
+	//else
+	//	count = ent->item->quantity;
+
+	//oldcount = other->client->pers.inventory[ent->item->id];
+
+	//if (!Add_Ammo(other, ent->item, count))
+	//	return false;
+
+	//// No autoswitching in Action
+	//// if (weapon)
+	//// 	G_CheckAutoSwitch(other, ent->item, !oldcount);
+
+	//if (!(ent->spawnflags & (SPAWNFLAG_ITEM_DROPPED | SPAWNFLAG_ITEM_DROPPED_PLAYER)) && deathmatch->integer)
+	//	SetRespawn(ent, 30_sec);
+	//return true;
+
+	int count;
 	bool weapon;
 
 	weapon = (ent->item->flags & IF_WEAPON);
-	if (weapon && G_CheckInfiniteAmmo(ent->item))
+	if ((weapon) && G_CheckInfiniteAmmo(ent->item))
 		count = 1000;
 	else if (ent->count)
 		count = ent->count;
 	else
 		count = ent->item->quantity;
 
-	oldcount = other->client->pers.inventory[ent->item->id];
-
 	if (!Add_Ammo(other, ent->item, count))
 		return false;
 
-	// No autoswitching in Action
-	// if (weapon)
-	// 	G_CheckAutoSwitch(other, ent->item, !oldcount);
-
 	if (!(ent->spawnflags & (SPAWNFLAG_ITEM_DROPPED | SPAWNFLAG_ITEM_DROPPED_PLAYER)) && deathmatch->integer)
 		SetRespawn(ent, 30_sec);
+
 	return true;
 }
 

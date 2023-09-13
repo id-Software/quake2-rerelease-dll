@@ -1823,6 +1823,7 @@ extern cvar_t *rrot;
 extern cvar_t *vrot;
 extern cvar_t *e_enhancedSlippers;
 extern cvar_t *use_voice;
+extern cvar_t *strtwpn;
 //extern mod_id_t meansOfDeath;
 
 // zucc for hitlocation of death
@@ -2102,9 +2103,9 @@ extern gitem_t itemlist[IT_TOTAL];
 #define GRENADE_DAMRAD          	250
 
 #define SPEC_WEAPON_RESPAWN 		1
-#define BANDAGE_TIME    			27	// 10 = 1 second
-#define ENHANCED_BANDAGE_TIME		10
-#define BLEED_TIME      			10	// 10 = 1 second is time for losing 1 health at slowest bleed rate
+#define BANDAGE_TIME    		(27*FRAMEDIV)	// 10 = 1 second
+#define ENHANCED_BANDAGE_TIME		(10*FRAMEDIV)
+#define BLEED_TIME      		(10*FRAMEDIV)	// 10 = 1 second is time for losing 1 health at slowest bleed rate
 
 // edict->client->pers.spec_flags
 #define SPECFL_KILLFEED					0x00000001

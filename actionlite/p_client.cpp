@@ -2680,7 +2680,7 @@ void EquipClient(edict_t * ent)
 
 	// set them up with initial pistol ammo
 	//if (WPF_ALLOWED(MK23_ANUM)) {
-	item = GET_ITEM(MK23_ANUM);
+	item = GetItemByIndex(IT_WEAPON_MK23);
 	if (band)
 		client->inventory[ITEM_INDEX(item)] = 2;
 	else
@@ -2688,9 +2688,11 @@ void EquipClient(edict_t * ent)
 	//}
 
 	itemNum = client->pers.chosenWeapon ? client->pers.chosenWeapon->id : 0;
+	
+	index = item->id;
 
-	switch (itemNum) {
-	case MP5_NUM:
+	switch (index) {
+	case IT_WEAPON_MP5:
 		item = GET_ITEM(MP5_NUM);
 		//client->selected_item = ITEM_INDEX(item);
 		client->selected_item.id = IT_WEAPON_MP5;
@@ -2705,7 +2707,7 @@ void EquipClient(edict_t * ent)
 			client->inventory[ITEM_INDEX(item)] = 1;
 		client->mp5_rds = client->mp5_max;
 		break;
-	case M4_NUM:
+	case IT_WEAPON_M4:
 		item = GET_ITEM(M4_NUM);
 		client->selected_item.id = IT_WEAPON_M4;
 		client->inventory[ent->client->selected_item.id] = 1;
@@ -2719,7 +2721,7 @@ void EquipClient(edict_t * ent)
 			client->inventory[ITEM_INDEX(item)] = 1;
 		client->m4_rds = client->m4_max;
 		break;
-	case M3_NUM:
+	case IT_WEAPON_M3:
 		item = GET_ITEM(M3_NUM);
 		client->selected_item.id = IT_WEAPON_M3;
 		client->inventory[ent->client->selected_item.id] = 1;
@@ -2733,7 +2735,7 @@ void EquipClient(edict_t * ent)
 			client->inventory[ITEM_INDEX(item)] = 7;
 		client->shot_rds = client->shot_max;
 		break;
-	case HC_NUM:
+	case IT_WEAPON_HANDCANNON:
 		item = GET_ITEM(HC_NUM);
 		client->selected_item.id = IT_WEAPON_HANDCANNON;
 		client->inventory[ent->client->selected_item.id] = 1;
@@ -2747,7 +2749,7 @@ void EquipClient(edict_t * ent)
 			client->inventory[ITEM_INDEX(item)] = 12;
 		client->cannon_rds = client->cannon_max;
 		break;
-	case SNIPER_NUM:
+	case IT_WEAPON_SNIPER:
 		item = GET_ITEM(SNIPER_NUM);
 		client->selected_item.id = IT_WEAPON_SNIPER;
 		client->inventory[ent->client->selected_item.id] = 1;
@@ -2761,7 +2763,7 @@ void EquipClient(edict_t * ent)
 			client->inventory[ent->client->selected_item.id] = 10;
 		client->sniper_rds = client->sniper_max;
 		break;
-	case DUAL_NUM:
+	case IT_WEAPON_DUALMK23:
 		item = GET_ITEM(DUAL_NUM);
 		client->selected_item.id = IT_WEAPON_DUALMK23;
 		client->inventory[ent->client->selected_item.id] = 1;
@@ -2774,7 +2776,7 @@ void EquipClient(edict_t * ent)
 			client->inventory[ent->client->selected_item.id] = 2;
 		client->dual_rds = client->dual_max;
 		break;
-	case KNIFE_NUM:
+	case IT_WEAPON_KNIFE:
 		item = GET_ITEM(KNIFE_NUM);
 		client->selected_item.id = IT_WEAPON_KNIFE;
 		if (band)
@@ -2785,8 +2787,6 @@ void EquipClient(edict_t * ent)
 		client->curr_weap = KNIFE_NUM;
 		break;
 	}
-
-	index = item->id;
 
 	if (!item->pickup)
 	{
@@ -2828,21 +2828,29 @@ void EquipClientDM(edict_t * ent)
 	gclient_t *client;
 	gitem_t *item;
 	int itemNum = 0;
-
+	item_id_t index;
 	client = ent->client;
+
+
+	item = GetItemByIndex(IT_WEAPON_MK23);
+
+	index = item->id;
 
 	// if(use_grapple->value)
 	// 	client->inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
 
 	// TODO: Work with strtwpn
-	// if (*strtwpn->string)
+	//if (*strtwpn->string)
 	// 	itemNum = GetWeaponNumFromArg(strtwpn->string);
 
+	// Everyone starts with MK23
+	index = IT_WEAPON_MK23;
+
 	// Give some ammo for the weapon
-	switch (itemNum) {
-	case MK23_NUM:
+	switch (index) {
+	case IT_WEAPON_MK23:
 		return;
-	case MP5_NUM:
+	case IT_WEAPON_MP5:
 		item = GET_ITEM(MP5_NUM);
 		client->selected_item.id = IT_WEAPON_MP5;
 		client->inventory[ent->client->selected_item.id] = 1;
@@ -2855,7 +2863,7 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(MP5_ANUM);
 		client->inventory[ITEM_INDEX(item)] = 1;
 		break;
-	case M4_NUM:
+	case IT_WEAPON_M4:
 		item = GET_ITEM(M4_NUM);
 		client->selected_item.id = IT_WEAPON_M4;
 		client->inventory[ent->client->selected_item.id] = 1;
@@ -2868,7 +2876,7 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(M4_ANUM);
 		client->inventory[ITEM_INDEX(item)] = 1;
 		break;
-	case M3_NUM:
+	case IT_WEAPON_M3:
 		item = GET_ITEM(M3_NUM);
 		client->selected_item.id = IT_WEAPON_M3;
 		client->inventory[ent->client->selected_item.id] = 1;
@@ -2881,7 +2889,7 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(SHELL_ANUM);
 		client->inventory[ITEM_INDEX(item)] = 7;
 		break;
-	case HC_NUM:
+	case IT_WEAPON_HANDCANNON:
 		item = GET_ITEM(HC_NUM);
 		client->selected_item.id = IT_WEAPON_HANDCANNON;
 		client->inventory[ent->client->selected_item.id] = 1;
@@ -2895,7 +2903,7 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(SHELL_ANUM);
 		client->inventory[ITEM_INDEX(item)] = 12;
 		break;
-	case SNIPER_NUM:
+	case IT_WEAPON_SNIPER:
 		item = GET_ITEM(SNIPER_NUM);
 		client->selected_item.id = IT_WEAPON_SNIPER;
 		client->inventory[ent->client->selected_item.id] = 1;
@@ -2908,7 +2916,7 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(SNIPER_ANUM);;
 		client->inventory[ITEM_INDEX(item)] = 10;
 		break;
-	case DUAL_NUM:
+	case IT_WEAPON_DUALMK23:
 		item = GET_ITEM(DUAL_NUM);
 		client->selected_item.id = IT_WEAPON_DUALMK23;
 		client->inventory[ent->client->selected_item.id] = 1;
@@ -2919,14 +2927,14 @@ void EquipClientDM(edict_t * ent)
 		item = GET_ITEM(MK23_ANUM);
 		client->inventory[ITEM_INDEX(item)] = 2;
 		break;
-	case GRENADE_NUM:
+	case IT_WEAPON_GRENADES:
 		item = GET_ITEM(GRENADE_NUM);
 		client->selected_item.id = IT_WEAPON_GRENADES;
 		client->inventory[ent->client->selected_item.id] = tgren->value;
 		client->pers.weapon = item;
 		client->curr_weap = GRENADE_NUM;
 		break;
-	case KNIFE_NUM:
+	case IT_WEAPON_KNIFE:
 		item = GET_ITEM(KNIFE_NUM);
 		client->selected_item.id = IT_WEAPON_KNIFE;
 		client->inventory[ent->client->selected_item.id] = 10;
@@ -3501,8 +3509,10 @@ void PutClientInServer(edict_t *ent)
 	P_ForceFogTransition(ent, true);
 
 	// ZOID
-	if (CTFStartClient(ent))
-		return;
+	if (ctf->integer) {
+		if (CTFStartClient(ent))
+			return;
+	}
 	// ZOID
 
 	if (teamplay->value) {
@@ -4339,6 +4349,8 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 	if (pm.waterlevel == WATER_UNDER)
 		return;
 
+	
+
 	// ZOID
 	//  never take damage if just release grapple or on grapple
 	if (ent->client->ctf_grapplereleasetime >= level.time ||
@@ -4354,6 +4366,25 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 
 	delta = delta * delta * 0.0001f;
 
+	float scaling_factor = (delta * 0.055f); // This helps to align with classic Q2 fall damage
+
+	delta = delta - scaling_factor;
+
+	//gi.Com_PrintFmt("Delta: {}\n", delta);
+	//if ((oldvelocity[2] < 0)
+	//	&& (ent->velocity[2] > oldvelocity[2])
+	//	&& (!ent->groundentity))
+	//{
+	//	delta = oldvelocity[2];
+	//}
+	//else
+	//{
+	//	if (!ent->groundentity)
+	//		return;
+	//	delta = ent->velocity[2] - oldvelocity[2];
+	//	ent->client->jumping = 0;
+	//}
+
 	if (pm.waterlevel == WATER_WAIST)
 		delta *= 0.25f;
 	if (pm.waterlevel == WATER_FEET)
@@ -4361,6 +4392,33 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 
 	if (delta < 1)
 		return;
+
+	if (delta < 15)
+	{
+		// Raptor007: Don't make footsteps when climbing down ladders.
+		/*if (ent->client->old_ladder)
+			return;*/
+
+		// zucc look for slippers to avoid noise
+		if (!INV_AMMO(ent, SLIP_NUM))
+			ent->s.event = EV_FOOTSTEP;
+
+		return;
+	}
+
+	ent->client->fall_value = delta * 0.5;
+	if (ent->client->fall_value > 40)
+		ent->client->fall_value = 40;
+	ent->client->fall_time = level.time + 300_ms;
+
+	if (delta <= 30)
+	{
+		//zucc added check for slippers, this is just another noise
+		if (!INV_AMMO(ent, SLIP_NUM))
+			ent->s.event = EV_FALLSHORT;
+
+		return;
+	}
 
 	// restart footstep timer
 	ent->client->bobtime = 0;
@@ -4389,14 +4447,15 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 		if (delta >= 55)
 			ent->s.event = EV_FALLFAR;
 		else
-			ent->s.event = EV_FALL;
+			ent->s.event = EV_FALLFAR;
 
 		ent->pain_debounce_time = level.time + FRAME_TIME_S; // no normal pain sound
 		damage = (int)((delta - 30) / 2);
 		if (damage < 1)
 			damage = 1;
 		damage *= 10; //ACTION
-		if (e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM))
+		//if (e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM))
+		if (e_enhancedSlippers->integer && ent->client->pers.selected_item == IT_ITEM_SLIPPERS)
 			damage /= 2;
 		dir = { 0, 0, 1 };
 
@@ -4406,152 +4465,18 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 	else
 		ent->s.event = EV_FALLSHORT;
 
-	// Paril: falling damage noises alert monsters
-	if (ent->health)
-		PlayerNoise(ent, pm.s.origin, PNOISE_SELF);
+	// Debugging
+	//if (delta > 0)
+	//	gi.Com_PrintFmt("Impact Delta: {}\n", pm.impact_delta);
+	//	gi.Com_PrintFmt("Scaling Factor: {}\n", scaling_factor);
+	//	gi.Com_PrintFmt("Delta: {}\n", delta);
+	//	gi.Com_PrintFmt("Damage: {}\n", damage);
+
+	//// Paril: falling damage noises alert monsters
+	//if (ent->health)
+	//	PlayerNoise(ent, pm.s.origin, PNOISE_SELF);
 }
 //Action Add
-void P_FallingDamageAQ (edict_t * ent, const pmove_t &pm)
-{
-	float delta = pm.impact_delta;
-	int damage;
-	vec3_t dir, oldvelocity;
-
-	VectorCopy( ent->client->oldvelocity, oldvelocity );
-	VectorCopy( ent->velocity, ent->client->oldvelocity );
-
-	// Not sure if this is needed?
-	// ent->client->old_ladder = ent->client->ladder;
-	// ent->client->ladder = OnLadder(ent);
-
-	if (lights_camera_action || ent->client->uvTime > 0)
-		return;
-	
-	if (ent->s.modelindex != MODELINDEX_PLAYER)
-		return;			// not in the player model
-
-	if (ent->movetype == MOVETYPE_NOCLIP)
-		return;
-
-	if ((oldvelocity[2] < 0)
-		&& (ent->velocity[2] > oldvelocity[2])
-		&& (!ent->groundentity))
-	{
-		delta = oldvelocity[2];
-	}
-	else
-	{
-		if (!ent->groundentity)
-			return;
-		delta = ent->velocity[2] - oldvelocity[2];
-		ent->client->jumping = 0;
-	}
-	delta = delta * delta * 0.0001;
-
-	// never take damage if just release grapple or on grapple
-	if (ent->client->ctf_grapplereleasetime >= level.time ||
-		(ent->client->ctf_grapple &&
-		 ent->client->ctf_grapplestate > CTF_GRAPPLE_STATE_FLY))
-		return;
-
-	// never take falling damage if completely underwater
-	// if (ent->waterlevel == 3)
-	// 	return;
-	// else if (ent->waterlevel == 2)
-	// 	delta *= 0.25;
-	// else if (ent->waterlevel == 1)
-	// 	delta *= 0.5;
-    if (pm.waterlevel == WATER_UNDER)
-		return;
-
-	delta = delta * delta * 0.0001f;
-
-	if (pm.waterlevel == WATER_WAIST)
-		delta *= 0.25f;
-	if (pm.waterlevel == WATER_FEET)
-		delta *= 0.5f;
-
-	if (delta < 1)
-		return;
-
-    // restart footstep timer
-	ent->client->bobtime = 0;
-
-    if (ent->client->landmark_free_fall)
-	{
-		delta = min(30.f, delta);
-		ent->client->landmark_free_fall = false;
-		ent->client->landmark_noise_time = level.time + 100_ms;
-	}
-
-	if (delta < 15)
-	{
-		if (!(pm.s.pm_flags & PMF_ON_LADDER))
-			ent->s.event = EV_FOOTSTEP;
-		return;
-	}
-
-	if (delta < 15)
-	{
-		// Raptor007: Don't make footsteps when climbing down ladders.
-		if( pm.s.pm_flags & PMF_ON_LADDER )
-			return;
-
-		// zucc look for slippers to avoid noise
-		if(!INV_AMMO(ent, SLIP_NUM))
-			ent->s.event = EV_FOOTSTEP;
-
-		return;
-	}
-
-	ent->client->fall_value = delta * 0.5f;
-	if (ent->client->fall_value > 40)
-		ent->client->fall_value = 40;
-	ent->client->fall_time = level.time + FALL_TIME();
-
-	if (delta <= 30)
-	{
-		//zucc added check for slippers, this is just another noise
-		if(!INV_AMMO(ent, SLIP_NUM))
-			ent->s.event = EV_FALLSHORT;
-
-		return;
-	}
-
-	/* when fall damage is disabled, play the normal fall sound */
-	if(g_dm_no_fall_damage->integer)
-	{
-		ent->s.event = EV_FALLSHORT;
-		return;
-	}
-
-	if (ent->health > 0)
-	{
-		if (delta >= 55)
-			ent->s.event = EV_FALLFAR;
-		else			// all falls are far
-			ent->s.event = EV_FALLFAR;
-	}
-
-    ent->pain_debounce_time = level.time + FRAME_TIME_S; // no normal pain sound
-
-	if (!g_dm_no_fall_damage->integer)
-	{
-		damage = (int) (((delta - 30) / 2));
-		if (damage < 1)
-			damage = 1;
-		// zucc scale this up
-		damage *= 10;
-
-		// darksaint - reduce damage if e_enhancedSlippers are on and equipped
-		if (e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM))
-			damage /= 2;
-
-		VectorSet (dir, 0, 0, 1);
-
-		T_Damage(ent, world, world, dir, ent->s.origin, vec3_origin, damage, 0, DAMAGE_NONE, MOD_FALLING);
-		}
-}
 
 bool HandleMenuMovement(edict_t *ent, usercmd_t *ucmd)
 {
@@ -4721,6 +4646,10 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 			}
 			pm.s.pm_flags |= PMF_JUMP_HELD;
 			pm.s.pm_flags |= PMF_ACTION_LIMPING;
+		}
+		else {
+			pm.s.pm_flags &= ~PMF_ACTION_LIMPING_FREEZE;
+			pm.s.pm_flags &= ~PMF_ACTION_LIMPING;
 		}
 		// perform a pmove
 		Pmove(&pm);
@@ -5291,30 +5220,31 @@ void ClientBeginServerFrame(edict_t *ent)
 
 	// TODO: auto_menu
 	// show team or weapon menu immediately when connected
-	// if (auto_menu->value && ent->client->layout != LAYOUT_MENU && !client->pers.menu_shown && (teamplay->value || dm_choose->value)) {
-	// 	Cmd_Inven_f( ent );
-	// }
+	 if (auto_menu->value && ent->client->layout != LAYOUT_MENU && !client->pers.menu_shown && (teamplay->value || dm_choose->value)) {
+	 	Cmd_Inven_f( ent );
+	 }
 
-	// if (!teamplay->value)
-	// {
-	// 	// force spawn when weapon and item selected in dm
-	// 	if (!ent->client->pers.spectator && dm_choose->value && !client->pers.dm_selected) {
-	// 		if (client->pers.chosenWeapon && client->pers.chosenItem) {
-	// 			client->pers.dm_selected = 1;
+	 if (!teamplay->value)
+	 {
+		 // force spawn when weapon and item selected in dm
+		 if (!ent->client->pers.spectator && dm_choose->value && !client->pers.dm_selected) {
+			 if (client->pers.chosenWeapon && client->pers.chosenItem) {
+				 client->pers.dm_selected = 1;
 
-	// 			gi.LocBroadcast_Print(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
+				 gi.LocBroadcast_Print(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
 
-	// 			respawn(ent);
+				 respawn(ent);
 
-	// 			if (!(ent->svflags & SVF_NOCLIENT)) { // send effect
-	// 				gi.WriteByte(svc_muzzleflash);
-	// 				gi.WriteShort(ent - g_edicts);
-	// 				gi.WriteByte(MZ_LOGIN);
-	// 				gi.multicast(ent->s.origin, MULTICAST_PVS, false);
-	// 			}
-	// 		}
-	// 		return;
-	// 	}
+				 if (!(ent->svflags & SVF_NOCLIENT)) { // send effect
+					 gi.WriteByte(svc_muzzleflash);
+					 gi.WriteShort(ent - g_edicts);
+					 gi.WriteByte(MZ_LOGIN);
+					 gi.multicast(ent->s.origin, MULTICAST_PVS, false);
+				 }
+			 }
+			 return;
+		 }
+	 }
 
 	// 	if (level.time.seconds() > client->respawn_framenum && (!IS_ALIVE(ent)) != ent->client->pers.spectator)
 	// 	{
@@ -5328,8 +5258,8 @@ void ClientBeginServerFrame(edict_t *ent)
 	// }
 
 	// // run weapon animations if it hasn't been done by a ucmd_t
-	// ClientThinkWeaponIfReady( ent, true );
-	// PlayWeaponSound( ent );
+	 ClientThinkWeaponIfReady( ent, true );
+	 PlayWeaponSound( ent );
 
 	// if (ent->solid != SOLID_NOT)
 	// {
@@ -5362,11 +5292,11 @@ void ClientBeginServerFrame(edict_t *ent)
 	// 			client->pers.netname, (int) sv_idleremove->value );
 	// 	}
 
-	// 	if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
-	// 		&& (client->curr_weap == MK23_NUM)) {
-	// 		client->autoreloading = false;
-	// 		Cmd_New_Reload_f( ent );
-	// 	}
+	 	if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
+	 		&& (client->pers.weapon->id == IT_WEAPON_MK23)) {
+	 		client->autoreloading = false;
+	 		Cmd_New_Reload_f( ent );
+	 	}
 
 	// if (ent->solid != SOLID_NOT)
 	// {
