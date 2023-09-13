@@ -4333,10 +4333,7 @@ to ClientThink rather than being delayed.
 void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 {
 	int	   damage;
-	vec3_t dir, oldvelocity;
-
-	VectorCopy(ent->client->oldvelocity, oldvelocity);
-	VectorCopy(ent->velocity, ent->client->oldvelocity);
+	vec3_t dir;
 
 	// dead stuff can't crater
 	if (ent->health <= 0 || ent->deadflag)
@@ -4369,6 +4366,11 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 
 	delta = delta * delta * 0.0001f;
 
+	float scaling_factor = (delta * 0.055f); // This helps to align with classic Q2 fall damage
+
+	delta = delta - scaling_factor;
+
+	//gi.Com_PrintFmt("Delta: {}\n", delta);
 	//if ((oldvelocity[2] < 0)
 	//	&& (ent->velocity[2] > oldvelocity[2])
 	//	&& (!ent->groundentity))
@@ -4382,8 +4384,6 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 	//	delta = ent->velocity[2] - oldvelocity[2];
 	//	ent->client->jumping = 0;
 	//}
-
-	gi.Com_PrintFmt("Delta: {}\n", delta);
 
 	if (pm.waterlevel == WATER_WAIST)
 		delta *= 0.25f;
@@ -4454,7 +4454,8 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 		if (damage < 1)
 			damage = 1;
 		damage *= 10; //ACTION
-		if (e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM))
+		//if (e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM))
+		if (e_enhancedSlippers->integer && ent->client->pers.selected_item == IT_ITEM_SLIPPERS)
 			damage /= 2;
 		dir = { 0, 0, 1 };
 
@@ -4464,152 +4465,18 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 	else
 		ent->s.event = EV_FALLSHORT;
 
-	// Paril: falling damage noises alert monsters
-	if (ent->health)
-		PlayerNoise(ent, pm.s.origin, PNOISE_SELF);
+	// Debugging
+	//if (delta > 0)
+	//	gi.Com_PrintFmt("Impact Delta: {}\n", pm.impact_delta);
+	//	gi.Com_PrintFmt("Scaling Factor: {}\n", scaling_factor);
+	//	gi.Com_PrintFmt("Delta: {}\n", delta);
+	//	gi.Com_PrintFmt("Damage: {}\n", damage);
+
+	//// Paril: falling damage noises alert monsters
+	//if (ent->health)
+	//	PlayerNoise(ent, pm.s.origin, PNOISE_SELF);
 }
 //Action Add
-void P_FallingDamageAQ (edict_t * ent, const pmove_t &pm)
-{
-	float delta = pm.impact_delta;
-	int damage;
-	vec3_t dir, oldvelocity;
-
-	VectorCopy( ent->client->oldvelocity, oldvelocity );
-	VectorCopy( ent->velocity, ent->client->oldvelocity );
-
-	// Not sure if this is needed?
-	// ent->client->old_ladder = ent->client->ladder;
-	// ent->client->ladder = OnLadder(ent);
-
-	if (lights_camera_action || ent->client->uvTime > 0)
-		return;
-	
-	if (ent->s.modelindex != MODELINDEX_PLAYER)
-		return;			// not in the player model
-
-	if (ent->movetype == MOVETYPE_NOCLIP)
-		return;
-
-	if ((oldvelocity[2] < 0)
-		&& (ent->velocity[2] > oldvelocity[2])
-		&& (!ent->groundentity))
-	{
-		delta = oldvelocity[2];
-	}
-	else
-	{
-		if (!ent->groundentity)
-			return;
-		delta = ent->velocity[2] - oldvelocity[2];
-		ent->client->jumping = 0;
-	}
-	delta = delta * delta * 0.0001;
-
-	// never take damage if just release grapple or on grapple
-	if (ent->client->ctf_grapplereleasetime >= level.time ||
-		(ent->client->ctf_grapple &&
-		 ent->client->ctf_grapplestate > CTF_GRAPPLE_STATE_FLY))
-		return;
-
-	// never take falling damage if completely underwater
-	// if (ent->waterlevel == 3)
-	// 	return;
-	// else if (ent->waterlevel == 2)
-	// 	delta *= 0.25;
-	// else if (ent->waterlevel == 1)
-	// 	delta *= 0.5;
-    if (pm.waterlevel == WATER_UNDER)
-		return;
-
-	delta = delta * delta * 0.0001f;
-
-	if (pm.waterlevel == WATER_WAIST)
-		delta *= 0.25f;
-	if (pm.waterlevel == WATER_FEET)
-		delta *= 0.5f;
-
-	if (delta < 1)
-		return;
-
-    // restart footstep timer
-	ent->client->bobtime = 0;
-
-    if (ent->client->landmark_free_fall)
-	{
-		delta = min(30.f, delta);
-		ent->client->landmark_free_fall = false;
-		ent->client->landmark_noise_time = level.time + 100_ms;
-	}
-
-	if (delta < 15)
-	{
-		if (!(pm.s.pm_flags & PMF_ON_LADDER))
-			ent->s.event = EV_FOOTSTEP;
-		return;
-	}
-
-	if (delta < 15)
-	{
-		// Raptor007: Don't make footsteps when climbing down ladders.
-		if( pm.s.pm_flags & PMF_ON_LADDER )
-			return;
-
-		// zucc look for slippers to avoid noise
-		if(!INV_AMMO(ent, SLIP_NUM))
-			ent->s.event = EV_FOOTSTEP;
-
-		return;
-	}
-
-	ent->client->fall_value = delta * 0.5f;
-	if (ent->client->fall_value > 40)
-		ent->client->fall_value = 40;
-	ent->client->fall_time = level.time + FALL_TIME();
-
-	if (delta <= 30)
-	{
-		//zucc added check for slippers, this is just another noise
-		if(!INV_AMMO(ent, SLIP_NUM))
-			ent->s.event = EV_FALLSHORT;
-
-		return;
-	}
-
-	/* when fall damage is disabled, play the normal fall sound */
-	if(g_dm_no_fall_damage->integer)
-	{
-		ent->s.event = EV_FALLSHORT;
-		return;
-	}
-
-	if (ent->health > 0)
-	{
-		if (delta >= 55)
-			ent->s.event = EV_FALLFAR;
-		else			// all falls are far
-			ent->s.event = EV_FALLFAR;
-	}
-
-    ent->pain_debounce_time = level.time + FRAME_TIME_S; // no normal pain sound
-
-	if (!g_dm_no_fall_damage->integer)
-	{
-		damage = (int) (((delta - 30) / 2));
-		if (damage < 1)
-			damage = 1;
-		// zucc scale this up
-		damage *= 10;
-
-		// darksaint - reduce damage if e_enhancedSlippers are on and equipped
-		if (e_enhancedSlippers->value && INV_AMMO(ent, SLIP_NUM))
-			damage /= 2;
-
-		VectorSet (dir, 0, 0, 1);
-
-		T_Damage(ent, world, world, dir, ent->s.origin, vec3_origin, damage, 0, DAMAGE_NONE, MOD_FALLING);
-		}
-}
 
 bool HandleMenuMovement(edict_t *ent, usercmd_t *ucmd)
 {
