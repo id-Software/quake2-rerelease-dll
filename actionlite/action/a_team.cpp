@@ -522,7 +522,7 @@ void CreditsMenu (edict_t * ent, pmenuhnd_t * p)
 {
 	PMenu_Close (ent);
 	PMenu_Open (ent, creditsmenu, 4, sizeof (creditsmenu) / sizeof (pmenu_t), nullptr, nullptr);
-	gi.sound(ent, CHAN_VOICE, gi.soundindex("world/elv.wav"), 1, ATTN_NORM, 1.0);
+	//gi.sound(ent, CHAN_VOICE, gi.soundindex("world/elv.wav"), 1, ATTN_NORM, 0);
 }
 
 void killPlayer( edict_t *ent, bool suicidePunish )
@@ -928,10 +928,10 @@ void UpdateJoinMenu(edict_t *ent)
 
 	Q_strlcpy(entries[jmenu_red].text, teams[TEAM1].name, sizeof(entries[jmenu_red].text));
 	//joinmenu[4].text = teams[TEAM1].name;
-	joinmenu[4].SelectFunc = JoinTeam1;
+	joinmenu[jmenu_red].SelectFunc = JoinTeam1;
 	Q_strlcpy(entries[jmenu_blue].text, teams[TEAM2].name, sizeof(entries[jmenu_blue].text));
 	//joinmenu[6].text = teams[TEAM2].name;
-	joinmenu[6].SelectFunc = JoinTeam2;
+	joinmenu[jmenu_blue].SelectFunc = JoinTeam2;
 	
 	// 3 Team Support eventually
 	// if (teamCount == 3)

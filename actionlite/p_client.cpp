@@ -2835,8 +2835,10 @@ void EquipClientDM(edict_t * ent)
 	// 	client->inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
 
 	// TODO: Work with strtwpn
-	// if (*strtwpn->string)
+	//if (*strtwpn->string)
 	// 	itemNum = GetWeaponNumFromArg(strtwpn->string);
+
+	itemNum = MK23_NUM;
 
 	// Give some ammo for the weapon
 	switch (itemNum) {
@@ -3501,8 +3503,10 @@ void PutClientInServer(edict_t *ent)
 	P_ForceFogTransition(ent, true);
 
 	// ZOID
-	if (CTFStartClient(ent))
-		return;
+	if (ctf->integer) {
+		if (CTFStartClient(ent))
+			return;
+	}
 	// ZOID
 
 	if (teamplay->value) {
@@ -5291,30 +5295,31 @@ void ClientBeginServerFrame(edict_t *ent)
 
 	// TODO: auto_menu
 	// show team or weapon menu immediately when connected
-	// if (auto_menu->value && ent->client->layout != LAYOUT_MENU && !client->pers.menu_shown && (teamplay->value || dm_choose->value)) {
-	// 	Cmd_Inven_f( ent );
-	// }
+	 if (auto_menu->value && ent->client->layout != LAYOUT_MENU && !client->pers.menu_shown && (teamplay->value || dm_choose->value)) {
+	 	Cmd_Inven_f( ent );
+	 }
 
-	// if (!teamplay->value)
-	// {
-	// 	// force spawn when weapon and item selected in dm
-	// 	if (!ent->client->pers.spectator && dm_choose->value && !client->pers.dm_selected) {
-	// 		if (client->pers.chosenWeapon && client->pers.chosenItem) {
-	// 			client->pers.dm_selected = 1;
+	 if (!teamplay->value)
+	 {
+		 // force spawn when weapon and item selected in dm
+		 if (!ent->client->pers.spectator && dm_choose->value && !client->pers.dm_selected) {
+			 if (client->pers.chosenWeapon && client->pers.chosenItem) {
+				 client->pers.dm_selected = 1;
 
-	// 			gi.LocBroadcast_Print(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
+				 gi.LocBroadcast_Print(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
 
-	// 			respawn(ent);
+				 respawn(ent);
 
-	// 			if (!(ent->svflags & SVF_NOCLIENT)) { // send effect
-	// 				gi.WriteByte(svc_muzzleflash);
-	// 				gi.WriteShort(ent - g_edicts);
-	// 				gi.WriteByte(MZ_LOGIN);
-	// 				gi.multicast(ent->s.origin, MULTICAST_PVS, false);
-	// 			}
-	// 		}
-	// 		return;
-	// 	}
+				 if (!(ent->svflags & SVF_NOCLIENT)) { // send effect
+					 gi.WriteByte(svc_muzzleflash);
+					 gi.WriteShort(ent - g_edicts);
+					 gi.WriteByte(MZ_LOGIN);
+					 gi.multicast(ent->s.origin, MULTICAST_PVS, false);
+				 }
+			 }
+			 return;
+		 }
+	 }
 
 	// 	if (level.time.seconds() > client->respawn_framenum && (!IS_ALIVE(ent)) != ent->client->pers.spectator)
 	// 	{
@@ -5328,8 +5333,8 @@ void ClientBeginServerFrame(edict_t *ent)
 	// }
 
 	// // run weapon animations if it hasn't been done by a ucmd_t
-	// ClientThinkWeaponIfReady( ent, true );
-	// PlayWeaponSound( ent );
+	 ClientThinkWeaponIfReady( ent, true );
+	 PlayWeaponSound( ent );
 
 	// if (ent->solid != SOLID_NOT)
 	// {
@@ -5362,11 +5367,11 @@ void ClientBeginServerFrame(edict_t *ent)
 	// 			client->pers.netname, (int) sv_idleremove->value );
 	// 	}
 
-	// 	if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
-	// 		&& (client->curr_weap == MK23_NUM)) {
-	// 		client->autoreloading = false;
-	// 		Cmd_New_Reload_f( ent );
-	// 	}
+	 	if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
+	 		&& (client->curr_weap == MK23_NUM)) {
+	 		client->autoreloading = false;
+	 		Cmd_New_Reload_f( ent );
+	 	}
 
 	// if (ent->solid != SOLID_NOT)
 	// {
