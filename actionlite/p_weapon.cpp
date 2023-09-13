@@ -946,7 +946,7 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		gi.LocClient_Print(ent, PRINT_HIGH, "Can't drop the %s.\n", MK23_NAME);
 		return;
 	}
-	else if (item->id == MP5_NUM)
+	else if (item->id == IT_WEAPON_MP5)
 	{
 
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
@@ -963,7 +963,7 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
-	else if (item->id == M4_NUM)
+	else if (item->id == IT_WEAPON_M4)
 	{
 
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
@@ -980,7 +980,7 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
-	else if (item->id == M3_NUM)
+	else if (item->id == IT_WEAPON_M3)
 	{
 
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
@@ -996,7 +996,7 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
-	else if (item->id == HC_NUM)
+	else if (item->id == IT_WEAPON_HANDCANNON)
 	{
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
@@ -1011,7 +1011,7 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
-	else if (item->id == SNIPER_NUM)
+	else if (item->id == IT_WEAPON_SNIPER)
 	{
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
@@ -1029,7 +1029,7 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
-	else if (item->id == DUAL_NUM)
+	else if (item->id == IT_WEAPON_DUALMK23)
 	{
 		if (ent->client->pers.weapon == item)
 		{
@@ -1041,7 +1041,7 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		}
 		ent->client->dual_rds = ent->client->mk23_rds;
 	}
-	else if (item->id == KNIFE_NUM)
+	else if (item->id == IT_WEAPON_KNIFE)
 	{
 		//gi.cprintf(ent, PRINT_HIGH, "Before checking knife inven frames = %d\n", ent->client->ps.gunframe);
 
@@ -1059,7 +1059,7 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 			//      gi.cprintf(ent, PRINT_HIGH, "After change weap from knife drop frames = %d\n", ent->client->ps.gunframe);
 		}
 	}
-	else if (item->id == GRENADE_NUM)
+	else if (item->id == IT_WEAPON_GRENADES)
 	{
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
