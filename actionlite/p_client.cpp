@@ -4333,7 +4333,10 @@ to ClientThink rather than being delayed.
 void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 {
 	int	   damage;
-	vec3_t dir;
+	vec3_t dir, oldvelocity;
+
+	VectorCopy(ent->client->oldvelocity, oldvelocity);
+	VectorCopy(ent->velocity, ent->client->oldvelocity);
 
 	// dead stuff can't crater
 	if (ent->health <= 0 || ent->deadflag)
@@ -4348,6 +4351,8 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 	// never take falling damage if completely underwater
 	if (pm.waterlevel == WATER_UNDER)
 		return;
+
+	
 
 	// ZOID
 	//  never take damage if just release grapple or on grapple
@@ -4364,6 +4369,22 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 
 	delta = delta * delta * 0.0001f;
 
+	//if ((oldvelocity[2] < 0)
+	//	&& (ent->velocity[2] > oldvelocity[2])
+	//	&& (!ent->groundentity))
+	//{
+	//	delta = oldvelocity[2];
+	//}
+	//else
+	//{
+	//	if (!ent->groundentity)
+	//		return;
+	//	delta = ent->velocity[2] - oldvelocity[2];
+	//	ent->client->jumping = 0;
+	//}
+
+	gi.Com_PrintFmt("Delta: {}\n", delta);
+
 	if (pm.waterlevel == WATER_WAIST)
 		delta *= 0.25f;
 	if (pm.waterlevel == WATER_FEET)
@@ -4371,6 +4392,33 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 
 	if (delta < 1)
 		return;
+
+	if (delta < 15)
+	{
+		// Raptor007: Don't make footsteps when climbing down ladders.
+		/*if (ent->client->old_ladder)
+			return;*/
+
+		// zucc look for slippers to avoid noise
+		if (!INV_AMMO(ent, SLIP_NUM))
+			ent->s.event = EV_FOOTSTEP;
+
+		return;
+	}
+
+	ent->client->fall_value = delta * 0.5;
+	if (ent->client->fall_value > 40)
+		ent->client->fall_value = 40;
+	ent->client->fall_time = level.time + 300_ms;
+
+	if (delta <= 30)
+	{
+		//zucc added check for slippers, this is just another noise
+		if (!INV_AMMO(ent, SLIP_NUM))
+			ent->s.event = EV_FALLSHORT;
+
+		return;
+	}
 
 	// restart footstep timer
 	ent->client->bobtime = 0;
@@ -4399,7 +4447,7 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 		if (delta >= 55)
 			ent->s.event = EV_FALLFAR;
 		else
-			ent->s.event = EV_FALL;
+			ent->s.event = EV_FALLFAR;
 
 		ent->pain_debounce_time = level.time + FRAME_TIME_S; // no normal pain sound
 		damage = (int)((delta - 30) / 2);
@@ -4731,10 +4779,6 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 			}
 			pm.s.pm_flags |= PMF_JUMP_HELD;
 			pm.s.pm_flags |= PMF_ACTION_LIMPING;
-		}
-		else {
-			pm.s.pm_flags &= ~PMF_ACTION_LIMPING_FREEZE;
-			pm.s.pm_flags &= ~PMF_ACTION_LIMPING;
 		}
 		// perform a pmove
 		Pmove(&pm);
