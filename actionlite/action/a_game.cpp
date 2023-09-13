@@ -22,6 +22,7 @@ void ReadConfigFile()
     int lines_into_section = -1;
     cvar_t* ininame;
 
+	// Default ini is action.ini
     ininame = gi.cvar("ininame", "action.ini", CVAR_NOFLAGS);
     std::string filename;
 
@@ -31,6 +32,7 @@ void ReadConfigFile()
         filename = "action.ini";
     }
 
+	// This may break in the future if basedir is adjusted
 	std::string filepath = fmt::format("rerelease/{}/{}", GAMEVERSION, filename);
 
 	FILE* config_file = fopen(filepath.c_str(), "r");
