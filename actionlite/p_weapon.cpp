@@ -2224,21 +2224,21 @@ void DropSpecialWeapon(edict_t* ent)
 	int itemNum = ent->client->pers.weapon->id;
 
 	// first check if their current weapon is a special weapon, if so, drop it.
-	if (itemNum >= MP5_NUM && itemNum <= SNIPER_NUM)
+	if (itemNum >= IT_WEAPON_MP5 && itemNum <= IT_WEAPON_SNIPER)
 		Drop_Weapon(ent, ent->client->pers.weapon);
-	else if (INV_AMMO(ent, SNIPER_NUM) > 0)
-		Drop_Weapon(ent, GET_ITEM(SNIPER_NUM));
-	else if (INV_AMMO(ent, HC_NUM) > 0)
-		Drop_Weapon(ent, GET_ITEM(HC_NUM));
-	else if (INV_AMMO(ent, M3_NUM) > 0)
-		Drop_Weapon(ent, GET_ITEM(M3_NUM));
-	else if (INV_AMMO(ent, MP5_NUM) > 0)
-		Drop_Weapon(ent, GET_ITEM(MP5_NUM));
-	else if (INV_AMMO(ent, M4_NUM) > 0)
-		Drop_Weapon(ent, GET_ITEM(M4_NUM));
+	else if (INV_AMMO(ent, IT_WEAPON_SNIPER) > 0)
+		Drop_Weapon(ent, GET_ITEM(IT_WEAPON_SNIPER));
+	else if (INV_AMMO(ent, IT_WEAPON_HANDCANNON) > 0)
+		Drop_Weapon(ent, GET_ITEM(IT_WEAPON_HANDCANNON));
+	else if (INV_AMMO(ent, IT_WEAPON_M3) > 0)
+		Drop_Weapon(ent, GET_ITEM(IT_WEAPON_M3));
+	else if (INV_AMMO(ent, IT_WEAPON_MP5) > 0)
+		Drop_Weapon(ent, GET_ITEM(IT_WEAPON_MP5));
+	else if (INV_AMMO(ent, IT_WEAPON_M4) > 0)
+		Drop_Weapon(ent, GET_ITEM(IT_WEAPON_M4));
 	// special case, aq does this, guess I can support it
-	else if (itemNum == DUAL_NUM)
-		ent->client->newweapon = GET_ITEM(MK23_NUM);
+	else if (itemNum == IT_WEAPON_DUALMK23)
+		ent->client->newweapon = GET_ITEM(IT_WEAPON_MK23);
 
 }
 

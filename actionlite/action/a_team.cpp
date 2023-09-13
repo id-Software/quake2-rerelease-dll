@@ -1012,46 +1012,41 @@ void CleanLevel ()
 	edict_t *ent;
 	base = 1 + game.maxclients + BODY_QUEUE_SIZE;
 	ent = g_edicts + base;
+	item_id_t itemNum = IT_NULL;
 
 	// Setting defaults
-	action_weapon_num_t weapNum = MK23_NUM;
-	action_item_num_t itemNum = KEV_NUM;
-	action_ammo_num_t ammoNum = MK23_ANUM;
+	//action_weapon_num_t weapNum = MK23_NUM;
+	//action_item_num_t itemNum = KEV_NUM;
+	//action_ammo_num_t ammoNum = MK23_ANUM;
 	
 	for (i = base; i < globals.num_edicts; i++, ent++)
 	{
 		if (!ent->classname)
 			continue;
-		switch (weapNum) {
-			case MK23_NUM:
-			case MP5_NUM:
-			case M4_NUM:
-			case M3_NUM:
-			case HC_NUM:
-			case SNIPER_NUM:
-			case DUAL_NUM:
-			case KNIFE_NUM:
-			case GRENADE_NUM:
-			G_FreeEdict( ent );
-				break;
-		}
 		switch (itemNum) {
-			case SIL_NUM:
-			case SLIP_NUM:
-			case BAND_NUM:
-			case KEV_NUM:
-			case LASER_NUM:
-			case HELM_NUM:
+		case IT_WEAPON_MK23:
+			case IT_WEAPON_MP5:
+			case IT_WEAPON_M4:
+			case IT_WEAPON_M3:
+			case IT_WEAPON_HANDCANNON:
+			case IT_WEAPON_SNIPER:
+			case IT_WEAPON_DUALMK23:
+			case IT_WEAPON_KNIFE:
+			case IT_WEAPON_GRENADES:
+			case IT_WEAPON_GRAPPLE:
+			case IT_AMMO_BULLETS:
+			case IT_AMMO_ROCKETS:
+			case IT_AMMO_CELLS:
+			case IT_AMMO_SHELLS:
+			case IT_AMMO_SLUGS:
+			case IT_ITEM_QUIET:
+			case IT_ITEM_SLIPPERS:
+			case IT_ITEM_BANDOLIER:
+			case IT_ITEM_VEST:
+			case IT_ITEM_LASERSIGHT:
+			case IT_ITEM_HELM:
+			case IT_HEALTH_MEDIUM:
 			G_FreeEdict( ent );
-				break;
-		}
-		switch (ammoNum) {
-			case MK23_ANUM:
-			case MP5_ANUM:
-			case M4_ANUM:
-			case SHELL_ANUM:
-			case SNIPER_ANUM:
-				G_FreeEdict( ent );
 				break;
 		}
 

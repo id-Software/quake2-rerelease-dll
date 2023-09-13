@@ -5374,7 +5374,7 @@ void ClientBeginServerFrame(edict_t *ent)
 	// 	}
 
 	 	if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
-	 		&& (client->curr_weap == MK23_NUM)) {
+	 		&& (client->pers.weapon->id == IT_WEAPON_MK23)) {
 	 		client->autoreloading = false;
 	 		Cmd_New_Reload_f( ent );
 	 	}
