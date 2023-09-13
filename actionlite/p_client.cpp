@@ -4647,6 +4647,10 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 			pm.s.pm_flags |= PMF_JUMP_HELD;
 			pm.s.pm_flags |= PMF_ACTION_LIMPING;
 		}
+		else {
+			pm.s.pm_flags &= ~PMF_ACTION_LIMPING_FREEZE;
+			pm.s.pm_flags &= ~PMF_ACTION_LIMPING;
+		}
 		// perform a pmove
 		Pmove(&pm);
 
