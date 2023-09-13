@@ -306,7 +306,6 @@ bool Pickup_Weapon(edict_t* ent, edict_t* other)
 	bool addAmmo;
 	int special = 0;
 	int band = 0;
-	action_weapon_num_t weapNum = MK23_NUM;
 
 	index = ITEM_INDEX(ent->item);
 
@@ -326,8 +325,8 @@ bool Pickup_Weapon(edict_t* ent, edict_t* other)
 	// zucc special cases for picking up weapons
 	// the mk23 should never be dropped, probably
 
-	switch (weapNum) {
-	case MK23_NUM:
+	switch (index) {
+	case IT_WEAPON_MK23:
 		// if (!WPF_ALLOWED(MK23_NUM))
 		// 	return false;
 
@@ -350,7 +349,7 @@ bool Pickup_Weapon(edict_t* ent, edict_t* other)
 		}
 		return true;
 
-	case MP5_NUM:
+	case IT_WEAPON_MP5:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
 		if ((!allow_hoarding->value) && other->client->inventory[index])
@@ -365,7 +364,7 @@ bool Pickup_Weapon(edict_t* ent, edict_t* other)
 		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
 		break;
 
-	case M4_NUM:
+	case IT_WEAPON_M4:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
 		if ((!allow_hoarding->value) && other->client->inventory[index])
@@ -380,7 +379,7 @@ bool Pickup_Weapon(edict_t* ent, edict_t* other)
 		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
 		break;
 
-	case M3_NUM:
+	case IT_WEAPON_M3:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
 		if ((!allow_hoarding->value) && other->client->inventory[index])
@@ -406,10 +405,10 @@ bool Pickup_Weapon(edict_t* ent, edict_t* other)
 			}
 		}
 		special = 1;
-		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
+		gi.LocClient_Print(other, PRINT_HIGH, "{} - Unique Weapon\n", ent->item->pickup_name);
 		break;
 
-	case HC_NUM:
+	case IT_WEAPON_HANDCANNON:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
 		if ((!allow_hoarding->value) && other->client->inventory[index])
@@ -430,7 +429,7 @@ bool Pickup_Weapon(edict_t* ent, edict_t* other)
 		special = 1;
 		break;
 
-	case SNIPER_NUM:
+	case IT_WEAPON_SNIPER:
 		if (other->client->unique_weapon_total >= unique_weapons->value + band)
 			return false;		// we can't get it
 		if ((!allow_hoarding->value) && other->client->inventory[index])
@@ -457,7 +456,7 @@ bool Pickup_Weapon(edict_t* ent, edict_t* other)
 		gi.LocClient_Print(other, PRINT_HIGH, "%s - Unique Weapon\n", ent->item->pickup_name);
 		break;
 
-	case DUAL_NUM:
+	case IT_WEAPON_DUALMK23:
 		// if (!WPF_ALLOWED(MK23_NUM))
 		// 	return false;
 
@@ -484,7 +483,7 @@ bool Pickup_Weapon(edict_t* ent, edict_t* other)
 		}
 		return true;
 
-	case KNIFE_NUM:
+	case IT_WEAPON_KNIFE:
 		if (other->client->inventory[index] < other->client->knife_max)
 		{
 			other->client->inventory[index]++;
@@ -493,7 +492,7 @@ bool Pickup_Weapon(edict_t* ent, edict_t* other)
 
 		return false;
 
-	case GRENADE_NUM:
+	case IT_WEAPON_GRENADES:
 		if (!(gameSettings & GS_DEATHMATCH) && ctf->value != 2 && !band)
 			return false;
 
