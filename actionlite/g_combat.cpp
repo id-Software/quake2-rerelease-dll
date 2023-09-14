@@ -493,7 +493,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	float z_rel;
 	int height, friendlyFire = 0, gotArmor = 0;
 	float from_top;
-	vec3_t dist;
+	float dist;
 	float targ_maxs2;		//FB 6/1/99
 	mod_id_t meansOfDeath;
 

@@ -276,4 +276,13 @@ float anglemod (float a);
 
 #define ClearBounds(mins,maxs)	((mins)[0]=(mins)[1]=(mins)[2]=99999,(maxs)[0]=(maxs)[1]=(maxs)[2]=-99999)
 
+// float Distance(const vec3_t &v1, const vec3_t &v2)
+// {
+//     float dx = v1.x - v2.x;
+//     float dy = v1.y - v2.y;
+//     float dz = v1.z - v2.z;
+    
+//     return sqrtf(dx * dx + dy * dy + dz * dz);
+// }
+
 // EOF
