@@ -2065,7 +2065,7 @@ extern gitem_t itemlist[IT_TOTAL];
 // Action Add
 //======================================================================
 #define PARSE_BUFSIZE 256
-#define IS_ALIVE(ent) ((ent)->solid != SOLID_NOT && (ent)->deadflag == false && (ent)->health > 0)
+#define IS_ALIVE(ent) (((ent)->solid != SOLID_NOT && (ent)->deadflag == false) || (ent)->health > 0 || (ent)->client->pers.spectator == true)
 
 // 40hz
 #define FRAMEDIV        4
@@ -2160,6 +2160,7 @@ int Gamemodeflag(void);
 int Gamemode(void);
 void PlayWeaponSound( edict_t *ent );
 void killPlayer(edict_t *ent, bool suicidePunish);
+void EjectBlooder (edict_t * self, vec3_t start, vec3_t veloc);
 
 struct gunStats_t
 {
@@ -3349,7 +3350,7 @@ struct gclient_t
 	gtime_t	 last_attacker_time;
 
 	// Action Add
-	int32_t			weapon_last_activity;
+	int64_t			weapon_last_activity;
 
 	layout_t		layout;		// set layout stat
 	int32_t			unique_item_total;

@@ -1286,8 +1286,6 @@ void kick_attack (edict_t *ent)
 	int damage = 20, kick = 400, friendlyFire = 0;
 	trace_t tr;
 	vec3_t end;
-	char *genderstr;
-
 
 	AngleVectors(ent->client->v_angle, forward, right, NULL);
 
@@ -1352,10 +1350,10 @@ void kick_attack (edict_t *ent)
 			tr.ent->client->reload_attempts = 0;
 			DropSpecialWeapon(tr.ent);
 
-			gi.LocClient_Print(ent, PRINT_HIGH, "You kick %s's %s from their hands!\n",
+			gi.LocClient_Print(ent, PRINT_HIGH, "You kick {}'s {} from their hands!\n",
 				tr.ent->client->pers.netname,tr.ent->client->pers.weapon->pickup_name);
 
-			gi.LocClient_Print(tr.ent, PRINT_HIGH,	"%s kicked your weapon from your hands!\n", ent->client->pers.netname);
+			gi.LocClient_Print(tr.ent, PRINT_HIGH,	"{} kicked your weapon from your hands!\n", ent->client->pers.netname);
 
 		} else if(tr.ent->client && tr.ent->client->ctf_grapple && tr.ent->client->ctf_grapplestate == CTF_GRAPPLE_STATE_FLY) {
 			// hifi: if the player is shooting a grapple, lose it's focus

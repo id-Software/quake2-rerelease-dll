@@ -1365,6 +1365,151 @@ static void G_SaveLagCompensation(edict_t *ent)
 		ent->client->num_lag_origins++;
 }
 
+void Do_Bleeding (edict_t * ent)
+{
+	int damage;
+	int temp;
+	//vec3_t norm = {0.0, 0.0, 0.0};
+
+	if (!FRAMESYNC)
+		return;
+
+	if (!(ent->client->bleeding) || (ent->health <= 0))
+		return;
+
+	temp = (int) (ent->client->bleeding * .2);
+	ent->client->bleeding -= temp;
+	if (temp <= 0)
+		temp = 1;
+	ent->client->bleed_remain += temp;
+	damage = (int) (ent->client->bleed_remain / BLEED_TIME);
+	if (ent->client->bleed_remain >= BLEED_TIME)
+	{
+		ent->health -= damage;
+		if (damage > 1)
+		{
+			// action doens't do this
+			//ent->client->damage_blood += damage; // for feedback                                
+		}
+		if (ent->health <= 0)
+		{
+			meansOfDeath = ent->client->attacker_mod;
+			locOfDeath = ent->client->attacker_loc;
+			Killed(ent, ent->client->attacker, ent->client->attacker, damage, ent->s.origin);
+		}
+		else
+		{
+			ent->client->bleed_remain %= BLEED_TIME;
+		}
+		if (ent->client->bleeddelay <= level.framenum)
+		{			
+			vec3_t fwd, right, up, pos, vel;
+
+			ent->client->bleeddelay = level.framenum + 2 * HZ;  // 2 seconds
+			AngleVectors( ent->s.angles, fwd, right, up );
+			vel[0] = fwd[0] * ent->client->bleedloc_offset[0] + right[0] * ent->client->bleedloc_offset[1] + up[0] * ent->client->bleedloc_offset[2];
+			vel[1] = fwd[1] * ent->client->bleedloc_offset[0] + right[1] * ent->client->bleedloc_offset[1] + up[1] * ent->client->bleedloc_offset[2];
+			vel[2] = fwd[2] * ent->client->bleedloc_offset[0] + right[2] * ent->client->bleedloc_offset[1] + up[2] * ent->client->bleedloc_offset[2];
+			VectorAdd( ent->s.origin, vel, pos );
+			if( vel[2] < 0. )
+				vel[2] = 0;
+			
+			//gi.cprintf(ent, PRINT_HIGH, "Bleeding now.\n");
+			EjectBlooder( ent, pos, vel );
+		}
+	}
+
+}
+
+
+void Do_MedKit( edict_t *ent )
+{
+	int i = 0;
+
+	// Synchronize with weapon_framesync for consistent healing, as bandaging time is controlled by weapon think.
+	if( level.framenum % game.framediv != ent->client->weapon_last_activity % game.framediv )
+		return;
+
+	if( ent->health <= 0 )
+		return;
+	if( ! IS_ALIVE(ent) )
+		return;
+
+	// Heal from medkit only while bandaging.
+	if( !(ent->client->bandaging || ent->client->bandage_stopped) )
+		return;
+
+	// If there is bleeding or leg damage, take care of that separately before using medkit.
+	if( ent->client->bandaging && (ent->client->bleeding || ent->client->leg_damage) )
+		return;
+
+	// Don't use a medkit if ent doesn't have one, and don't use one if ent is at max_health
+	if( ent->client->medkit <= 0 )
+			return;
+	if( ent->health >= ent->max_health )
+		return;
+
+	// Espionage handles medkits differently, it uses medkits like healthpacks
+	if (!esp->value) {
+		for( i = 0; i < 2; i ++ ){
+			// One medkit == One health point, use all medkits in one bandage attempt
+			ent->health++;
+			ent->client->medkit--;
+		}
+	} else {
+		// Subtract one medkit, gain health per medkit_value
+		ent->health = ent->health + (int)medkit_value->value;
+		ent->client->medkit--;
+	}
+
+	// Handle overheals
+	if (ent->health > 100)
+		ent->health = 100;
+}
+
+
+int canFire (edict_t * ent)
+{
+	int result = 0;
+
+	switch (ent->client->pers.weapon->id)
+	{
+	case IT_WEAPON_MK23:
+		if (ent->client->mk23_rds > 0)
+			result = 1;
+		break;
+	case IT_WEAPON_MP5:
+		if (ent->client->mp5_rds > 0)
+			result = 1;
+		break;
+	case IT_WEAPON_M4:
+		if (ent->client->m4_rds > 0)
+			result = 1;
+		break;
+	case IT_WEAPON_M3:
+		if (ent->client->shot_rds > 0)
+			result = 1;
+		break;
+	case IT_WEAPON_HANDCANNON:
+		if (ent->client->cannon_rds == 2)
+			result = 1;
+		break;
+	case IT_WEAPON_SNIPER:
+		if (ent->client->sniper_rds > 0)
+			result = 1;
+		break;
+	case IT_WEAPON_DUALMK23:
+		if (ent->client->dual_rds > 0)
+			result = 1;
+		break;
+	default:
+		result = 0;
+		break;
+	}
+
+	return result;
+}
+
 /*
 =================
 ClientEndServerFrame
@@ -1375,6 +1520,8 @@ and right after spawning
 */
 void ClientEndServerFrame(edict_t *ent)
 {
+	bool weapon_framesync;
+
 	// no player exists yet (load game)
 	if (!ent->client->pers.spawned)
 		return;
@@ -1390,8 +1537,8 @@ void ClientEndServerFrame(edict_t *ent)
 	// check goals
 	G_PlayerNotifyGoal(ent);
 
-	// mega health
-	P_RunMegaHealth(ent);
+	// no mega health in Action
+	//P_RunMegaHealth(ent);
 
 	//
 	// If the origin or velocity have changed since ClientThink(),
@@ -1434,6 +1581,31 @@ void ClientEndServerFrame(edict_t *ent)
 	// regen tech
 	//CTFApplyRegeneration(ent);
 	// ZOID
+
+	//FIREBLADE - Unstick avoidance stuff.
+	if (ent->solid == SOLID_TRIGGER && !lights_camera_action)
+	{
+		edict_t *overlap;
+		if ((overlap = FindOverlap(ent, NULL)) == NULL)
+		{
+			ent->solid = SOLID_BBOX;
+			gi.linkentity(ent);
+			RemoveFromTransparentList(ent);
+		}
+		else
+		{
+			do
+			{
+				if (overlap->solid == SOLID_BBOX)
+				{
+					overlap->solid = SOLID_TRIGGER;
+					gi.linkentity(overlap);
+					AddToTransparentList(overlap);
+				}
+				overlap = FindOverlap(ent, overlap);
+			} while (overlap != NULL);
+		}
+	}
 
 	AngleVectors(ent->client->v_angle, forward, right, up);
 
@@ -1484,6 +1656,12 @@ void ClientEndServerFrame(edict_t *ent)
 	bobcycle_run = (int) bobtime_run;
 	bobfracsin = fabsf(sinf(bobtime * PIf));
 
+	// zucc handle any bleeding damage here
+	Do_Bleeding (ent);
+
+	// If we have a medkit and are bandaging, gradually transfer medkit to health.
+	Do_MedKit (ent);
+
 	// apply all the damage taken this frame
 	P_DamageFeedback(ent);
 
@@ -1519,6 +1697,26 @@ void ClientEndServerFrame(edict_t *ent)
 	ent->client->oldvelocity = ent->velocity;
 	ent->client->oldviewangles = ent->client->ps.viewangles;
 	ent->client->oldgroundentity = ent->groundentity;
+
+	// zucc - clear the open door command
+	ent->client->doortoggle = 0;
+
+	// If they just spawned, sync up the weapon animation with that.
+	if( ! ent->client->weapon_last_activity )
+		ent->client->weapon_last_activity = level.time.milliseconds();
+
+	weapon_framesync = (level.time.milliseconds() % FRAMEDIV == ent->client->weapon_last_activity % FRAMEDIV);
+
+	if (ent->client->reload_attempts > 0)
+	{
+		if( ((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK) && canFire(ent) )
+			ent->client->reload_attempts = 0;
+		else if( weapon_framesync )
+			Cmd_Reload_f (ent);
+	}
+
+	if( (ent->client->weapon_attempts > 0) && weapon_framesync )
+		Cmd_Weapon_f (ent);
 
 	// ZOID
 	if (ent->client->menudirty && ent->client->menutime <= level.time)
@@ -1559,4 +1757,6 @@ void ClientEndServerFrame(edict_t *ent)
 		G_SaveLagCompensation(ent);
 
 	Compass_Update(ent, false);
+
+	RadioThink(ent);
 }

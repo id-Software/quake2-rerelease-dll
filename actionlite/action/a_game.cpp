@@ -447,38 +447,38 @@ void stuffcmd(edict_t * ent, char *c)
 
 // //blooder used for bleeding
 
-// void BlooderTouch(edict_t * self, edict_t * other, cplane_t * plane, csurface_t * surf)
-// {
-// 	if( (other == self->owner) || other->client )  // Don't stop on players.
-// 		return;
-// 	self->think = G_FreeEdict;
-// 	self->nextthink = level.time + 1_ms;
-// }
+void BlooderTouch(edict_t * self, edict_t * other, cplane_t * plane, csurface_t * surf)
+{
+	if( (other == self->owner) || other->client )  // Don't stop on players.
+		return;
+	self->think = G_FreeEdict;
+	self->nextthink = level.time + 1_ms;
+}
 
-// void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
-// {
-// 	edict_t *blooder;
-// 	vec3_t forward;
-// 	int spd = 0;
+void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)
+{
+	edict_t *blooder;
+	vec3_t forward;
+	int spd = 0;
 
-// 	blooder = G_Spawn();
-// 	VectorCopy(veloc, forward);
-// 	VectorCopy(start, blooder->s.origin);
-// 	//VectorCopy(start, blooder->old_origin);
-// 	spd = 0;
-// 	VectorScale(forward, spd, blooder->velocity);
-// 	blooder->solid = SOLID_NOT;
-// 	blooder->movetype = MOVETYPE_BLOOD;  // Allow dripping blood to make a splat.
-// 	blooder->s.modelindex = level.model_null;
-// 	blooder->s.effects |= EF_GIB;
-// 	blooder->owner = self;
-// 	blooder->touch = BlooderTouch;
-// 	blooder->nextthink = level.time + 32_ms;
-// 	blooder->think = G_FreeEdict;
-// 	blooder->classname = "blooder";
+	blooder = G_Spawn();
+	VectorCopy(veloc, forward);
+	VectorCopy(start, blooder->s.origin);
+	//VectorCopy(start, blooder->old_origin);
+	spd = 0;
+	VectorScale(forward, spd, blooder->velocity);
+	blooder->solid = SOLID_NOT;
+	blooder->movetype = MOVETYPE_BLOOD;  // Allow dripping blood to make a splat.
+	blooder->s.modelindex = level.model_null;
+	blooder->s.effects |= EF_GIB;
+	blooder->owner = self;
+	blooder->touch = BlooderTouch;
+	blooder->nextthink = level.time + 32_ms;
+	blooder->think = G_FreeEdict;
+	blooder->classname = "blooder";
 
-// 	gi.linkentity(blooder);
-// }
+	gi.linkentity(blooder);
+}
 
 // zucc - Adding EjectShell code from action quake, modified for Axshun.
 /********* SHELL EJECTION **************/
