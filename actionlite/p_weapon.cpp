@@ -1366,7 +1366,10 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 	int bFire = 0;
 	int bOut = 0;
 
-
+	if (level.time < ent->client->weapon_think_time) {
+		return;
+	}
+	ent->client->weapon_think_time = level.time + 100_ms;
 	  // zucc vwep
 	if (ent->s.modelindex != 255)
 		return;			// not on client, so VWep animations could do wacky things
@@ -2320,6 +2323,8 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 		}
 
 	}
+
+
 
 	// Vanilla Q2R
 	// if (!Weapon_CanAnimate(ent))
