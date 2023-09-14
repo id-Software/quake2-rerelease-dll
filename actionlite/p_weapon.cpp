@@ -951,7 +951,7 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
-			replacement->id = IT_WEAPON_MK23;	// back to the pistol then
+			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = replacement;
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 51;
