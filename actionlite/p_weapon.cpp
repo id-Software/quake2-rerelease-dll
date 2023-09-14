@@ -910,7 +910,7 @@ Drop_Weapon
 void Drop_Weapon(edict_t *ent, gitem_t *item)
 {
 	item_id_t index = item->id;
-	gitem_t* replacement;
+	gitem_t* replacement = NULL;
 	edict_t* temp = NULL;
 
 	// see if we're already using it
@@ -943,7 +943,7 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 
 	if (item->id == IT_WEAPON_MK23)
 	{
-		gi.LocClient_Print(ent, PRINT_HIGH, "Can't drop the %s.\n", MK23_NAME);
+		gi.LocClient_Print(ent, PRINT_HIGH, "Can't drop the {}.\n", MK23_NAME);
 		return;
 	}
 	else if (item->id == IT_WEAPON_MP5)

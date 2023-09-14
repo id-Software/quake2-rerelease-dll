@@ -999,7 +999,7 @@ void UpdateJoinMenu(edict_t *ent)
 void OpenJoinMenu (edict_t * ent)
 {
 	//UpdateJoinMenu();
-
+	PMenu_Close(ent);
 	//PMenu_Open (ent, joinmenu, 11 /* magic for Auto-join menu item */, sizeof (joinmenu) / sizeof (pmenu_t), nullptr, nullptr);
 	PMenu_Open(ent, joinmenu, 11, sizeof(joinmenu) / sizeof(pmenu_t), nullptr, UpdateJoinMenu);
 }
@@ -1024,7 +1024,7 @@ void CleanLevel ()
 		if (!ent->classname)
 			continue;
 		switch (itemNum) {
-		case IT_WEAPON_MK23:
+			case IT_WEAPON_MK23:
 			case IT_WEAPON_MP5:
 			case IT_WEAPON_M4:
 			case IT_WEAPON_M3:

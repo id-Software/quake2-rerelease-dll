@@ -447,12 +447,13 @@ void stuffcmd(edict_t * ent, char *c)
 
 // //blooder used for bleeding
 
-void BlooderTouch(edict_t * self, edict_t * other, cplane_t * plane, csurface_t * surf)
+//void BlooderTouch(edict_t* self, edict_t* other, cplane_t* plane, csurface_t* surf)
+TOUCH(BlooderTouch) (edict_t* ent, edict_t* other, const trace_t& tr, bool other_touching_self) -> void
 {
-	if( (other == self->owner) || other->client )  // Don't stop on players.
+	if( (other == ent->owner) || other->client )  // Don't stop on players.
 		return;
-	self->think = G_FreeEdict;
-	self->nextthink = level.time + 1_ms;
+	ent->think = G_FreeEdict;
+	ent->nextthink = level.time + 1_ms;
 }
 
 void EjectBlooder(edict_t * self, vec3_t start, vec3_t veloc)

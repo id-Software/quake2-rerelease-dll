@@ -5145,10 +5145,10 @@ static void ClientThinkWeaponIfReady( edict_t *ent, bool update_idle )
 
 	// If they just spawned, sync up the weapon animation with that.
 	if( ! ent->client->weapon_last_activity )
-		ent->client->weapon_last_activity = level.time.seconds();
+		ent->client->weapon_last_activity = level.time;
 
 	// If it's too soon since the last non-idle think, keep waiting.
-	else if( level.time.frames() < ent->client->weapon_last_activity + FRAMEDIV )
+	else if( level.time < ent->client->weapon_last_activity + gtime_t::from_hz(FRAMEDIV))
 		return;
 
 	// Clear weapon kicks.
@@ -5163,12 +5163,12 @@ static void ClientThinkWeaponIfReady( edict_t *ent, bool update_idle )
 	// If the weapon is or was in any state other than ready, wait before thinking again.
 	if( (ent->client->weaponstate != WEAPON_READY) || (old_weaponstate != WEAPON_READY) )
 	{
-		ent->client->weapon_last_activity = level.time.milliseconds();
+		ent->client->weapon_last_activity = level.time;
 		ent->client->anim_started = ent->client->weapon_last_activity;
 	}
 
 	// Only allow the idle animation to update if it's been enough time.
-	else if( ! update_idle || level.time.frames() % FRAMEDIV != ent->client->weapon_last_activity % FRAMEDIV )
+	else if( ! update_idle || level.time.frames() % FRAMEDIV != ent->client->weapon_last_activity.frames() % (FRAMEDIV))
 		ent->client->ps.gunframe = old_gunframe;
 }
 

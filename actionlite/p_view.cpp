@@ -1395,17 +1395,18 @@ void Do_Bleeding (edict_t * ent)
 		{
 			meansOfDeath = ent->client->attacker_mod;
 			locOfDeath = ent->client->attacker_loc;
-			Killed(ent, ent->client->attacker, ent->client->attacker, damage, ent->s.origin);
+			Killed(ent, ent->client->attacker, ent->client->attacker, damage, ent->s.origin, meansOfDeath);
 		}
 		else
 		{
 			ent->client->bleed_remain %= BLEED_TIME;
 		}
-		if (ent->client->bleeddelay <= level.framenum)
+		if (ent->client->bleeddelay <= level.time)
 		{			
 			vec3_t fwd, right, up, pos, vel;
 
-			ent->client->bleeddelay = level.framenum + 2 * HZ;  // 2 seconds
+			//ent->client->bleeddelay = level.framenum + 2 * HZ;  // 2 seconds
+			ent->client->bleeddelay = gtime_t::from_sec(2);  // 2 seconds
 			AngleVectors( ent->s.angles, fwd, right, up );
 			vel[0] = fwd[0] * ent->client->bleedloc_offset[0] + right[0] * ent->client->bleedloc_offset[1] + up[0] * ent->client->bleedloc_offset[2];
 			vel[1] = fwd[1] * ent->client->bleedloc_offset[0] + right[1] * ent->client->bleedloc_offset[1] + up[1] * ent->client->bleedloc_offset[2];
@@ -1427,7 +1428,7 @@ void Do_MedKit( edict_t *ent )
 	int i = 0;
 
 	// Synchronize with weapon_framesync for consistent healing, as bandaging time is controlled by weapon think.
-	if( level.framenum % game.framediv != ent->client->weapon_last_activity % game.framediv )
+	if(level.time.frames() % FRAMEDIV != ent->client->weapon_last_activity.frames() % (FRAMEDIV))
 		return;
 
 	if( ent->health <= 0 )
@@ -1450,17 +1451,17 @@ void Do_MedKit( edict_t *ent )
 		return;
 
 	// Espionage handles medkits differently, it uses medkits like healthpacks
-	if (!esp->value) {
-		for( i = 0; i < 2; i ++ ){
-			// One medkit == One health point, use all medkits in one bandage attempt
-			ent->health++;
-			ent->client->medkit--;
-		}
-	} else {
+	//if (!esp->value) {
+	//	for( i = 0; i < 2; i ++ ){
+	//		// One medkit == One health point, use all medkits in one bandage attempt
+	//		ent->health++;
+	//		ent->client->medkit--;
+	//	}
+	//} else {
 		// Subtract one medkit, gain health per medkit_value
-		ent->health = ent->health + (int)medkit_value->value;
-		ent->client->medkit--;
-	}
+	ent->health = ent->health + (int)medkit_value->value;
+	ent->client->medkit--;
+	//}
 
 	// Handle overheals
 	if (ent->health > 100)
@@ -1703,9 +1704,9 @@ void ClientEndServerFrame(edict_t *ent)
 
 	// If they just spawned, sync up the weapon animation with that.
 	if( ! ent->client->weapon_last_activity )
-		ent->client->weapon_last_activity = level.time.milliseconds();
+		ent->client->weapon_last_activity = level.time;
 
-	weapon_framesync = (level.time.milliseconds() % FRAMEDIV == ent->client->weapon_last_activity % FRAMEDIV);
+	weapon_framesync = (level.time.milliseconds() % FRAMEDIV == ent->client->weapon_last_activity.milliseconds() % FRAMEDIV);
 
 	if (ent->client->reload_attempts > 0)
 	{

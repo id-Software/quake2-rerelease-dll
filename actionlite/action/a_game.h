@@ -42,15 +42,15 @@ void AddKilledPlayer (edict_t * self, edict_t * ent);
 //void GetLastLoss (edict_t * self, char *buf, char team);
 
 // Firing styles (where shots originate from)
-#define ACTION_FIRING_CENTER		0
-#define ACTION_FIRING_CLASSIC		1
-#define ACTION_FIRING_CLASSIC_HIGH	2
+//#define ACTION_FIRING_CENTER		0
+//#define ACTION_FIRING_CLASSIC		1
+//#define ACTION_FIRING_CLASSIC_HIGH	2
 
 // maxs[2] of a player when crouching (we modify it from the normal 4)
 // ...also the modified viewheight -FB 7/18/99
-#define CROUCHING_MAXS2                 16
-#define CROUCHING_VIEWHEIGHT		8
-#define STANDING_VIEWHEIGHT			22
+//#define CROUCHING_MAXS2                 16
+//#define CROUCHING_VIEWHEIGHT		8
+//#define STANDING_VIEWHEIGHT			22
 
 //a_team.c
 void MakeAllLivePlayersObservers( void );

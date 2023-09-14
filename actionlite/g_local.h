@@ -1824,9 +1824,11 @@ extern cvar_t *vrot;
 extern cvar_t *e_enhancedSlippers;
 extern cvar_t *use_voice;
 extern cvar_t *strtwpn;
+extern cvar_t *sv_gib;
 //extern int meansOfDeath;
 
 // zucc for hitlocation of death
+extern mod_id_t meansOfDeath;
 extern int locOfDeath;
 // stop an armor piercing round that hits a vest
 extern int stopAP;
@@ -1839,6 +1841,8 @@ void TransparentListSet (solid_t solid_type);
 bool OnLadder( edict_t *ent );
 void Cmd_Weapon_f(edict_t * ent);
 void Cmd_Inven_f(edict_t *ent);
+void Announce_Reward(edict_t* ent, int rewardType);
+void Add_TeamWound(edict_t* attacker, edict_t* victim, mod_id_t mod);
 
 // Action Add end
 
@@ -2064,22 +2068,22 @@ extern gitem_t itemlist[IT_TOTAL];
 //======================================================================
 // Action Add
 //======================================================================
-#define PARSE_BUFSIZE 256
-#define IS_ALIVE(ent) (((ent)->solid != SOLID_NOT && (ent)->deadflag == false) || (ent)->health > 0 || (ent)->client->pers.spectator == true)
+constexpr size_t PARSE_BUFSIZE = 256;
+#define IS_ALIVE(ent) (((ent)->solid != SOLID_NOT && (ent)->deadflag == false))
 
 // 40hz
-#define FRAMEDIV        4
-#define FRAMESYNC       4
+constexpr size_t FRAMEDIV = 4;
+constexpr size_t FRAMESYNC = 4;
 
-#define WEAPON_COUNT	9
-#define ITEM_COUNT		6
-#define AMMO_COUNT		5
+constexpr size_t WEAPON_COUNT = 9;
+constexpr size_t ITEM_COUNT = 6;
+constexpr size_t AMMO_COUNT = 5;
 
-#define GS_DEATHMATCH	1
-#define GS_TEAMPLAY		2
-#define GS_MATCHMODE	4
-#define GS_ROUNDBASED	8
-#define GS_WEAPONCHOOSE 16
+constexpr size_t GS_DEATHMATCH = 1;
+constexpr size_t GS_TEAMPLAY = 2;
+constexpr size_t GS_MATCHMODE = 4;
+constexpr size_t GS_ROUNDBASED = 8;
+constexpr size_t GS_WEAPONCHOOSE = 16;
 
 // // sniper modes
 // #define SNIPER_1X		0
@@ -2089,20 +2093,33 @@ extern gitem_t itemlist[IT_TOTAL];
 // #define SNIPER_MODE_MAX	4
 
 //TempFile sniper zoom moved to constants
-#define SNIPER_FOV1		90
-#define SNIPER_FOV2		45
-#define SNIPER_FOV4		20
-#define SNIPER_FOV6		10
+constexpr size_t SNIPER_FOV1 = 90;
+constexpr size_t SNIPER_FOV2 = 45;
+constexpr size_t SNIPER_FOV4 = 20;
+constexpr size_t SNIPER_FOV6 = 10;
 
-#define GRENADE_IDLE_FIRST  40
-#define GRENADE_IDLE_LAST   69
-#define GRENADE_THROW_FIRST 4
-#define GRENADE_THROW_LAST  9	// throw it on frame 8?
+constexpr size_t GRENADE_IDLE_FIRST = 40;
+constexpr size_t GRENADE_IDLE_LAST = 69;
+constexpr size_t GRENADE_THROW_FIRST = 4;
+constexpr size_t GRENADE_THROW_LAST = 9;	// throw it on frame 8?
 // Igor's back in Time to hard grenades :-)
-#define GRENADE_DAMRAD_CLASSIC  	170
-#define GRENADE_DAMRAD          	250
+constexpr size_t GRENADE_DAMRAD_CLASSIC = 170;
+constexpr size_t GRENADE_DAMRAD = 250;
 
-#define SPEC_WEAPON_RESPAWN 		1
+constexpr size_t SPEC_WEAPON_RESPAWN = 1;
+
+// Firing styles (where shots originate from)
+constexpr size_t ACTION_FIRING_CENTER = 0;
+constexpr size_t ACTION_FIRING_CLASSIC = 1;
+constexpr size_t ACTION_FIRING_CLASSIC_HIGH = 2;
+
+// maxs[2] of a player when crouching (we modify it from the normal 4)
+// ...also the modified viewheight -FB 7/18/99
+constexpr size_t CROUCHING_MAXS2 = 16;
+constexpr size_t CROUCHING_VIEWHEIGHT = 8;
+constexpr size_t STANDING_VIEWHEIGHT = 22;
+
+#define PG_SNDPATH "user/"
 #define BANDAGE_TIME    		(27*FRAMEDIV)	// 10 = 1 second
 #define ENHANCED_BANDAGE_TIME		(10*FRAMEDIV)
 #define BLEED_TIME      		(10*FRAMEDIV)	// 10 = 1 second is time for losing 1 health at slowest bleed rate
@@ -2111,19 +2128,6 @@ extern gitem_t itemlist[IT_TOTAL];
 #define SPECFL_KILLFEED					0x00000001
 #define SPECFL_SPECHUD					0x00000002
 #define SPECFL_SPECHUD_NEW				0x00000004
-
-// Firing styles (where shots originate from)
-#define ACTION_FIRING_CENTER		0
-#define ACTION_FIRING_CLASSIC		1
-#define ACTION_FIRING_CLASSIC_HIGH	2
-
-// maxs[2] of a player when crouching (we modify it from the normal 4)
-// ...also the modified viewheight -FB 7/18/99
-#define CROUCHING_MAXS2                 16
-#define CROUCHING_VIEWHEIGHT		8
-#define STANDING_VIEWHEIGHT			22
-
-#define PG_SNDPATH "user/"
 
 extern int gameSettings;  // Round based, deathmatch, etc?
 
@@ -3243,7 +3247,7 @@ struct gclient_t
 	bool			anim_duck;
 	bool			anim_run;
 	gtime_t			anim_time;
-	int32_t			anim_started;
+	gtime_t			anim_started;
 
 	// powerup timers
 	gtime_t quad_time;
@@ -3350,7 +3354,7 @@ struct gclient_t
 	gtime_t	 last_attacker_time;
 
 	// Action Add
-	int64_t			weapon_last_activity;
+	gtime_t			weapon_last_activity;
 
 	layout_t		layout;		// set layout stat
 	int32_t			unique_item_total;
@@ -3395,7 +3399,7 @@ struct gclient_t
 	bool			weapon_after_bandage_warned;	// to fix message bug when calling weapon while bandaging
 
 	edict_t			*attacker;		// keep track of the last person to hit us
-	int32_t			attacker_mod;	// and how they hit us
+	mod_id_t		attacker_mod;	// and how they hit us
 	int32_t			attacker_loc;	// location of the hit
 
 	int32_t			push_timeout;	// timeout for how long an attacker will get fall death credit
@@ -3421,7 +3425,7 @@ struct gclient_t
 	int32_t			bleeding;			//remaining points to bleed away
 	int32_t			bleed_remain;
 	vec3_t			bleedloc_offset;	// location of bleeding (from origin)
-	int32_t			bleeddelay;			// how long until we bleed again
+	gtime_t			bleeddelay;			// how long until we bleed again
 
 	int32_t			doortoggle;			// set by player with opendoor command
 	int32_t			curr_weap;		// uses NAME_NUM values

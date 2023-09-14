@@ -493,7 +493,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	float z_rel;
 	int height, friendlyFire = 0, gotArmor = 0;
 	float from_top;
-	vec_t dist;
+	vec3_t dist;
 	float targ_maxs2;		//FB 6/1/99
 	mod_id_t meansOfDeath;
 
@@ -510,7 +510,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 		damage = 9999;
 	}
 
-	if (mod != MOD_TELEFRAG)
+	if (mod.id != MOD_TELEFRAG)
 	{
 		if (lights_camera_action) {
 			return;
@@ -533,7 +533,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 
 	// damage reduction for shotgun
 	// if far away, reduce it to original action levels
-	if (mod == MOD_M3)
+	if (mod.id == MOD_M3)
 	{
 		dist = Distance(targ->s.origin, inflictor->s.origin);
 		if (dist > 450.0)
@@ -551,7 +551,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	if (client)
 	{
 
-		switch (mod) {
+		switch (mod.id) {
 		case MOD_MK23:
 		case MOD_DUAL:
 			// damage reduction for longer range pistol shots
@@ -592,13 +592,13 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 			if (head_success)
 			{
 				damage_type = LOC_HDAM;
-				if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) //Knife doesnt care about helmet
+				if (mod.id != MOD_KNIFE && mod.id != MOD_KNIFE_THROWN) //Knife doesnt care about helmet
 					gotArmor = INV_AMMO( targ, HELM_NUM );
 
 				if (attacker->client)
 				{
 					strcpy( attacker->client->last_damaged_players, client->pers.netname );
-					Stats_AddHit( attacker, mod, (gotArmor) ? LOC_KVLR_HELMET : LOC_HDAM );
+					//Stats_AddHit( attacker, mod, (gotArmor) ? LOC_KVLR_HELMET : LOC_HDAM );
 
 					//AQ2:TNG END
 					if (!friendlyFire && !in_warmup)
@@ -619,21 +619,21 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 				if (!gotArmor)
 				{
 					damage = damage * 1.8 + 1;
-					gi.cprintf(targ, PRINT_HIGH, "Head damage\n");
+					gi.LocClient_Print(targ, PRINT_HIGH, "Head damage\n");
 					if (attacker->client)
-						gi.cprintf(attacker, PRINT_HIGH, "You hit %s in the head\n", client->pers.netname);
+						gi.LocClient_Print(attacker, PRINT_HIGH, "You hit %s in the head\n", client->pers.netname);
 
-					if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN)
+					if (mod.id != MOD_KNIFE && mod.id != MOD_KNIFE_THROWN)
 						gi.sound(targ, CHAN_VOICE, level.snd_headshot, 1, ATTN_NORM, 0);
 				}
-				else if (mod == MOD_SNIPER)
+				else if (mod.id == MOD_SNIPER)
 				{
 					if (attacker->client)
 					{
-						gi.cprintf(attacker, PRINT_HIGH,
+						gi.LocClient_Print(attacker, PRINT_HIGH,
 							"%s has a Kevlar Helmet, too bad you have AP rounds...\n",
 							client->pers.netname);
-						gi.cprintf(targ, PRINT_HIGH,
+						gi.LocClient_Print(targ, PRINT_HIGH,
 							"Kevlar Helmet absorbed some of %s's AP sniper round\n",
 							attacker->client->pers.netname);
 					}
@@ -644,9 +644,9 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 				{
 					if (attacker->client)
 					{
-						gi.cprintf( attacker, PRINT_HIGH, "%s has a Kevlar Helmet - AIM FOR THE BODY!\n",
+						gi.LocClient_Print( attacker, PRINT_HIGH, "%s has a Kevlar Helmet - AIM FOR THE BODY!\n",
 							client->pers.netname );
-						gi.cprintf( targ, PRINT_HIGH, "Kevlar Helmet absorbed a part of %s's shot\n",
+						gi.LocClient_Print( targ, PRINT_HIGH, "Kevlar Helmet absorbed a part of %s's shot\n",
 							attacker->client->pers.netname );
 					}
 					gi.sound(targ, CHAN_ITEM, level.snd_vesthit, 1, ATTN_NORM, 0);
@@ -664,61 +664,61 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 				if (attacker->client)
 				{
 					strcpy( attacker->client->last_damaged_players, client->pers.netname );
-					Stats_AddHit( attacker, mod, LOC_LDAM );
-					gi.cprintf(attacker, PRINT_HIGH, "You hit %s in the legs\n",
+					//Stats_AddHit( attacker, mod, LOC_LDAM );
+					gi.LocClient_Print(attacker, PRINT_HIGH, "You hit %s in the legs\n",
 						client->pers.netname);
 				}
 
-				gi.cprintf(targ, PRINT_HIGH, "Leg damage\n");
+				gi.LocClient_Print(targ, PRINT_HIGH, "Leg damage\n");
 				ClientLegDamage(targ);
 			}
 			else if (z_rel < STOMACH_DAMAGE)
 			{
 				damage_type = LOC_SDAM;
 				damage = damage * .4;
-				gi.cprintf(targ, PRINT_HIGH, "Stomach damage\n");
+				gi.LocClient_Print(targ, PRINT_HIGH, "Stomach damage\n");
 				if (attacker->client)
 				{
 					strcpy( attacker->client->last_damaged_players, client->pers.netname );
-					Stats_AddHit(attacker, mod, LOC_SDAM);
-					gi.cprintf(attacker, PRINT_HIGH, "You hit %s in the stomach\n",
+					//Stats_AddHit(attacker, mod, LOC_SDAM);
+					gi.LocClient_Print(attacker, PRINT_HIGH, "You hit %s in the stomach\n",
 						client->pers.netname);
 				}
 					
 				//TempFile bloody gibbing
-				if (mod == MOD_SNIPER && sv_gib->value)
-					ThrowGib(targ, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
+				if (mod.id == MOD_SNIPER && sv_gib->value)
+					ThrowGib(targ, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_NONE, targ->s.scale);
 			}
 			else		//(z_rel < CHEST_DAMAGE)
 			{
 				damage_type = LOC_CDAM;
-				if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) //Knife doesnt care about kevlar
+				if (mod.id != MOD_KNIFE && mod.id != MOD_KNIFE_THROWN) //Knife doesnt care about kevlar
 					gotArmor = INV_AMMO( targ, KEV_NUM );
 
 				if (attacker->client) {
 					strcpy( attacker->client->last_damaged_players, client->pers.netname );
-					Stats_AddHit(attacker, mod, (gotArmor) ? LOC_KVLR_VEST : LOC_CDAM);
+					//Stats_AddHit(attacker, mod, (gotArmor) ? LOC_KVLR_VEST : LOC_CDAM);
 				}
 
 				if (!gotArmor)
 				{
 					damage = damage * .65;
-					gi.cprintf(targ, PRINT_HIGH, "Chest damage\n");
+					gi.LocClient_Print(targ, PRINT_HIGH, "Chest damage\n");
 					if (attacker->client)
-						gi.cprintf(attacker, PRINT_HIGH, "You hit %s in the chest\n",
+						gi.LocClient_Print(attacker, PRINT_HIGH, "You hit %s in the chest\n",
 							client->pers.netname);
 
 					//TempFile bloody gibbing
-					if (mod == MOD_SNIPER && sv_gib->value)
-						ThrowGib(targ, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
+					if (mod.id == MOD_SNIPER && sv_gib->value)
+						ThrowGib(targ, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_NONE, targ->s.scale);
 				}
-				else if (mod == MOD_SNIPER)
+				else if (mod.id == MOD_SNIPER)
 				{
 					if (attacker->client)
 					{
-						gi.cprintf (attacker, PRINT_HIGH, "%s has a Kevlar Vest, too bad you have AP rounds...\n",
+						gi.LocClient_Print(attacker, PRINT_HIGH, "%s has a Kevlar Vest, too bad you have AP rounds...\n",
 							client->pers.netname);
-						gi.cprintf (targ, PRINT_HIGH, "Kevlar Vest absorbed some of %s's AP sniper round\n",
+						gi.LocClient_Print(targ, PRINT_HIGH, "Kevlar Vest absorbed some of %s's AP sniper round\n",
 							attacker->client->pers.netname);
 					}
 					damage = damage * .325;
@@ -727,9 +727,9 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 				{
 					if (attacker->client)
 					{
-						gi.cprintf(attacker, PRINT_HIGH, "%s has a Kevlar Vest - AIM FOR THE HEAD!\n",
+						gi.LocClient_Print(attacker, PRINT_HIGH, "%s has a Kevlar Vest - AIM FOR THE HEAD!\n",
 							client->pers.netname);
-						gi.cprintf(targ, PRINT_HIGH, "Kevlar Vest absorbed most of %s's shot\n",
+						gi.LocClient_Print(targ, PRINT_HIGH, "Kevlar Vest absorbed most of %s's shot\n",
 							attacker->client->pers.netname);
 					}
 					gi.sound(targ, CHAN_ITEM, level.snd_vesthit, 1, ATTN_NORM, 0);
@@ -759,7 +759,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 		}
 		if(friendlyFire && team_round_going)
 		{
-			Add_TeamWound(attacker, targ, mod);
+			Add_TeamWound(attacker, targ, mod.id);
 		}
     }
 
@@ -767,17 +767,17 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	{
 		vec3_t temporig;
 		VectorMA(point, 20.0f, dir, temporig);
-		if (mod != MOD_SNIPER)
-			spray_blood(targ, temporig, dir, damage, mod);
+		if (mod.id != MOD_SNIPER)
+			spray_blood(targ, temporig, dir, damage, mod.id);
 		else
 			spray_sniper_blood(targ, temporig, dir);
 	}
 
-	if (mod == MOD_FALLING && !(targ->flags & FL_GODMODE) )
+	if (mod.id == MOD_FALLING && !(targ->flags & FL_GODMODE) )
 	{
 		if (client && targ->health > 0)
 		{
-			gi.cprintf(targ, PRINT_HIGH, "Leg damage\n");
+			gi.LocClient_Print(targ, PRINT_HIGH, "Leg damage\n");
 			ClientLegDamage(targ);
 			//bleeding = 1; for testing
 		}
@@ -791,7 +791,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 		if (!g_friendly_fire->integer && (!teamplay->value || team_round_going || !ff_afterround->value))
 			damage = 0;
 		else
-			mod |= MOD_FRIENDLY_FIRE;
+			mod.friendly_fire = true;
 	}
 
 	meansOfDeath = mod.id;
@@ -819,7 +819,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 		case MOVETYPE_STOP:
 			break;
 		default:
-			if( mod != MOD_FALLING )
+			if( mod.id != MOD_FALLING )
 			{
 				float mass = max( targ->mass, 50 );
 				vec3_t flydir = {0.f,0.f,0.f}, kvel = {0.f,0.f,0.f};
@@ -854,13 +854,13 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 			SpawnDamage(te_sparks, point, normal, save);
 		}
 		// check for invincibility
-		else if (client && client->invincible_framenum > level.framenum)
+		else if (client && client->invincible_time > level.time)
 		{
-			if (targ->pain_debounce_framenum < level.framenum)
+			if (targ->pain_debounce_time < level.time)
 			{
 				gi.sound(targ, CHAN_ITEM, gi.soundindex("items/protect4.wav"), 1,
 					ATTN_NORM, 0);
-				targ->pain_debounce_framenum = level.framenum + 2 * HZ;
+				targ->pain_debounce_time = gtime_t::from_sec(2);
 			}
 			take = 0;
 			save = damage;
@@ -898,19 +898,19 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 			{
 				if (!friendlyFire && !in_warmup) {
 					attacker->client->resp.damage_dealt += damage;
-					if (mod > 0 && mod < MAX_GUNSTAT) {
-						attacker->client->resp.gunstats[mod].damage += damage;
+					if (mod.id > 0 && mod.id < MAX_GUNSTAT) {
+						attacker->client->resp.gunstats[mod.id].damage += damage;
 					}
 				}
 			
 				client->attacker = attacker;
-				client->attacker_mod = mod;
+				client->attacker_mod = mod.id;
 				client->attacker_loc = damage_type;
 			}
 
 			if ((targ->svflags & SVF_MONSTER) || client)
 				targ->flags |= FL_NO_KNOCKBACK;
-			Killed(targ, inflictor, attacker, take, point);
+			Killed(targ, inflictor, attacker, take, point, mod.id);
 			return;
 		}
 	}
@@ -947,24 +947,25 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 			targ->client->bleedloc_offset[1] = DotProduct( offset, right );
 			targ->client->bleedloc_offset[2] = DotProduct( offset, up );
 			
-			client->bleeddelay = level.framenum + 2 * HZ;  // 2 seconds
+			//client->bleeddelay = level.framenum + 2 * HZ;  // 2 seconds
+			targ->client->bleeddelay = gtime_t::from_sec(2);  // 2 seconds
 		}
 		if (attacker->client)
 		{
 			if (!friendlyFire && !in_warmup) {
 				attacker->client->resp.damage_dealt += damage;
 				// All normal weapon damage
-				if (mod > 0 && mod < MAX_GUNSTAT) {
-					attacker->client->resp.gunstats[mod].damage += damage;
+				if (mod.id > 0 && mod.id < MAX_GUNSTAT) {
+					attacker->client->resp.gunstats[mod.id].damage += damage;
 				}
 				// Grenade splash, kicks and punch damage
-				if (mod > 0 && ((mod == MOD_HG_SPLASH) || (mod == MOD_KICK) || (mod == MOD_PUNCH))) {
-					attacker->client->resp.gunstats[mod].damage += damage;
+				if (mod.id > 0 && ((mod.id == MOD_HG_SPLASH) || (mod.id == MOD_KICK) || (mod.id == MOD_PUNCH))) {
+					attacker->client->resp.gunstats[mod.id].damage += damage;
 				}
 			}
 
 			client->attacker = attacker;
-			client->attacker_mod = mod;
+			client->attacker_mod = mod.id;
 			client->attacker_loc = damage_type;
 			client->push_timeout = 50;
 		}
