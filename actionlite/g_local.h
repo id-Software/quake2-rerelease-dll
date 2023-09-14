@@ -1824,7 +1824,7 @@ extern cvar_t *vrot;
 extern cvar_t *e_enhancedSlippers;
 extern cvar_t *use_voice;
 extern cvar_t *strtwpn;
-//extern mod_id_t meansOfDeath;
+//extern int meansOfDeath;
 
 // zucc for hitlocation of death
 extern int locOfDeath;
