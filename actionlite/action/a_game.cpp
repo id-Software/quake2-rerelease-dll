@@ -394,9 +394,9 @@ void PrintMOTD(edict_t * ent)
 	}
 
 	if (!auto_menu->value || ent->client->pers.menu_shown) {
-		gi.LocCenter_Print(ent, "%s", msg_buf);
+		gi.LocCenter_Print(ent, "{}", msg_buf);
 	} else {
-		gi.LocClient_Print(ent, PRINT_LOW, "%s", msg_buf);
+		gi.LocClient_Print(ent, PRINT_LOW, "{}", msg_buf);
 	}
 }
 

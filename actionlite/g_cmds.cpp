@@ -944,53 +944,155 @@ Cmd_Use_f
 Use an inventory item
 ==================
 */
-void Cmd_Use_f(edict_t *ent)
-{
-	item_id_t index;
-	gitem_t	*it;
-	const char	 *s;
+// void Cmd_Use_f(edict_t *ent)
+// {
+// 	item_id_t index;
+// 	gitem_t	*it;
+// 	const char	 *s;
 
-	if (ent->health <= 0 || ent->deadflag)
-		return;
+// 	if (ent->health <= 0 || ent->deadflag)
+// 		return;
+
+// 	s = gi.args();
+
+// 	const char *cmd = gi.argv(0);
+// 	if (!Q_strcasecmp(cmd, "use_index") || !Q_strcasecmp(cmd, "use_index_only"))
+// 	{
+// 		it = GetItemByIndex((item_id_t) atoi(s));
+// 	}
+// 	else
+// 	{
+// 		it = FindItem(s);
+// 	}
+
+// 	if (!it)
+// 	{
+// 		gi.LocClient_Print(ent, PRINT_HIGH, "$g_unknown_item_name", s);
+// 		return;
+// 	}
+// 	if (!it->use)
+// 	{
+// 		gi.LocClient_Print(ent, PRINT_HIGH, "$g_item_not_usable");
+// 		return;
+// 	}
+// 	index = it->id;
+
+// 	// Paril: Use_Weapon handles weapon availability
+// 	if (!(it->flags & IF_WEAPON) && !ent->client->pers.inventory[index])
+// 	{
+// 		gi.LocClient_Print(ent, PRINT_HIGH, "$g_out_of_item", it->pickup_name);
+// 		return;
+// 	}
+
+// 	// allow weapon chains for use
+// 	ent->client->no_weapon_chains = !!strcmp(gi.argv(0), "use") && !!strcmp(gi.argv(0), "use_index");
+
+// 	it->use(ent, it);
+
+// 	ValidateSelectedItem(ent);
+// }
+
+void Cmd_New_Weapon_f(edict_t * ent)
+{
+	ent->client->weapon_attempts++;
+	if (ent->client->weapon_attempts == 1)
+		Cmd_Weapon_f(ent);
+}
+
+static void Cmd_Use_f (edict_t * ent)
+{
+	gitem_t *it = NULL;
+	item_id_t index;
+	const char *s;
+	int itemNum = 0;
 
 	s = gi.args();
 
-	const char *cmd = gi.argv(0);
-	if (!Q_strcasecmp(cmd, "use_index") || !Q_strcasecmp(cmd, "use_index_only"))
-	{
-		it = GetItemByIndex((item_id_t) atoi(s));
+	if (!*s || (ent->solid == SOLID_NOT && ent->deadflag != false)) {
+		gi.LocClient_Print(ent, PRINT_HIGH, "Unknown item: %s\n", s);
+		return;
 	}
+
+	//zucc - check for "special"
+	if (!Q_strncasecmp(s, "special", sizeof(s))) {
+		ReadySpecialWeapon(ent);
+		return;
+	}
+
+	if (!Q_strncasecmp(s, "throwing combat knife", sizeof(s)))
+	{
+		if (ent->client->curr_weap.id != IT_WEAPON_KNIFE)
+		{
+			ent->client->pers.knife_mode = 1;
+		}
+		else // switch to throwing mode if a knife is already out
+		{
+			//if(!ent->client->pers.knife_mode)
+				Cmd_New_Weapon_f(ent);
+		}
+		index = IT_WEAPON_KNIFE;
+	}
+	else if (!Q_strncasecmp(s, "slashing combat knife", sizeof(s)))
+	{
+		if (ent->client->curr_weap.id != IT_WEAPON_KNIFE)
+		{
+			ent->client->pers.knife_mode = 0;
+		}
+		else // switch to slashing mode if a knife is already out
+		{
+			//if(ent->client->pers.knife_mode)
+				Cmd_New_Weapon_f(ent);
+		}
+		index = IT_WEAPON_KNIFE;
+	}
+
+	if (!index) {
+		// itemNum = GetWeaponNumFromArg(s);
+		// if (!itemNum) //Check Q2 weapon names
+			if (!Q_strncasecmp(s, "blaster", sizeof(s)))
+				index = IT_WEAPON_MK23;
+			else if (!Q_strncasecmp(s, "railgun", sizeof(s)))
+				index = IT_WEAPON_DUALMK23;
+			else if (!Q_strncasecmp(s, "machinegun", sizeof(s)))
+				index = IT_WEAPON_HANDCANNON;
+			else if (!Q_strncasecmp(s, "super shotgun", sizeof(s)))
+				index = IT_WEAPON_MP5;
+			else if (!Q_strncasecmp(s, "chaingun", sizeof(s)))
+				index = IT_WEAPON_SNIPER;
+			else if (!Q_strncasecmp(s, "bfg10k", sizeof(s)))
+				index = IT_WEAPON_KNIFE;
+			else if (!Q_strncasecmp(s, "grenade launcher", sizeof(s)))
+				index = IT_WEAPON_M4;
+			else if (!Q_strncasecmp(s, "grenades", sizeof(s)))
+				index = IT_WEAPON_GRENADES;
+		}
+
+	if (itemNum)
+		it = GET_ITEM(itemNum);
 	else
-	{
 		it = FindItem(s);
-	}
 
-	if (!it)
-	{
-		gi.LocClient_Print(ent, PRINT_HIGH, "$g_unknown_item_name", s);
-		return;
-	}
-	if (!it->use)
-	{
-		gi.LocClient_Print(ent, PRINT_HIGH, "$g_item_not_usable");
-		return;
-	}
-	index = it->id;
-
-	// Paril: Use_Weapon handles weapon availability
-	if (!(it->flags & IF_WEAPON) && !ent->client->pers.inventory[index])
-	{
-		gi.LocClient_Print(ent, PRINT_HIGH, "$g_out_of_item", it->pickup_name);
+	if (!it) {
+		gi.LocClient_Print(ent, PRINT_HIGH, "Unknown item: %s\n", s);
 		return;
 	}
 
-	// allow weapon chains for use
-	ent->client->no_weapon_chains = !!strcmp(gi.argv(0), "use") && !!strcmp(gi.argv(0), "use_index");
+	if (!it->use) {
+		gi.LocClient_Print (ent, PRINT_HIGH, "Item is not usable.\n");
+		return;
+	}
 
+	if (!ent->client->inventory[ITEM_INDEX(it)]) {
+		//gi.cprintf (ent, PRINT_HIGH, "Out of item: %s\n", s);
+		return;
+	}
+
+	ent->client->autoreloading = false;
 	it->use(ent, it);
 
 	ValidateSelectedItem(ent);
 }
+
 
 /*
 ==================
@@ -1021,6 +1123,26 @@ void Cmd_Drop_f(edict_t *ent)
 
 	const char *cmd = gi.argv(0);
 
+	//zucc check to see if the string is weapon
+	if (Q_strncasecmp (s, "weapon", sizeof(s)) == 0)
+	{
+		DropSpecialWeapon (ent);
+		return;
+	}
+
+	//zucc now for item
+	if (Q_strncasecmp (s, "item", sizeof(s)) == 0)
+	{
+		DropSpecialItem (ent);
+		return;
+	}
+
+	if (Q_strncasecmp (s, "flag", sizeof(s)) == 0)
+	{
+		CTFDrop_Flag (ent, NULL);
+		return;
+	}
+
 	if (!Q_strcasecmp(cmd, "drop_index"))
 	{
 		it = GetItemByIndex((item_id_t) atoi(s));
@@ -1029,6 +1151,11 @@ void Cmd_Drop_f(edict_t *ent)
 	{
 		it = FindItem(s);
 	}
+
+	// AQ:TNG - JBravo fixing ammo clip farming
+	if (ent->client->weaponstate == WEAPON_RELOADING)
+		return;
+	// Ammo clip farming fix end
 
 	if (!it)
 	{
@@ -1069,6 +1196,11 @@ void Cmd_Inven_f(edict_t *ent)
 
 	globals.server_flags &= ~SERVER_FLAG_SLOW_TIME;
 
+	if (cl->layout == LAYOUT_MENU) {
+		PMenu_Close(ent);
+		return;
+	}
+
 	// ZOID
 	if (ent->client->menu)
 	{
@@ -1084,20 +1216,30 @@ void Cmd_Inven_f(edict_t *ent)
 		return;
 	}
 
+	cl->pers.menu_shown = true;
+
 	// ZOID
 	if (G_TeamplayEnabled())
 	{
 		if (ctf->integer && cl->resp.ctf_team == CTF_NOTEAM){
 			CTFOpenJoinMenu(ent);
 			return;
-		} else {
+		} else if (teamplay->value && !ent->client->resp.team) {
 			OpenJoinMenu(ent);
 			return;
 		}
 	}
 	// ZOID
 
+	if (gameSettings & GS_WEAPONCHOOSE) {
+		OpenWeaponMenu(ent);
+		return;
+	}
+
 	cl->showinventory = true;
+
+	if (teamplay->value)
+		return;
 
 	gi.WriteByte(svc_inventory);
 	for (i = 0; i < IT_TOTAL; i++)
@@ -1115,6 +1257,12 @@ Cmd_InvUse_f
 void Cmd_InvUse_f(edict_t *ent)
 {
 	gitem_t *it;
+
+	// Duplicate?
+	if (ent->client->layout == LAYOUT_MENU) {
+		PMenu_Select(ent);
+		return;
+	}
 
 	// ZOID
 	if (ent->client->menu)
@@ -1279,6 +1427,11 @@ Cmd_InvDrop_f
 void Cmd_InvDrop_f(edict_t *ent)
 {
 	gitem_t *it;
+
+	// TNG: Temp fix for INVDROP weapon farming
+	if(teamplay->integer)
+		return;
+	// TNG: End
 
 	if (ent->health <= 0 || ent->deadflag)
 		return;
@@ -2311,13 +2464,6 @@ void _SetSniper(edict_t * ent, int zoom)
 }
 
 //tempfile END
-
-void Cmd_New_Weapon_f(edict_t * ent)
-{
-	ent->client->weapon_attempts++;
-	if (ent->client->weapon_attempts == 1)
-		Cmd_Weapon_f(ent);
-}
 
 int _SniperMode(edict_t *ent)
 {

@@ -239,55 +239,55 @@ inline bool G_WeaponShouldStay()
 void G_CheckAutoSwitch(edict_t *ent, gitem_t *item, bool is_new);
 
 // Vanilla Pickup_Weapon
- bool Pickup_Weapon(edict_t *ent, edict_t *other)
- {
- 	item_id_t index;
- 	gitem_t	*ammo;
+// bool Pickup_Weapon(edict_t *ent, edict_t *other)
+//  {
+//  	item_id_t index;
+//  	gitem_t	*ammo;
 
- 	index = ent->item->id;
+//  	index = ent->item->id;
 
- 	if (G_WeaponShouldStay() && other->client->pers.inventory[index])
- 	{
- 		if (!(ent->spawnflags & (SPAWNFLAG_ITEM_DROPPED | SPAWNFLAG_ITEM_DROPPED_PLAYER)))
- 			return false; // leave the weapon for others to pickup
- 	}
+//  	if (G_WeaponShouldStay() && other->client->pers.inventory[index])
+//  	{
+//  		if (!(ent->spawnflags & (SPAWNFLAG_ITEM_DROPPED | SPAWNFLAG_ITEM_DROPPED_PLAYER)))
+//  			return false; // leave the weapon for others to pickup
+//  	}
 
- 	bool is_new = !other->client->pers.inventory[index];
+//  	bool is_new = !other->client->pers.inventory[index];
 
- 	other->client->pers.inventory[index]++;
+//  	other->client->pers.inventory[index]++;
 	
- 	if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
- 	{
- 		// give them some ammo with it
- 		// PGM -- IF APPROPRIATE!
- 		if (ent->item->ammo) // PGM
- 		{
- 			ammo = GetItemByIndex(ent->item->ammo);
- 			// RAFAEL: Don't get infinite ammo with trap
- 			if (G_CheckInfiniteAmmo(ammo))
- 				Add_Ammo(other, ammo, 1000);
- 			else
- 				Add_Ammo(other, ammo, ammo->quantity);
- 		}
+//  	if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
+//  	{
+//  		// give them some ammo with it
+//  		// PGM -- IF APPROPRIATE!
+//  		if (ent->item->ammo) // PGM
+//  		{
+//  			ammo = GetItemByIndex(ent->item->ammo);
+//  			// RAFAEL: Don't get infinite ammo with trap
+//  			if (G_CheckInfiniteAmmo(ammo))
+//  				Add_Ammo(other, ammo, 1000);
+//  			else
+//  				Add_Ammo(other, ammo, ammo->quantity);
+//  		}
 
- 		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED_PLAYER))
- 		{
- 			if (deathmatch->integer)
- 			{
- 				if (g_dm_weapons_stay->integer)
- 					ent->flags |= FL_RESPAWN;
+//  		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED_PLAYER))
+//  		{
+//  			if (deathmatch->integer)
+//  			{
+//  				if (g_dm_weapons_stay->integer)
+//  					ent->flags |= FL_RESPAWN;
 
- 				SetRespawn( ent, gtime_t::from_sec(g_weapon_respawn_time->integer), !g_dm_weapons_stay->integer);
- 			}
- 			if (coop->integer)
- 				ent->flags |= FL_RESPAWN;
- 		}
- 	}
+//  				SetRespawn( ent, gtime_t::from_sec(g_weapon_respawn_time->integer), !g_dm_weapons_stay->integer);
+//  			}
+//  			if (coop->integer)
+//  				ent->flags |= FL_RESPAWN;
+//  		}
+//  	}
 
- 	G_CheckAutoSwitch(other, ent->item, is_new);
+//  	G_CheckAutoSwitch(other, ent->item, is_new);
 
- 	return true;
- }
+//  	return true;
+//  }
 
 // keep the entity around so we can find it later if we need to respawn the weapon there
 void SetSpecWeapHolder(edict_t* ent)
@@ -299,7 +299,7 @@ void SetSpecWeapHolder(edict_t* ent)
 	gi.linkentity(ent);
 }
 
-bool Pickup_WeaponAQ(edict_t* ent, edict_t* other)
+bool Pickup_Weapon(edict_t* ent, edict_t* other)
 {
 	int index, index2;
 	gitem_t* ammo;

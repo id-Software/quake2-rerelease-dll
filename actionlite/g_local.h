@@ -3030,7 +3030,7 @@ struct client_persistant_t
 	int32_t	irvision;			// ir on or off (only matters if player has ir device, currently bandolier)
 	int32_t spec_flags;
 	int32_t	firing_style;
-	int32_t *menu_shown;
+	bool    menu_shown;
 	bool 	dm_selected;		// if dm weapon selection has been done once
 	// Action Add End
 };
