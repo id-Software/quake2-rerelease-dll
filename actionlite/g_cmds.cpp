@@ -1008,10 +1008,30 @@ static void Cmd_Use_f (edict_t * ent)
 
 	s = gi.args();
 
-	if (!*s || (ent->solid == SOLID_NOT && ent->deadflag != false)) {
-		gi.LocClient_Print(ent, PRINT_HIGH, "Unknown item: {}\n", s);
+	if (ent->health <= 0 || ent->deadflag)
+		return;
+
+	const char* cmd = gi.argv(0);
+	/*if (!Q_strcasecmp(cmd, "use_index") || !Q_strcasecmp(cmd, "use_index_only"))
+	{
+		it = GetItemByIndex((item_id_t)atoi(s));
+	}
+	else
+	{
+		it = FindItem(s);
+	}
+
+	if (!it)
+	{
+		gi.LocClient_Print(ent, PRINT_HIGH, "$g_unknown_item_name", s);
 		return;
 	}
+	if (!it->use)
+	{
+		gi.LocClient_Print(ent, PRINT_HIGH, "$g_item_not_usable");
+		return;
+	}*/
+	//index = it->id;
 
 	//zucc - check for "special"
 	if (!Q_strncasecmp(s, "special", sizeof(s))) {
@@ -1069,10 +1089,12 @@ static void Cmd_Use_f (edict_t * ent)
 				index = IT_WEAPON_GRENADES;
 		}
 
-	if (itemNum)
-		it = GET_ITEM(itemNum);
-	else
-		it = FindItem(s);
+	if (index)
+		it = GetItemByIndex(index);
+	/*else
+		it = FindItem(s);*/
+
+	
 
 	if (!it) {
 		gi.LocClient_Print(ent, PRINT_HIGH, "Unknown item: {}\n", s);
@@ -1085,7 +1107,7 @@ static void Cmd_Use_f (edict_t * ent)
 	}
 
 	if (!ent->client->inventory[ITEM_INDEX(it)]) {
-		//gi.cprintf (ent, PRINT_HIGH, "Out of item: %s\n", s);
+		gi.LocClient_Print (ent, PRINT_HIGH, "Out of item: {}\n", s);
 		return;
 	}
 
@@ -1328,12 +1350,12 @@ void Cmd_WeapPrev_f(edict_t *ent)
 	{
 		// PMM - prevent scrolling through ALL weapons
 		index = static_cast<item_id_t>((selected_weapon + IT_TOTAL - i) % IT_TOTAL);
-		if (!cl->pers.inventory[index])
-			continue;
 		it = &itemlist[index];
 		if (!it->use)
 			continue;
 		if (!(it->flags & IF_WEAPON))
+			continue;
+		if (!cl->pers.inventory[index])
 			continue;
 		it->use(ent, it);
 		// ROGUE

@@ -934,50 +934,61 @@ Use_Weapon
 Make the weapon ready if there is ammo
 ================
 */
-void Use_Weapon(edict_t *ent, gitem_t *item)
+
+// Vanilla Q2R Use_Weapon
+//void Use_Weapon(edict_t *ent, gitem_t *item)
+//{
+//	gitem_t		*wanted, *root;
+//	weap_switch_t result = WEAP_SWITCH_NO_WEAPON;
+//
+//	// if we're switching to a weapon in this chain already,
+//	// start from the weapon after this one in the chain
+//	if (!ent->client->no_weapon_chains && Weapon_IsPartOfChain(item, ent->client->newweapon))
+//	{
+//		root = ent->client->newweapon;
+//		wanted = root->chain_next;
+//	}
+//	// if we're already holding a weapon in this chain,
+//	// start from the weapon after that one
+//	else if (!ent->client->no_weapon_chains && Weapon_IsPartOfChain(item, ent->client->pers.weapon))
+//	{
+//		root = ent->client->pers.weapon;
+//		wanted = root->chain_next;
+//	}
+//	// start from beginning of chain (if any)
+//	else
+//		wanted = root = item;
+//
+//	while (true)
+//	{
+//		// try the weapon currently in the chain
+//		if ((result = Weapon_AttemptSwitch(ent, wanted, false)) == WEAP_SWITCH_VALID)
+//			break;
+//
+//		// no chains
+//		if (!wanted->chain_next || ent->client->no_weapon_chains)
+//			break;
+//
+//		wanted = wanted->chain_next;
+//
+//		// we wrapped back to the root item
+//		if (wanted == root)
+//			break;
+//	}
+//
+//	if (result == WEAP_SWITCH_VALID)
+//		ent->client->newweapon = wanted; // change to this weapon when down
+//	else if ((result = Weapon_AttemptSwitch(ent, wanted, true)) == WEAP_SWITCH_NO_WEAPON && wanted != ent->client->pers.weapon && wanted != ent->client->newweapon)
+//		gi.LocClient_Print(ent, PRINT_HIGH, "$g_out_of_item", wanted->pickup_name);
+//}
+
+// Action Use_Weapon
+void Use_Weapon(edict_t* ent, gitem_t* item)
 {
-	gitem_t		*wanted, *root;
-	weap_switch_t result = WEAP_SWITCH_NO_WEAPON;
+	if (item == ent->client->pers.weapon)
+		return;
 
-	// if we're switching to a weapon in this chain already,
-	// start from the weapon after this one in the chain
-	if (!ent->client->no_weapon_chains && Weapon_IsPartOfChain(item, ent->client->newweapon))
-	{
-		root = ent->client->newweapon;
-		wanted = root->chain_next;
-	}
-	// if we're already holding a weapon in this chain,
-	// start from the weapon after that one
-	else if (!ent->client->no_weapon_chains && Weapon_IsPartOfChain(item, ent->client->pers.weapon))
-	{
-		root = ent->client->pers.weapon;
-		wanted = root->chain_next;
-	}
-	// start from beginning of chain (if any)
-	else
-		wanted = root = item;
-
-	while (true)
-	{
-		// try the weapon currently in the chain
-		if ((result = Weapon_AttemptSwitch(ent, wanted, false)) == WEAP_SWITCH_VALID)
-			break;
-
-		// no chains
-		if (!wanted->chain_next || ent->client->no_weapon_chains)
-			break;
-
-		wanted = wanted->chain_next;
-
-		// we wrapped back to the root item
-		if (wanted == root)
-			break;
-	}
-
-	if (result == WEAP_SWITCH_VALID)
-		ent->client->newweapon = wanted; // change to this weapon when down
-	else if ((result = Weapon_AttemptSwitch(ent, wanted, true)) == WEAP_SWITCH_NO_WEAPON && wanted != ent->client->pers.weapon && wanted != ent->client->newweapon)
-		gi.LocClient_Print(ent, PRINT_HIGH, "$g_out_of_item", wanted->pickup_name);
+	ent->client->newweapon = item;
 }
 
 /*
