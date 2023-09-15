@@ -2681,6 +2681,14 @@ void EquipClient(edict_t * ent)
 	// set them up with initial pistol ammo
 	//if (WPF_ALLOWED(MK23_ANUM)) {
 	item = GetItemByIndex(IT_WEAPON_MK23);
+
+	index = IT_WEAPON_MK23;
+	client->selected_item.id = IT_WEAPON_MK23;
+	client->inventory[ent->client->selected_item.id] = 1;
+	client->pers.weapon = item;
+	client->mk23_rds = client->mk23_max;
+	client->curr_weap.id = IT_WEAPON_MK23;
+	item = GET_ITEM(MK23_ANUM);
 	if (band)
 		client->inventory[ITEM_INDEX(item)] = 2;
 	else
@@ -2847,6 +2855,13 @@ void EquipClientDM(edict_t * ent)
 
 	// Everyone starts with MK23
 	index = IT_WEAPON_MK23;
+	client->selected_item.id = IT_WEAPON_MK23;
+	client->inventory[ent->client->selected_item.id] = 1;
+	client->pers.weapon = item;
+	client->mk23_rds = client->mk23_max;
+	client->curr_weap.id = IT_WEAPON_MK23;
+	item = GET_ITEM(MK23_ANUM);
+	client->inventory[ITEM_INDEX(item)] = 1;
 
 	// Give some ammo for the weapon
 	switch (index) {
@@ -3482,7 +3497,6 @@ void PutClientInServer(edict_t *ent)
 	client->ps.gunskin = 0;
 	// PGM
 
-	ShowGun(ent);
 
 	// clear entity state values
 	ent->s.effects = EF_NONE;
@@ -3612,6 +3626,8 @@ void PutClientInServer(edict_t *ent)
 	// force the current weapon up
 	client->newweapon = client->pers.weapon;
 	ChangeWeapon(ent);
+
+	ShowGun(ent);
 
 	if (was_waiting_for_respawn)
 		G_PostRespawn(ent);

@@ -813,13 +813,14 @@ inline gtime_t Weapon_AnimationTime(edict_t *ent)
 	else
 		ent->client->ps.gunrate = 10;
 
-	if (ent->client->ps.gunframe != 0 && (!(ent->client->pers.weapon->flags & IF_NO_HASTE) || ent->client->weaponstate != WEAPON_FIRING))
+	// No speed enhancers in Action
+	/*if (ent->client->ps.gunframe != 0 && (!(ent->client->pers.weapon->flags & IF_NO_HASTE) || ent->client->weaponstate != WEAPON_FIRING))
 	{
 		if (is_quadfire)
 			ent->client->ps.gunrate *= 2;
-		// if (CTFApplyHaste(ent))
-		// 	ent->client->ps.gunrate *= 2;
-	}
+		if (CTFApplyHaste(ent))
+			ent->client->ps.gunrate *= 2;
+	}*/
 
 	// network optimization...
 	if (ent->client->ps.gunrate == 10)
@@ -3830,12 +3831,14 @@ void MP5_Fire(edict_t* ent)
 void Weapon_MP5(edict_t* ent)
 {
 	//Idle animation entry points - These make the fidgeting look more random
-	static int pause_frames[] = { 13, 30, 47 };
+	constexpr int pause_frames[] = { 13, 30, 47 };
+
 	//The frames at which the weapon will fire
-	static int fire_frames[] = { 11, 12, 71, 72, 73, 0 };
+	constexpr int fire_frames[] = { 11, 12, 71, 72, 73, 0 };
 
 	//The call is made...
 	Weapon_Generic(ent, 10, 12, 47, 51, 69, 77, pause_frames, fire_frames, MP5_Fire);
+	//Weapon_Repeating(ent, 10, 12, 47, 51, pause_frames, fire_frames, MP5_Fire);
 }
 
 // zucc fire_load_ap for rounds that pass through soft targets and keep going
