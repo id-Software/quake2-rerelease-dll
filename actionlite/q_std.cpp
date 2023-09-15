@@ -136,6 +136,25 @@ float VectorNormalize (vec3_t v)
 	return length;
 
 }
+
+float VectorNormalize2(const vec3_t v, vec3_t out)
+{
+	float	length, ilength;
+
+	length = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+
+	if (length)
+	{
+		length = sqrtf(length);		// FIXME
+		ilength = 1 / length;
+		out[0] = v[0] * ilength;
+		out[1] = v[1] * ilength;
+		out[2] = v[2] * ilength;
+	}
+
+	return length;
+
+}
 // Action Add end
 
 /*

@@ -187,7 +187,7 @@ void Add_Death( edict_t *ent, bool end_streak )
 
 // FRIENDLY FIRE functions
 
-void Add_TeamWound(edict_t * attacker, edict_t * victim, int mod)
+void Add_TeamWound(edict_t * attacker, edict_t * victim, mod_id_t mod)
 {
 	if (!teamplay->value || !attacker->client || !victim->client) {
 		return;
@@ -296,8 +296,8 @@ void Add_TeamKill(edict_t * attacker)
 //  the fact that live players shouldn't receive them in teamplay.  -FB
 void PrintDeathMessage(char *msg, edict_t * gibee)
 {
-	int j;
-	edict_t *other;
+	//int j;
+	//edict_t *other;
 
 	if (!teamplay->value || in_warmup) {
 		gi.LocBroadcast_Print(PRINT_MEDIUM, "%s", msg);
@@ -534,7 +534,7 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 	loc = locOfDeath;	// useful for location based hits
 
 	// Reki: Print killfeed to spectators who ask for easily parsable stuff
-	edict_t *other;
+	//edict_t *other;
 	//int j;
 	//for (j = 1; j <= game.maxclients; j++) {
 	for (auto other : active_players()) {

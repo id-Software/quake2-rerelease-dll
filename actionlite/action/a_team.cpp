@@ -16,7 +16,7 @@ int in_warmup = 0;		// if warmup is currently on
 bool teams_changed = false;  // Need to update the join menu.
 
 team_t teams[TEAM_TOP];
-int	teamCount = 2;
+uint32_t	teamCount = 2;
 int gameSettings;
 
 #define MAX_SPAWNS 512		// max DM spawn points supported
@@ -138,7 +138,8 @@ void PrintMatchRules ()
 
 void JoinTeamAuto (edict_t * ent, pmenuhnd_t * p)
 {
-	int i, team = TEAM1, num1 = 0, num2 = 0, num3 = 0, score1, score2, score3;
+	int team = TEAM1, num1 = 0, num2 = 0, num3 = 0, score1, score2, score3;
+	uint32_t i;
 
 	for (i = 0; i < game.maxclients; i++)
 	{
@@ -921,7 +922,8 @@ void UpdateJoinMenu(edict_t *ent)
 	static char team1players[28];
 	static char team2players[28];
 	static char team3players[28];
-	int num1 = 0, num2 = 0, num3 = 0, i;
+	int num1 = 0, num2 = 0, num3 = 0;
+	uint32_t i;
 
 	pmenu_t		*entries = ent->client->menu->entries;
 	SetGameName(entries);
@@ -1008,7 +1010,7 @@ void gib_die( edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, 
 
 void CleanLevel ()
 {
-	int i, base;
+	uint32_t i, base;
 	edict_t *ent;
 	base = 1 + game.maxclients + BODY_QUEUE_SIZE;
 	ent = g_edicts + base;
@@ -1069,11 +1071,13 @@ void MakeAllLivePlayersObservers(void);
 
 void ResetScores (bool playerScores)
 {
-	int i;
+	uint32_t i;
 	edict_t *ent;
 	ctfgame_t ctfgame;
 
-	team_round_going = team_round_countdown = team_game_going = 0;
+	team_round_going = 0;
+	team_round_countdown = 0;
+	team_game_going = 0;
 	current_round_length = 0;
 	lights_camera_action = holding_on_tie_check = 0;
 
@@ -1126,7 +1130,7 @@ void ResetScores (bool playerScores)
 
 int TeamHasPlayers (int team)
 {
-	int i, players;
+	uint32_t i, players;
 	edict_t *ent;
 
 	players = 0;
@@ -1162,7 +1166,7 @@ bool TeamsReady( void )
 
 bool BothTeamsHavePlayers()
 {
-	int players[TEAM_TOP] = { 0 }, i, teamsWithPlayers;
+	uint32_t players[TEAM_TOP] = { 0 }, i, teamsWithPlayers;
 	edict_t *ent;
 
 	//AQ2:TNG Slicer Matchmode
@@ -1196,7 +1200,7 @@ bool BothTeamsHavePlayers()
 // CheckForWinner: Checks for a winner (or not).
 int CheckForWinner()
 {
-	int players[TEAM_TOP] = { 0 }, i = 0, teamNum = 0, teamsWithPlayers = 0;
+	uint32_t players[TEAM_TOP] = { 0 }, i = 0, teamNum = 0, teamsWithPlayers = 0;
 	edict_t *ent;
 
 	if (!(gameSettings & GS_ROUNDBASED)) {
@@ -1233,7 +1237,7 @@ int CheckForForcedWinner()
 {
 	int players[TEAM_TOP] = { 0 };
 	int health[TEAM_TOP] = { 0 };
-	int i, teamNum, bestTeam, secondBest;
+	uint32_t i, teamNum, bestTeam, secondBest;
 	edict_t *ent;
 
 	for (i = 0; i < game.maxclients; i++)
@@ -1281,7 +1285,7 @@ int CheckForForcedWinner()
 
 static void SpawnPlayers(void)
 {
-	int i;
+	uint32_t i;
 	edict_t *ent;
 
 	if (gameSettings & GS_ROUNDBASED)	{
@@ -1336,7 +1340,7 @@ static void SpawnPlayers(void)
 
 void RunWarmup ()
 {
-	int i, dead;
+	uint32_t i, dead;
 	edict_t *ent;
 
 	if (!warmup->value || (matchmode->value && level.matchTime > 0) || team_round_going || lights_camera_action || (team_round_countdown > 0 && team_round_countdown <= 101))
@@ -1391,7 +1395,7 @@ static void StartLCA(void)
 // FindOverlap: Find the first (or next) overlapping player for ent.
 edict_t *FindOverlap (edict_t * ent, edict_t * last_overlap)
 {
-	int i;
+	uint32_t i;
 	edict_t *other;
 	vec3_t diff;
 
@@ -1435,7 +1439,7 @@ void ContinueLCA ()
 void MakeAllLivePlayersObservers (void)
 {
 	edict_t *ent;
-	int saveteam, i;
+	uint32_t saveteam, i;
 
 	// /* if someone is carrying a flag it will disappear */
 	// if(ctf->value)
@@ -1469,7 +1473,7 @@ void PrintScores (void)
 void ResetPlayers()
 {
 	edict_t *ent;
-	int i;
+	uint32_t i;
 
 	for (i = 0; i < game.maxclients; i++) {
 		ent = &g_edicts[1 + i];
@@ -1537,7 +1541,9 @@ bool CheckTimelimit( void )
 				ResetPlayers();
 			EndDMLevel();
 						
-			team_round_going = team_round_countdown = team_game_going = 0;
+			team_round_going = 0;
+			team_round_countdown = 0;
+			team_game_going = 0;
 			level.matchTime = 0;
 			
 			return true;
@@ -1640,13 +1646,17 @@ static bool CheckRoundLimit( void )
 			timewarning = fragwarning = 0;
 			if (matchmode->value) {
 				SendScores();
-				team_round_going = team_round_countdown = team_game_going = 0;
+				team_round_going = 0;
+				team_round_countdown = 0;
+				team_game_going = 0;
 				MakeAllLivePlayersObservers();
 			} else {
 				gi.LocBroadcast_Print( PRINT_HIGH, "Roundlimit hit.\n" );
 				EndDMLevel();
 			}
-			team_round_going = team_round_countdown = team_game_going = 0;
+			team_round_going = 0;
+			team_round_countdown = 0;
+			team_game_going = 0;
 			level.matchTime = 0;
 			return true;
 		}
@@ -1658,7 +1668,7 @@ static bool CheckRoundLimit( void )
 int WonGame (int winner)
 {
 	edict_t *player, *cl_ent; // was: edict_t *player;
-	int i;
+	uint32_t i;
 	char arg[64];
 
 	gi.LocBroadcast_Print (PRINT_HIGH, "The round is over:\n");
@@ -1772,7 +1782,9 @@ int CheckTeamRules (void)
 				else
 					gi.Broadcast_Print(PRINT_HIGH, "Both Teams Must Be Ready!");
 
-				team_round_going = team_round_countdown = team_game_going = 0;
+				team_round_going = 0;
+				team_round_countdown = 0;
+				team_game_going = 0;
 				MakeAllLivePlayersObservers ();
 			}
 		}
@@ -1862,7 +1874,9 @@ int CheckTeamRules (void)
 			{
 				ResetPlayers();
 				EndDMLevel();
-				team_round_going = team_round_countdown = team_game_going = 0;
+				team_round_going = 0;
+				team_round_countdown = 0;
+				team_game_going = 0;
 				return 1;
 			}
 
@@ -1879,7 +1893,9 @@ int CheckTeamRules (void)
 				else
 					gi.Broadcast_Print(PRINT_HIGH,  "Both Teams Must Be Ready!" );
 
-				team_round_going = team_round_countdown = team_game_going = 0;
+				team_round_going = 0;
+				team_round_countdown = 0;
+				team_game_going = 0;
 				MakeAllLivePlayersObservers();
 
 				/* try to restart the game */
@@ -2006,7 +2022,7 @@ static int G_PlayerCmp( const void *p1, const void *p2 )
 
 int G_SortedClients( gclient_t **sortedList )
 {
-	int i, total = 0;
+	uint32_t i, total = 0;
 	gclient_t *client;
 
 	for (i = 0, client = game.clients; i < game.maxclients; i++, client++) {
@@ -2023,7 +2039,7 @@ int G_SortedClients( gclient_t **sortedList )
 
 int G_NotSortedClients( gclient_t **sortedList )
 {
-	int i, total = 0;
+	uint32_t i, total = 0;
 	gclient_t *client;
 
 	for (i = 0, client = game.clients; i < game.maxclients; i++, client++) {
@@ -2364,8 +2380,8 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 
 					if (cl->resp.team != i)
 						continue;
-					if (cl->resp.subteam)
-						continue;
+					/*if (cl->resp.subteam)
+						continue;*/
 
 					cl_ent = g_edicts + 1 + (cl - game.clients);
 					if (IS_ALIVE(cl_ent))
@@ -2667,7 +2683,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 // called when we enter the intermission
 void TallyEndOfLevelTeamScores (void)
 {
-	int i;
+	uint32_t i;
 	gi.sound (&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 		gi.soundindex ("world/xian1.wav"), 1.0, ATTN_NONE, 0.0);
 

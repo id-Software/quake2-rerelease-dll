@@ -92,7 +92,7 @@ extern int current_round_length; // For RoundTimeLeft
 // Darkmatch, maybe one day
 //extern int day_cycle_at;
 
-extern int teamCount;
+extern uint32_t teamCount;
 extern int in_warmup;
 extern bool teams_changed;
 

@@ -482,7 +482,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 			  const vec3_t &normal, int damage, int knockback, damageflags_t dflags, mod_t mod)
 {
 	gclient_t *client;
-	char buf[256];
+	//char buf[256];
 	int take, save;
 	int asave, psave;
 	int te_sparks, do_sparks = 0;
@@ -576,7 +576,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 
 			if (from_top < 2 * HEAD_HEIGHT)
 			{
-				vec3_t new_point;
+				vec3_t new_point{};
 				VerifyHeadShot(point, dir, HEAD_HEIGHT, new_point);
 				VectorSubtract(new_point, targ->s.origin, new_point);
 				//gi.cprintf(attacker, PRINT_HIGH, "z: %d y: %d x: %d\n", (int)(targ_maxs2 - new_point[2]),(int)(new_point[1]) , (int)(new_point[0]) );
@@ -918,12 +918,12 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	if (client)
 	{
 		if (!(targ->flags & FL_GODMODE) && take)
-			targ->pain(targ, attacker, knockback, take);
+			targ->pain(targ, attacker, (float) knockback, take, mod.id);
 	}
 	else if (take)
 	{
 		if (targ->pain)
-			targ->pain(targ, attacker, knockback, take);
+			targ->pain(targ, attacker, (float) knockback, take, mod.id);
 	}
 
 	// add to the damage inflicted on a player this frame

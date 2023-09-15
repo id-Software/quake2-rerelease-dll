@@ -3,7 +3,7 @@
 edict_t *FindNewestPlayer(int team)
 {
 	edict_t *e, *newest = NULL;
-	int i;
+	uint32_t i;
 
 	for (i = 0, e = &g_edicts[1]; i < game.maxclients; i++, e++)
 	{
@@ -21,7 +21,7 @@ edict_t *FindNewestPlayer(int team)
 void CalculatePlayers(int *players)
 {
 	edict_t *e;
-	int i;
+	uint32_t i;
 
 	for (i = 0, e = &g_edicts[1]; i < game.maxclients; i++, e++)
 	{

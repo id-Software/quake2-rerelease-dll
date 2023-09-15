@@ -3776,7 +3776,7 @@ static void fire_lead_ap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	InitTookDamage();
 	// setup
 	stopAP = 0;
-	vectoangles(aimdir);
+	dir = vectoangles(aimdir);
 	AngleVectors(dir, forward, right, up);
 
 	r = crandom() * hspread;
@@ -3853,7 +3853,7 @@ static void fire_lead_ap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 
 				// change bullet's course when it enters water
 				VectorSubtract(end, from, dir);
-				vectoangles(dir);
+				dir = vectoangles(dir);
 				AngleVectors(dir, forward, right, up);
 				r = crandom() * hspread * 2;
 				u = crandom() * vspread * 2;

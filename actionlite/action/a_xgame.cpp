@@ -77,7 +77,7 @@ edict_t *DetermineViewedPlayer(edict_t *ent, bool teammate)
 	trace_t tr;
 	edict_t *who, *best;
 	float bd = 0, d;
-	int i;
+	uint32_t i;
 
 	AngleVectors(ent->client->v_angle, forward, nullptr, nullptr);
 	VectorScale(forward, 8192, forward);

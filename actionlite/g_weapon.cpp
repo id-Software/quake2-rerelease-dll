@@ -319,7 +319,7 @@ static void fire_lead(edict_t *self, const vec3_t &start, const vec3_t &aimdir, 
 
 void InitTookDamage(void)
 {
-	int i;
+	uint32_t i;
 	gclient_t *cl;
 
 	for (i = 0, cl = game.clients; i < game.maxclients; i++, cl++) {
@@ -346,9 +346,10 @@ void fire_bullet(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int d
  */
 void ProduceShotgunDamageReport (edict_t *self)
 {
-	int i, total = 0, total_to_print, printed = 0;
+	int total = 0, total_to_print, printed = 0;
 	char *textbuf;
 	gclient_t *cl;
+	uint32_t i;
 
 	for (i = 0, cl = game.clients; i < game.maxclients; i++, cl++) {
 		if (cl->took_damage)
@@ -1369,7 +1370,6 @@ void punch_attack(edict_t * ent)
 	int damage = 7, kick = 100, friendlyFire = 0;
 	int randmodify;
 	trace_t tr;
-	char *genderstr;
 
 	AngleVectors(ent->client->v_angle, forward, right, NULL);
 	VectorScale(forward, 0, ent->client->kick_origin);

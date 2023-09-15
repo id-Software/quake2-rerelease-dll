@@ -723,7 +723,6 @@ void G_SetStats(edict_t *ent)
 	gitem_t	*item;
 	item_id_t index;
 	int		  cells = 0;
-	item_id_t power_armor_type;
 	unsigned int invIndex;
 
 	//

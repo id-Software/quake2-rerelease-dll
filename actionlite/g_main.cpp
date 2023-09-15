@@ -344,7 +344,9 @@ void ActionInit()
 
 	// Darkmatch, maybe one day
 	//day_cycle_at = 0;
-	team_round_going = team_game_going = team_round_countdown = 0;
+	team_round_going = 0;
+	team_game_going = 0;
+	team_round_countdown = 0;
 	lights_camera_action = holding_on_tie_check = 0;
 	timewarning = fragwarning = 0;
 

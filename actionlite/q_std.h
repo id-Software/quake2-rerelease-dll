@@ -222,7 +222,7 @@ size_t Q_strlcat(char* dst, const char* src, size_t siz);
 //void AddPointToBounds (const vec3_t v, vec3_t mins, vec3_t maxs);
 
 float VectorNormalize (vec3_t v);	// returns vector length
-vec3_t VectorNormalize2 (const vec3_t v, vec3_t out);
+float VectorNormalize2 (const vec3_t v, vec3_t out);
 
 int Q_log2 (int val);
 

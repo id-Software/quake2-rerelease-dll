@@ -1993,52 +1993,53 @@ void Cmd_Choose_f(edict_t * ent)
 {
 	const char *s;
 	const char *wpnText, *itmText;
-	int itemNum = 0;
+	//int itemNum = 0;
 	gitem_t *item;
+	item_id_t itemNum = IT_NULL;
 
 	// only works in teamplay
 	if (!(gameSettings & GS_WEAPONCHOOSE))
 		return;
 
-	// s = gi.args();
-	// if (*s) {
-	// 	itemNum = GetItemNumFromArg(s);
-	// 	if (!itemNum)
-	// 		itemNum = GetWeaponNumFromArg(s);
-	// }
+	 s = gi.args();
+	 //if (*s) {
+	 //	itemNum = GetItemNumFromArg(s);
+	 //	if (!itemNum)
+	 //		itemNum = GetWeaponNumFromArg(s);
+	 //}
 
-	// switch(itemNum) {
-	// case DUAL_NUM:
-	// case M3_NUM:
-	// case HC_NUM:
-	// case MP5_NUM:
-	// case SNIPER_NUM:
-	// case KNIFE_NUM:
-	// case M4_NUM:
-	// 	// Weapon bans maybe later
-	// 	// if (!WPF_ALLOWED(itemNum)) {
-	// 	// 	gi.LocClient_Print(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
-	// 	// 	return;
-	// 	// }
-	// 	// ent->client->pers.chosenWeapon = GET_ITEM(itemNum);
-	// 	// break;
-	// case LASER_NUM:
-	// case KEV_NUM:
-	// case SLIP_NUM:
-	// case SIL_NUM:
-	// case HELM_NUM:
-	// case BAND_NUM:
-	// 	// Item bans maybe later
-	// 	// if (!ITF_ALLOWED(itemNum)) {
-	// 	// 	gi.LocClient_Print(ent, PRINT_HIGH, "Item disabled on this server.\n");
-	// 	// 	return;
-	// 	// }
-	// 	// ent->client->pers.chosenItem = GET_ITEM(itemNum);
-	// 	// break;
-	// default:
-	// 	gi.LocClient_Print(ent, PRINT_HIGH, "Invalid weapon or item choice.\n");
-	// 	return;
-	// }
+	 switch(itemNum) {
+	 case IT_WEAPON_DUALMK23:
+	 case IT_WEAPON_M3:
+	 case IT_WEAPON_HANDCANNON:
+	 case IT_WEAPON_MP5:
+	 case IT_WEAPON_SNIPER:
+	 case IT_WEAPON_KNIFE:
+	 case IT_WEAPON_M4:
+	 	// Weapon bans maybe later
+	 	// if (!WPF_ALLOWED(itemNum)) {
+	 	// 	gi.LocClient_Print(ent, PRINT_HIGH, "Weapon disabled on this server.\n");
+	 	// 	return;
+	 	// }
+	 	// ent->client->pers.chosenWeapon = GET_ITEM(itemNum);
+	 	// break;
+	 case IT_ITEM_LASERSIGHT:
+	 case IT_ITEM_VEST:
+	 case IT_ITEM_SLIPPERS:
+	 case IT_ITEM_QUIET:
+	 case IT_ITEM_HELM:
+	 case IT_ITEM_BANDOLIER:
+	 	// Item bans maybe later
+	 	// if (!ITF_ALLOWED(itemNum)) {
+	 	// 	gi.LocClient_Print(ent, PRINT_HIGH, "Item disabled on this server.\n");
+	 	// 	return;
+	 	// }
+	 	// ent->client->pers.chosenItem = GET_ITEM(itemNum);
+	 	// break;
+	 default:
+	 	gi.LocClient_Print(ent, PRINT_HIGH, "Invalid weapon or item choice.\n");
+	 	return;
+	 }
 
 	item = ent->client->pers.chosenWeapon;
 	//item = ent->client->pers.weapon;
@@ -2562,7 +2563,7 @@ void Cmd_Lens_f(edict_t * ent)
 	int nArg;
 	char args[8];
 
-	if (!ent->client->pers.weapon != IT_WEAPON_SNIPER)
+	if (ent->client->pers.weapon->id != IT_WEAPON_SNIPER)
 		return;
 
 	nArg = atoi(gi.args());

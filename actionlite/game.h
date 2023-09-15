@@ -1120,7 +1120,7 @@ MAKE_ENUM_BITFLAGS(soundchan_t);
 // sound attenuation values
 constexpr float ATTN_LOOP_NONE = -1; // full volume the entire level, for loop only
 constexpr float ATTN_NONE = 0; // full volume the entire level, for sounds only
-constexpr float ATTN_LOUD = 0.4; // Handcannon
+constexpr float ATTN_LOUD = 0.4F; // Handcannon
 constexpr float ATTN_NORM = 1;
 constexpr float ATTN_IDLE = 2;
 constexpr float ATTN_STATIC = 3; // diminish very rapidly with distance

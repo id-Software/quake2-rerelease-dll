@@ -753,7 +753,7 @@ void PlaceHolder( edict_t * ent );  // p_weapon.c
  */
 edict_t *FindEdictByClassnum(const char *classname, int classnum)
 {
-	int i;
+	uint32_t i;
 	edict_t *it;
 	for (i = 0; i < globals.num_edicts; i++)
 	{
