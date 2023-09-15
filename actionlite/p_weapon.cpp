@@ -594,48 +594,117 @@ The old weapon has been dropped all the way, so make the new one
 current
 ===============
 */
-void ChangeWeapon(edict_t *ent)
+
+//void ChangeWeapon(edict_t *ent)
+//{
+//	// [Paril-KEX]
+//	if (ent->health > 0 && !g_instant_weapon_switch->integer && ((ent->client->latched_buttons | ent->client->buttons) & BUTTON_HOLSTER))
+//		return;
+//
+//	if (ent->client->grenade_time)
+//	{
+//		// force a weapon think to drop the held grenade
+//		ent->client->weapon_sound = 0;
+//		Weapon_RunThink(ent);
+//		ent->client->grenade_time = 0_ms;
+//	}
+//
+//	if (ent->client->pers.weapon)
+//	{
+//		ent->client->pers.lastweapon = ent->client->pers.weapon;
+//
+//		if (ent->client->newweapon && ent->client->newweapon != ent->client->pers.weapon)
+//			gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/change.wav"), 1, ATTN_NORM, 0);
+//	}
+//
+//	ent->client->pers.weapon = ent->client->newweapon;
+//	ent->client->newweapon = nullptr;
+//	ent->client->machinegun_shots = 0;
+//
+//	// set visible model
+//	if (ent->s.modelindex == MODELINDEX_PLAYER)
+//		P_AssignClientSkinnum(ent);
+//
+//	if (!ent->client->pers.weapon)
+//	{ // dead
+//		ent->client->ps.gunindex = 0;
+//		ent->client->ps.gunskin = 0;
+//		return;
+//	}
+//
+//	ent->client->weaponstate = WEAPON_ACTIVATING;
+//	ent->client->ps.gunframe = 0;
+//	ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
+//	ent->client->ps.gunskin = 0;
+//	ent->client->weapon_sound = 0;
+//
+//	ent->client->anim_priority = ANIM_PAIN;
+//	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+//	{
+//		ent->s.frame = FRAME_crpain1;
+//		ent->client->anim_end = FRAME_crpain4;
+//	}
+//	else
+//	{
+//		ent->s.frame = FRAME_pain301;
+//		ent->client->anim_end = FRAME_pain304;
+//	}
+//	ent->client->anim_time = 0_ms;
+//
+//	// for instantweap, run think immediately
+//	// to set up correct start frame
+//	if (g_instant_weapon_switch->integer)
+//		Weapon_RunThink(ent);
+//}
+
+void ChangeWeapon(edict_t* ent)
 {
-	// [Paril-KEX]
-	if (ent->health > 0 && !g_instant_weapon_switch->integer && ((ent->client->latched_buttons | ent->client->buttons) & BUTTON_HOLSTER))
-		return;
 
 	if (ent->client->grenade_time)
 	{
-		// force a weapon think to drop the held grenade
-		ent->client->weapon_sound = 0;
-		Weapon_RunThink(ent);
-		ent->client->grenade_time = 0_ms;
+		ent->client->grenade_time = level.time;
+		weapon_grenade_fire(ent, false);
+		ent->client->grenade_time = gtime_t::from_sec(0);
 	}
 
-	if (ent->client->pers.weapon)
-	{
-		ent->client->pers.lastweapon = ent->client->pers.weapon;
+	if (ent->client->ctf_grapple)
+		CTFPlayerResetGrapple(ent);
 
-		if (ent->client->newweapon && ent->client->newweapon != ent->client->pers.weapon)
-			gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/change.wav"), 1, ATTN_NORM, 0);
-	}
+	// zucc - prevent reloading queue for previous weapon from doing anything
+	ent->client->reload_attempts = 0;
 
+	ent->client->pers.lastweapon = ent->client->pers.weapon;
 	ent->client->pers.weapon = ent->client->newweapon;
-	ent->client->newweapon = nullptr;
+	ent->client->newweapon = NULL;
 	ent->client->machinegun_shots = 0;
 
-	// set visible model
-	if (ent->s.modelindex == MODELINDEX_PLAYER)
-		P_AssignClientSkinnum(ent);
+	if (ent->client->pers.weapon && ent->client->pers.weapon->ammo)
+		ent->client->ammo_index = ent->client->inventory[ent->client->ammo_index];
+		//ent->client->ammo_index = ITEM_INDEX(FindItem(ent->client->pers.weapon->ammo));
+	else
+		ent->client->ammo_index = 0;
 
-	if (!ent->client->pers.weapon)
-	{ // dead
+	if (!ent->client->pers.weapon || ent->s.modelindex != 255)	// zucc vwep
+	{				// dead 
 		ent->client->ps.gunindex = 0;
-		ent->client->ps.gunskin = 0;
 		return;
 	}
 
 	ent->client->weaponstate = WEAPON_ACTIVATING;
 	ent->client->ps.gunframe = 0;
+
+	//FIREBLADE
+	if (ent->solid == SOLID_NOT && ent->deadflag != false)
+		return;
+	//FIREBLADE
+
 	ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
-	ent->client->ps.gunskin = 0;
-	ent->client->weapon_sound = 0;
+
+	// zucc hentai's animation for vwep
+	//if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+	//	SetAnimation(ent, FRAME_crpain1, FRAME_crpain4, ANIM_PAIN);
+	//else
+	//	SetAnimation(ent, FRAME_pain301, FRAME_pain304, ANIM_PAIN);
 
 	ent->client->anim_priority = ANIM_PAIN;
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
@@ -650,10 +719,18 @@ void ChangeWeapon(edict_t *ent)
 	}
 	ent->client->anim_time = 0_ms;
 
-	// for instantweap, run think immediately
-	// to set up correct start frame
-	if (g_instant_weapon_switch->integer)
-		Weapon_RunThink(ent);
+	ShowGun(ent);
+	// zucc done
+
+	ent->client->curr_weap.id = ent->client->pers.weapon->id;
+	if (ent->client->curr_weap.id == IT_WEAPON_GRENADES) {
+		// Fix the "use grenades;drop bandolier" bug, caused infinite grenades.
+		if (teamplay->value && INV_AMMO(ent, GRENADE_NUM) == 0)
+			INV_AMMO(ent, GRENADE_NUM) = 1;
+	}
+
+	if (INV_AMMO(ent, LASER_NUM))
+		SP_LaserSight(ent, GET_ITEM(LASER_NUM));	//item->use(ent, item);
 }
 
 /*

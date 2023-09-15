@@ -1636,9 +1636,9 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
 	// 		client->pers.max_ammo[AMMO_SHELLS] = 100;
 	// 		client->pers.max_ammo[AMMO_CELLS] = 200;
 
-
-	// 		if (!g_instagib->integer)
-	// 			client->pers.inventory[IT_WEAPON_MK23] = 1;
+	// Everyone starts with the MK23
+	if (!g_instagib->integer)
+	 	client->pers.inventory[IT_WEAPON_MK23] = 1;
 
 	// 		// [Kex]
 	// 		// start items!
@@ -1668,14 +1668,14 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
 
 	// 	NoAmmoWeaponChange(ent, false);
 
-	// 	client->pers.weapon = client->newweapon;
-	// 	if (client->newweapon)
-	// 		client->pers.selected_item = client->newweapon->id;
-	// 	client->newweapon = nullptr;
-	// 	// ZOID
-	// 	client->pers.lastweapon = client->pers.weapon;
-	// 	// ZOID
-	// }
+	client->pers.weapon = client->newweapon;
+	if (client->newweapon)
+	 	client->pers.selected_item = client->newweapon->id;
+	client->newweapon = nullptr;
+	// ZOID
+	client->pers.lastweapon = client->pers.weapon;
+	// ZOID
+	 //}
 
 	// if (coop->value && g_coop_enable_lives->integer)
 	// 	client->pers.lives = g_coop_num_lives->integer + 1;
@@ -3481,6 +3481,8 @@ void PutClientInServer(edict_t *ent)
 		client->ps.gunindex = 0;
 	client->ps.gunskin = 0;
 	// PGM
+
+	ShowGun(ent);
 
 	// clear entity state values
 	ent->s.effects = EF_NONE;

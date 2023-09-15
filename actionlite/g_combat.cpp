@@ -915,7 +915,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 		}
 	}
 
-	if (client)
+	/*if (client)
 	{
 		if (!(targ->flags & FL_GODMODE) && (take))
 			targ->pain(targ, attacker, knockback, take, mod);
@@ -924,7 +924,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	{
 		if (targ->pain)
 			targ->pain(targ, attacker, knockback, take, mod);
-	}
+	}*/
 
 	/*if (client)
 	{
