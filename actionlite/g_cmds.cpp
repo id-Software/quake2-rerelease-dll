@@ -1002,14 +1002,14 @@ void Cmd_New_Weapon_f(edict_t * ent)
 static void Cmd_Use_f (edict_t * ent)
 {
 	gitem_t *it = NULL;
-	item_id_t index;
+	item_id_t index = IT_NULL;
 	const char *s;
 	int itemNum = 0;
 
 	s = gi.args();
 
 	if (!*s || (ent->solid == SOLID_NOT && ent->deadflag != false)) {
-		gi.LocClient_Print(ent, PRINT_HIGH, "Unknown item: %s\n", s);
+		gi.LocClient_Print(ent, PRINT_HIGH, "Unknown item: {}\n", s);
 		return;
 	}
 
@@ -1051,17 +1051,19 @@ static void Cmd_Use_f (edict_t * ent)
 		// if (!itemNum) //Check Q2 weapon names
 			if (!Q_strncasecmp(s, "blaster", sizeof(s)))
 				index = IT_WEAPON_MK23;
-			else if (!Q_strncasecmp(s, "railgun", sizeof(s)))
-				index = IT_WEAPON_DUALMK23;
-			else if (!Q_strncasecmp(s, "machinegun", sizeof(s)))
-				index = IT_WEAPON_HANDCANNON;
-			else if (!Q_strncasecmp(s, "super shotgun", sizeof(s)))
-				index = IT_WEAPON_MP5;
-			else if (!Q_strncasecmp(s, "chaingun", sizeof(s)))
-				index = IT_WEAPON_SNIPER;
 			else if (!Q_strncasecmp(s, "bfg10k", sizeof(s)))
-				index = IT_WEAPON_KNIFE;
+				index = IT_WEAPON_DUALMK23;
+			else if (!Q_strncasecmp(s, "shotgun", sizeof(s)))
+				index = IT_WEAPON_M3;
+			else if (!Q_strncasecmp(s, "super shotgun", sizeof(s)))
+				index = IT_WEAPON_HANDCANNON;
+			else if (!Q_strncasecmp(s, "machinegun", sizeof(s)))
+				index = IT_WEAPON_MP5;
+			else if (!Q_strncasecmp(s, "railgun", sizeof(s)))
+				index = IT_WEAPON_SNIPER;
 			else if (!Q_strncasecmp(s, "grenade launcher", sizeof(s)))
+				index = IT_WEAPON_KNIFE;
+			else if (!Q_strncasecmp(s, "chaingun", sizeof(s)))
 				index = IT_WEAPON_M4;
 			else if (!Q_strncasecmp(s, "grenades", sizeof(s)))
 				index = IT_WEAPON_GRENADES;
@@ -1073,7 +1075,7 @@ static void Cmd_Use_f (edict_t * ent)
 		it = FindItem(s);
 
 	if (!it) {
-		gi.LocClient_Print(ent, PRINT_HIGH, "Unknown item: %s\n", s);
+		gi.LocClient_Print(ent, PRINT_HIGH, "Unknown item: {}\n", s);
 		return;
 	}
 
@@ -2210,15 +2212,15 @@ void Cmd_TKOk(edict_t * ent)
 		gi.LocClient_Print(ent, PRINT_HIGH, "Nothing to forgive\n");
 	} else if (ent->client->resp.team == ent->enemy->client->resp.team) {
 		if (ent->enemy->client->resp.team_kills) {
-			gi.LocClient_Print(ent, PRINT_HIGH, "You forgave %s\n", ent->enemy->client->pers.netname);
-			gi.LocClient_Print(ent->enemy, PRINT_HIGH, "%s forgave you\n", ent->client->pers.netname);
+			gi.LocClient_Print(ent, PRINT_HIGH, "You forgave {}\n", ent->enemy->client->pers.netname);
+			gi.LocClient_Print(ent->enemy, PRINT_HIGH, "{} forgave you\n", ent->client->pers.netname);
 			ent->enemy->client->resp.team_kills--;
 			if (ent->enemy->client->resp.team_wounds)
 				ent->enemy->client->resp.team_wounds /= 2;
 		}
 	} else {
 		gi.LocClient_Print(ent, PRINT_HIGH, "That's very noble of you...\n");
-		gi.LocBroadcast_Print(PRINT_HIGH, "%s turned the other cheek\n", ent->client->pers.netname);
+		gi.LocBroadcast_Print(PRINT_HIGH, "{} turned the other cheek\n", ent->client->pers.netname);
 	}
 	ent->enemy = NULL;
 	return;
@@ -2330,7 +2332,7 @@ void Cmd_WhereAmI_f( edict_t * self )
 	bool found = GetPlayerLocation( self, location );
 
 	if( found )
-		gi.LocClient_Print( self, PRINT_MEDIUM, "Location: %s\n", location );
+		gi.LocClient_Print( self, PRINT_MEDIUM, "Location: {}\n", location );
 	else if( ! sv_cheats->value )
 		gi.LocClient_Print( self, PRINT_MEDIUM, "Location unknown.\n" );
 
