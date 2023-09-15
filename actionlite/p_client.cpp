@@ -2693,14 +2693,16 @@ void EquipClient(edict_t * ent)
 
 	switch (index) {
 	case IT_WEAPON_MP5:
-		item = GET_ITEM(MP5_NUM);
+		item = GetItemByIndex(IT_WEAPON_MP5);
+		//item = GET_ITEM(MP5_NUM);
 		//client->selected_item = ITEM_INDEX(item);
 		client->selected_item.id = IT_WEAPON_MP5;
 		client->inventory[ent->client->selected_item.id] = 1;
 		client->pers.weapon = item;
-		client->curr_weap = MP5_NUM;
+		client->curr_weap.id = IT_WEAPON_MP5;
 		client->unique_weapon_total = 1;
-		item = GET_ITEM(MP5_ANUM);
+		item = GetItemByIndex(IT_AMMO_ROCKETS);
+		//item = GetAmmo(MP5_ANUM);
 		if (band)
 			client->inventory[ITEM_INDEX(item)] = 2;
 		else
@@ -2708,11 +2710,11 @@ void EquipClient(edict_t * ent)
 		client->mp5_rds = client->mp5_max;
 		break;
 	case IT_WEAPON_M4:
-		item = GET_ITEM(M4_NUM);
+		item = GetItemByIndex(IT_WEAPON_M4);
 		client->selected_item.id = IT_WEAPON_M4;
 		client->inventory[ent->client->selected_item.id] = 1;
 		client->pers.weapon = item;
-		client->curr_weap = M4_NUM;
+		client->curr_weap.id = IT_WEAPON_M4;
 		client->unique_weapon_total = 1;
 		item = GET_ITEM(M4_ANUM);
 		if (band)
@@ -2722,11 +2724,11 @@ void EquipClient(edict_t * ent)
 		client->m4_rds = client->m4_max;
 		break;
 	case IT_WEAPON_M3:
-		item = GET_ITEM(M3_NUM);
+		item = GetItemByIndex(IT_WEAPON_M3);
 		client->selected_item.id = IT_WEAPON_M3;
 		client->inventory[ent->client->selected_item.id] = 1;
 		client->pers.weapon = item;
-		client->curr_weap = M3_NUM;
+		client->curr_weap.id = IT_WEAPON_M3;
 		client->unique_weapon_total = 1;
 		item = GET_ITEM(SHELL_ANUM);
 		if (band)
@@ -2736,11 +2738,11 @@ void EquipClient(edict_t * ent)
 		client->shot_rds = client->shot_max;
 		break;
 	case IT_WEAPON_HANDCANNON:
-		item = GET_ITEM(HC_NUM);
+		item = GetItemByIndex(IT_WEAPON_HANDCANNON);
 		client->selected_item.id = IT_WEAPON_HANDCANNON;
 		client->inventory[ent->client->selected_item.id] = 1;
 		client->pers.weapon = item;
-		client->curr_weap = HC_NUM;
+		client->curr_weap.id = IT_WEAPON_HANDCANNON;
 		client->unique_weapon_total = 1;
 		item = GET_ITEM(SHELL_ANUM);
 		if (band)
@@ -2750,11 +2752,11 @@ void EquipClient(edict_t * ent)
 		client->cannon_rds = client->cannon_max;
 		break;
 	case IT_WEAPON_SNIPER:
-		item = GET_ITEM(SNIPER_NUM);
+		item = GetItemByIndex(IT_WEAPON_SNIPER);
 		client->selected_item.id = IT_WEAPON_SNIPER;
 		client->inventory[ent->client->selected_item.id] = 1;
 		client->pers.weapon = item;
-		client->curr_weap = SNIPER_NUM;
+		client->curr_weap.id = IT_WEAPON_SNIPER;
 		client->unique_weapon_total = 1;
 		item = GET_ITEM(SNIPER_ANUM);
 		if (band)
@@ -2764,11 +2766,11 @@ void EquipClient(edict_t * ent)
 		client->sniper_rds = client->sniper_max;
 		break;
 	case IT_WEAPON_DUALMK23:
-		item = GET_ITEM(DUAL_NUM);
+		item = GetItemByIndex(IT_WEAPON_DUALMK23);
 		client->selected_item.id = IT_WEAPON_DUALMK23;
 		client->inventory[ent->client->selected_item.id] = 1;
 		client->pers.weapon = item;
-		client->curr_weap = DUAL_NUM;
+		client->curr_weap.id = IT_WEAPON_DUALMK23;
 		item = GET_ITEM(MK23_ANUM);
 		if (band)
 			client->inventory[ent->client->selected_item.id] = 4;
@@ -2777,14 +2779,14 @@ void EquipClient(edict_t * ent)
 		client->dual_rds = client->dual_max;
 		break;
 	case IT_WEAPON_KNIFE:
-		item = GET_ITEM(KNIFE_NUM);
+		item = GetItemByIndex(IT_WEAPON_KNIFE);
 		client->selected_item.id = IT_WEAPON_KNIFE;
 		if (band)
 			client->inventory[ent->client->selected_item.id] = 20;
 		else
 			client->inventory[ent->client->selected_item.id] = 10;
 		client->pers.weapon = item;
-		client->curr_weap = KNIFE_NUM;
+		client->curr_weap.id = IT_WEAPON_KNIFE;
 		break;
 	}
 
@@ -2851,12 +2853,12 @@ void EquipClientDM(edict_t * ent)
 	case IT_WEAPON_MK23:
 		return;
 	case IT_WEAPON_MP5:
-		item = GET_ITEM(MP5_NUM);
+		item = GetItemByIndex(IT_WEAPON_MP5);
 		client->selected_item.id = IT_WEAPON_MP5;
 		client->inventory[ent->client->selected_item.id] = 1;
 		client->pers.weapon = item;
 		client->mp5_rds = client->mp5_max;
-		client->curr_weap = MP5_NUM;
+		client->curr_weap.id = IT_WEAPON_MP5;
 		if (!allweapon->value) {
 			client->unique_weapon_total = 1;
 		}
@@ -2864,12 +2866,12 @@ void EquipClientDM(edict_t * ent)
 		client->inventory[ITEM_INDEX(item)] = 1;
 		break;
 	case IT_WEAPON_M4:
-		item = GET_ITEM(M4_NUM);
+		item = GetItemByIndex(IT_WEAPON_M4);
 		client->selected_item.id = IT_WEAPON_M4;
 		client->inventory[ent->client->selected_item.id] = 1;
 		client->pers.weapon = item;
 		client->m4_rds = client->m4_max;
-		client->curr_weap = M4_NUM;
+		client->curr_weap.id = IT_WEAPON_M4;
 		if (!allweapon->value) {
 			client->unique_weapon_total = 1;
 		}
@@ -2877,12 +2879,12 @@ void EquipClientDM(edict_t * ent)
 		client->inventory[ITEM_INDEX(item)] = 1;
 		break;
 	case IT_WEAPON_M3:
-		item = GET_ITEM(M3_NUM);
+		item = GetItemByIndex(IT_WEAPON_M3);
 		client->selected_item.id = IT_WEAPON_M3;
 		client->inventory[ent->client->selected_item.id] = 1;
 		client->pers.weapon = item;
 		client->shot_rds = client->shot_max;
-		client->curr_weap = M3_NUM;
+		client->curr_weap.id = IT_WEAPON_M3;
 		if (!allweapon->value) {
 			client->unique_weapon_total = 1;
 		}
@@ -2890,13 +2892,13 @@ void EquipClientDM(edict_t * ent)
 		client->inventory[ITEM_INDEX(item)] = 7;
 		break;
 	case IT_WEAPON_HANDCANNON:
-		item = GET_ITEM(HC_NUM);
+		item = GetItemByIndex(IT_WEAPON_HANDCANNON);
 		client->selected_item.id = IT_WEAPON_HANDCANNON;
 		client->inventory[ent->client->selected_item.id] = 1;
 		client->pers.weapon = item;
 		client->cannon_rds = client->cannon_max;
 		client->shot_rds = client->shot_max;
-		client->curr_weap = HC_NUM;
+		client->curr_weap.id = IT_WEAPON_HANDCANNON;
 		if (!allweapon->value) {
 			client->unique_weapon_total = 1;
 		}
@@ -2904,12 +2906,12 @@ void EquipClientDM(edict_t * ent)
 		client->inventory[ITEM_INDEX(item)] = 12;
 		break;
 	case IT_WEAPON_SNIPER:
-		item = GET_ITEM(SNIPER_NUM);
+		item = GetItemByIndex(IT_WEAPON_SNIPER);
 		client->selected_item.id = IT_WEAPON_SNIPER;
 		client->inventory[ent->client->selected_item.id] = 1;
 		client->pers.weapon = item;
 		client->sniper_rds = client->sniper_max;
-		client->curr_weap = SNIPER_NUM;
+		client->curr_weap.id = IT_WEAPON_SNIPER;
 		if (!allweapon->value) {
 			client->unique_weapon_total = 1;
 		}
@@ -2917,29 +2919,29 @@ void EquipClientDM(edict_t * ent)
 		client->inventory[ITEM_INDEX(item)] = 10;
 		break;
 	case IT_WEAPON_DUALMK23:
-		item = GET_ITEM(DUAL_NUM);
+		item = GetItemByIndex(IT_WEAPON_DUALMK23);
 		client->selected_item.id = IT_WEAPON_DUALMK23;
 		client->inventory[ent->client->selected_item.id] = 1;
 		client->pers.weapon = item;
 		client->dual_rds = client->dual_max;
 		client->mk23_rds = client->mk23_max;
-		client->curr_weap = DUAL_NUM;
+		client->curr_weap.id = IT_WEAPON_DUALMK23;
 		item = GET_ITEM(MK23_ANUM);
 		client->inventory[ITEM_INDEX(item)] = 2;
 		break;
 	case IT_WEAPON_GRENADES:
-		item = GET_ITEM(GRENADE_NUM);
+		item = GetItemByIndex(IT_WEAPON_GRENADES);
 		client->selected_item.id = IT_WEAPON_GRENADES;
 		client->inventory[ent->client->selected_item.id] = tgren->value;
 		client->pers.weapon = item;
-		client->curr_weap = GRENADE_NUM;
+		client->curr_weap.id = IT_WEAPON_GRENADES;
 		break;
 	case IT_WEAPON_KNIFE:
-		item = GET_ITEM(KNIFE_NUM);
+		item = GetItemByIndex(IT_WEAPON_KNIFE);
 		client->selected_item.id = IT_WEAPON_KNIFE;
 		client->inventory[ent->client->selected_item.id] = 10;
 		client->pers.weapon = item;
-		client->curr_weap = KNIFE_NUM;
+		client->curr_weap.id = IT_WEAPON_KNIFE;
 		break;
 	}
 }

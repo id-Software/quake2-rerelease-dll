@@ -917,6 +917,17 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 
 	if (client)
 	{
+		if (!(targ->flags & FL_GODMODE) && (take))
+			targ->pain(targ, attacker, knockback, take, mod);
+	}
+	else if (take)
+	{
+		if (targ->pain)
+			targ->pain(targ, attacker, knockback, take, mod);
+	}
+
+	/*if (client)
+	{
 		if (!(targ->flags & FL_GODMODE) && take)
 			targ->pain(targ, attacker, (float) knockback, take, mod.id);
 	}
@@ -924,7 +935,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 	{
 		if (targ->pain)
 			targ->pain(targ, attacker, (float) knockback, take, mod.id);
-	}
+	}*/
 
 	// add to the damage inflicted on a player this frame
 	// the total will be turned into screen blends and view angle kicks

@@ -392,7 +392,7 @@ bool Pickup_WeaponAQ(edict_t* ent, edict_t* other)
 			// any weapon that doesn't completely fill up each reload can 
 			//end up in a state where it has a full weapon and pending reload(s)
 			if (other->client->weaponstate == WEAPON_RELOADING &&
-				other->client->curr_weap == M3_NUM)
+				other->client->curr_weap.id == IT_WEAPON_M3)
 			{
 				if (other->client->fast_reload)
 					other->client->shot_rds = other->client->shot_max - 2;
@@ -440,7 +440,7 @@ bool Pickup_WeaponAQ(edict_t* ent, edict_t* other)
 		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
 		{
 			if (other->client->weaponstate == WEAPON_RELOADING &&
-				other->client->curr_weap == SNIPER_NUM)
+				other->client->curr_weap.id == IT_WEAPON_SNIPER)
 			{
 				if (other->client->fast_reload)
 					other->client->sniper_rds = other->client->sniper_max - 2;
@@ -951,8 +951,8 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
-			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
-			ent->client->newweapon = replacement;
+			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23);
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 51;
 
@@ -968,8 +968,9 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
-			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
-			ent->client->newweapon = replacement;
+			
+			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 44;
 
@@ -985,8 +986,8 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
-			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
-			ent->client->newweapon = replacement;
+			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 41;
 			//ChangeWeapon( ent );
@@ -1000,8 +1001,8 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 	{
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
-			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
-			ent->client->newweapon = replacement;
+			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 61;
 			//ChangeWeapon( ent );
@@ -1018,8 +1019,8 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 			// in case they are zoomed in
 			ent->client->ps.fov = 90;
 			ent->client->desired_fov = 90;
-			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
-			ent->client->newweapon = replacement;
+			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 50;
 			//ChangeWeapon( ent );
@@ -1033,8 +1034,8 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 	{
 		if (ent->client->pers.weapon == item)
 		{
-			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
-			ent->client->newweapon = replacement;
+			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 40;
 			//ChangeWeapon( ent );
@@ -1047,8 +1048,8 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
-			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
-			ent->client->newweapon = replacement;
+			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			if (ent->client->pers.knife_mode)	// hack to avoid an error
 			{
 				ent->client->weaponstate = WEAPON_DROPPING;
@@ -1081,14 +1082,14 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 				fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 80_ms, damage * 2, false);
 
 				INV_AMMO(ent, GRENADE_NUM)--;
-				ent->client->newweapon = GET_ITEM(MK23_NUM);
+				ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 				ent->client->weaponstate = WEAPON_DROPPING;
 				ent->client->ps.gunframe = 0;
 				return;
 			}
 
-			replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
-			ent->client->newweapon = replacement;
+			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 0;
 			//ChangeWeapon( ent );
@@ -1909,7 +1910,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 			return;
 		}
 
-		if (ent->client->curr_weap == SNIPER_NUM)
+		if (ent->client->curr_weap.id == IT_WEAPON_SNIPER)
 		{
 			if (ent->client->desired_fov == 90)
 			{
@@ -2301,7 +2302,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 		if (ent->client->ps.gunframe == FRAME_IDLE_FIRST + 1)
 			ent->client->weaponstate = WEAPON_READY;
 
-		if (ent->client->curr_weap == MP5_NUM)
+		if (ent->client->curr_weap.id == IT_WEAPON_MP5)
 		{
 			if (ent->client->ps.gunframe >= 76)
 			{
@@ -2311,7 +2312,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 			//      gi.cprintf (ent, PRINT_HIGH, "Succes Q_stricmp now: frame = %d.\n", ent->client->ps.gunframe);
 
 		}
-		if (ent->client->curr_weap == M4_NUM)
+		if (ent->client->curr_weap.id == IT_WEAPON_M4)
 		{
 			if (ent->client->ps.gunframe >= 69)
 			{

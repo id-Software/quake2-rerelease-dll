@@ -1560,7 +1560,7 @@ TOUCH(knife_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool other
         }
 
         dropped = G_Spawn();
-        item = GET_ITEM(KNIFE_NUM);
+		item = GetItemByIndex(IT_WEAPON_KNIFE);
 
         dropped->classname = item->classname;
         dropped->item = item;

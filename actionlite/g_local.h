@@ -3428,7 +3428,7 @@ struct gclient_t
 	gtime_t			bleeddelay;			// how long until we bleed again
 
 	int32_t			doortoggle;			// set by player with opendoor command
-	int32_t			curr_weap;		// uses NAME_NUM values
+	gitem_t			curr_weap;		// converted to use gitem_t values, no longer uses NAME_NUM values
 	int32_t			burst;			// remember if player is bursting or not
 	int32_t			fired;			// keep track of semi auto
 	int32_t			fast_reload;	// for shotgun/sniper rifle
