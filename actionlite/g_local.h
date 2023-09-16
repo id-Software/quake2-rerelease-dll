@@ -23,7 +23,7 @@ constexpr const char *GAMEVERSION = "action";
 static const int jmenu_level = 1;
 static const int jmenu_match = 2;
 static const int jmenu_red = 4;
-static const int jmenu_blue = 7;
+static const int jmenu_blue = 6;
 // 3 Team support at some point
 //static const int jmenu_green = 10;
 static const int jmenu_chase = 10;

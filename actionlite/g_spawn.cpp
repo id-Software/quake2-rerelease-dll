@@ -1419,11 +1419,11 @@ static void PrecacheUserSounds(void)
 	//FILE *soundlist;
 	char buf[1024], fullpath[MAX_QPATH];
 
-	std::string filename = fmt::format("rerelease/{}/sndlist.ini", GAMEVERSION);
+	std::string filename = fmt::format("{}/sndlist.ini", GAMEVERSION);
 	FILE* soundlist = fopen(filename.c_str(), "r");
 	//soundlist = fopen(GAMEVERSION "/sndlist.ini", "r");
 	if (!soundlist) { // no "sndlist.ini" file...
-		gi.Com_PrintFmt("Cannot load rerelease/{}/sndlist.ini, sound download is disabled.\n", GAMEVERSION);
+		gi.Com_PrintFmt("Cannot load {}/sndlist.ini, sound download is disabled.\n", GAMEVERSION);
 		return;
 	}
 

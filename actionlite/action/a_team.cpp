@@ -499,8 +499,9 @@ pmenu_t joinmenu[] = {
   {"" /* team 1 */ , PMENU_ALIGN_LEFT, JoinTeam1},
   {"", PMENU_ALIGN_LEFT, nullptr},
   {"" /* team 2 */ , PMENU_ALIGN_LEFT, JoinTeam2},
-  {"", PMENU_ALIGN_LEFT, nullptr},
-  {"" /* team 3 */ , PMENU_ALIGN_LEFT, JoinTeam3},
+  // Support 3team at some point
+  //{"", PMENU_ALIGN_LEFT, nullptr},
+  //{"" /* team 3 */ , PMENU_ALIGN_LEFT, JoinTeam3},
   {"", PMENU_ALIGN_LEFT, nullptr},
   {"", PMENU_ALIGN_LEFT, nullptr},
   {"" /* auto-join */ , PMENU_ALIGN_LEFT, JoinTeamAuto},

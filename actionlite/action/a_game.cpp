@@ -18,12 +18,9 @@ int motd_num_lines;
  */
 void ReadConfigFile()
 {
-	char buf[MAX_STR_LEN], reading_section[MAX_STR_LEN], inipath[MAX_STR_LEN];
+	char buf[MAX_STR_LEN], reading_section[MAX_STR_LEN]; // , inipath[MAX_STR_LEN];
     int lines_into_section = -1;
-    cvar_t* ininame;
-
-	// Default ini is action.ini
-    ininame = gi.cvar("ininame", "action.ini", CVAR_NOFLAGS);
+    cvar_t* ininame = gi.cvar("ininame", "action.ini", CVAR_NOFLAGS);
     std::string filename;
 
     if (ininame->string && *(ininame->string)){
@@ -33,38 +30,15 @@ void ReadConfigFile()
     }
 
 	// This may break in the future if basedir is adjusted
-	std::string filepath = fmt::format("rerelease/{}/{}", GAMEVERSION, filename);
+	std::string filepath = fmt::format("{}/{}", GAMEVERSION, filename);
 
 	FILE* config_file = fopen(filepath.c_str(), "r");
 
     if (config_file == NULL)
     {
-        gi.Com_PrintFmt("Unable to read %s\n", filepath.c_str());
+        gi.Com_PrintFmt("Unable to read {}\n", filepath.c_str());
         return;
     }
-
-    //gi.Com_PrintFmt("INI PATH IS %s\n", filename.c_str());
-
-	//ininame = gi.cvar("ininame", "action.ini", CVAR_NOFLAGS);
-	//std::string filename = fmt::format("{}", ininame);
-	
-	// if (ininame->string && *(ininame->string))
-	// 	std::string filename = fmt::format("{}", ininame->string);
-	// 	//G_FmtTo(inipath, "{}/{}", GAMEVERSION, ininame->string);
-	// 	//sprintf(inipath, "%s/%s", GAMEVERSION, ininame->string);
-	// else
-	// 	std::string filename = fmt::format("{}", "action.ini");
-	// 	//G_FmtTo(inipath, "{}/{}", GAMEVERSION, "action.ini");
-	// 	//sprintf(inipath, "%s/%s", GAMEVERSION, "action.ini");
-
-	// FILE* config_file = fopen(filename.c_str(), "r");
-
-	//config_file = fopen(inipath, "r");
-	// gi.Com_PrintFmt("INI PATH IS {}\n", inipath);
-	// if (config_file == NULL) {
-	// 	gi.Com_PrintFmt("Unable to read {}\n", inipath);
-	// 	return;
-	// }
 
 	while (fgets(buf, MAX_STR_LEN - 10, config_file) != NULL) {
 		int bs;
@@ -122,9 +96,19 @@ void ReadConfigFile()
 		}
 	}
 
-	snprintf(teams[TEAM1].skin_index, sizeof(teams[TEAM1].skin_index), "../players/%s_i", teams[TEAM1].skin);
-	snprintf(teams[TEAM2].skin_index, sizeof(teams[TEAM2].skin_index), "../players/%s_i", teams[TEAM2].skin);
-	snprintf(teams[TEAM3].skin_index, sizeof(teams[TEAM3].skin_index), "../players/%s_i", teams[TEAM3].skin);
+	/*std::string skin_index;
+	std::string skin_index = fmt::format("../players/{}_i", teams[TEAM1].skin);
+	Q_strlcpy(teams[TEAM1].skin_index, skin_index.c_str(), sizeof(teams[TEAM1].skin_index));
+	std::string skin_index = fmt::format("../players/{}_i", teams[TEAM2].skin);
+	Q_strlcpy(teams[TEAM2].skin_index, skin_index.c_str(), sizeof(teams[TEAM2].skin_index));
+	std::string skin_index = fmt::format("../players/{}_i", teams[TEAM3].skin);
+	Q_strlcpy(teams[TEAM2].skin_index, skin_index.c_str(), sizeof(teams[TEAM3].skin_index));*/
+
+	// Set skin_index for each team
+	for (int teamIndex = TEAM1; teamIndex <= TEAM3; ++teamIndex) {
+		std::string skin_index = fmt::format("../players/{}_i", teams[teamIndex].skin);
+		Q_strlcpy(teams[teamIndex].skin_index, skin_index.c_str(), sizeof(teams[teamIndex].skin_index));
+	}
 
 	cur_map = 0;
 	srand(time(NULL));
@@ -135,21 +119,30 @@ void ReadConfigFile()
 
 void ReadMOTDFile()
 {
-	FILE *motd_file;
+	//FILE *motd_file;
 	char buf[1000];
-	char motdpath[MAX_STR_LEN];
+	//char motdpath[MAX_STR_LEN];
 	int lbuf;
-	cvar_t *motdname;
+	cvar_t *motdname = gi.cvar("motdname", "motd.txt", CVAR_NOFLAGS);;
+	std::string filename;
 
-	motdname = gi.cvar("motdname", "motd.txt", CVAR_NOFLAGS);
 	if (motdname->string && *(motdname->string))
-		sprintf(motdpath, "%s/%s", GAMEVERSION, motdname->string);
+		std::string filepath = fmt::format("{}/{}", GAMEVERSION, motdname->string);
 	else
-		sprintf(motdpath, "%s/%s", GAMEVERSION, "motd.txt");
+		std::string filepath = fmt::format("{}/{}", GAMEVERSION, "motd.txt");
 
-	motd_file = fopen(motdpath, "r");
+	std::string filepath = fmt::format("{}/{}", GAMEVERSION, filename);
+
+	FILE* motd_file = fopen(filepath.c_str(), "r");
+
 	if (motd_file == NULL)
+	{
+		gi.Com_PrintFmt("Unable to read {}\n", filepath.c_str());
 		return;
+	}
+	/*motd_file = fopen(filepath, "r");
+	if (motd_file == NULL)
+		return;*/
 
 	motd_num_lines = 0;
 	while (fgets(buf, 900, motd_file) != NULL) {
@@ -248,7 +241,7 @@ void PrintMOTD(edict_t * ent)
 			if ((int)roundlimit->value) // What is the roundlimit?
 				sprintf(msg_buf + strlen(msg_buf), "Roundlimit: %d", (int)roundlimit->value);
 			else
-				strcat(msg_buf, "Roundlimit: none");
+				strcat(msg_buf, "Roundlimit: none ");
 			lines++;
 		}
 
