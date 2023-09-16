@@ -213,7 +213,7 @@ void PrintMOTD(edict_t * ent)
 		else  // So it's not Teamplay?
 		{
             server_type = "Deathmatch (Free For All)";
-			sprintf(msg_buf + strlen(msg_buf), "Game Type: %s\n", server_type);
+			sprintf(msg_buf + strlen(msg_buf), "Game Type: {}\n", server_type);
 		}
 		lines++;
 
@@ -249,7 +249,7 @@ void PrintMOTD(edict_t * ent)
 		   Check for the number of weapons and items people can carry
 		 */
 		if ((int)unique_weapons->value != 1 || (int)unique_items->value != 1) {
-			sprintf(msg_buf + strlen(msg_buf), "Max number of spec weapons: %d  items: %d\n",
+			sprintf(msg_buf + strlen(msg_buf), "Max number of special weapons: %d  items: %d\n",
 				(int) unique_weapons->value, (int) unique_items->value);
 			lines++;
 		}
@@ -262,9 +262,9 @@ void PrintMOTD(edict_t * ent)
 
 			// Show the number of grenades with the Bandolier
 			if (tgren->value > 0)
-				sprintf(grenade_num, "%d grenade%s", (int)tgren->value, (int)tgren->value == 1 ? "" : "s");
+				sprintf(grenade_num, "{} grenade{}", (int)tgren->value, (int)tgren->value == 1 ? "" : "s");
 
-			sprintf(msg_buf + strlen(msg_buf), "Bandolier w/ %s%s%s\n",
+			sprintf(msg_buf + strlen(msg_buf), "Bandolier w/ {}{}{}\n",
 				!(ir->value) ? "no IR" : "",
 				(tgren->value > 0 && !(ir->value)) ? " & " : "",
 				tgren->value > 0 ? grenade_num : "");
@@ -275,7 +275,7 @@ void PrintMOTD(edict_t * ent)
 		   Is allitem and/or allweapon enabled?
 		 */
 		if (allitem->value || allweapon->value) {
-			sprintf(msg_buf + strlen(msg_buf), "Players receive %s%s%s\n",
+			sprintf(msg_buf + strlen(msg_buf), "Players receive {}{}{}\n",
 				allweapon->value ? "all weapons" : "",
 				(allweapon->value && allitem->value) ? " & " : "",
 				allitem->value ? "all items" : "");
@@ -319,7 +319,7 @@ void PrintMOTD(edict_t * ent)
 		   Map Locations
 		 */
 		if (ml_count != 0) {
-			sprintf(msg_buf + strlen(msg_buf), "\n%d Locations, by: %s\n", ml_count, ml_creator);
+			sprintf(msg_buf + strlen(msg_buf), "\n%d Locations, by: {}\n", ml_count, ml_creator);
 			lines++;
 		}
 		/* 
@@ -997,54 +997,54 @@ void GetAmmo( edict_t *ent, char *buf )
 		switch( ent->client->pers.weapon->id )
 		{
 		case IT_WEAPON_MK23:
-			sprintf( buf, "%d round%s (%d extra mag%s)",
+			sprintf(buf, "{} round{} ({} extra mag{})",
 				ent->client->mk23_rds, ent->client->mk23_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_MP5:
-			sprintf( buf, "%d round%s (%d extra mag%s)",
+			sprintf( buf, "{} round{} ({} extra mag{})",
 				ent->client->mp5_rds, ent->client->mp5_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_M4:
-			sprintf( buf, "%d round%s (%d extra mag%s)",
+			sprintf( buf, "{} round{} ({} extra mag{})",
 				ent->client->m4_rds, ent->client->m4_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_M3:
-			sprintf( buf, "%d shell%s (%d extra shell%s)",
+			sprintf( buf, "{} shell{} ({} extra shell{}s)",
 				ent->client->shot_rds, ent->client->shot_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_HANDCANNON:
-			sprintf( buf, "%d shell%s (%d extra shell%s)",
+			sprintf( buf, "{} shell{} ({} extra shell{})",
 				ent->client->cannon_rds, ent->client->cannon_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_SNIPER:
-			sprintf( buf, "%d round%s (%d extra round%s)",
+			sprintf( buf, "{} round{} (%d extra round{})",
 				ent->client->sniper_rds, ent->client->sniper_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_DUALMK23:
-			sprintf( buf, "%d round%s (%d extra mag%s)",
+			sprintf( buf, "{} round{} ({} extra mag{})",
 				ent->client->dual_rds, ent->client->dual_rds == 1 ? "" : "s",
 				ent->client->inventory[ent->client->ammo_index],
 				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_KNIFE:
 			ammo = INV_AMMO( ent, IT_WEAPON_KNIFE );
-			sprintf( buf, "%d kni%s", ammo, (ammo == 1) ? "fe" : "ves" );
+			sprintf( buf, "{} kni{}", ammo, (ammo == 1) ? "fe" : "ves" );
 			return;
 		case IT_WEAPON_GRENADES:
 			ammo = INV_AMMO( ent, IT_WEAPON_GRENADES );
-			sprintf( buf, "%d grenade%s", ammo, (ammo == 1) ? "" : "s" );
+			sprintf( buf, "{} grenade{}", ammo, (ammo == 1) ? "" : "s" );
 			return;
 		}
 	}
