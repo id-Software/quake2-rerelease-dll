@@ -36,7 +36,19 @@ void ReadConfigFile()
 
     if (config_file == NULL)
     {
-        gi.Com_PrintFmt("Unable to read {}\n", filepath.c_str());
+        gi.Com_PrintFmt("Unable to read {}, setting defaults\n", filepath.c_str());
+		Q_strlcpy(teams[TEAM1].name, "Red Team", sizeof(teams[TEAM1].name));
+		Q_strlcpy(teams[TEAM2].name, "Blue Team", sizeof(teams[TEAM2].name));
+		Q_strlcpy(teams[TEAM3].name, "Green Team", sizeof(teams[TEAM3].name));
+
+		Q_strlcpy(teams[TEAM1].skin, "male/ctf_r", sizeof(teams[TEAM1].skin));
+		Q_strlcpy(teams[TEAM2].skin, "male/ctf_b", sizeof(teams[TEAM2].skin));
+		Q_strlcpy(teams[TEAM3].skin, "male/ctf_g", sizeof(teams[TEAM3].skin));
+
+		Q_strlcpy(teams[TEAM1].skin_index, "../players/ctf_r_i", sizeof(teams[TEAM1].skin_index));
+		Q_strlcpy(teams[TEAM2].skin_index, "../players/ctf_b_i", sizeof(teams[TEAM2].skin_index));
+		Q_strlcpy(teams[TEAM3].skin_index, "../players/ctf_g_i", sizeof(teams[TEAM3].skin_index));
+
         return;
     }
 
@@ -95,14 +107,6 @@ void ReadConfigFile()
 			lines_into_section++;
 		}
 	}
-
-	/*std::string skin_index;
-	std::string skin_index = fmt::format("../players/{}_i", teams[TEAM1].skin);
-	Q_strlcpy(teams[TEAM1].skin_index, skin_index.c_str(), sizeof(teams[TEAM1].skin_index));
-	std::string skin_index = fmt::format("../players/{}_i", teams[TEAM2].skin);
-	Q_strlcpy(teams[TEAM2].skin_index, skin_index.c_str(), sizeof(teams[TEAM2].skin_index));
-	std::string skin_index = fmt::format("../players/{}_i", teams[TEAM3].skin);
-	Q_strlcpy(teams[TEAM2].skin_index, skin_index.c_str(), sizeof(teams[TEAM3].skin_index));*/
 
 	// Set skin_index for each team
 	for (int teamIndex = TEAM1; teamIndex <= TEAM3; ++teamIndex) {
