@@ -996,21 +996,227 @@ void Use_Weapon(edict_t* ent, gitem_t* item)
 Drop_Weapon
 ================
 */
-void Drop_Weapon(edict_t *ent, gitem_t *item)
+//void Drop_Weapon(edict_t *ent, gitem_t *item)
+//{
+//	item_id_t index = item->id;
+//	gitem_t* replacement = NULL;
+//	edict_t* temp = NULL;
+//
+//	// see if we're already using it
+//	if (((item == ent->client->pers.weapon) || (item == ent->client->newweapon)) && (ent->client->pers.inventory[index] == 1))
+//	{
+//		gi.LocClient_Print(ent, PRINT_HIGH, "$g_cant_drop_weapon");
+//		return;
+//	}
+//
+//	// Don't drop weaons if weapon stay is enabled
+//	if (g_dm_weapons_stay->integer)
+//		return;
+//
+//	// AQ:TNG - JBravo fixing weapon farming
+//	if (ent->client->weaponstate == WEAPON_DROPPING ||
+//		ent->client->weaponstate == WEAPON_BUSY)
+//		return;
+//	// Weapon farming fix end.
+//
+//	if (ent->client->weaponstate == WEAPON_BANDAGING ||
+//		ent->client->bandaging == 1 || ent->client->bandage_stopped == 1)
+//	{
+//		gi.LocClient_Print(ent, PRINT_HIGH,
+//			"You are too busy bandaging right now...\n");
+//		return;
+//	}
+//
+//	if (ent->client->newweapon == item)
+//		return;
+//
+//	if (item->id == IT_WEAPON_MK23)
+//	{
+//		gi.LocClient_Print(ent, PRINT_HIGH, "Can't drop the {}.\n", MK23_NAME);
+//		return;
+//	}
+//	else if (item->id == IT_WEAPON_MP5)
+//	{
+//
+//		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
+//		{
+//			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+//			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23);
+//			ent->client->weaponstate = WEAPON_DROPPING;
+//			ent->client->ps.gunframe = 51;
+//
+//			//ChangeWeapon( ent );
+//		}
+//		ent->client->unique_weapon_total--;	// dropping 1 unique weapon
+//		temp = Drop_Item(ent, item);
+//		temp->think = temp_think_specweap;
+//		ent->client->inventory[index]--;
+//	}
+//	else if (item->id == IT_WEAPON_M4)
+//	{
+//
+//		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
+//		{
+//			
+//			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+//			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
+//			ent->client->weaponstate = WEAPON_DROPPING;
+//			ent->client->ps.gunframe = 44;
+//
+//			//ChangeWeapon( ent );
+//		}
+//		ent->client->unique_weapon_total--;	// dropping 1 unique weapon
+//		temp = Drop_Item(ent, item);
+//		temp->think = temp_think_specweap;
+//		ent->client->inventory[index]--;
+//	}
+//	else if (item->id == IT_WEAPON_M3)
+//	{
+//
+//		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
+//		{
+//			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+//			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
+//			ent->client->weaponstate = WEAPON_DROPPING;
+//			ent->client->ps.gunframe = 41;
+//			//ChangeWeapon( ent );
+//		}
+//		ent->client->unique_weapon_total--;	// dropping 1 unique weapon
+//		temp = Drop_Item(ent, item);
+//		temp->think = temp_think_specweap;
+//		ent->client->inventory[index]--;
+//	}
+//	else if (item->id == IT_WEAPON_HANDCANNON)
+//	{
+//		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
+//		{
+//			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+//			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
+//			ent->client->weaponstate = WEAPON_DROPPING;
+//			ent->client->ps.gunframe = 61;
+//			//ChangeWeapon( ent );
+//		}
+//		ent->client->unique_weapon_total--;	// dropping 1 unique weapon
+//		temp = Drop_Item(ent, item);
+//		temp->think = temp_think_specweap;
+//		ent->client->inventory[index]--;
+//	}
+//	else if (item->id == IT_WEAPON_SNIPER)
+//	{
+//		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
+//		{
+//			// in case they are zoomed in
+//			ent->client->ps.fov = 90;
+//			ent->client->desired_fov = 90;
+//			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+//			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
+//			ent->client->weaponstate = WEAPON_DROPPING;
+//			ent->client->ps.gunframe = 50;
+//			//ChangeWeapon( ent );
+//		}
+//		ent->client->unique_weapon_total--;	// dropping 1 unique weapon
+//		temp = Drop_Item(ent, item);
+//		temp->think = temp_think_specweap;
+//		ent->client->inventory[index]--;
+//	}
+//	else if (item->id == IT_WEAPON_DUALMK23)
+//	{
+//		if (ent->client->pers.weapon == item)
+//		{
+//			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+//			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
+//			ent->client->weaponstate = WEAPON_DROPPING;
+//			ent->client->ps.gunframe = 40;
+//			//ChangeWeapon( ent );
+//		}
+//		ent->client->dual_rds = ent->client->mk23_rds;
+//	}
+//	else if (item->id == IT_WEAPON_KNIFE)
+//	{
+//		//gi.cprintf(ent, PRINT_HIGH, "Before checking knife inven frames = %d\n", ent->client->ps.gunframe);
+//
+//		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
+//		{
+//			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+//			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
+//			if (ent->client->pers.knife_mode)	// hack to avoid an error
+//			{
+//				ent->client->weaponstate = WEAPON_DROPPING;
+//				ent->client->ps.gunframe = 111;
+//			}
+//			else
+//				ChangeWeapon(ent);
+//			//      gi.cprintf(ent, PRINT_HIGH, "After change weap from knife drop frames = %d\n", ent->client->ps.gunframe);
+//		}
+//	}
+//	else if (item->id == IT_WEAPON_GRENADES)
+//	{
+//		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
+//		{
+//			if (((ent->client->ps.gunframe >= GRENADE_IDLE_FIRST)
+//				&& (ent->client->ps.gunframe <= GRENADE_IDLE_LAST))
+//				|| ((ent->client->ps.gunframe >= GRENADE_THROW_FIRST
+//					&& ent->client->ps.gunframe <= GRENADE_THROW_LAST)))
+//			{
+//				int damage;
+//
+//				ent->client->ps.gunframe = 0;
+//
+//				// Reset Grenade Damage to 1.52 when requested:
+//				// if (use_classic->value)
+//				// 	damage = GRENADE_DAMRAD_CLASSIC;
+//				// else
+//				damage = GRENADE_DAMRAD;
+//
+//				fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 80_ms, damage * 2, false);
+//
+//				INV_AMMO(ent, GRENADE_NUM)--;
+//				ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
+//				ent->client->weaponstate = WEAPON_DROPPING;
+//				ent->client->ps.gunframe = 0;
+//				return;
+//			}
+//
+//			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
+//			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
+//			ent->client->weaponstate = WEAPON_DROPPING;
+//			ent->client->ps.gunframe = 0;
+//			//ChangeWeapon( ent );
+//		}
+//	}
+//	else if ((item == ent->client->pers.weapon || item == ent->client->newweapon)
+//		&& ent->client->inventory[index] == 1)
+//	{
+//		gi.LocClient_Print(ent, PRINT_HIGH, "Can't drop current weapon\n");
+//		return;
+//	}
+//
+//	// AQ:TNG - JBravo fixing weapon farming
+//	if (ent->client->unique_weapon_total < 0)
+//		ent->client->unique_weapon_total = 0;
+//	if (ent->client->inventory[index] < 0)
+//		ent->client->inventory[index] = 0;
+//	// Weapon farming fix end
+//
+//	if (!temp)
+//	{
+//		temp = Drop_Item(ent, item);
+//		ent->client->inventory[index]--;
+//	}
+//
+//	edict_t *drop = Drop_Item(ent, item);
+//	drop->spawnflags |= SPAWNFLAG_ITEM_DROPPED_PLAYER;
+//	drop->svflags &= ~SVF_INSTANCED;
+//	ent->client->pers.inventory[index]--;
+//}
+
+void Drop_Weapon(edict_t* ent, gitem_t* item)
 {
-	item_id_t index = item->id;
-	gitem_t* replacement = NULL;
+	int index;
+	gitem_t* replacement;
 	edict_t* temp = NULL;
 
-	// see if we're already using it
-	if (((item == ent->client->pers.weapon) || (item == ent->client->newweapon)) && (ent->client->pers.inventory[index] == 1))
-	{
-		gi.LocClient_Print(ent, PRINT_HIGH, "$g_cant_drop_weapon");
-		return;
-	}
-
-	// Don't drop weaons if weapon stay is enabled
-	if (g_dm_weapons_stay->integer)
+	if (g_dm_weapons_stay->value)
 		return;
 
 	// AQ:TNG - JBravo fixing weapon farming
@@ -1026,22 +1232,25 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 			"You are too busy bandaging right now...\n");
 		return;
 	}
-
+	// don't let them drop this, causes duplication
 	if (ent->client->newweapon == item)
 		return;
 
-	if (item->id == IT_WEAPON_MK23)
+	index = ITEM_INDEX(item);
+	// see if we're already using it
+	//zucc special cases for dropping
+	
+	if (index == IT_WEAPON_MK23)
 	{
-		gi.LocClient_Print(ent, PRINT_HIGH, "Can't drop the {}.\n", MK23_NAME);
+		gi.LocClient_Print(ent, PRINT_HIGH, "Can't drop the %s.\n", MK23_NAME);
 		return;
 	}
-	else if (item->id == IT_WEAPON_MP5)
+	else if (index == IT_WEAPON_MP5)
 	{
 
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
-			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
-			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23);
+			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 51;
 
@@ -1052,13 +1261,11 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
-	else if (item->id == IT_WEAPON_M4)
+	else if (index == IT_WEAPON_M4)
 	{
 
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
-			
-			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 44;
@@ -1070,12 +1277,11 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
-	else if (item->id == IT_WEAPON_M3)
+	else if (index == IT_WEAPON_M3)
 	{
 
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
-			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 41;
@@ -1086,11 +1292,10 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
-	else if (item->id == IT_WEAPON_HANDCANNON)
+	else if (index == IT_WEAPON_HANDCANNON)
 	{
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
-			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 61;
@@ -1101,14 +1306,13 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		temp->think = temp_think_specweap;
 		ent->client->inventory[index]--;
 	}
-	else if (item->id == IT_WEAPON_SNIPER)
+	else if (index == IT_WEAPON_SNIPER)
 	{
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
 			// in case they are zoomed in
 			ent->client->ps.fov = 90;
 			ent->client->desired_fov = 90;
-			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 50;
@@ -1116,14 +1320,15 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		}
 		ent->client->unique_weapon_total--;	// dropping 1 unique weapon
 		temp = Drop_Item(ent, item);
-		temp->think = temp_think_specweap;
-		ent->client->inventory[index]--;
+		/*temp->think = temp_think_specweap;
+		ent->client->inventory[index]--;*/
+		temp->spawnflags |= SPAWNFLAG_ITEM_DROPPED_PLAYER;
+		temp->svflags &= ~SVF_INSTANCED;
 	}
-	else if (item->id == IT_WEAPON_DUALMK23)
+	else if (index == IT_WEAPON_DUALMK23)
 	{
 		if (ent->client->pers.weapon == item)
 		{
-			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 40;
@@ -1131,13 +1336,12 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		}
 		ent->client->dual_rds = ent->client->mk23_rds;
 	}
-	else if (item->id == IT_WEAPON_KNIFE)
+	else if (index == IT_WEAPON_KNIFE)
 	{
 		//gi.cprintf(ent, PRINT_HIGH, "Before checking knife inven frames = %d\n", ent->client->ps.gunframe);
 
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
-			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			if (ent->client->pers.knife_mode)	// hack to avoid an error
 			{
@@ -1149,7 +1353,7 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 			//      gi.cprintf(ent, PRINT_HIGH, "After change weap from knife drop frames = %d\n", ent->client->ps.gunframe);
 		}
 	}
-	else if (item->id == IT_WEAPON_GRENADES)
+	else if (index == IT_WEAPON_GRENADES)
 	{
 		if (ent->client->pers.weapon == item && ent->client->inventory[index] == 1)
 		{
@@ -1163,21 +1367,23 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 				ent->client->ps.gunframe = 0;
 
 				// Reset Grenade Damage to 1.52 when requested:
-				// if (use_classic->value)
-				// 	damage = GRENADE_DAMRAD_CLASSIC;
-				// else
+				/*if (use_classic->value)
+					damage = GRENADE_DAMRAD_CLASSIC;
+				else*/
 				damage = GRENADE_DAMRAD;
 
-				fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, 80_ms, damage * 2, false);
+				/*if (ent->client->quad_framenum > level.framenum)
+					damage *= 1.5f;*/
+
+				fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, gtime_t::from_sec(2), damage * 2, false);
 
 				INV_AMMO(ent, GRENADE_NUM)--;
-				ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
+				ent->client->newweapon = GET_ITEM(MK23_NUM);
 				ent->client->weaponstate = WEAPON_DROPPING;
 				ent->client->ps.gunframe = 0;
 				return;
 			}
 
-			//replacement = GET_ITEM(MK23_NUM);	// back to the pistol then
 			ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23); // back to the pistol then
 			ent->client->weaponstate = WEAPON_DROPPING;
 			ent->client->ps.gunframe = 0;
@@ -1204,11 +1410,8 @@ void Drop_Weapon(edict_t *ent, gitem_t *item)
 		ent->client->inventory[index]--;
 	}
 
-	edict_t *drop = Drop_Item(ent, item);
-	drop->spawnflags |= SPAWNFLAG_ITEM_DROPPED_PLAYER;
-	drop->svflags &= ~SVF_INSTANCED;
-	ent->client->pers.inventory[index]--;
 }
+
 
 void Weapon_PowerupSound(edict_t *ent)
 {
@@ -1437,12 +1640,12 @@ inline void Weapon_HandleFiring(edict_t *ent, int32_t FRAME_IDLE_FIRST, std::fun
 // #define FRAME_DEACTIVATE_FIRST  (FRAME_IDLE_LAST + 1)
 
 #define FRAME_RELOAD_FIRST              (FRAME_DEACTIVATE_LAST +1)
-#define FRAME_LASTRD_FIRST   (FRAME_RELOAD_LAST +1)
+#define FRAME_LASTRD_FIRST				(FRAME_RELOAD_LAST +1)
 
-#define MK23MAG 12
-#define MP5MAG  30
-#define M4MAG   24
-#define DUALMAG 24
+constexpr int32_t MK23MAG = 12;
+constexpr int32_t MP5MAG = 30;
+constexpr int32_t M4MAG = 24;
+constexpr int32_t DUALMAG = 24;
 
 // Action End
 
@@ -2534,6 +2737,37 @@ void DropSpecialWeapon(edict_t* ent)
 
 }
 
+
+// used for when we want to force a player to drop an extra special weapon
+// for when they drop the bandolier and they are over the weapon limit
+void DropExtraSpecial(edict_t* ent)
+{
+	int itemNum;
+
+	itemNum = ent->client->pers.weapon->id ? ent->client->pers.weapon->id : 0;
+	if (itemNum >= IT_WEAPON_MP5 && itemNum <= IT_WEAPON_SNIPER)
+	{
+		// if they have more than 1 then they are willing to drop one           
+		if (INV_AMMO(ent, itemNum) > 1) {
+			Drop_Weapon(ent, ent->client->pers.weapon);
+			return;
+		}
+	}
+	// otherwise drop some weapon they aren't using
+	if (INV_AMMO(ent, IT_AMMO_SLUGS) > 0 && IT_WEAPON_SNIPER != itemNum)
+		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_SNIPER));
+	else if (INV_AMMO(ent, IT_AMMO_SHELLS) > 0 && IT_WEAPON_HANDCANNON != itemNum)
+		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_HANDCANNON));
+	else if (INV_AMMO(ent, IT_AMMO_SHELLS) > 0 && IT_WEAPON_M3 != itemNum)
+		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_M3));
+	else if (INV_AMMO(ent, IT_AMMO_ROCKETS) > 0 && IT_WEAPON_MP5 != itemNum)
+		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_MP5));
+	else if (INV_AMMO(ent, IT_AMMO_CELLS) > 0 && IT_WEAPON_M4 != itemNum)
+		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_M4));
+	else
+		gi.Com_Print("Couldn't find the appropriate weapon to drop.\n");
+}
+
 /*
 ======================================================================
 
@@ -3487,36 +3721,6 @@ int AdjustSpread(edict_t* ent, int spread)
 	}
 
 	return (int)(spread * factor[stage]);
-}
-
-// used for when we want to force a player to drop an extra special weapon
-// for when they drop the bandolier and they are over the weapon limit
-void DropExtraSpecial(edict_t* ent)
-{
-	int itemNum;
-
-	itemNum = ent->client->pers.weapon->id ? ent->client->pers.weapon->id : 0;
-	if (itemNum >= IT_WEAPON_MP5 && itemNum <= IT_WEAPON_SNIPER)
-	{
-		// if they have more than 1 then they are willing to drop one           
-		if (INV_AMMO(ent, itemNum) > 1) {
-			Drop_Weapon(ent, ent->client->pers.weapon);
-			return;
-		}
-	}
-	// otherwise drop some weapon they aren't using
-	if (INV_AMMO(ent, IT_AMMO_SLUGS) > 0 && IT_WEAPON_SNIPER != itemNum)
-		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_SNIPER));
-	else if (INV_AMMO(ent, IT_AMMO_SHELLS) > 0 && IT_WEAPON_HANDCANNON != itemNum)
-		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_HANDCANNON));
-	else if (INV_AMMO(ent, IT_AMMO_SHELLS) > 0 && IT_WEAPON_M3 != itemNum)
-		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_M3));
-	else if (INV_AMMO(ent, IT_AMMO_ROCKETS) > 0 && IT_WEAPON_MP5 != itemNum)
-		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_MP5));
-	else if (INV_AMMO(ent, IT_AMMO_CELLS) > 0 && IT_WEAPON_M4 != itemNum)
-		Drop_Weapon(ent, GetItemByIndex(IT_WEAPON_M4));
-	else
-		gi.Com_Print("Couldn't find the appropriate weapon to drop.\n");
 }
 
 //zucc ready special weapon
