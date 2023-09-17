@@ -3865,29 +3865,23 @@ void Pistol_Fire(edict_t* ent)
 		gi.sound(ent, CHAN_VOICE, level.snd_noammo, 1, ATTN_NORM, 0);
 		return;
 	}
-	
-	//Calculate the kick angles
-	vec3_t kick_origin {}, kick_angles {};
-		for (i = 0; i < 3; i++)
-		{
-			kick_origin[i] = crandom() * 0.35;
-			kick_angles[i] = crandom() * 0.7;
-		}
-		P_AddWeaponKick(ent, kick_origin, kick_angles);
-	kick_origin[0] = crandom() * 0.35;
-	kick_angles[0] = ent->client->machinegun_shots * -1.5;
-
-	// get start / end positions
-	VectorAdd(ent->client->v_angle, kick_angles, angles);
-	AngleVectors(angles, forward, right, NULL);
-	VectorSet(offset, 0, 8, ent->viewheight - height);
-	P_ProjectSource(ent, ent->s.origin, offset, forward, start);
 
 	spread = AdjustSpread(ent, spread);
 
 	if (ent->client->pers.mk23_mode)
 		spread *= .7;
-
+	vec3_t kick_origin{}, kick_angles{};
+	for (i = 0; i < 3; i++)
+	{
+		kick_origin[i] = crandom() * 0.25;
+		kick_angles[i] = crandom() * 0.5;
+	}
+	vec3_t dir;
+	kick_origin[0] = crandom() * 0.35;
+	kick_angles[0] = ent->client->machinegun_shots * -.7;
+	P_AddWeaponKick(ent, kick_origin, kick_angles);
+	ent->client->v_angle += kick_angles;
+	P_ProjectSource(ent, ent->client->v_angle, { 0, 0, 0 }, start, dir);
 	//      gi.LocClient_Print(ent, PRINT_HIGH, "Spread is %d\n", spread);
 
 	if (ent->client->mk23_rds == 1)
@@ -3897,7 +3891,7 @@ void Pistol_Fire(edict_t* ent)
 		ent->client->weaponstate = WEAPON_END_MAG;
 	}
 
-	fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_MK23);
+	fire_bullet(ent, start, dir, damage, kick, spread, spread, MOD_MK23);
 
 	//Stats_AddShot(ent, MOD_MK23);
 
@@ -3986,28 +3980,26 @@ void MP5_Fire(edict_t* ent)
 	if (ent->client->burst)
 		spread *= .7;
 
-
-	//Calculate the kick angles
 	vec3_t kick_origin {}, kick_angles {};
-		for (i = 0; i < 3; i++)
-		{
-			kick_origin[i] = crandom() * 0.25;
-			kick_angles[i] = crandom() * 0.5;
-		}
-
-	P_ProjectSource(ent, ent->client->v_angle, { 0, 7, -8 }, start, dir);
-	P_AddWeaponKick(ent, kick_origin, kick_angles);
+	for (i = 0; i < 3; i++)
+	{
+		kick_origin[i] = crandom() * 0.25;
+		kick_angles[i] = crandom() * 0.5;
+	}
 
 	kick_origin[0] = crandom() * 0.35;
 	kick_angles[0] = ent->client->machinegun_shots * -1.5;
 
+	P_AddWeaponKick(ent, kick_origin, kick_angles);
+	ent->client->v_angle += kick_angles;
+	P_ProjectSource(ent, ent->client->v_angle, { 0, 0, 0 }, start, dir);
 	// get start / end positions
 	// VectorAdd(ent->client->v_angle, kick_angles, angles);
 	// AngleVectors(angles, forward, right, NULL);
 	// VectorSet(offset, 0, 8, ent->viewheight - height);
 	// P_ProjectSource(ent, ent->s.origin, offset, forward, right, start);
 	G_LagCompensate(ent, start, dir);
-	fire_bullet(ent, start, forward, damage, kick, spread, spread, MOD_MP5);
+	fire_bullet(ent, start, dir, damage, kick, spread, spread, MOD_MP5);
 	G_UnLagCompensate();
 
 	//Stats_AddShot(ent, MOD_MP5);
@@ -4056,75 +4048,56 @@ void Weapon_MP5(edict_t* ent)
 	//Weapon_Repeating(ent, 10, 12, 47, 51, pause_frames, fire_frames, MP5_Fire);
 }
 
-// zucc fire_load_ap for rounds that pass through soft targets and keep going
-static void fire_lead_ap(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int te_impact, int hspread, int vspread, mod_id_t mod)
+struct fire_lead_pierce_t : pierce_args_t
 {
-	trace_t tr;
-	vec3_t dir, forward, right, up, end;
-	float r, u;
-	vec3_t water_start;
-	bool water = false;
-	contents_t content_mask = MASK_SHOT | MASK_WATER;
-	vec3_t from;
-	edict_t *ignore;
+	edict_t* self;
+	vec3_t		 start;
+	vec3_t		 aimdir;
+	int			 damage;
+	int			 kick;
+	int			 hspread;
+	int			 vspread;
+	mod_t		 mod;
+	int			 te_impact;
+	contents_t   mask;
+	bool	     water = false;
+	vec3_t	     water_start = {};
+	edict_t* chain = nullptr;
 
-
-	InitTookDamage();
-	// setup
-	stopAP = 0;
-	dir = vectoangles(aimdir);
-	AngleVectors(dir, forward, right, up);
-
-	r = crandom() * hspread;
-	u = crandom() * vspread;
-	VectorMA(start, 8192, forward, end);
-	VectorMA(end, r, right, end);
-	VectorMA(end, u, up, end);
-	VectorCopy(start, from);
-	if (gi.pointcontents(start) & MASK_WATER)
+	inline fire_lead_pierce_t(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, mod_t mod, int te_impact, contents_t mask) :
+		pierce_args_t(),
+		self(self),
+		start(start),
+		aimdir(aimdir),
+		damage(damage),
+		kick(kick),
+		hspread(hspread),
+		vspread(vspread),
+		mod(mod),
+		te_impact(te_impact),
+		mask(mask)
 	{
-		water = true;
-		VectorCopy (start, water_start);
-		content_mask &= ~MASK_WATER;
 	}
 
-	ignore = self;
-
-	while (ignore)
+	// we hit an entity; return false to stop the piercing.
+	// you can adjust the mask for the re-trace (for water, etc).
+	bool hit(contents_t& mask, vec3_t& end) override
 	{
-		PRETRACE();
-		//tr = gi.trace (from, NULL, NULL, end, ignore, mask);
-		tr = gi.trace(from, self->mins, self->maxs, end, ignore, content_mask);
-		POSTTRACE();
-
-		// glass fx
-		// catch case of firing thru one or breakable glasses
-		while (tr.fraction < 1.0 && (tr.surface->flags & (SURF_TRANS33|SURF_TRANS66))
-			&& (tr.ent) && (0 == strcmp(tr.ent->classname, "func_explosive")))
-		{
-			// break glass
-			// Will review this later  
-			//CGF_SFX_ShootBreakableGlass(tr.ent, self, &tr, mod);
-			// continue trace from current endpos to start
-			PRETRACE();
-			tr = gi.trace(tr.endpos, self->mins, self->maxs, end, tr.ent, content_mask);
-			POSTTRACE();
-		}
-		// ---
-
 		// see if we hit water
 		if (tr.contents & MASK_WATER)
 		{
 			int color;
 
 			water = true;
-			VectorCopy(tr.endpos, water_start);
+			water_start = tr.endpos;
 
-			if (!VectorCompare(from, tr.endpos))
+			// CHECK: is this compare ever true?
+			if (te_impact != -1 && start != tr.endpos)
 			{
 				if (tr.contents & CONTENTS_WATER)
 				{
-					if (strcmp(tr.surface->name, "*brwater") == 0)
+					// FIXME: this effectively does nothing..
+					if (strcmp(tr.surface->name, "brwater") == 0)
 						color = SPLASH_BROWN_WATER;
 					else
 						color = SPLASH_BLUE_WATER;
@@ -4148,106 +4121,319 @@ static void fire_lead_ap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 				}
 
 				// change bullet's course when it enters water
-				VectorSubtract(end, from, dir);
+				vec3_t dir, forward, right, up;
+				dir = end - start;
 				dir = vectoangles(dir);
 				AngleVectors(dir, forward, right, up);
-				r = crandom() * hspread * 2;
-				u = crandom() * vspread * 2;
-				VectorMA(water_start, 8192, forward, end);
-				VectorMA(end, r, right, end);
-				VectorMA(end, u, up, end);
+				float r = crandom() * hspread * 2;
+				float u = crandom() * vspread * 2;
+				end = water_start + (forward * 8192);
+				end += (right * r);
+				end += (up * u);
 			}
 
 			// re-trace ignoring water this time
-			PRETRACE();
-			tr = gi.trace(water_start, self->mins, self->maxs, end, ignore, MASK_SHOT);
-			POSTTRACE();
+			mask &= ~MASK_WATER;
+			return true;
 		}
 
-		// send gun puff / flash
-
-		ignore = NULL;
-
-		if (tr.surface && (tr.surface->flags & SURF_SKY))
-			continue;
-
-		if (tr.fraction < 1.0)
+		// did we hit an hurtable entity?
+		if (tr.ent->takedamage)
 		{
+			T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_NONE, mod);
 
-			if ((tr.ent->svflags & SVF_MONSTER) || tr.ent->client)
+			// only deadmonster is pierceable, or actual dead monsters
+			// that haven't been made non-solid yet
+			if ((tr.ent->svflags & SVF_DEADMONSTER) ||
+				(tr.ent->health <= 0 && (tr.ent->svflags & SVF_MONSTER)))
 			{
-				ignore = tr.ent;
-				VectorCopy(tr.endpos, from);
-				//FIREBLADE
-				// Advance the "from" point a few units
-				// towards "end" here
-				if (tr.ent->client)
-				{
-					if (tr.ent->client->took_damage)
-					{
-						vec3_t out;
-						VectorSubtract(end, from, out);
-						VectorNormalize(out);
-						VectorScale(out, 8, out);
-						VectorAdd(out, from, from);
-						continue;
-					}
-					tr.ent->client->took_damage++;
-				}
-				//FIREBLADE
-			}
+				if (!mark(tr.ent))
+					return false;
 
-			if (tr.ent != self && tr.ent->takedamage)
-			{
-				T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_NONE, mod);
-				if (stopAP)	// the AP round hit something that would stop it (kevlar)
-					ignore = NULL;
-			}
-			else if (tr.ent != self && !water)
-			{
-				if (strncmp(tr.surface->name, "sky", 3) != 0)
-				{
-					//AddDecal(self, &tr);
-					gi.WriteByte(svc_temp_entity);
-					gi.WriteByte(te_impact);
-					gi.WritePosition (tr.endpos);
-					gi.WriteDir(tr.plane.normal);
-					gi.multicast(tr.endpos, MULTICAST_PVS, false);
-
-					if (self->client)
-						PlayerNoise(self, tr.endpos, PNOISE_IMPACT);
-				}
+				return true;
 			}
 		}
+		else
+		{
+			// send gun puff / flash
+			// don't mark the sky
+			if (te_impact != -1 && !(tr.surface && ((tr.surface->flags & SURF_SKY) || strncmp(tr.surface->name, "sky", 3) == 0)))
+			{
+				gi.WriteByte(svc_temp_entity);
+				gi.WriteByte(te_impact);
+				gi.WritePosition(tr.endpos);
+				gi.WriteDir(tr.plane.normal);
+				gi.multicast(tr.endpos, MULTICAST_PVS, false);
+
+				if (self->client)
+					PlayerNoise(self, tr.endpos, PNOISE_IMPACT);
+			}
+		}
+
+		// hit a solid, so we're stopping here
+
+		return false;
+	}
+};
+// zucc fire_load_ap for rounds that pass through soft targets and keep going
+static void fire_lead_ap(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int kick, int te_impact, int hspread, int vspread, mod_id_t mod)
+{
+	//trace_t tr;
+	//vec3_t dir, forward, right, up, end;
+	//float r, u;
+	//vec3_t water_start;
+	//bool water = false;
+	//contents_t content_mask = MASK_SHOT | MASK_WATER;
+	//vec3_t from;
+	//edict_t *ignore;
+
+
+	//InitTookDamage();
+	//// setup
+	//stopAP = 0;
+	//dir = vectoangles(aimdir);
+	//AngleVectors(dir, forward, right, up);
+
+	//r = crandom() * hspread;
+	//u = crandom() * vspread;
+	//VectorMA(start, 8192, forward, end);
+	//VectorMA(end, r, right, end);
+	//VectorMA(end, u, up, end);
+	//VectorCopy(start, from);
+	//if (gi.pointcontents(start) & MASK_WATER)
+	//{
+	//	water = true;
+	//	VectorCopy (start, water_start);
+	//	content_mask &= ~MASK_WATER;
+	//}
+
+	//ignore = self;
+
+	//while (ignore)
+	//{
+	//	PRETRACE();
+	//	//tr = gi.trace (from, NULL, NULL, end, ignore, mask);
+	//	tr = gi.trace(from, self->mins, self->maxs, end, ignore, content_mask);
+	//	POSTTRACE();
+
+	//	// glass fx
+	//	// catch case of firing thru one or breakable glasses
+	//	while (tr.fraction < 1.0 && (tr.surface->flags & (SURF_TRANS33|SURF_TRANS66))
+	//		&& (tr.ent) && (0 == strcmp(tr.ent->classname, "func_explosive")))
+	//	{
+	//		// break glass
+	//		// Will review this later  
+	//		//CGF_SFX_ShootBreakableGlass(tr.ent, self, &tr, mod);
+	//		// continue trace from current endpos to start
+	//		PRETRACE();
+	//		tr = gi.trace(tr.endpos, self->mins, self->maxs, end, tr.ent, content_mask);
+	//		POSTTRACE();
+	//	}
+	//	// ---
+
+	//	// see if we hit water
+	//	if (tr.contents & MASK_WATER)
+	//	{
+	//		int color;
+
+	//		water = true;
+	//		VectorCopy(tr.endpos, water_start);
+
+	//		if (!VectorCompare(from, tr.endpos))
+	//		{
+	//			if (tr.contents & CONTENTS_WATER)
+	//			{
+	//				if (strcmp(tr.surface->name, "*brwater") == 0)
+	//					color = SPLASH_BROWN_WATER;
+	//				else
+	//					color = SPLASH_BLUE_WATER;
+	//			}
+	//			else if (tr.contents & CONTENTS_SLIME)
+	//				color = SPLASH_SLIME;
+	//			else if (tr.contents & CONTENTS_LAVA)
+	//				color = SPLASH_LAVA;
+	//			else
+	//				color = SPLASH_UNKNOWN;
+
+	//			if (color != SPLASH_UNKNOWN)
+	//			{
+	//				gi.WriteByte(svc_temp_entity);
+	//				gi.WriteByte(TE_SPLASH);
+	//				gi.WriteByte(8);
+	//				gi.WritePosition(tr.endpos);
+	//				gi.WriteDir(tr.plane.normal);
+	//				gi.WriteByte(color);
+	//				gi.multicast(tr.endpos, MULTICAST_PVS, false);
+	//			}
+
+	//			// change bullet's course when it enters water
+	//			VectorSubtract(end, from, dir);
+	//			dir = vectoangles(dir);
+	//			AngleVectors(dir, forward, right, up);
+	//			r = crandom() * hspread * 2;
+	//			u = crandom() * vspread * 2;
+	//			VectorMA(water_start, 8192, forward, end);
+	//			VectorMA(end, r, right, end);
+	//			VectorMA(end, u, up, end);
+	//		}
+
+	//		// re-trace ignoring water this time
+	//		PRETRACE();
+	//		tr = gi.trace(water_start, self->mins, self->maxs, end, ignore, MASK_SHOT);
+	//		POSTTRACE();
+	//	}
+
+	//	// send gun puff / flash
+
+	//	ignore = NULL;
+
+	//	if (tr.surface && (tr.surface->flags & SURF_SKY))
+	//		continue;
+
+	//	if (tr.fraction < 1.0)
+	//	{
+
+	//		if ((tr.ent->svflags & SVF_MONSTER) || tr.ent->client)
+	//		{
+	//			ignore = tr.ent;
+	//			VectorCopy(tr.endpos, from);
+	//			//FIREBLADE
+	//			// Advance the "from" point a few units
+	//			// towards "end" here
+	//			if (tr.ent->client)
+	//			{
+	//				if (tr.ent->client->took_damage)
+	//				{
+	//					vec3_t out;
+	//					VectorSubtract(end, from, out);
+	//					VectorNormalize(out);
+	//					VectorScale(out, 8, out);
+	//					VectorAdd(out, from, from);
+	//					continue;
+	//				}
+	//				tr.ent->client->took_damage++;
+	//			}
+	//			//FIREBLADE
+	//		}
+
+	//		if (tr.ent != self && tr.ent->takedamage)
+	//		{
+	//			T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_NONE, mod);
+	//			if (stopAP)	// the AP round hit something that would stop it (kevlar)
+	//				ignore = NULL;
+	//		}
+	//		else if (tr.ent != self && !water)
+	//		{
+	//			if (strncmp(tr.surface->name, "sky", 3) != 0)
+	//			{
+	//				//AddDecal(self, &tr);
+	//				gi.WriteByte(svc_temp_entity);
+	//				gi.WriteByte(te_impact);
+	//				gi.WritePosition (tr.endpos);
+	//				gi.WriteDir(tr.plane.normal);
+	//				gi.multicast(tr.endpos, MULTICAST_PVS, false);
+
+	//				if (self->client)
+	//					PlayerNoise(self, tr.endpos, PNOISE_IMPACT);
+	//			}
+	//		}
+	//	}
+	//}
+
+	//// if went through water, determine where the end and make a bubble trail
+	//if (water)
+	//{
+	//	vec3_t pos;
+
+	//	VectorSubtract(tr.endpos, water_start, dir);
+	//	VectorNormalize(dir);
+	//	VectorMA(tr.endpos, -2, dir, pos);
+	//	if (gi.pointcontents(pos) & MASK_WATER) {
+	//		VectorCopy(pos, tr.endpos);
+	//	} else {
+	//		PRETRACE();
+	//		tr = gi.traceline(pos, water_start, tr.ent, MASK_WATER);
+	//		//tr = gi.trace(pos, NULL, NULL, water_start, tr.ent, MASK_WATER);
+	//		POSTTRACE();
+	//	}
+
+	//	VectorAdd(water_start, tr.endpos, pos);
+	//	VectorScale(pos, 0.5, pos);
+
+	//	gi.WriteByte(svc_temp_entity);
+	//	gi.WriteByte(TE_BUBBLETRAIL);
+	//	gi.WritePosition(water_start);
+	//	gi.WritePosition(tr.endpos);
+	//	gi.multicast(pos, MULTICAST_PVS, false);
+	//}
+	fire_lead_pierce_t args = {
+	self,
+	start,
+	aimdir,
+	damage,
+	kick,
+	hspread,
+	vspread,
+	mod,
+	te_impact,
+	MASK_PROJECTILE | MASK_WATER
+	};
+
+	// [Paril-KEX]
+	if (self->client && !G_ShouldPlayersCollide(true))
+		args.mask &= ~CONTENTS_PLAYER;
+
+	// special case: we started in water.
+	if (gi.pointcontents(start) & MASK_WATER)
+	{
+		args.water = true;
+		args.water_start = start;
+		args.mask &= ~MASK_WATER;
 	}
 
-	// if went through water, determine where the end and make a bubble trail
-	if (water)
+	// check initial firing position
+	pierce_trace(self->s.origin, start, self, args, args.mask);
+
+	// we're clear, so do the second pierce
+	if (args.tr.fraction == 1.f)
 	{
-		vec3_t pos;
+		args.restore();
 
-		VectorSubtract(tr.endpos, water_start, dir);
-		VectorNormalize(dir);
-		VectorMA(tr.endpos, -2, dir, pos);
-		if (gi.pointcontents(pos) & MASK_WATER) {
-			VectorCopy(pos, tr.endpos);
-		} else {
-			PRETRACE();
-			tr = gi.traceline(pos, water_start, tr.ent, MASK_WATER);
-			//tr = gi.trace(pos, NULL, NULL, water_start, tr.ent, MASK_WATER);
-			POSTTRACE();
-		}
+		vec3_t end, dir, forward, right, up;
+		dir = vectoangles(aimdir);
+		AngleVectors(dir, forward, right, up);
 
-		VectorAdd(water_start, tr.endpos, pos);
-		VectorScale(pos, 0.5, pos);
+		float r = crandom() * hspread;
+		float u = crandom() * vspread;
+		end = start + (forward * 8192);
+		end += (right * r);
+		end += (up * u);
+
+		pierce_trace(args.tr.endpos, end, self, args, args.mask);
+	}
+
+	// if went through water, determine where the end is and make a bubble trail
+	if (args.water && te_impact != -1)
+	{
+		vec3_t pos, dir;
+
+		dir = args.tr.endpos - args.water_start;
+		dir.normalize();
+		pos = args.tr.endpos + (dir * -2);
+		if (gi.pointcontents(pos) & MASK_WATER)
+			args.tr.endpos = pos;
+		else
+			args.tr = gi.traceline(pos, args.water_start, args.tr.ent != world ? args.tr.ent : nullptr, MASK_WATER);
+
+		pos = args.water_start + args.tr.endpos;
+		pos *= 0.5f;
 
 		gi.WriteByte(svc_temp_entity);
 		gi.WriteByte(TE_BUBBLETRAIL);
-		gi.WritePosition(water_start);
-		gi.WritePosition(tr.endpos);
+		gi.WritePosition(args.water_start);
+		gi.WritePosition(args.tr.endpos);
 		gi.multicast(pos, MULTICAST_PVS, false);
 	}
-
 }
 
 // zucc - for the M4
@@ -4334,44 +4520,31 @@ void M4_Fire(edict_t* ent)
 	{
 		ent->client->machinegun_shots = 0;
 	}
-
-
 	spread = AdjustSpread(ent, spread);
 	if (ent->client->burst)
 		spread *= .7;
-
-
-	//      gi.LocClient_Print(ent, PRINT_HIGH, "Spread is %d\n", spread);
-
-
-	//Calculate the kick angles
+	//gi.LocClient_Print(ent, PRINT_HIGH, "Spread is %d\n", spread);
 	vec3_t kick_origin {}, kick_angles {};
-		for (i = 0; i < 3; i++)
-		{
-			kick_origin[i] = crandom() * 0.25;
-			kick_angles[i] = crandom() * 0.5;
-		}
-		P_AddWeaponKick(ent, kick_origin, kick_angles);
+	for (i = 0; i < 3; i++)
+	{
+		kick_origin[i] = crandom() * 0.25;
+		kick_angles[i] = crandom() * 0.5;
+	}
+
 	kick_origin[0] = crandom() * 0.35;
 	kick_angles[0] = ent->client->machinegun_shots * -.7;
-	VectorAdd(ent->client->v_angle, kick_angles, angles);
-	AngleVectors(angles, forward, right, NULL);
-	VectorSet(offset, 0, 8, ent->viewheight - height);
-	
-	P_ProjectSource(ent, ent->client->v_angle, { 0, 7, -8 }, start, dir);
 	P_AddWeaponKick(ent, kick_origin, kick_angles);
-	// get start / end positions
-	// VectorAdd(ent->client->v_angle, kick_angles, angles);
-	// AngleVectors(angles, forward, right, NULL);
-	// VectorSet(offset, 0, 8, ent->viewheight - height);
-	// P_ProjectSource(ent, ent->s.origin, offset, forward, right, start);
-
+	ent->client->v_angle += kick_angles;
+	P_ProjectSource(ent, ent->client->v_angle, { 0, 0, 0 }, start, dir);
+	
 	if (is_quad)
 		damage *= 1.5f;
 
 	G_LagCompensate(ent, start, dir);
-	fire_bullet_sparks(ent, start, forward, damage, kick, spread, spread, MOD_M4);
+	fire_bullet_sparks(ent, start, dir, damage, kick, spread, spread, MOD_M4);
 	G_UnLagCompensate();
+
+	ent->client->v_angle -= kick_angles;
 	//Stats_AddShot(ent, MOD_M4);
 
 	ent->client->m4_rds--;
