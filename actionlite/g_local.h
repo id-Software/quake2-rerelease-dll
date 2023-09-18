@@ -1825,6 +1825,10 @@ extern cvar_t *e_enhancedSlippers;
 extern cvar_t *use_voice;
 extern cvar_t *strtwpn;
 extern cvar_t *sv_gib;
+extern cvar_t *nohud;
+extern cvar_t *hud_team_icon;
+extern cvar_t *hud_items_cycle;
+
 //extern int meansOfDeath;
 
 // zucc for hitlocation of death

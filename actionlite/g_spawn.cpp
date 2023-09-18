@@ -1623,6 +1623,9 @@ Only used for the world.
 */
 void SP_worldspawn(edict_t *ent)
 {
+	int i, bullets, shells;
+	const char* picname;
+
 	ent->movetype = MOVETYPE_PUSH;
 	ent->solid = SOLID_BSP;
 	ent->inuse = true; // since the world doesn't use G_Spawn()
@@ -1742,6 +1745,30 @@ void SP_worldspawn(edict_t *ent)
 	level.pic_health = gi.imageindex("i_health");
 	gi.imageindex("help");
 	gi.imageindex("field_3");
+
+	// zucc - preload sniper stuff
+	level.pic_sniper_mode[1] = gi.imageindex("scope2x");
+	level.pic_sniper_mode[2] = gi.imageindex("scope4x");
+	level.pic_sniper_mode[3] = gi.imageindex("scope6x");
+
+	for (i = 1; i < AMMO_MAX; i++) {
+		picname = GetItemByIndex(static_cast<item_id_t>(i))->icon;
+		//picname = GET_ITEM(i)->icon;
+		if (picname)
+			level.pic_items[i] = gi.imageindex(picname);
+	}
+
+	bullets = gi.imageindex("a_bullets");
+	shells = gi.imageindex("a_shells");
+	level.pic_weapon_ammo[IT_WEAPON_MK23] = bullets;
+	level.pic_weapon_ammo[IT_WEAPON_MP5] = bullets;
+	level.pic_weapon_ammo[IT_WEAPON_M4] = bullets;
+	level.pic_weapon_ammo[IT_WEAPON_M3] = shells;
+	level.pic_weapon_ammo[IT_WEAPON_HANDCANNON] = shells;
+	level.pic_weapon_ammo[IT_WEAPON_SNIPER] = bullets;
+	level.pic_weapon_ammo[IT_WEAPON_DUALMK23] = bullets;
+	level.pic_weapon_ammo[IT_WEAPON_KNIFE] = gi.imageindex("w_knife");
+	level.pic_weapon_ammo[IT_WEAPON_GRENADES] = gi.imageindex("a_m61frag");
 
 	if (!st.gravity)
 	{

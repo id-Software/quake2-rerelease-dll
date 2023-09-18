@@ -1404,67 +1404,43 @@ DIE(player_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 	self->client->invisible_time = 0_ms;
 	self->flags &= ~FL_POWER_ARMOR;
 
+	// clean up sniper rifle stuff
+	self->client->no_sniper_display = 0;
+	self->client->resp.sniper_mode = SNIPER_1X;
+	self->client->desired_fov = 90;
+	self->client->ps.fov = 90;
+	Bandage(self);		// clear up the leg damage when dead sound?
+	self->client->bandage_stopped = 0;
+	self->client->medkit = 0;
+
 	// clear inventory
-	if (G_TeamplayEnabled())
-		self->client->pers.inventory.fill(0);
+	//if (G_TeamplayEnabled())
+	self->client->pers.inventory.fill(0);
 
-	// RAFAEL
-	self->client->quadfire_time = 0_ms;
-	// RAFAEL
-
-	//==============
-	// ROGUE stuff
-	self->client->double_time = 0_ms;
-
-	// if there's a sphere around, let it know the player died.
-	// vengeance and hunter will die if they're not attacking,
-	// defender should always die
-	if (self->client->owned_sphere)
+	// zucc - check if they have a primed grenade
+	if (self->client->curr_weap.id == IT_WEAPON_GRENADES
+		&& ((self->client->ps.gunframe >= GRENADE_IDLE_FIRST && self->client->ps.gunframe <= GRENADE_IDLE_LAST)
+			|| (self->client->ps.gunframe >= GRENADE_THROW_FIRST && self->client->ps.gunframe <= GRENADE_THROW_LAST)))
 	{
-		edict_t *sphere;
-
-		sphere = self->client->owned_sphere;
-		sphere->die(sphere, self, self, 0, vec3_origin, mod);
+		// Reset Grenade Damage to 1.52 when requested:
+		int damrad = GRENADE_DAMRAD;
+		self->client->ps.gunframe = 0;
+		fire_grenade2(self, self->s.origin, vec3_origin, damrad, 0, gtime_t::from_hz(2), damrad * 2, false);
 	}
 
-	// make sure no trackers are still hurting us.
-	if (self->client->tracker_pain_time)
-	{
-		RemoveAttackingPainDaemons(self);
-	}
-
-	// ROGUE
-	//==============
-
-	if (self->health < -40)
-	{
-		// PMM
-		// don't toss gibs if we got vaped by the nuke
-		if (!(self->flags & FL_NOGIB))
-		{
-			// pmm
-			// gib
-			gi.sound(self, CHAN_BODY, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
-
-			// more meaty gibs for your dollar!
-			if (deathmatch->integer && (self->health < -80))
-				ThrowGibs(self, damage, { { 4, "models/objects/gibs/sm_meat/tris.md2" } });
-			
-			ThrowGibs(self, damage, { { 4, "models/objects/gibs/sm_meat/tris.md2" } });
-			// PMM
-		}
-		self->flags &= ~FL_NOGIB;
-		// pmm
-
+	//mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
+	// Gibbing on really hard HC hit
+	if ((((self->health < -35) && (mod.id == MOD_HC)) ||
+		((self->health < -20) && (mod.id == MOD_M3))) && (sv_gib->value)) {
+		gi.sound(self, CHAN_BODY, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		for (int n = 0; n < 5; n++)
+			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_NONE, self->s.scale);
 		ThrowClientHead(self, damage);
-		// ZOID
 		self->client->anim_priority = ANIM_DEATH;
 		self->client->anim_end = 0;
-		// ZOID
-		self->takedamage = false;
+		self->takedamage = DAMAGE_NO;
 	}
-	else
-	{ // normal death
+	else {		// normal death
 		if (!self->deadflag)
 		{
 			// start a death animation
@@ -1492,54 +1468,170 @@ DIE(player_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 					break;
 				}
 			}
-			static constexpr const char *death_sounds[] = {
+			if ((mod.id == MOD_SNIPER) || (mod.id == MOD_KNIFE)
+				|| (mod.id == MOD_KNIFE_THROWN)) {
+				gi.sound(self, CHAN_VOICE, gi.soundindex("misc/glurp.wav"), 1, ATTN_NORM, 0);
+				// TempFile - BEGIN sniper gibbing
+				if (mod.id == MOD_SNIPER) {
+					int n;
+
+					switch (locOfDeath) {
+					case LOC_HDAM:
+						if (sv_gib->value) {
+							for (n = 0; n < 8; n++)
+								ThrowGib(self,
+									"models/objects/gibs/sm_meat/tris.md2",
+									damage, GIB_NONE, self->s.scale);
+							ThrowClientHead(self, damage);
+						}
+					}
+				}
+			}
+			else {
+				static constexpr const char* death_sounds[] = {
 				"*death1.wav",
 				"*death2.wav",
 				"*death3.wav",
 				"*death4.wav"
-			};
-			gi.sound(self, CHAN_VOICE, gi.soundindex(random_element(death_sounds)), 1, ATTN_NORM, 0);
-			self->client->anim_time = 0_ms;
+				};
+				gi.sound(self, CHAN_VOICE, gi.soundindex(random_element(death_sounds)), 1, ATTN_NORM, 0);
+			}
 		}
+
+		// zucc this will fix a jump kick death generating a weapon
+		self->client->curr_weap.id = IT_WEAPON_MK23;
+
+		self->client->resp.idletime = 0;
+
+		// zucc solves problem of people stopping doors while in their dead bodies
+		// ...only need it in DM though...
+		// ...for teamplay, non-solid will get set soon after in CopyToBodyQue
+		if (!(gameSettings & GS_ROUNDBASED)) {
+			self->solid = SOLID_NOT;
+		}
+
+		self->deadflag = true;
+		gi.linkentity(self);
+
+		// in ctf, when a player dies check if he should be moved to the other team
+		if (ctf->value)
+			CheckForUnevenTeams(self);
+
 	}
 
-	if (!self->deadflag)
-	{
-		if (coop->integer && (g_coop_squad_respawn->integer || g_coop_enable_lives->integer))
-		{
-			if (g_coop_enable_lives->integer && self->client->pers.lives)
-			{
-				self->client->pers.lives--;
-				self->client->resp.coop_respawn.lives--;
-			}
 
-			bool allPlayersDead = true;
 
-			for (auto player : active_players())
-				if (player->health > 0 || (!level.deadly_kill_box && g_coop_enable_lives->integer && player->client->pers.lives > 0))
-				{
-					allPlayersDead = false;
-					break;
-				}
 
-			if (allPlayersDead) // allow respawns for telefrags and weird shit
-			{
-				level.coop_level_restart_time = level.time + 5_sec;
 
-				for (auto player : active_players())
-					gi.LocCenter_Print(player, "$g_coop_lose");
-			}
-		
-			// in 3 seconds, attempt a respawn or put us into
-			// spectator mode
-			if (!level.coop_level_restart_time)
-				self->client->respawn_time = level.time + 3_sec;
-		}
-	}
 
-	self->deadflag = true;
+	//Vanilla Q2R
+	// ROGUE
+	//==============
 
-	gi.linkentity(self);
+	//if (self->health < -40)
+	//{
+	//	// PMM
+	//	// don't toss gibs if we got vaped by the nuke
+	//	if (!(self->flags & FL_NOGIB))
+	//	{
+	//		// pmm
+	//		// gib
+	//		gi.sound(self, CHAN_BODY, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
+
+	//		// more meaty gibs for your dollar!
+	//		if (deathmatch->integer && (self->health < -80))
+	//			ThrowGibs(self, damage, { { 4, "models/objects/gibs/sm_meat/tris.md2" } });
+	//		
+	//		ThrowGibs(self, damage, { { 4, "models/objects/gibs/sm_meat/tris.md2" } });
+	//		// PMM
+	//	}
+	//	self->flags &= ~FL_NOGIB;
+	//	// pmm
+
+	//	ThrowClientHead(self, damage);
+	//	// ZOID
+	//	self->client->anim_priority = ANIM_DEATH;
+	//	self->client->anim_end = 0;
+	//	// ZOID
+	//	self->takedamage = false;
+	//}
+	//else
+	//{ // normal death
+	//	if (!self->deadflag)
+	//	{
+	//		// start a death animation
+	//		self->client->anim_priority = ANIM_DEATH;
+	//		if (self->client->ps.pmove.pm_flags & PMF_DUCKED)
+	//		{
+	//			self->s.frame = FRAME_crdeath1 - 1;
+	//			self->client->anim_end = FRAME_crdeath5;
+	//		}
+	//		else
+	//		{
+	//			switch (irandom(3))
+	//			{
+	//			case 0:
+	//				self->s.frame = FRAME_death101 - 1;
+	//				self->client->anim_end = FRAME_death106;
+	//				break;
+	//			case 1:
+	//				self->s.frame = FRAME_death201 - 1;
+	//				self->client->anim_end = FRAME_death206;
+	//				break;
+	//			case 2:
+	//				self->s.frame = FRAME_death301 - 1;
+	//				self->client->anim_end = FRAME_death308;
+	//				break;
+	//			}
+	//		}
+	//		static constexpr const char *death_sounds[] = {
+	//			"*death1.wav",
+	//			"*death2.wav",
+	//			"*death3.wav",
+	//			"*death4.wav"
+	//		};
+	//		gi.sound(self, CHAN_VOICE, gi.soundindex(random_element(death_sounds)), 1, ATTN_NORM, 0);
+	//		self->client->anim_time = 0_ms;
+	//	}
+	//}
+
+	//if (!self->deadflag)
+	//{
+	//	if (coop->integer && (g_coop_squad_respawn->integer || g_coop_enable_lives->integer))
+	//	{
+	//		if (g_coop_enable_lives->integer && self->client->pers.lives)
+	//		{
+	//			self->client->pers.lives--;
+	//			self->client->resp.coop_respawn.lives--;
+	//		}
+
+	//		bool allPlayersDead = true;
+
+	//		for (auto player : active_players())
+	//			if (player->health > 0 || (!level.deadly_kill_box && g_coop_enable_lives->integer && player->client->pers.lives > 0))
+	//			{
+	//				allPlayersDead = false;
+	//				break;
+	//			}
+
+	//		if (allPlayersDead) // allow respawns for telefrags and weird shit
+	//		{
+	//			level.coop_level_restart_time = level.time + 5_sec;
+
+	//			for (auto player : active_players())
+	//				gi.LocCenter_Print(player, "$g_coop_lose");
+	//		}
+	//	
+	//		// in 3 seconds, attempt a respawn or put us into
+	//		// spectator mode
+	//		if (!level.coop_level_restart_time)
+	//			self->client->respawn_time = level.time + 3_sec;
+	//	}
+	//}
+
+	//self->deadflag = true;
+
+	//gi.linkentity(self);
 }
 
 //=======================================================================

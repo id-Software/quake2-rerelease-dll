@@ -191,6 +191,9 @@ cvar_t *use_newscore;	// Use the new scoreboard
 cvar_t *noscore;	// Don't show the scoreboard
 cvar_t *scoreboard; 
 cvar_t *use_voice;
+cvar_t *nohud;
+cvar_t *hud_team_icon;
+cvar_t *hud_items_cycle;
 
 // Weapon and Item Settings
 cvar_t *allitem;
@@ -319,6 +322,10 @@ void ActionInit()
 	eventeams = gi.cvar("eventeams", "0", CVAR_NOFLAGS);
 	strtwpn = gi.cvar("dmweapon", MK23_NAME, CVAR_NOFLAGS);
 	sv_gib = gi.cvar("sv_gib", "1", CVAR_NOFLAGS);
+	nohud = gi.cvar("nohud", "0", CVAR_LATCH);
+	hud_team_icon = gi.cvar("hud_team_icon", "0", CVAR_NOFLAGS);
+	hud_items_cycle = gi.cvar("hud_items_cycle", "20", CVAR_NOFLAGS);
+
 
 	teams[TEAM1].teamscore = gi.cvar("t1", "0", CVAR_SERVERINFO | CVAR_NOSET);
 	teams[TEAM2].teamscore = gi.cvar("t2", "0", CVAR_SERVERINFO | CVAR_NOSET);

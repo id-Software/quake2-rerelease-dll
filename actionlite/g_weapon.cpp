@@ -245,6 +245,8 @@ fire_lead
 This is an internal support routine used for bullet/pellet based weapons.
 =================
 */
+
+// Vanilla Q2
 static void fire_lead(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int damage, int kick, int te_impact, int hspread, int vspread, mod_t mod)
 {
 	fire_lead_pierce_t args = {
@@ -326,6 +328,167 @@ void InitTookDamage(void)
 		cl->took_damage = 0;
 	}
 }
+
+//static void fire_lead(edict_t* self, vec3_t start, vec3_t aimdir, int damage, int kick, int te_impact, int hspread, int vspread, mod_t mod)
+//{
+//	trace_t tr;
+//	vec3_t dir, forward, right, up, end;
+//	float r, u;
+//	vec3_t water_start;
+//	bool water = false;
+//	contents_t content_mask = MASK_SHOT | MASK_WATER;
+//
+//	PRETRACE();
+//	tr = gi.trace(self->s.origin, self->mins, self->maxs, start, self, MASK_SHOT);
+//	POSTTRACE();
+//	if (!(tr.fraction < 1.0))
+//	{
+//		//vectoangles(aimdir, dir);
+//		dir = vectoangles(dir);
+//		AngleVectors(dir, forward, right, up);
+//
+//		r = crandom() * hspread;
+//		u = crandom() * vspread;
+//		VectorMA(start, 8192, forward, end);
+//		VectorMA(end, r, right, end);
+//		VectorMA(end, u, up, end);
+//
+//		if (gi.pointcontents(start) & MASK_WATER)
+//		{
+//			water = true;
+//			VectorCopy(start, water_start);
+//			content_mask &= ~MASK_WATER;
+//		}
+//
+//		PRETRACE();
+//		tr = gi.trace(start, water_start, water_start, end, self, content_mask);
+//		POSTTRACE();
+//
+//		// glass fx
+//		// catch case of firing thru one or breakable glasses
+//		while ((tr.fraction < 1.0) && (tr.surface->flags & (SURF_TRANS33 | SURF_TRANS66))
+//			&& tr.ent && !Q_strncasecmp(tr.ent->classname, "func_explosive", sizeof(tr.ent->classname)))
+//		{
+//			// break glass  
+//			// TODO: Review this later
+//			//CGF_SFX_ShootBreakableGlass(tr.ent, self, &tr, mod);
+//			// continue trace from current endpos to start
+//			PRETRACE();
+//			tr = gi.trace(tr.endpos, self->mins, self->maxs, end, tr.ent, content_mask);
+//			POSTTRACE();
+//		}
+//		// ---
+//
+//		// see if we hit water
+//		if (tr.contents & MASK_WATER)
+//		{
+//			int color;
+//
+//			water = true;
+//			VectorCopy(tr.endpos, water_start);
+//
+//			if (!VectorCompare(start, tr.endpos))
+//			{
+//				if (tr.contents & CONTENTS_WATER)
+//				{
+//					if (strcmp(tr.surface->name, "*brwater") == 0)
+//						color = SPLASH_BROWN_WATER;
+//					else
+//						color = SPLASH_BLUE_WATER;
+//				}
+//				else if (tr.contents & CONTENTS_SLIME)
+//					color = SPLASH_SLIME;
+//				else if (tr.contents & CONTENTS_LAVA)
+//					color = SPLASH_LAVA;
+//				else
+//					color = SPLASH_UNKNOWN;
+//
+//				if (color != SPLASH_UNKNOWN)
+//				{
+//					gi.WriteByte(svc_temp_entity);
+//					gi.WriteByte(TE_SPLASH);
+//					gi.WriteByte(8);
+//					gi.WritePosition(tr.endpos);
+//					gi.WriteDir(tr.plane.normal);
+//					gi.WriteByte(color);
+//					gi.multicast(tr.endpos, MULTICAST_PVS, false);
+//				}
+//
+//				// change bullet's course when it enters water
+//				VectorSubtract(end, start, dir);
+//				dir = vectoangles(dir);
+//				AngleVectors(dir, forward, right, up);
+//				r = crandom() * hspread * 2;
+//				u = crandom() * vspread * 2;
+//				VectorMA(water_start, 8192, forward, end);
+//				VectorMA(end, r, right, end);
+//				VectorMA(end, u, up, end);
+//			}
+//
+//			// re-trace ignoring water this time
+//			PRETRACE();
+//			tr = gi.trace(water_start, self->mins, self->maxs, end, self, MASK_SHOT);
+//			POSTTRACE();
+//		}
+//	}
+//
+//	// send gun puff / flash
+//	if (!((tr.surface) && (tr.surface->flags & SURF_SKY)))
+//	{
+//		if (tr.fraction < 1.0)
+//		{
+//			if (tr.ent->takedamage)
+//			{
+//				T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, DAMAGE_BULLET, mod);
+//			}
+//			else
+//			{
+//				/*if (mod != MOD_M3 && mod != MOD_HC) {
+//					AddDecal(self, &tr);
+//				}*/
+//
+//				if (strncmp(tr.surface->name, "sky", 3) != 0)
+//				{
+//					gi.WriteByte(svc_temp_entity);
+//					gi.WriteByte(te_impact);
+//					gi.WritePosition(tr.endpos);
+//					gi.WriteDir(tr.plane.normal);
+//					gi.multicast(tr.endpos, MULTICAST_PVS, false);
+//
+//					if (self->client)
+//						PlayerNoise(self, tr.endpos, PNOISE_IMPACT);
+//				}
+//			}
+//		}
+//	}
+//
+//	// if went through water, determine where the end and make a bubble trail
+//	if (water)
+//	{
+//		vec3_t pos;
+//
+//		VectorSubtract(tr.endpos, water_start, dir);
+//		VectorNormalize(dir);
+//		VectorMA(tr.endpos, -2, dir, pos);
+//		if (gi.pointcontents(pos) & MASK_WATER) {
+//			VectorCopy(pos, tr.endpos);
+//		}
+//		else {
+//			PRETRACE();
+//			tr = gi.trace(pos, self->mins, self->maxs, water_start, tr.ent, MASK_WATER);
+//			POSTTRACE();
+//		}
+//
+//		VectorAdd(water_start, tr.endpos, pos);
+//		VectorScale(pos, 0.5, pos);
+//
+//		gi.WriteByte(svc_temp_entity);
+//		gi.WriteByte(TE_BUBBLETRAIL);
+//		gi.WritePosition(water_start);
+//		gi.WritePosition(tr.endpos);
+//		gi.multicast(pos, MULTICAST_PVS, false);
+//	}
+//}
 
 
 /*

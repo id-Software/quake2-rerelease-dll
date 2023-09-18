@@ -1378,7 +1378,8 @@ void Drop_Weapon(edict_t* ent, gitem_t* item)
 				fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, gtime_t::from_sec(2), damage * 2, false);
 
 				INV_AMMO(ent, GRENADE_NUM)--;
-				ent->client->newweapon = GET_ITEM(MK23_NUM);
+				ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23);
+					//GET_ITEM(MK23_NUM);
 				ent->client->weaponstate = WEAPON_DROPPING;
 				ent->client->ps.gunframe = 0;
 				return;

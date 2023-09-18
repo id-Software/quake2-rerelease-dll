@@ -7,32 +7,10 @@ bool Pickup_Weapon(edict_t *ent, edict_t *other);
 void Use_Weapon(edict_t *ent, gitem_t *inv);
 void Drop_Weapon(edict_t *ent, gitem_t *inv);
 
-void Weapon_Blaster(edict_t *ent);
-void Weapon_Shotgun(edict_t *ent);
-void Weapon_SuperShotgun(edict_t *ent);
 void Weapon_Machinegun(edict_t *ent);
 void Weapon_Chaingun(edict_t *ent);
 void Weapon_HyperBlaster(edict_t *ent);
-void Weapon_RocketLauncher(edict_t *ent);
 void Weapon_Grenade(edict_t *ent);
-void Weapon_GrenadeLauncher(edict_t *ent);
-void Weapon_Railgun(edict_t *ent);
-void Weapon_BFG(edict_t *ent);
-// RAFAEL
-void Weapon_Ionripper(edict_t *ent);
-void Weapon_Phalanx(edict_t *ent);
-void Weapon_Trap(edict_t *ent);
-// RAFAEL
-// ROGUE
-void Weapon_ChainFist(edict_t *ent);
-void Weapon_Disintegrator(edict_t *ent);
-void Weapon_ETF_Rifle(edict_t *ent);
-void Weapon_Heatbeam(edict_t *ent);
-void Weapon_Prox(edict_t *ent);
-void Weapon_Tesla(edict_t *ent);
-void Weapon_ProxLauncher(edict_t *ent);
-// ROGUE
-void Weapon_Beta_Disintegrator(edict_t *ent);
 
 void	   Use_Quad(edict_t *ent, gitem_t *item);
 static gtime_t quad_drop_timeout_hack;
@@ -43,9 +21,6 @@ static gtime_t quad_fire_drop_timeout_hack;
 // RAFAEL
 
 // ACTION
-void Use_Weapon (edict_t * ent, gitem_t * inv);
-void Drop_Weapon (edict_t * ent, gitem_t * inv);
-
 void Weapon_MK23 (edict_t * ent);
 void Weapon_MP5 (edict_t * ent);
 void Weapon_M4 (edict_t * ent);

@@ -718,6 +718,324 @@ void G_SetCoopStats(edict_t *ent)
 G_SetStats
 ===============
 */
+
+//void G_SetStats(edict_t* ent)
+//{
+//	gitem_t* item;
+//	int index = 0;
+//
+//	if (!ent->client->chase_mode)
+//	{
+//		int icons[6], numbers[2], icon_count, i;
+//		int cycle = hud_items_cycle->integer * FRAMEDIV;
+//		int weapon_ids[6] = { IT_WEAPON_SNIPER, IT_WEAPON_M4, IT_WEAPON_MP5, IT_WEAPON_M3, IT_WEAPON_HANDCANNON, IT_WEAPON_DUALMK23 };
+//		int s_item_ids[6] = { IT_ITEM_VEST, IT_ITEM_HELM, IT_ITEM_BANDOLIER, IT_ITEM_QUIET, IT_ITEM_SLIPPERS, IT_ITEM_LASERSIGHT };
+//
+//		//
+//		// health
+//		//
+//		ent->client->ps.stats[STAT_HEALTH_ICON] = level.pic_health;
+//		ent->client->ps.stats[STAT_HEALTH] = ent->health;
+//
+//		//
+//		// ammo (now clips really)
+//		//
+//		// zucc modified this to do clips instead
+//		if (!ent->client->ammo_index
+//			/* || !ent->client->inventory[ent->client->ammo_index] */)
+//		{
+//			ent->client->ps.stats[STAT_CLIP_ICON] = 0;
+//			ent->client->ps.stats[STAT_CLIP] = 0;
+//		}
+//		else
+//		{
+//			item = &itemlist[ent->client->ammo_index];
+//			if (item->id < AMMO_MAX)
+//				ent->client->ps.stats[STAT_CLIP_ICON] = level.pic_items[item->id];
+//			else
+//				ent->client->ps.stats[STAT_CLIP_ICON] = gi.imageindex(item->icon);
+//			ent->client->ps.stats[STAT_CLIP] = ent->client->inventory[ent->client->ammo_index];
+//		}
+//
+//		// zucc display special item and special weapon
+//		// Raptor007: Modified to rotate through all carried special weapons and items.
+//
+//		icon_count = 0;
+//		for (i = 0; i < 6; i++)
+//		{
+//			if (INV_AMMO(ent, weapon_ids[i]))
+//				icons[icon_count++] = level.pic_items[weapon_ids[i]];
+//		}
+//		if (icon_count && !cycle)
+//			icon_count = 1;
+//		if (icon_count)
+//			//ent->client->ps.stats[STAT_WEAPONS_ICON] = icons[(level.time.seconds() / cycle) % icon_count];
+//			ent->client->ps.stats[STAT_WEAPONS_ICON] = icons[(level.time.frames() / cycle) % icon_count];
+//		else
+//			ent->client->ps.stats[STAT_WEAPONS_ICON] = 0;
+//
+//		icon_count = 0;
+//		for (i = 0; i < 6; i++)
+//		{
+//			if (INV_AMMO(ent, s_item_ids[i]))
+//				icons[icon_count++] = level.pic_items[s_item_ids[i]];
+//		}
+//		if (icon_count && !cycle)
+//			icon_count = 1;
+//		if (icon_count)
+//			//ent->client->ps.stats[STAT_ITEMS_ICON] = icons[((level.framenum + cycle / 2) / cycle) % icon_count];
+//			ent->client->ps.stats[STAT_ITEMS_ICON] = icons[((level.time.frames() + cycle / 2) / cycle) % icon_count];
+//		else
+//			ent->client->ps.stats[STAT_ITEMS_ICON] = 0;
+//
+//		// grenades remaining
+//		icon_count = 0;
+//		numbers[icon_count] = INV_AMMO(ent, GRENADE_NUM);
+//		if (numbers[icon_count])
+//			icons[icon_count++] = level.pic_weapon_ammo[GRENADE_NUM];
+//		// MedKit
+//		numbers[icon_count] = ent->client->medkit;
+//		if (numbers[icon_count])
+//			icons[icon_count++] = level.pic_health;
+//		// Cycle grenades and medkit if player has both.
+//		if (icon_count && !cycle)
+//			icon_count = 1;
+//		if (icon_count)
+//		{
+//			//int index = ((level.framenum + cycle / 4) / cycle) % icon_count;
+//
+//			index = (level.time.frames() + cycle / 4) % icon_count;
+//			ent->client->ps.stats[STAT_GRENADE_ICON] = icons[index];
+//			ent->client->ps.stats[STAT_GRENADES] = numbers[index];
+//		}
+//		else
+//		{
+//			ent->client->ps.stats[STAT_GRENADE_ICON] = 0;
+//			ent->client->ps.stats[STAT_GRENADES] = 0;
+//		}
+//
+//		//
+//		// ammo by weapon
+//		// 
+//		//
+//
+//		//
+//		// ammo
+//		//
+//		ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+//		ent->client->ps.stats[STAT_AMMO] = 0;
+//
+//		if (ent->client->pers.weapon && ent->client->pers.weapon->ammo)
+//		{
+//			item = GetItemByIndex(ent->client->pers.weapon->ammo);
+//
+//			if (!G_CheckInfiniteAmmo(item))
+//			{
+//				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex(item->icon);
+//				ent->client->ps.stats[STAT_AMMO] = ent->client->pers.inventory[ent->client->pers.weapon->ammo];
+//			}
+//		}
+//	
+//		memset(&ent->client->ps.stats[STAT_AMMO_INFO_START], 0, sizeof(uint16_t) * NUM_AMMO_STATS);
+//		for (unsigned int ammoIndex = AMMO_BULLETS; ammoIndex < AMMO_MAX; ++ammoIndex)
+//		{
+//			gitem_t *ammo = GetItemByAmmo((ammo_t) ammoIndex);
+//			uint16_t val = G_CheckInfiniteAmmo(ammo) ? AMMO_VALUE_INFINITE : clamp(ent->client->pers.inventory[ammo->id], 0, AMMO_VALUE_INFINITE - 1);
+//			G_SetAmmoStat((uint16_t *) &ent->client->ps.stats[STAT_AMMO_INFO_START], ammo->ammo_wheel_index, val);
+//		}
+//
+//
+//
+//		//if (ent->client->pers.weapon && ent->client->curr_weap.id)
+//		//{
+//		//	switch (ent->client->curr_weap.id) {
+//		//	case IT_WEAPON_MK23:
+//		//		ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+//		//		ent->client->ps.stats[STAT_AMMO] = ent->client->mk23_rds;
+//		//		break;
+//		//	case IT_WEAPON_MP5:
+//		//		ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+//		//		ent->client->ps.stats[STAT_AMMO] = ent->client->mp5_rds;
+//		//		break;
+//		//	case IT_WEAPON_M4:
+//		//		ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+//		//		ent->client->ps.stats[STAT_AMMO] = ent->client->m4_rds;
+//		//		break;
+//		//	case IT_WEAPON_M3:
+//		//		ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+//		//		ent->client->ps.stats[STAT_AMMO] = ent->client->shot_rds;
+//		//		break;
+//		//	case IT_WEAPON_HANDCANNON:
+//		//		ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+//		//		ent->client->ps.stats[STAT_AMMO] = ent->client->cannon_rds;
+//		//		break;
+//		//	case IT_WEAPON_SNIPER:
+//		//		ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+//		//		ent->client->ps.stats[STAT_AMMO] = ent->client->sniper_rds;
+//		//		break;
+//		//	case IT_WEAPON_DUALMK23:
+//		//		ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+//		//		ent->client->ps.stats[STAT_AMMO] = ent->client->dual_rds;
+//		//		break;
+//		//	case IT_WEAPON_KNIFE:
+//		//		ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+//		//		ent->client->ps.stats[STAT_AMMO] = INV_AMMO(ent, KNIFE_NUM);
+//		//		break;
+//		//	case IT_WEAPON_GRENADES:
+//		//		ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+//		//		ent->client->ps.stats[STAT_AMMO] = INV_AMMO(ent, GRENADE_NUM);
+//		//		break;
+//		//	//case GRAPPLE_NUM:
+//		//	//	ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+//		//	//	ent->client->ps.stats[STAT_AMMO] = 0;
+//		//	//	break;
+//		//	default:
+//		//		gi.Com_PrintFmt("Failed to find hud weapon/icon for num {}.\n", ent->client->curr_weap.id);
+//		//		break;
+//		//	}
+//		//}
+//		//else {
+//		//	ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+//		//	ent->client->ps.stats[STAT_AMMO] = 0;
+//		//}
+//
+//		//
+//		// sniper mode icons
+//		//
+//		//if ( ent->client->sniper_mode )
+//		//      gi.cprintf (ent, PRINT_HIGH, "Sniper Zoom set at %d.\n", ent->client->sniper_mode);
+//
+//
+//		if (ent->client->resp.sniper_mode == SNIPER_1X
+//			|| ent->client->weaponstate == WEAPON_RELOADING
+//			|| ent->client->weaponstate == WEAPON_BUSY
+//			|| ent->client->no_sniper_display
+//			|| !IS_ALIVE(ent))
+//			ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
+//		else
+//			ent->client->ps.stats[STAT_SNIPER_ICON] = level.pic_sniper_mode[ent->client->resp.sniper_mode];
+//
+//		//
+//		// armor
+//		//
+//		//ent->client->ps.stats[STAT_ARMOR_ICON] = 0; // Replaced with STAT_TEAM_ICON.
+//		ent->client->ps.stats[STAT_ARMOR] = 0;
+//
+//		//
+//		// timers
+//		//
+//		/*if (ent->client->quad_framenum > level.framenum)
+//		{
+//			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_quad");
+//			ent->client->ps.stats[STAT_TIMER] = (ent->client->quad_framenum - level.framenum) / HZ;
+//		}
+//		else if (ent->client->invincible_framenum > level.framenum)
+//		{
+//			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_invulnerability");
+//			ent->client->ps.stats[STAT_TIMER] = (ent->client->invincible_framenum - level.framenum) / HZ;
+//		}
+//		else if (ent->client->enviro_framenum > level.framenum)
+//		{
+//			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_envirosuit");
+//			ent->client->ps.stats[STAT_TIMER] = (ent->client->enviro_framenum - level.framenum) / HZ;
+//		}
+//		else if (ent->client->breather_framenum > level.framenum)
+//		{
+//			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_rebreather");
+//			ent->client->ps.stats[STAT_TIMER] = (ent->client->breather_framenum - level.framenum) / HZ;
+//		}
+//		else
+//		{
+//		*/
+//		ent->client->ps.stats[STAT_TIMER_ICON] = 0;
+//		ent->client->ps.stats[STAT_TIMER] = 0;
+//		//}
+//
+//		//
+//		// selected item
+//		//
+//		if (ent->client->selected_item.id < 1) {
+//			ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
+//		}
+//		else {
+//			item = &itemlist[ent->client->selected_item.id];
+//			if (item->id < AMMO_MAX)
+//				ent->client->ps.stats[STAT_SELECTED_ICON] = level.pic_items[item->id];
+//			else
+//				ent->client->ps.stats[STAT_SELECTED_ICON] = gi.imageindex(item->icon);
+//		}
+//
+//		ent->client->ps.stats[STAT_SELECTED_ITEM] = ent->client->selected_item.id;
+//
+//		//
+//		// bandaging icon / current weapon if not shown
+//		//
+//		// TNG: Show health icon when bandaging (thanks to Dome for this code)
+//		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
+//			ent->client->ps.stats[STAT_HELPICON] = level.pic_health;
+//		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->pers.weapon)
+//			ent->client->ps.stats[STAT_HELPICON] = level.pic_items[ent->client->pers.weapon->id];
+//		else
+//			ent->client->ps.stats[STAT_HELPICON] = 0;
+//
+//		// Hide health, ammo, weapon, and bandaging state when free spectating.
+//		if (!IS_ALIVE(ent))
+//		{
+//			ent->client->ps.stats[STAT_HEALTH_ICON] = 0;
+//			ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+//			ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
+//			ent->client->ps.stats[STAT_HELPICON] = 0;
+//		}
+//
+//		// Team icon.
+//		if (teamplay->value && hud_team_icon->value && (ent->client->resp.team != NOTEAM) && IS_ALIVE(ent))
+//			ent->client->ps.stats[STAT_TEAM_ICON] = level.pic_teamskin[ent->client->resp.team];
+//		else
+//			ent->client->ps.stats[STAT_TEAM_ICON] = 0;
+//	}
+//
+//	//
+//	// pickup message
+//	//
+//	if (level.time > ent->client->pickup_msg_time)
+//	{
+//		ent->client->ps.stats[STAT_PICKUP_ICON] = 0;
+//		ent->client->ps.stats[STAT_PICKUP_STRING] = 0;
+//	}
+//
+//	//
+//	// frags
+//	//
+//	ent->client->ps.stats[STAT_FRAGS] = ent->client->resp.score;
+//
+//	//
+//	// layouts
+//	//
+//	ent->client->ps.stats[STAT_LAYOUTS] = 0;
+//
+//	if (level.intermission_server_frame || ent->client->layout)
+//		ent->client->ps.stats[STAT_LAYOUTS] |= 1;
+//	if (ent->client->showinventory && ent->health > 0)
+//		ent->client->ps.stats[STAT_LAYOUTS] |= 2;
+//
+//	if (level.intermission_server_frame) {
+//		ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
+//		ent->client->ps.stats[STAT_HELPICON] = 0;
+//		ent->client->ps.stats[STAT_ID_VIEW] = 0;
+//	}
+//	//else {
+//	//	SetIDView(ent);
+//	//}
+//
+//	//FIREBLADE
+//	if (ctf->value)
+//		SetCTFStats(ent);
+//	else if (teamplay->value)
+//		A_Scoreboard(ent);
+//	//FIREBLADE
+//}
+
+// Vanilla Q2R
 void G_SetStats(edict_t *ent)
 {
 	gitem_t	*item;
