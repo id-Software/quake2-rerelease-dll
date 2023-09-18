@@ -2478,11 +2478,7 @@ void _SetSniper(edict_t * ent, int zoom)
 	if (oldmode == SNIPER_1X && ent->client->weaponstate != WEAPON_RELOADING) {
 		//do idleness stuff when switching from 1x, see function below
 		ent->client->weaponstate = WEAPON_BUSY;
-		// if(zoom_comp->value) {
-		// 	ent->client->idle_weapon = calc_zoom_comp(ent);
-		// } else {
-		// 	ent->client->idle_weapon = 6;
-		// }
+		ent->client->idle_weapon = 6;
 		ent->client->ps.gunframe = 22;
 	}
 }

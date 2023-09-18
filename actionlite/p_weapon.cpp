@@ -3731,10 +3731,8 @@ void ReadySpecialWeapon(edict_t* ent)
 	int curr, i;
 	int last;
 
-
 	if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging)
 		return;
-
 
 	for (curr = 0; curr < 5; curr++)
 	{
