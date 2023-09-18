@@ -885,10 +885,10 @@ void G_SetStats(edict_t* ent)
 				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
 				ent->client->ps.stats[STAT_AMMO] = INV_AMMO(ent, GRENADE_NUM);
 				break;
-			//case GRAPPLE_NUM:
-			//	ent->client->ps.stats[STAT_AMMO_ICON] = 0;
-			//	ent->client->ps.stats[STAT_AMMO] = 0;
-			//	break;
+			case IT_WEAPON_GRAPPLE:
+				ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+				ent->client->ps.stats[STAT_AMMO] = 0;
+				break;
 			default:
 				gi.Com_PrintFmt("Failed to find hud weapon/icon for num {}.\n", ent->client->curr_weap.pickup_name);
 				break;
