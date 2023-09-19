@@ -2840,12 +2840,11 @@ bool P_UseCoopInstancedItems();
 void Add_Frag(edict_t * ent, int mod);
 void Subtract_Frag(edict_t * ent);
 void Add_Death( edict_t *ent, bool end_streak );
-void PrintDeathMessage(char *msg, edict_t * gibee);
+void PrintDeathMessage(std::string msg, edict_t * gibee);
 // ACTION
 void CL_FixUpGender(edict_t *ent, const char *userinfo);
 void ClientLegDamage(edict_t* ent);
 void ClientFixLegs(edict_t *ent);
-void PrintDeathMessage(char *msg, edict_t * gibee);
 bool Pickup_Special (edict_t * ent, edict_t * other);
 edict_t *FindEdictByClassnum (const char *classname, int classnum);
 void DropSpecialWeapon (edict_t * ent);

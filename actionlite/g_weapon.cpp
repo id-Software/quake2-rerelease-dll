@@ -552,7 +552,7 @@ void ProduceShotgunDamageReport (edict_t *self)
 		if (printed == total_to_print)
 			break;
 	}
-	gi.LocClient_Print(self, PRINT_HIGH, "You hit %s in the body\n", textbuf);
+	gi.LocClient_Print(self, PRINT_HIGH, "You hit {} in the body\n", textbuf);
 }
 
 
@@ -1594,10 +1594,10 @@ void punch_attack(edict_t * ent)
 			{
 				DropSpecialWeapon(tr.ent);
 
-				gi.LocClient_Print(ent, PRINT_HIGH, "You hit %s's %s from their hands!\n",
+				gi.LocClient_Print(ent, PRINT_HIGH, "You hit {}'s {} from their hands!\n",
 					tr.ent->client->pers.netname, tr.ent->client->pers.weapon->pickup_name);
 
-				gi.LocClient_Print(tr.ent, PRINT_HIGH, "%s hit your weapon from your hands!\n",
+				gi.LocClient_Print(tr.ent, PRINT_HIGH, "{} hit your weapon from your hands!\n",
 					ent->client->pers.netname);
 			}
 			return;

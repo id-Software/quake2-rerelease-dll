@@ -539,8 +539,8 @@ void killPlayer( edict_t *ent, bool suicidePunish )
 		edict_t *attacker = ent->client->attacker;
 		if (attacker && attacker != ent && attacker->client)
 		{
-			char deathmsg[128];
-			snprintf( deathmsg, sizeof( deathmsg ), "%s ph34rs %s so much %s committed suicide! :)\n",
+			std::string deathmsg;
+			fmt::format( deathmsg, "%s ph34rs %s so much %s committed suicide! :)\n",
 				ent->client->pers.netname, attacker->client->pers.netname,
 				ent->client->pers.gender ? "she" : "he");
 			

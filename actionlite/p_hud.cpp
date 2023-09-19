@@ -818,14 +818,7 @@ void G_SetStats(edict_t* ent)
 		// ammo by weapon
 		// 
 		//
-
-		//
-		// ammo
-		//
-		ent->client->ps.stats[STAT_AMMO_ICON] = 0;
-		ent->client->ps.stats[STAT_AMMO] = 0;
-
-		if (ent->client->pers.weapon && ent->client->pers.weapon->ammo)
+		/*if (ent->client->pers.weapon && ent->client->pers.weapon->ammo)
 		{
 			item = GetItemByIndex(ent->client->pers.weapon->ammo);
 
@@ -842,7 +835,7 @@ void G_SetStats(edict_t* ent)
 			gitem_t *ammo = GetItemByAmmo((ammo_t) ammoIndex);
 			uint16_t val = G_CheckInfiniteAmmo(ammo) ? AMMO_VALUE_INFINITE : clamp(ent->client->pers.inventory[ammo->id], 0, AMMO_VALUE_INFINITE - 1);
 			G_SetAmmoStat((uint16_t *) &ent->client->ps.stats[STAT_AMMO_INFO_START], ammo->ammo_wheel_index, val);
-		}
+		}*/
 
 
 
@@ -890,7 +883,7 @@ void G_SetStats(edict_t* ent)
 				ent->client->ps.stats[STAT_AMMO] = 0;
 				break;
 			default:
-				gi.Com_PrintFmt("Failed to find hud weapon/icon for num {}.\n", ent->client->curr_weap.pickup_name);
+				gi.Com_PrintFmt("Failed to find hud weapon/icon for weapon {}.\n", ent->client->curr_weap.pickup_name);
 				break;
 			}
 		}

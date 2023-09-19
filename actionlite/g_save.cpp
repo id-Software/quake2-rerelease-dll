@@ -135,9 +135,9 @@ const save_data_list_t *save_data_list_t::fetch(const void *ptr, save_data_tag_t
 	assert(false || "invalid save pointer; break here to find which pointer it is"[0]);
 	
 	if (g_strict_saves->integer)
-		gi.Com_ErrorFmt("value pointer {} was not linked to save tag {}", ptr, (int32_t) tag);
+		gi.Com_ErrorFmt("value pointer {} was not linked to save tag {}\n", ptr, (int32_t) tag);
 	else
-		gi.Com_PrintFmt("value pointer {} was not linked to save tag {}", ptr, (int32_t) tag);
+		gi.Com_PrintFmt("value pointer {} was not linked to save tag {}\n", ptr, (int32_t) tag);
 
 	return nullptr;
 }

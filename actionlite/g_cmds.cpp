@@ -68,7 +68,7 @@ void SP_LaserSight(edict_t * self, gitem_t * item)
  * is the lasersight entity
  *-------------------------------------------*/
 
-void LaserSightThink(edict_t * self)
+THINK(LaserSightThink) (edict_t * self) -> void
 {
 	vec3_t start, end, endp, offset;
 	vec3_t forward, right, up, angles;

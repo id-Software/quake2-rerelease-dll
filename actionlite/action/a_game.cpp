@@ -802,7 +802,7 @@ void UpdateAttachedPos( edict_t *self )
 }
 
 // // Decal/splat/knife attached to some moving entity.
-void AttachedThink( edict_t *self )
+THINK(AttachedThink) ( edict_t *self ) -> void
 {
 	UpdateAttachedPos( self );
 	gi.linkentity( self );
