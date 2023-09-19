@@ -39,21 +39,23 @@ void Announce_Reward(edict_t *ent, int rewardType){
 	char buf[256];
 
 	if (rewardType == IMPRESSIVE) {
-		sprintf(buf, "IMPRESSIVE %s!", ent->client->pers.netname);
+		fmt::format(buf, "IMPRESSIVE {}!", ent->client->pers.netname);
 		gi.Broadcast_Print(PRINT_HIGH, buf);
 		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/impressive.wav"), 1.0, ATTN_NONE, 0.0);
-	} else if (rewardType == EXCELLENT) {
-		sprintf(buf, "EXCELLENT %s (%dx)!", ent->client->pers.netname,ent->client->resp.streakKills/12);
+	}
+	else if (rewardType == EXCELLENT) {
+		fmt::format(buf, "EXCELLENT {} ({}x)!", ent->client->pers.netname, ent->client->resp.streakKills / 12);
 		gi.Broadcast_Print(PRINT_HIGH, buf);
 		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/excellent.wav"), 1.0, ATTN_NONE, 0.0);
-	} else if (rewardType == ACCURACY) {
-		sprintf(buf, "ACCURACY %s!", ent->client->pers.netname);
+	}
+	else if (rewardType == ACCURACY) {
+		fmt::format(buf, "ACCURACY {}!", ent->client->pers.netname);
 		gi.Broadcast_Print(PRINT_HIGH, buf);
 		gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD, gi.soundindex("tng/accuracy.wav"), 1.0, ATTN_NONE, 0.0);
 	}
 }
 
-void Add_Frag(edict_t * ent, int mod)
+void Add_Frag(edict_t* ent, int mod)
 {
 	int frags = 0;
 
@@ -92,12 +94,12 @@ void Add_Frag(edict_t * ent, int mod)
 		ent->client->resp.score++;	// just 1 normal kill
 
 	// Increment team score if TeamDM is enabled
-	if(teamdm->value)
+	if (teamdm->value)
 		teams[ent->client->resp.team].score++;
 
 	// Streak kill rewards in Deathmatch mode
 	if (deathmatch->value && !teamplay->value) {
-		if (ent->client->resp.streakKills < 4 || ! use_rewards->value)
+		if (ent->client->resp.streakKills < 4 || !use_rewards->value)
 			frags = 1;
 		else if (ent->client->resp.streakKills < 8)
 			frags = 2;
@@ -108,16 +110,16 @@ void Add_Frag(edict_t * ent, int mod)
 		else
 			frags = 16;
 
-		if(frags > 1)
+		if (frags > 1)
 		{
 			gi.LocBroadcast_Print(PRINT_MEDIUM,
-				"%s has %d kills in a row and receives %d frags for the kill!\n",
-				ent->client->pers.netname, ent->client->resp.streakKills, frags );
+				"{} has {} kills in a row and receives {} frags for the kill!\n",
+				ent->client->pers.netname, ent->client->resp.streakKills, frags);
 		}
 		ent->client->resp.score += frags;
 
 		// Award team with appropriate streak reward count
-		if(teamdm->value)
+		if (teamdm->value)
 			teams[ent->client->resp.team].score += frags;
 
 		// AQ:TNG Igor[Rock] changing sound dir
@@ -129,14 +131,16 @@ void Add_Frag(edict_t * ent, int mod)
 						gi.soundindex("tng/1_frag.wav"), 1.0, ATTN_NONE, 0.0);
 					fragwarning = 3;
 				}
-			} else if (ent->client->resp.score == fraglimit->value - 2) {
+			}
+			else if (ent->client->resp.score == fraglimit->value - 2) {
 				if (fragwarning < 2) {
 					gi.Broadcast_Print(PRINT_HIGH, "2 FRAGS LEFT...");
 					gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
 						gi.soundindex("tng/2_frags.wav"), 1.0, ATTN_NONE, 0.0);
 					fragwarning = 2;
 				}
-			} else if (ent->client->resp.score == fraglimit->value - 3) {
+			}
+			else if (ent->client->resp.score == fraglimit->value - 3) {
 				if (fragwarning < 1) {
 					gi.Broadcast_Print(PRINT_HIGH, "3 FRAGS LEFT...");
 					gi.sound(&g_edicts[0], CHAN_VOICE | CHAN_NO_PHS_ADD,
@@ -151,35 +155,36 @@ void Add_Frag(edict_t * ent, int mod)
 	// Announce kill streak to player if use_killcounts is enabled on server
 	if (use_killcounts->value) {
 		// Report only killstreak during that round
-		if(ent->client->resp.roundStreakKills)
-			gi.LocClient_Print(ent, PRINT_HIGH, "Kill count: %d\n", ent->client->resp.roundStreakKills);
-	} else {
+		if (ent->client->resp.roundStreakKills)
+			gi.LocClient_Print(ent, PRINT_HIGH, "Kill count: {}\n", ent->client->resp.roundStreakKills);
+	}
+	else {
 		// Report total killstreak across previous rounds
-		if(ent->client->resp.streakKills)
-			gi.LocClient_Print(ent, PRINT_HIGH, "Kill count: %d\n", ent->client->resp.streakKills);
+		if (ent->client->resp.streakKills)
+			gi.LocClient_Print(ent, PRINT_HIGH, "Kill count: {}\n", ent->client->resp.streakKills);
 	}
 }
 
-void Subtract_Frag(edict_t * ent)
+void Subtract_Frag(edict_t* ent)
 {
-	if( in_warmup )
+	if (in_warmup)
 		return;
 
 	ent->client->resp.kills--;
 	ent->client->resp.score--;
 	ent->client->resp.streakKills = 0;
 	ent->client->resp.roundStreakKills = 0;
-	if(teamdm->value)
+	if (teamdm->value)
 		teams[ent->client->resp.team].score--;
 }
 
-void Add_Death( edict_t *ent, bool end_streak )
+void Add_Death(edict_t* ent, bool end_streak)
 {
-	if( in_warmup )
+	if (in_warmup)
 		return;
 
-	ent->client->resp.deaths ++;
-	if( end_streak ) {
+	ent->client->resp.deaths++;
+	if (end_streak) {
 		ent->client->resp.streakKills = 0;
 		ent->client->resp.roundStreakKills = 0;
 	}
@@ -187,7 +192,7 @@ void Add_Death( edict_t *ent, bool end_streak )
 
 // FRIENDLY FIRE functions
 
-void Add_TeamWound(edict_t * attacker, edict_t * victim, mod_id_t mod)
+void Add_TeamWound(edict_t* attacker, edict_t* victim, mod_id_t mod)
 {
 	if (!teamplay->value || !attacker->client || !victim->client) {
 		return;
@@ -200,8 +205,8 @@ void Add_TeamWound(edict_t * attacker, edict_t * victim, mod_id_t mod)
 	// ff_warning flag should have been reset before each attack.
 	if (attacker->client->ff_warning == 0) {
 		attacker->client->ff_warning++;
-		gi.LocClient_Print(victim, PRINT_HIGH, "You were hit by %s, your TEAMMATE!\n", attacker->client->pers.netname);
-		gi.LocClient_Print(attacker, PRINT_HIGH, "You hit your TEAMMATE %s!\n", victim->client->pers.netname);
+		gi.LocClient_Print(victim, PRINT_HIGH, "You were hit by {}, your TEAMMATE!\n", attacker->client->pers.netname);
+		gi.LocClient_Print(attacker, PRINT_HIGH, "You hit your TEAMMATE {}!\n", victim->client->pers.netname);
 	}
 	// We want team_wounds to increment by one for each ATTACK, not after each 
 	// bullet or pellet does damage. With the HAND CANNON this means 2 attacks
@@ -211,31 +216,34 @@ void Add_TeamWound(edict_t * attacker, edict_t * victim, mod_id_t mod)
 	// If count is less than MAX_TEAMKILLS*3, return. If count is greater than
 	// MAX_TEAMKILLS*3 but less than MAX_TEAMKILLS*4, print off a ban warning. If
 	// count equal (or greater than) MAX_TEAMKILLS*4, ban and kick the client.
-	if ((int) maxteamkills->value < 1)	//FB
+	if ((int)maxteamkills->value < 1)	//FB
 		return;
 	if (attacker->client->resp.team_wounds < ((int)maxteamkills->value * 3)) {
 		return;
-	} else if (attacker->client->resp.team_wounds < ((int) maxteamkills->value * 4)) {
+	}
+	else if (attacker->client->resp.team_wounds < ((int)maxteamkills->value * 4)) {
 		// Print a note to console, and issue a warning to the player.
 		gi.LocClient_Print(NULL, PRINT_MEDIUM,
-			   "%s is in danger of being banned for wounding teammates\n", attacker->client->pers.netname);
+			"{} is in danger of being banned for wounding teammates\n", attacker->client->pers.netname);
 		gi.LocClient_Print(attacker, PRINT_HIGH,
-			   "WARNING: You'll be temporarily banned if you continue wounding teammates!\n");
+			"WARNING: You'll be temporarily banned if you continue wounding teammates!\n");
 		return;
-	} else {
+	}
+	else {
 		if (attacker->client->pers.ip[0]) {
-			if (Ban_TeamKiller(attacker, (int) twbanrounds->value)) {
+			if (Ban_TeamKiller(attacker, (int)twbanrounds->value)) {
 				gi.LocClient_Print(NULL, PRINT_MEDIUM,
-					   "Banning %s@%s for team wounding\n",
-					   attacker->client->pers.netname, attacker->client->pers.ip);
+					"Banning {}@{} for team wounding\n",
+					attacker->client->pers.netname, attacker->client->pers.ip);
 
 				gi.LocClient_Print(attacker, PRINT_HIGH,
-					   "You've wounded teammates too many times, and are banned for %d %s.\n",
-					   (int) twbanrounds->value,
-					   (((int) twbanrounds->value > 1) ? "games" : "game"));
-			} else {
+					"You've wounded teammates too many times, and are banned for {} {}.\n",
+					(int)twbanrounds->value,
+					(((int)twbanrounds->value > 1) ? "games" : "game"));
+			}
+			else {
 				gi.LocClient_Print(NULL, PRINT_MEDIUM,
-					   "Error banning %s: unable to get ip address\n", attacker->client->pers.netname);
+					"Error banning {}: unable to get ip address\n", attacker->client->pers.netname);
 			}
 			Kick_Client(attacker);
 		}
@@ -244,7 +252,7 @@ void Add_TeamWound(edict_t * attacker, edict_t * victim, mod_id_t mod)
 	return;
 }
 
-void Add_TeamKill(edict_t * attacker)
+void Add_TeamKill(edict_t* attacker)
 {
 	if (!teamplay->value || !attacker->client || !team_round_going) {
 		return;
@@ -260,31 +268,34 @@ void Add_TeamKill(edict_t * attacker)
 	// count is greater than 1/2 MAX_TEAMKILLS but less than MAX_TEAMKILLS,
 	// print off a ban warning. If count equal or greater than MAX_TEAMKILLS,
 	// ban and kick the client.
-	if (((int) maxteamkills->value < 1) ||
+	if (((int)maxteamkills->value < 1) ||
 		(attacker->client->resp.team_kills < (((int)maxteamkills->value % 2) + (int)maxteamkills->value / 2))) {
 		gi.LocClient_Print(attacker, PRINT_HIGH, "You killed your TEAMMATE!\n");
 		return;
-	} else if (attacker->client->resp.team_kills < (int) maxteamkills->value) {
+	}
+	else if (attacker->client->resp.team_kills < (int)maxteamkills->value) {
 		// Show this on the console
 		gi.LocClient_Print(NULL, PRINT_MEDIUM,
-			   "%s is in danger of being banned for killing teammates\n", attacker->client->pers.netname);
+			"{} is in danger of being banned for killing teammates\n", attacker->client->pers.netname);
 		// Issue a warning to the player
 		gi.LocClient_Print(attacker, PRINT_HIGH, "WARNING: You'll be banned if you continue killing teammates!\n");
 		return;
-	} else {
+	}
+	else {
 		// They've killed too many teammates this game - kick 'em for a while
 		if (attacker->client->pers.ip[0]) {
-			if (Ban_TeamKiller(attacker, (int) tkbanrounds->value)) {
+			if (Ban_TeamKiller(attacker, (int)tkbanrounds->value)) {
 				gi.LocClient_Print(NULL, PRINT_MEDIUM,
-					   "Banning %s@%s for team killing\n",
-					   attacker->client->pers.netname, attacker->client->pers.ip);
+					"Banning {}@{} for team killing\n",
+					attacker->client->pers.netname, attacker->client->pers.ip);
 				gi.LocClient_Print(attacker, PRINT_HIGH,
-					   "You've killed too many teammates, and are banned for %d %s.\n",
-					   (int) tkbanrounds->value,
-					   (((int) tkbanrounds->value > 1) ? "games" : "game"));
-			} else {
+					"You've killed too many teammates, and are banned for {} {}.\n",
+					(int)tkbanrounds->value,
+					(((int)tkbanrounds->value > 1) ? "games" : "game"));
+			}
+			else {
 				gi.LocClient_Print(NULL, PRINT_MEDIUM,
-					   "Error banning %s: unable to get ip address\n", attacker->client->pers.netname);
+					"Error banning {}: unable to get ip address\n", attacker->client->pers.netname);
 			}
 		}
 		Kick_Client(attacker);
@@ -294,45 +305,45 @@ void Add_TeamKill(edict_t * attacker)
 
 // PrintDeathMessage: moved the actual printing of the death messages to here, to handle
 //  the fact that live players shouldn't receive them in teamplay.  -FB
-void PrintDeathMessage(char *msg, edict_t * gibee)
+void PrintDeathMessage(std::string msg, edict_t* gibee)
 {
 	//int j;
 	//edict_t *other;
 
 	if (!teamplay->value || in_warmup) {
-		gi.LocBroadcast_Print(PRINT_MEDIUM, "%s", msg);
+		gi.LocBroadcast_Print(PRINT_MEDIUM, "{}", msg.c_str());
 		return;
 	}
 
 	if (sv_dedicated->integer)
-		gi.LocClient_Print(NULL, PRINT_MEDIUM, "%s", msg);
+		gi.LocClient_Print(NULL, PRINT_MEDIUM, "{}", msg.c_str());
 
 	// First, let's print the message for gibee and its attacker. -TempFile
-	gi.LocClient_Print(gibee, PRINT_MEDIUM, "%s", msg);
+	gi.LocClient_Print(gibee, PRINT_MEDIUM, "{}", msg.c_str());
 	if (gibee->client->attacker && gibee->client->attacker != gibee)
-		gi.LocClient_Print(gibee->client->attacker, PRINT_MEDIUM, "%s", msg);
+		gi.LocClient_Print(gibee->client->attacker, PRINT_MEDIUM, "{}", msg.c_str());
 
-	if(!team_round_going)
+	if (!team_round_going)
 		return;
 
 	for (auto other : active_players()) {
-	//for (j = 1; j <= game.maxclients; j++) {
-		//other = &g_edicts[j];
+		//for (j = 1; j <= game.maxclients; j++) {
+			//other = &g_edicts[j];
 		if (!other->inuse || !other->client)
 			continue;
 
 		// only print if he's NOT gibee, NOT attacker, and NOT alive! -TempFile
 		if (other != gibee && other != gibee->client->attacker && other->solid == SOLID_NOT)
-			gi.LocClient_Print(other, PRINT_MEDIUM, "%s", msg);
+			gi.LocClient_Print(other, PRINT_MEDIUM, "{}", msg.c_str());
 	}
 }
 
 
 // Action Add end
 
-void SP_misc_teleporter_dest(edict_t *ent);
+void SP_misc_teleporter_dest(edict_t* ent);
 
-THINK(info_player_start_drop) (edict_t *self) -> void
+THINK(info_player_start_drop) (edict_t* self) -> void
 {
 	// allow them to drop
 	self->solid = SOLID_TRIGGER;
@@ -345,7 +356,7 @@ THINK(info_player_start_drop) (edict_t *self) -> void
 /*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
 The normal starting point for a level.
 */
-void SP_info_player_start(edict_t *self)
+void SP_info_player_start(edict_t* self)
 {
 	// fix stuck spawn points
 	if (gi.trace(self->s.origin, PLAYER_MINS, PLAYER_MAXS, self->s.origin, self, MASK_SOLID).startsolid)
@@ -363,14 +374,14 @@ void SP_info_player_start(edict_t *self)
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32)
 potential spawning position for deathmatch games
 */
-void SP_info_player_deathmatch(edict_t *self)
+void SP_info_player_deathmatch(edict_t* self)
 {
 	if (!deathmatch->integer)
 	{
 		G_FreeEdict(self);
 		return;
 	}
-	
+
 	// Don't display the spawnpoint
 	//SP_misc_teleporter_dest(self);
 }
@@ -378,7 +389,7 @@ void SP_info_player_deathmatch(edict_t *self)
 /*QUAKED info_player_coop (1 0 1) (-16 -16 -24) (16 16 32)
 potential spawning position for coop games
 */
-void SP_info_player_coop(edict_t *self)
+void SP_info_player_coop(edict_t* self)
 {
 	if (!coop->integer)
 	{
@@ -393,7 +404,7 @@ void SP_info_player_coop(edict_t *self)
 potential spawning position for coop games on rmine2 where lava level
 needs to be checked
 */
-void SP_info_player_coop_lava(edict_t *self)
+void SP_info_player_coop_lava(edict_t* self)
 {
 	if (!coop->integer)
 	{
@@ -410,7 +421,7 @@ void SP_info_player_coop_lava(edict_t *self)
 The deathmatch intermission point will be at one of these
 Use 'angles' instead of 'angle', so you can set pitch or roll as well as yaw.  'pitch yaw roll'
 */
-void SP_info_player_intermission(edict_t *ent)
+void SP_info_player_intermission(edict_t* ent)
 {
 }
 
@@ -430,21 +441,21 @@ bool P_UseCoopInstancedItems()
 //=======================================================================
 
 // This only applies to Action skins, all others become neutral
-void CL_FixUpGender(edict_t *ent, const char *userinfo)
+void CL_FixUpGender(edict_t* ent, const char* userinfo)
 {
-    char *p;
-    char sk[MAX_QPATH];
+	char* p;
+	char sk[MAX_QPATH];
 	char val[MAX_INFO_VALUE] = { 0 };
 
 	if (!ent->client)
-        return;
+		return;
 
 	gi.Info_ValueForKey(userinfo, "skin", sk, sizeof(sk));
-	
-    //Q_strlcpy(sk, gi.Info_ValueForKey(userinfo, "skin"), sizeof(sk));
-    if ((p = strchr(sk, '/')) != NULL)
-        *p = 0;
-    if (Q_strcasecmp(sk, "male") == 0 ||
+
+	//Q_strlcpy(sk, gi.Info_ValueForKey(userinfo, "skin"), sizeof(sk));
+	if ((p = strchr(sk, '/')) != NULL)
+		*p = 0;
+	if (Q_strcasecmp(sk, "male") == 0 ||
 		Q_strcasecmp(sk, "actionmale") == 0 ||
 		Q_strcasecmp(sk, "aqmarine") == 0 ||
 		Q_strcasecmp(sk, "messiah") == 0 ||
@@ -452,77 +463,78 @@ void CL_FixUpGender(edict_t *ent, const char *userinfo)
 		Q_strcasecmp(sk, "terror") == 0
 		)
 		Q_strlcpy(val, "male", sizeof(val));
-    else if (Q_strcasecmp(sk, "female") == 0 ||
-			 Q_strcasecmp(sk, "crackhor") == 0 ||
-			 Q_strcasecmp(sk, "actionrally") == 0 ||
-			 Q_strcasecmp(sk, "sydney") == 0
+	else if (Q_strcasecmp(sk, "female") == 0 ||
+		Q_strcasecmp(sk, "crackhor") == 0 ||
+		Q_strcasecmp(sk, "actionrally") == 0 ||
+		Q_strcasecmp(sk, "sydney") == 0
 		)
-        Q_strlcpy(val, "female", sizeof(val));
-    else
-        Q_strlcpy(val, "none", sizeof(val));
+		Q_strlcpy(val, "female", sizeof(val));
+	else
+		Q_strlcpy(val, "none", sizeof(val));
 }
 
 // Messaging adjectives/pronouns
 // Borrowed from https://github.com/VortexQuake2/Vortex, thank you!
 
-const char *GetPossesiveAdjectiveSingular(edict_t *ent) {
+const char* GetPossesiveAdjectiveSingular(edict_t* ent) {
 	int gender = ent->client->pers.gender;
 
-	switch( gender ) {
-		case GENDER_MALE:
-			return "his";
-		case GENDER_FEMALE:
-			return "her";
-		case GENDER_NEUTRAL:
-			return "it";
-		default:
-			return "their";
+	switch (gender) {
+	case GENDER_MALE:
+		return "his";
+	case GENDER_FEMALE:
+		return "her";
+	case GENDER_NEUTRAL:
+		return "it";
+	default:
+		return "their";
 	}
 }
 
-const char *GetPossesiveAdjective(edict_t *ent) {
+const char* GetPossesiveAdjective(edict_t* ent) {
 	int gender = ent->client->pers.gender;
 
-	switch( gender ) {
-		case GENDER_MALE:
-			return "his";
-		case GENDER_FEMALE:
-			return "her";
-		case GENDER_NEUTRAL:
-			return "its";
-		default:
-			return "their";
+	switch (gender) {
+	case GENDER_MALE:
+		return "his";
+	case GENDER_FEMALE:
+		return "her";
+	case GENDER_NEUTRAL:
+		return "its";
+	default:
+		return "their";
 	}
 }
 
-const char *GetReflexivePronoun(edict_t *ent) {
+const char* GetReflexivePronoun(edict_t* ent) {
 	int gender = ent->client->pers.gender;
 
-	switch( gender ) {
-		case GENDER_MALE:
-			return "himself";
-		case GENDER_FEMALE:
-			return "herself";
-		case GENDER_NEUTRAL:
-			return "itself";
-		default:
-			return "themselves";
+	switch (gender) {
+	case GENDER_MALE:
+		return "himself";
+	case GENDER_FEMALE:
+		return "herself";
+	case GENDER_NEUTRAL:
+		return "itself";
+	default:
+		return "themselves";
 	}
 }
 
 //=======================================================================
 
-void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t mod)
+void ClientObituary(edict_t* self, edict_t* inflictor, edict_t* attacker, mod_t mod)
 {
 	int loc;
-	char message[1024];
-	char death_msg[1024];	// enough in all situations? -FB
+	//char message[1024];
+	//char death_msg[1024];	// enough in all situations? -FB
+	std::string death_msg;
+	std::string special_message;
 	bool friendlyFire;
-	char *special_message = NULL;
 	int n;
 	mod_id_t meansOfDeath = mod.id;
 
-	const char *base = nullptr;
+	const char* base = nullptr;
 
 	if (coop->integer && attacker->client)
 		mod.friendly_fire = true;
@@ -548,13 +560,14 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		if (!(other->client->pers.spec_flags & SPECFL_KILLFEED)) // only print to spectators who want it
 			continue;
 
-		if (attacker == world || !attacker->client)
-			sprintf(death_msg, "--KF %i %s, MOD %i\n",
-				self->client->resp.team, self->client->pers.netname, mod.id);
-		else
-			sprintf(death_msg, "--KF %i %s, MOD %i, %i %s\n",
-				attacker->client->resp.team, attacker->client->pers.netname, mod.id, self->client->resp.team, self->client->pers.netname);
-		gi.LocClient_Print(other, PRINT_MEDIUM, "%s", death_msg);
+		// TODO: Fix killfeed, mod.id is not a formattable value
+		//if (attacker == world || !attacker->client)
+		//	fmt::format(death_msg, "--KF {} {}, MOD {}\n",
+		//		self->client->resp.team, self->client->pers.netname, mod.id);
+		//else
+		//	fmt::format(death_msg, "--KF {} {}, MOD {}, {} {}\n",
+		//		attacker->client->resp.team, attacker->client->pers.netname, mod.id, self->client->resp.team, self->client->pers.netname);
+		//gi.LocClient_Print(other, PRINT_MEDIUM, "{}", death_msg.c_str());
 	}
 	//
 
@@ -562,84 +575,84 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 	{
 		switch (mod.id) {
 		case MOD_HELD_GRENADE:
-			snprintf(death_msg, sizeof(death_msg), "%s tried to put the pin back in", self->client->pers.netname);
+			fmt::format(death_msg, "{} tried to put the pin back in", self->client->pers.netname);
 			break;
 		case MOD_HG_SPLASH:
-			snprintf(death_msg, sizeof(death_msg), "%s didn't throw %s grenade far enough", self->client->pers.netname, GetPossesiveAdjective(self));
+			fmt::format(death_msg, "{} didn't throw {} grenade far enough", self->client->pers.netname, GetPossesiveAdjective(self));
 			break;
 		case MOD_G_SPLASH:
-			snprintf(death_msg, sizeof(death_msg), "%s tripped on %s own grenade", self->client->pers.netname, GetPossesiveAdjective(self));
+			fmt::format(death_msg, "{} tripped on {} own grenade", self->client->pers.netname, GetPossesiveAdjective(self));
 			break;
 		default:
-			snprintf(death_msg, sizeof(death_msg), "%s killed %s", self->client->pers.netname, GetReflexivePronoun(self));
+			fmt::format(death_msg, "{} killed {}", self->client->pers.netname, GetReflexivePronoun(self));
 			break;
 		}
 	}
 
-	if (!message) {
+	if (death_msg.length() <= 0) {
 		switch (mod.id) {
 		case MOD_BREAKINGGLASS:
-			if( self->client->push_timeout > 40 )
-				snprintf(special_message, sizeof(special_message), "%s was thrown through a window by %s", 
-				self->client->pers.netname, attacker->client->pers.netname);
-			snprintf(death_msg, sizeof(death_msg), "%s ate too much glass", 
+			if (self->client->push_timeout > 40)
+				fmt::format(special_message, sizeof(special_message), "{} was thrown through a window by {}",
+					self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} ate too much glass",
 				self->client->pers.netname);
 			break;
 		case MOD_SUICIDE:
-			snprintf(death_msg, sizeof(death_msg), "%s is done with the world", self->client->pers.netname);
+			fmt::format(death_msg, "{} is done with the world", self->client->pers.netname);
 			break;
 		case MOD_FALLING:
-			if( self->client->push_timeout )
-				snprintf(special_message, sizeof(special_message), "%s was taught how to fly by %s", self->client->pers.netname, attacker->client->pers.netname);
+			if (self->client->push_timeout)
+				fmt::format(special_message, "{} was taught how to fly by {}", self->client->pers.netname, attacker->client->pers.netname);
 			//message = "hit the ground hard, real hard";
-			snprintf(death_msg, sizeof(death_msg), "%s plummets to %s death", self->client->pers.netname, GetPossesiveAdjective(self));
+			fmt::format(death_msg, "{} plummets to {} death", self->client->pers.netname, GetPossesiveAdjective(self));
 			break;
 		case MOD_CRUSH:
-			snprintf(death_msg, sizeof(death_msg), "%s was flattened", self->client->pers.netname);
+			fmt::format(death_msg, "{} was flattened", self->client->pers.netname);
 			break;
 		case MOD_WATER:
-			snprintf(death_msg, sizeof(death_msg), "%s sank like a rock", self->client->pers.netname);
+			fmt::format(death_msg, "{} sank like a rock", self->client->pers.netname);
 			break;
 		case MOD_SLIME:
-			if( self->client->push_timeout )
-				snprintf(special_message, sizeof(special_message), "%s melted thanks to %s", self->client->pers.netname, attacker->client->pers.netname);
-			snprintf(death_msg, sizeof(death_msg), "%s melted", self->client->pers.netname);
+			if (self->client->push_timeout)
+				fmt::format(special_message, sizeof(special_message), "{} melted thanks to {}", self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} melted", self->client->pers.netname);
 			break;
 		case MOD_LAVA:
-			if( self->client->push_timeout )
-				snprintf(special_message, sizeof(special_message), "%s was drop-kicked into the lava by %s", self->client->pers.netname, attacker->client->pers.netname);
-			snprintf(death_msg, sizeof(death_msg), "%s does a back flip into the lava", self->client->pers.netname);
+			if (self->client->push_timeout)
+				fmt::format(special_message, "{} was drop-kicked into the lava by {}", self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} does a back flip into the lava", self->client->pers.netname);
 			break;
 		case MOD_EXPLOSIVE:
 		case MOD_BARREL:
-			snprintf(death_msg, sizeof(death_msg), "%s blew up", self->client->pers.netname);
+			fmt::format(death_msg, "{} blew up", self->client->pers.netname);
 			break;
 		case MOD_EXIT:
-			snprintf(death_msg, sizeof(death_msg), "%s found a way out", self->client->pers.netname);
+			fmt::format(death_msg, "{} found a way out", self->client->pers.netname);
 			break;
 		case MOD_TARGET_LASER:
-			snprintf(death_msg, sizeof(death_msg), "%s saw the light", self->client->pers.netname);
+			fmt::format(death_msg, "{} saw the light", self->client->pers.netname);
 			break;
 		case MOD_TARGET_BLASTER:
-			snprintf(death_msg, sizeof(death_msg), "%s got blasted", self->client->pers.netname);
+			fmt::format(death_msg, "{} got blasted", self->client->pers.netname);
 			break;
 		case MOD_BOMB:
 		case MOD_SPLASH:
 		case MOD_TRIGGER_HURT:
-			if( self->client->push_timeout )
-				snprintf(special_message, sizeof(special_message), "%s was shoved off the edge by %s", self->client->pers.netname, attacker->client->pers.netname);
-			snprintf(death_msg, sizeof(death_msg), "%s was in the wrong place", self->client->pers.netname);
+			if (self->client->push_timeout)
+				fmt::format(special_message, "{} was shoved off the edge by {}", self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} was in the wrong place", self->client->pers.netname);
 			break;
 		}
 	}
 
-	if (death_msg)
+	if (death_msg.length() > 0)
 	{
 		// handle falling with an attacker set
-		if (special_message && self->client->attacker && self->client->attacker->client
-		&& (self->client->attacker->client != self->client))
+		if (special_message.length() > 0 && self->client->attacker && self->client->attacker->client
+			&& (self->client->attacker->client != self->client))
 		{
-			sprintf(death_msg, "%s %s %s\n",
+			fmt::format(death_msg, "{} {} {}\n",
 				self->client->pers.netname, special_message, self->client->attacker->client->pers.netname);
 			PrintDeathMessage(death_msg, self);
 			AddKilledPlayer(self->client->attacker, self);
@@ -653,22 +666,22 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 					self->enemy = self->client->attacker;
 					Add_TeamKill(self->client->attacker);
 					Subtract_Frag(self->client->attacker);	//attacker->client->resp.score--;
-					Add_Death( self, false );
+					Add_Death(self, false);
 				}
 			}
 			else
 			{
 				Add_Frag(self->client->attacker, MOD_UNKNOWN);
-				Add_Death( self, true );
+				Add_Death(self, true);
 			}
 		}
 		else
 		{
-			PrintDeathMessage(death_msg, self );
+			PrintDeathMessage(death_msg, self);
 
-			if (!teamplay->value || team_round_going || !ff_afterround->value)  {
-				Subtract_Frag( self );
-				Add_Death( self, true );
+			if (!teamplay->value || team_round_going || !ff_afterround->value) {
+				Subtract_Frag(self);
+				Add_Death(self, true);
 			}
 
 			self->enemy = NULL;
@@ -676,12 +689,12 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		return;
 	}
 #if 0
-		// handle bleeding, not used because bleeding doesn't get set
-		if (mod.id == MOD_BLEEDING) {
-			sprintf(death_msg, "%s bleeds to death\n", self->client->pers.netname);
-			PrintDeathMessage(death_msg, self);
-			return;
-		}
+	// handle bleeding, not used because bleeding doesn't get set
+	if (mod.id == MOD_BLEEDING) {
+		fmt::format(death_msg, "{} bleeds to death\n", self->client->pers.netname);
+		PrintDeathMessage(death_msg, self);
+		return;
+	}
 #endif
 
 	self->enemy = attacker;
@@ -691,79 +704,80 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		case MOD_MK23:	// zucc
 			switch (loc) {
 			case LOC_HDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s has a hole in %s head from %s's Mark 23 pistol", 
+				fmt::format(death_msg, "{} has a hole in {} head from {}'s Mark 23 pistol",
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s loses a vital chest organ thanks to %s's Mark 23 pistol", 
+				fmt::format(death_msg, "{} loses a vital chest organ thanks to {}'s Mark 23 pistol",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s loses %s lunch to %s's .45 caliber pistol round", 
+				fmt::format(death_msg, "{} loses {} lunch to {}'s .45 caliber pistol round",
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s is legless because of %s's .45 caliber pistol round", 
+				fmt::format(death_msg, "{} is legless because of {}'s .45 caliber pistol round",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(death_msg, sizeof(death_msg), "%s was shot by %s's Mark 23 pistol", 
+				fmt::format(death_msg, "{} was shot by {}'s Mark 23 pistol",
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_MP5:
 			switch (loc) {
 			case LOC_HDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s 's brains are on the wall thanks to %s's 10mm MP5/10 round", 
+				fmt::format(death_msg, "{} 's brains are on the wall thanks to {}'s 10mm MP5/10 round",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s feels some chest pain via %s's MP5/10 Submachinegun", 
+				fmt::format(death_msg, "{} feels some chest pain via {}'s MP5/10 Submachinegun",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s needs some Pepto Bismol after %s's 10mm MP5 round", 
+				fmt::format(death_msg, "{} needs some Pepto Bismol after {}'s 10mm MP5 round",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s had %s legs blown off thanks to %s's MP5/10 Submachinegun", 
+				fmt::format(death_msg, "{} had {} legs blown off thanks to {}'s MP5/10 Submachinegun",
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(death_msg, sizeof(death_msg), "%s was shot by %s's MP5/10 Submachinegun", 
+				fmt::format(death_msg, "{} was shot by {}'s MP5/10 Submachinegun",
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_M4:
 			switch (loc) {
 			case LOC_HDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s had a makeover by %s's M4 Assault Rifle", 
+				fmt::format(death_msg, "{} had a makeover by {}'s M4 Assault Rifle",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s feels some heart burn thanks to %s's M4 Assault Rifle", 
+				fmt::format(death_msg, "{} feels some heart burn thanks to {}'s M4 Assault Rifle",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s has an upset stomach thanks to %s's M4 Assault Rifle", 
+				fmt::format(death_msg, "{} has an upset stomach thanks to {}'s M4 Assault Rifle",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s is now shorter thanks to %s's M4 Assault Rifle", 
+				fmt::format(death_msg, "{} is now shorter thanks to {}'s M4 Assault Rifle",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(death_msg, sizeof(death_msg), "%s was shot by %s's M4 Assault Rifle", 
+				fmt::format(death_msg, "{} was shot by {}'s M4 Assault Rifle",
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_M3:
 			n = rand() % 2 + 1;
 			if (n == 1) {
-				snprintf(death_msg, sizeof(death_msg), "%s accepts %s's M3 Super 90 Assault Shotgun in hole-y matrimony", 
+				fmt::format(death_msg, "{} accepts {}'s M3 Super 90 Assault Shotgun in hole-y matrimony",
 					self->client->pers.netname, attacker->client->pers.netname);
-			} else {
-				snprintf(death_msg, sizeof(death_msg), "%s is full of buckshot from %s's M3 Super 90 Assault Shotgun", 
+			}
+			else {
+				fmt::format(death_msg, "{} is full of buckshot from {}'s M3 Super 90 Assault Shotgun",
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
@@ -772,24 +786,28 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			if (n == 1) {
 				if (attacker->client->pers.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
 				{
-					snprintf(death_msg, sizeof(death_msg), "%s underestimated %s's single barreled handcannon shot", 
-					self->client->pers.netname, attacker->client->pers.netname);
-				} else {
-					snprintf(death_msg, sizeof(death_msg), "%s ate %s's sawed-off 12 gauge", 
-					self->client->pers.netname, attacker->client->pers.netname);
+					fmt::format(death_msg, "{} underestimated {}'s single barreled handcannon shot",
+						self->client->pers.netname, attacker->client->pers.netname);
 				}
-			} else if (n == 2 ){
+				else {
+					fmt::format(death_msg, "{} ate {}'s sawed-off 12 gauge",
+						self->client->pers.netname, attacker->client->pers.netname);
+				}
+			}
+			else if (n == 2) {
 				if (attacker->client->pers.hc_mode)	// AQ2:TNG Deathwatch - Single Barreled HC Death Messages
 				{
-					snprintf(death_msg, sizeof(death_msg), "%s won't be able to pass a metal detector anymore thanks to %s's single barreled handcannon shot", 
-					self->client->pers.netname, attacker->client->pers.netname);
-				} else {
-					snprintf(death_msg, sizeof(death_msg), "%s is full of buckshot from %s's sawed off shotgun", 
-					self->client->pers.netname, attacker->client->pers.netname);
-				} 
-			} else {
+					fmt::format(death_msg, "{} won't be able to pass a metal detector anymore thanks to {}'s single barreled handcannon shot",
+						self->client->pers.netname, attacker->client->pers.netname);
+				}
+				else {
+					fmt::format(death_msg, "{} is full of buckshot from {}'s sawed off shotgun",
+						self->client->pers.netname, attacker->client->pers.netname);
+				}
+			}
+			else {
 				// minch <3
-				snprintf(death_msg, sizeof(death_msg), "%s was minched by %s", 
+				fmt::format(death_msg, "{} was minched by {}",
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
@@ -797,167 +815,172 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 			switch (loc) {
 			case LOC_HDAM:
 				if (self->client->ps.fov < 90) {
-					snprintf(death_msg, sizeof(death_msg), "%s saw the sniper bullet go through %s scope thanks to %s", 
-					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
-				} else {
-					snprintf(death_msg, sizeof(death_msg), "%s caught a sniper bullet between the eyes from %s", 
-					self->client->pers.netname, attacker->client->pers.netname);
+					fmt::format(death_msg, "{} saw the sniper bullet go through {} scope thanks to {}",
+						self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
+				}
+				else {
+					fmt::format(death_msg, "{} caught a sniper bullet between the eyes from {}",
+						self->client->pers.netname, attacker->client->pers.netname);
 				}
 				break;
 			case LOC_CDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s was picked off by %s", 
+				fmt::format(death_msg, "{} was picked off by {}",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s was sniped in the stomach by %s", 
+				fmt::format(death_msg, "{} was sniped in the stomach by {}",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s was shot in the legs by %s", 
+				fmt::format(death_msg, "{} was shot in the legs by {}",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(death_msg, sizeof(death_msg), "%s was sniped by %s", 
+				fmt::format(death_msg, "{} was sniped by {}",
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_DUAL:
 			switch (loc) {
 			case LOC_HDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s was trepanned by %s's akimbo Mark 23 pistols", 
+				fmt::format(death_msg, "{} was trepanned by {}'s akimbo Mark 23 pistols",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s was John Woo'd by %s", 
+				fmt::format(death_msg, "{} was John Woo'd by {}",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s needs some new kidneys thanks to %s's akimbo Mark 23 pistols", 
+				fmt::format(death_msg, "{} needs some new kidneys thanks to {}'s akimbo Mark 23 pistols",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s was shot in the legs by %s's akimbo Mark 23 pistols", 
+				fmt::format(death_msg, "{} was shot in the legs by {}'s akimbo Mark 23 pistols",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(death_msg, sizeof(death_msg), "%s was shot by %s's pair of Mark 23 Pistols", 
+				fmt::format(death_msg, "{} was shot by {}'s pair of Mark 23 Pistols",
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_KNIFE:
 			switch (loc) {
 			case LOC_HDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s had %s throat slit by %s", 
+				fmt::format(death_msg, "{} had {} throat slit by {}",
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			case LOC_CDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s had open heart surgery, compliments of %s", 
+				fmt::format(death_msg, "{} had open heart surgery, compliments of {}",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s was gutted by %s", 
+				fmt::format(death_msg, "{} was gutted by {}",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s was stabbed repeatedly in the legs by %s", 
+				fmt::format(death_msg, "{} was stabbed repeatedly in the legs by {}",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(death_msg, sizeof(death_msg), "%s was slashed apart by %s's Combat Knife", 
+				fmt::format(death_msg, "{} was slashed apart by {}'s Combat Knife",
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_KNIFE_THROWN:
 			switch (loc) {
-				case LOC_HDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s caught %s's flying knife with his forehead %s", 
+			case LOC_HDAM:
+				fmt::format(death_msg, "{} caught {}'s flying knife with his forehead {}",
 					self->client->pers.netname, attacker->client->pers.netname, GetPossesiveAdjective(self));
 				break;
 			case LOC_CDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s's ribs don't help against %s's flying knife", 
+				fmt::format(death_msg, "{}'s ribs don't help against {}'s flying knife",
 					self->client->pers.netname, attacker->client->pers.netname);
 				break;
 			case LOC_SDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s sees the contents of %s own stomach thanks to %s's flying knife", 
+				fmt::format(death_msg, "{} sees the contents of {} own stomach thanks to {}'s flying knife",
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			case LOC_LDAM:
-				snprintf(death_msg, sizeof(death_msg), "%s had %s legs cut off thanks to %s's flying knife", 
+				fmt::format(death_msg, "{} had {} legs cut off thanks to {}'s flying knife",
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
 				break;
 			default:
-				snprintf(death_msg, sizeof(death_msg), "%s was hit by %s's flying Combat Knife", 
+				fmt::format(death_msg, "{} was hit by {}'s flying Combat Knife",
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_KICK:
 			n = rand() % 3 + 1;
 			if (n == 1) {
-				snprintf(death_msg, sizeof(death_msg), "%s got %s ass kicked by %s", 
+				fmt::format(death_msg, "{} got {} ass kicked by {}",
 					self->client->pers.netname, GetPossesiveAdjective(self), attacker->client->pers.netname);
-			} else if (n == 2) {
-				snprintf(death_msg, sizeof(death_msg), "%s couldn't remove %s's boot from %s ass", 
+			}
+			else if (n == 2) {
+				fmt::format(death_msg, "{} couldn't remove {}'s boot from {} ass",
 					self->client->pers.netname, attacker->client->pers.netname, GetPossesiveAdjective(self));
-			} else {
-				snprintf(death_msg, sizeof(death_msg), "%s had a Bruce Lee put on %s by %s, with a quickness", 
+			}
+			else {
+				fmt::format(death_msg, "{} had a Bruce Lee put on {} by {}, with a quickness",
 					self->client->pers.netname, GetPossesiveAdjectiveSingular(self), attacker->client->pers.netname);
 			}
 			break;
 		case MOD_PUNCH:
 			n = rand() % 3 + 1;
 			if (n == 1) {
-				snprintf(death_msg, sizeof(death_msg), "%s got a free facelift by %s", 
+				fmt::format(death_msg, "{} got a free facelift by {}",
 					self->client->pers.netname, attacker->client->pers.netname);
-			} else if (n == 2) {
-				snprintf(death_msg, sizeof(death_msg), "%s was knocked out by %s", 
+			}
+			else if (n == 2) {
+				fmt::format(death_msg, "{} was knocked out by {}",
 					self->client->pers.netname, attacker->client->pers.netname);
-			} else {
-				snprintf(death_msg, sizeof(death_msg), "%s caught %s's iron fist", 
+			}
+			else {
+				fmt::format(death_msg, "{} caught {}'s iron fist",
 					self->client->pers.netname, attacker->client->pers.netname);
 			}
 			break;
 		case MOD_BLASTER:
-			snprintf(death_msg, sizeof(death_msg), "%s was blasted by %s", 
-					self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} was blasted by {}",
+				self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_GRENADE:
-			snprintf(death_msg, sizeof(death_msg), "%s was popped by %s's grenade", 
-					self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} was popped by {}'s grenade",
+				self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_G_SPLASH:
-			snprintf(death_msg, sizeof(death_msg), "%s was shredded by %s's shrapnel", 
-					self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} was shredded by {}'s shrapnel",
+				self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_HYPERBLASTER:
-			snprintf(death_msg, sizeof(death_msg), "%s was melted by %s's hyperblaster", 
-					self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} was melted by {}'s hyperblaster",
+				self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_HANDGRENADE:
-			snprintf(death_msg, sizeof(death_msg), "%s caught %s's handgrenade", 
-					self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} caught {}'s handgrenade",
+				self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_HG_SPLASH:
-			snprintf(death_msg, sizeof(death_msg), "%s didn't see %s's handgrenade", 
-					self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} didn't see {}'s handgrenade",
+				self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_HELD_GRENADE:
-			snprintf(death_msg, sizeof(death_msg), "%s feels %s's pain", 
-					self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} feels {}'s pain",
+				self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_TELEFRAG:
-			snprintf(death_msg, sizeof(death_msg), "%s tried to invade %s's personal space", 
-					self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} tried to invade {}'s personal space",
+				self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		case MOD_GRAPPLE:
-			snprintf(death_msg, sizeof(death_msg), "%s was caught by %s's grapple", 
-					self->client->pers.netname, attacker->client->pers.netname);
+			fmt::format(death_msg, "{} was caught by {}'s grapple",
+				self->client->pers.netname, attacker->client->pers.netname);
 			break;
 		}	//end of case (mod)
 
-		if (death_msg)
+		if (death_msg.length() > 0)
 		{
-			//sprintf(death_msg, "%s%s %s%s\n", self->client->pers.netname, message, attacker->client->pers.netname, message2);
-			//snprintf(death_msg, sizeof(death_msg), message);
+			//fmt::format(death_msg, "{} {}\n", self->client->pers.netname, message, attacker->client->pers.netname, message2);
+			//fmt::format(death_msg, message);
 			PrintDeathMessage(death_msg, self);
 			AddKilledPlayer(attacker, self);
 
@@ -967,13 +990,14 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 					self->enemy = attacker; //tkok
 					Add_TeamKill(attacker);
 					Subtract_Frag(attacker);	//attacker->client->resp.score--;
-					Add_Death( self, false );
+					Add_Death(self, false);
 				}
-			} else {
+			}
+			else {
 				if (!teamplay->value || mod.id != MOD_TELEFRAG) {
 					Add_Frag(attacker, mod.id);
 					attacker->client->radio_num_kills++;
-					Add_Death( self, true );
+					Add_Death(self, true);
 				}
 			}
 
@@ -981,16 +1005,16 @@ void ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker, mod_t 
 		}	// if(message)
 	}
 
-	sprintf(death_msg, "%s died\n", self->client->pers.netname);
+	fmt::format(death_msg, "{} died\n", self->client->pers.netname);
 	PrintDeathMessage(death_msg, self);
 	Subtract_Frag(self);	//self->client->resp.score--;
-	Add_Death( self, true );
+	Add_Death(self, true);
 }
 
 // zucc used to toss an item on death
-void EjectItem(edict_t * ent, gitem_t * item)
+void EjectItem(edict_t* ent, gitem_t* item)
 {
-	edict_t *drop;
+	edict_t* drop;
 	float spread;
 
 	if (item) {
@@ -1004,9 +1028,9 @@ void EjectItem(edict_t * ent, gitem_t * item)
 }
 
 // unique weapons need to be specially treated so they respawn properly
-void EjectWeapon(edict_t * ent, gitem_t * item)
+void EjectWeapon(edict_t* ent, gitem_t* item)
 {
-	edict_t *drop;
+	edict_t* drop;
 	float spread;
 
 	if (item) {
@@ -1021,31 +1045,31 @@ void EjectWeapon(edict_t * ent, gitem_t * item)
 
 }
 
-void EjectMedKit( edict_t *ent, int medkit )
+void EjectMedKit(edict_t* ent, int medkit)
 {
-	gitem_t *item = FindItem("Health");
+	gitem_t* item = FindItem("Health");
 	float spread = 300.0 * crandom();
-	edict_t *drop = NULL;
+	edict_t* drop = NULL;
 
-	if( ! item )
+	if (!item)
 		return;
 
 	item->world_model = "models/items/healing/medium/tris.md2";
 	ent->client->v_angle[YAW] -= spread;
-	drop = Drop_Item( ent, item );
+	drop = Drop_Item(ent, item);
 	ent->client->v_angle[YAW] += spread;
 	drop->model = item->world_model;
 	drop->classname = "medkit";
 	drop->count = medkit;
 
-	if( ! medkit_instant->value )
+	if (!medkit_instant->value)
 		drop->style = 4; // HEALTH_MEDKIT (g_items.c)
 }
 
 //zucc toss items on death
-void TossItemsOnDeath(edict_t * ent)
+void TossItemsOnDeath(edict_t* ent)
 {
-	gitem_t *item;
+	gitem_t* item;
 	bool quad = false;
 	int i;
 
@@ -1054,12 +1078,13 @@ void TossItemsOnDeath(edict_t * ent)
 		// remove the lasersight because then the observer might have it
 		item = GetItemByIndex(IT_ITEM_LASERSIGHT);
 		ent->client->inventory[ITEM_INDEX(item)] = 0;
-	} else {
+	}
+	else {
 		DeadDropSpec(ent);
 	}
 
-	if( medkit_drop->value > 0 )
-		EjectMedKit( ent, medkit_drop->value );
+	if (medkit_drop->value > 0)
+		EjectMedKit(ent, medkit_drop->value);
 
 	if (allweapon->value)// don't drop weapons if allweapons is on
 		return;
@@ -1073,10 +1098,10 @@ void TossItemsOnDeath(edict_t * ent)
 
 	// check for every item we want to drop when a player dies
 	for (i = IT_WEAPON_MP5; i < IT_WEAPON_DUALMK23; i++) {
-		item = GET_ITEM( i );
-		while (ent->client->inventory[ITEM_INDEX( item )] > 0) {
-			ent->client->inventory[ITEM_INDEX( item )]--;
-			EjectWeapon( ent, item );
+		item = GET_ITEM(i);
+		while (ent->client->inventory[ITEM_INDEX(item)] > 0) {
+			ent->client->inventory[ITEM_INDEX(item)]--;
+			EjectWeapon(ent, item);
 		}
 	}
 
@@ -1084,18 +1109,18 @@ void TossItemsOnDeath(edict_t * ent)
 	if (ent->client->inventory[ITEM_INDEX(item)] > 0) {
 		EjectItem(ent, item);
 	}
-// special items
+	// special items
 
-	// if (!DMFLAGS(DF_QUAD_DROP))
-	// 	quad = false;
-	// else
-	// 	quad = (ent->client->quad_framenum > (level.framenum + HZ));
+		// if (!DMFLAGS(DF_QUAD_DROP))
+		// 	quad = false;
+		// else
+		// 	quad = (ent->client->quad_framenum > (level.framenum + HZ));
 }
 
-void TossClientWeapon(edict_t * self)
+void TossClientWeapon(edict_t* self)
 {
-	gitem_t *item;
-	edict_t *drop;
+	gitem_t* item;
+	edict_t* drop;
 	//bool quad;
 	float spread;
 
@@ -1122,91 +1147,91 @@ void TossClientWeapon(edict_t * self)
 		drop->spawnflags = SPAWNFLAG_ITEM_DROPPED_PLAYER;
 	}
 }
-	
 
-	// // send generic/self
-	// if (base)
-	// {
-	// 	gi.LocBroadcast_Print(PRINT_MEDIUM, base, self->client->pers.netname);
-	// 	if (deathmatch->integer && !mod.no_point_loss)
-	// 	{
-	// 		self->client->resp.score--;
 
-	// 		if (teamplay->integer)
-	// 			G_AdjustTeamScore(self->client->resp.ctf_team, -1);
-	// 	}
-	// 	self->enemy = nullptr;
-	// 	return;
-	// }
+// // send generic/self
+// if (base)
+// {
+// 	gi.LocBroadcast_Print(PRINT_MEDIUM, base, self->client->pers.netname);
+// 	if (deathmatch->integer && !mod.no_point_loss)
+// 	{
+// 		self->client->resp.score--;
 
-	// has a killer
-	// self->enemy = attacker;
-	// if (attacker && attacker->client)
-	// {
-	// 	switch (mod.id)
-	// 	{
-	// 	case MOD_BLASTER:
-	// 		base = "$g_mod_kill_blaster";
-	// 		break;
-	// 	case MOD_M3:
-	// 		base = "$g_mod_kill_shotgun";
-	// 		break;
-	// 	case MOD_HC:
-	// 		base = "$g_mod_kill_sshotgun";
-	// 		break;
-	// 	case MOD_MP5:
-	// 		base = "$g_mod_kill_machinegun";
-	// 		break;
-	// 	case MOD_M4:
-	// 		base = "$g_mod_kill_chaingun";
-	// 		break;
-	// 	case MOD_GRENADE:
-	// 		base = "$g_mod_kill_grenade";
-	// 		break;
-	// 	case MOD_G_SPLASH:
-	// 		base = "$g_mod_kill_grenade_splash";
-	// 		break;
-	// 	case MOD_SNIPER:
-	// 		base = "$g_mod_kill_rocket";
-	// 		break;
-	// 	case MOD_KNIFE:
-	// 		base = "$g_mod_kill_rocket_splash";
-	// 		break;
-	// 	case MOD_HYPERBLASTER:
-	// 		base = "$g_mod_kill_hyperblaster";
-	// 		break;
-	// 	case MOD_KNIFE_THROWN:
-	// 		base = "$g_mod_kill_railgun";
-	// 		break;
-	// 	case MOD_MK23:
-	// 		base = "$g_mod_kill_bfg_laser";
-	// 		break;
-	// 	case MOD_DUAL:
-	// 		base = "$g_mod_kill_bfg_blast";
-	// 		break;
-	// 	case MOD_HANDGRENADE:
-	// 		base = "$g_mod_kill_handgrenade";
-	// 		break;
-	// 	case MOD_HG_SPLASH:
-	// 		base = "$g_mod_kill_handgrenade_splash";
-	// 		break;
-	// 	case MOD_HELD_GRENADE:
-	// 		base = "$g_mod_kill_held_grenade";
-	// 		break;
-	// 	case MOD_TELEFRAG:
-	// 	case MOD_TELEFRAG_SPAWN:
-	// 		base = "$g_mod_kill_telefrag";
-	// 		break;
-	// 	case MOD_GRAPPLE:
-	// 		base = "$g_mod_kill_grapple";
-	// 		break;
-	// 		// ZOID
-	// 	default:
-	// 		base = "$g_mod_kill_generic";
-	// 		break;
-	// 	}
+// 		if (teamplay->integer)
+// 			G_AdjustTeamScore(self->client->resp.ctf_team, -1);
+// 	}
+// 	self->enemy = nullptr;
+// 	return;
+// }
 
-		//gi.LocBroadcast_Print(PRINT_MEDIUM, base, self->client->pers.netname, attacker->client->pers.netname);
+// has a killer
+// self->enemy = attacker;
+// if (attacker && attacker->client)
+// {
+// 	switch (mod.id)
+// 	{
+// 	case MOD_BLASTER:
+// 		base = "$g_mod_kill_blaster";
+// 		break;
+// 	case MOD_M3:
+// 		base = "$g_mod_kill_shotgun";
+// 		break;
+// 	case MOD_HC:
+// 		base = "$g_mod_kill_sshotgun";
+// 		break;
+// 	case MOD_MP5:
+// 		base = "$g_mod_kill_machinegun";
+// 		break;
+// 	case MOD_M4:
+// 		base = "$g_mod_kill_chaingun";
+// 		break;
+// 	case MOD_GRENADE:
+// 		base = "$g_mod_kill_grenade";
+// 		break;
+// 	case MOD_G_SPLASH:
+// 		base = "$g_mod_kill_grenade_splash";
+// 		break;
+// 	case MOD_SNIPER:
+// 		base = "$g_mod_kill_rocket";
+// 		break;
+// 	case MOD_KNIFE:
+// 		base = "$g_mod_kill_rocket_splash";
+// 		break;
+// 	case MOD_HYPERBLASTER:
+// 		base = "$g_mod_kill_hyperblaster";
+// 		break;
+// 	case MOD_KNIFE_THROWN:
+// 		base = "$g_mod_kill_railgun";
+// 		break;
+// 	case MOD_MK23:
+// 		base = "$g_mod_kill_bfg_laser";
+// 		break;
+// 	case MOD_DUAL:
+// 		base = "$g_mod_kill_bfg_blast";
+// 		break;
+// 	case MOD_HANDGRENADE:
+// 		base = "$g_mod_kill_handgrenade";
+// 		break;
+// 	case MOD_HG_SPLASH:
+// 		base = "$g_mod_kill_handgrenade_splash";
+// 		break;
+// 	case MOD_HELD_GRENADE:
+// 		base = "$g_mod_kill_held_grenade";
+// 		break;
+// 	case MOD_TELEFRAG:
+// 	case MOD_TELEFRAG_SPAWN:
+// 		base = "$g_mod_kill_telefrag";
+// 		break;
+// 	case MOD_GRAPPLE:
+// 		base = "$g_mod_kill_grapple";
+// 		break;
+// 		// ZOID
+// 	default:
+// 		base = "$g_mod_kill_generic";
+// 		break;
+// 	}
+
+	//gi.LocBroadcast_Print(PRINT_MEDIUM, base, self->client->pers.netname, attacker->client->pers.netname);
 
 
 // void TossClientWeapon(edict_t *self)
@@ -1297,7 +1322,7 @@ void TossClientWeapon(edict_t * self)
 LookAtKiller
 ==================
 */
-void LookAtKiller(edict_t *self, edict_t *inflictor, edict_t *attacker)
+void LookAtKiller(edict_t* self, edict_t* inflictor, edict_t* attacker)
 {
 	vec3_t dir;
 
@@ -1330,7 +1355,7 @@ void LookAtKiller(edict_t *self, edict_t *inflictor, edict_t *attacker)
 player_die
 ==================
 */
-DIE(player_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t &point, const mod_t &mod) -> void
+DIE(player_die) (edict_t* self, edict_t* inflictor, edict_t* attacker, int damage, const vec3_t& point, const mod_t& mod) -> void
 {
 	PlayerTrail_Destroy(self);
 
@@ -1340,9 +1365,9 @@ DIE(player_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 	self->movetype = MOVETYPE_TOSS;
 
 	self->s.modelindex2 = 0; // remove linked weapon model
-							 // ZOID
+	// ZOID
 	self->s.modelindex3 = 0; // remove linked ctf flag
-							 // ZOID
+	// ZOID
 
 	self->s.angles[0] = 0;
 	self->s.angles[2] = 0;
@@ -1357,9 +1382,9 @@ DIE(player_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 
 	if (!self->deadflag)
 	{
-		self->client->respawn_time = ( level.time + 1_sec );
-		if ( deathmatch->integer && g_dm_force_respawn_time->integer ) {
-			self->client->respawn_time = ( level.time + gtime_t::from_sec( g_dm_force_respawn_time->value ) );
+		self->client->respawn_time = (level.time + 1_sec);
+		if (deathmatch->integer && g_dm_force_respawn_time->integer) {
+			self->client->respawn_time = (level.time + gtime_t::from_sec(g_dm_force_respawn_time->value));
 		}
 
 		LookAtKiller(self, inflictor, attacker);
@@ -1640,18 +1665,18 @@ DIE(player_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 #include <sstream>
 
 // [Paril-KEX]
-static void Player_GiveStartItems(edict_t *ent, const char *ptr)
+static void Player_GiveStartItems(edict_t* ent, const char* ptr)
 {
 	char token_copy[MAX_TOKEN_CHARS];
-	const char *token;
+	const char* token;
 
 	while (*(token = COM_ParseEx(&ptr, ";")))
 	{
 		Q_strlcpy(token_copy, token, sizeof(token_copy));
-		const char *ptr_copy = token_copy;
+		const char* ptr_copy = token_copy;
 
-		const char *item_name = COM_Parse(&ptr_copy);
-		gitem_t *item = FindItemByClassname(item_name);
+		const char* item_name = COM_Parse(&ptr_copy);
+		gitem_t* item = FindItemByClassname(item_name);
 
 		if (!item || !item->pickup)
 			gi.Com_ErrorFmt("Invalid g_start_item entry: {}\n", item_name);
@@ -1667,7 +1692,7 @@ static void Player_GiveStartItems(edict_t *ent, const char *ptr)
 			continue;
 		}
 
-		edict_t *dummy = G_Spawn();
+		edict_t* dummy = G_Spawn();
 		dummy->item = item;
 		dummy->count = count;
 		dummy->spawnflags |= SPAWNFLAG_ITEM_DROPPED;
@@ -1684,7 +1709,7 @@ This is only called when the game first initializes in single player,
 but is called after each death and level change in deathmatch
 ==============
 */
-void InitClientPersistant(edict_t *ent, gclient_t *client)
+void InitClientPersistant(edict_t* ent, gclient_t* client)
 {
 	// backup & restore userinfo
 	char userinfo[MAX_INFO_STRING];
@@ -1730,7 +1755,7 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
 
 	// Everyone starts with the MK23
 	if (!g_instagib->integer)
-	 	client->pers.inventory[IT_WEAPON_MK23] = 1;
+		client->pers.inventory[IT_WEAPON_MK23] = 1;
 
 	// 		// [Kex]
 	// 		// start items!
@@ -1762,7 +1787,7 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
 
 	client->pers.weapon = client->newweapon;
 	if (client->newweapon)
-	 	client->pers.selected_item = client->newweapon->id;
+		client->pers.selected_item = client->newweapon->id;
 	client->newweapon = nullptr;
 	// ZOID
 	client->pers.lastweapon = client->pers.weapon;
@@ -1812,7 +1837,7 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
 	client->pers.spawned = true;
 }
 
-void InitClientResp(gclient_t *client)
+void InitClientResp(gclient_t* client)
 {
 	// ZOID
 	ctfteam_t ctf_team = client->resp.ctf_team;
@@ -1847,7 +1872,7 @@ edicts are wiped.
 */
 void SaveClientData()
 {
-	edict_t *ent;
+	edict_t* ent;
 
 	for (uint32_t i = 0; i < game.maxclients; i++)
 	{
@@ -1862,7 +1887,7 @@ void SaveClientData()
 	}
 }
 
-void FetchClientEntData(edict_t *ent)
+void FetchClientEntData(edict_t* ent)
 {
 	ent->health = ent->client->pers.health;
 	ent->max_health = ent->client->pers.max_health;
@@ -1886,9 +1911,9 @@ PlayersRangeFromSpot
 Returns the distance to the nearest player from the given spot
 ================
 */
-float PlayersRangeFromSpot(edict_t *spot)
+float PlayersRangeFromSpot(edict_t* spot)
 {
-	edict_t *player;
+	edict_t* player;
 	float	 bestplayerdistance;
 	vec3_t	 v;
 	float	 playerdistance;
@@ -1915,9 +1940,9 @@ float PlayersRangeFromSpot(edict_t *spot)
 	return bestplayerdistance;
 }
 
-bool SpawnPointClear(edict_t *spot)
+bool SpawnPointClear(edict_t* spot)
 {
-	vec3_t p = spot->s.origin + vec3_t{0, 0, 9.f};
+	vec3_t p = spot->s.origin + vec3_t{ 0, 0, 9.f };
 	return !gi.trace(p, PLAYER_MINS, PLAYER_MAXS, p, spot, CONTENTS_PLAYER | CONTENTS_MONSTER).startsolid;
 }
 
@@ -1925,7 +1950,7 @@ select_spawn_result_t SelectDeathmatchSpawnPoint(bool farthest, bool force_spawn
 {
 	struct spawn_point_t
 	{
-		edict_t *point;
+		edict_t* point;
 		float dist;
 	};
 
@@ -1934,7 +1959,7 @@ select_spawn_result_t SelectDeathmatchSpawnPoint(bool farthest, bool force_spawn
 	spawn_points.clear();
 
 	// gather all spawn points 
-	edict_t *spot = nullptr;
+	edict_t* spot = nullptr;
 	while ((spot = G_FindByString<&edict_t::classname>(spot, "info_player_deathmatch")) != nullptr)
 		spawn_points.push_back({ spot, PlayersRangeFromSpot(spot) });
 
@@ -1976,7 +2001,7 @@ select_spawn_result_t SelectDeathmatchSpawnPoint(bool farthest, bool force_spawn
 	}
 
 	// order by distances ascending (top of list has closest players to point)
-	std::sort(spawn_points.begin(), spawn_points.end(), [](const spawn_point_t &a, const spawn_point_t &b) { return a.dist < b.dist; });
+	std::sort(spawn_points.begin(), spawn_points.end(), [](const spawn_point_t& a, const spawn_point_t& b) { return a.dist < b.dist; });
 
 	// farthest spawn is simple
 	if (farthest)
@@ -2011,7 +2036,7 @@ select_spawn_result_t SelectDeathmatchSpawnPoint(bool farthest, bool force_spawn
 		else if (SpawnPointClear(spawn_points[0].point))
 			return { spawn_points[0].point, true };
 	}
-		
+
 	if (force_spawn)
 		return { random_element(spawn_points).point, true };
 
@@ -2020,18 +2045,18 @@ select_spawn_result_t SelectDeathmatchSpawnPoint(bool farthest, bool force_spawn
 
 //===============
 // ROGUE
-edict_t *SelectLavaCoopSpawnPoint(edict_t *ent)
+edict_t* SelectLavaCoopSpawnPoint(edict_t* ent)
 {
 	int		 index;
-	edict_t *spot = nullptr;
+	edict_t* spot = nullptr;
 	float	 lavatop;
-	edict_t *lava;
-	edict_t *pointWithLeastLava;
+	edict_t* lava;
+	edict_t* pointWithLeastLava;
 	float	 lowest;
-	edict_t *spawnPoints[64];
+	edict_t* spawnPoints[64];
 	vec3_t	 center;
 	int		 numPoints;
-	edict_t *highestlava;
+	edict_t* highestlava;
 
 	lavatop = -99999;
 	highestlava = nullptr;
@@ -2103,9 +2128,9 @@ edict_t *SelectLavaCoopSpawnPoint(edict_t *ent)
 //===============
 
 // [Paril-KEX]
-static edict_t *SelectSingleSpawnPoint(edict_t *ent)
+static edict_t* SelectSingleSpawnPoint(edict_t* ent)
 {
-	edict_t *spot = nullptr;
+	edict_t* spot = nullptr;
 
 	while ((spot = G_FindByString<&edict_t::classname>(spot, "info_player_start")) != nullptr)
 	{
@@ -2135,7 +2160,7 @@ static edict_t *SelectSingleSpawnPoint(edict_t *ent)
 }
 
 // [Paril-KEX]
-static edict_t *G_UnsafeSpawnPosition(vec3_t spot)
+static edict_t* G_UnsafeSpawnPosition(vec3_t spot)
 {
 	trace_t tr = gi.trace(spot, PLAYER_MINS, PLAYER_MAXS, spot, nullptr, MASK_PLAYERSOLID);
 
@@ -2158,10 +2183,10 @@ static edict_t *G_UnsafeSpawnPosition(vec3_t spot)
 	return nullptr;
 }
 
-edict_t *SelectCoopSpawnPoint(edict_t *ent, bool force_spawn)
+edict_t* SelectCoopSpawnPoint(edict_t* ent, bool force_spawn)
 {
-	edict_t	*spot = nullptr;
-	const char *target;
+	edict_t* spot = nullptr;
+	const char* target;
 
 	// ROGUE
 	//  rogue hack, but not too gross...
@@ -2258,7 +2283,7 @@ edict_t *SelectCoopSpawnPoint(edict_t *ent, bool force_spawn)
 	// no safe spots..?
 	if (force_spawn || !g_coop_player_collision->integer)
 		return SelectSingleSpawnPoint(spot);
-	
+
 	return nullptr;
 }
 
@@ -2280,7 +2305,7 @@ bool TryLandmarkSpawn(edict_t* ent, vec3_t& origin, vec3_t& angles)
 	vec3_t old_origin = origin;
 	vec3_t spot_origin = origin;
 	origin = ent->client->landmark_rel_pos;
-	
+
 	// rotate our relative landmark into our new landmark's frame of reference
 	origin = RotatePointAroundVector({ 1, 0, 0 }, origin, landmark->s.angles[0]);
 	origin = RotatePointAroundVector({ 0, 1, 0 }, origin, landmark->s.angles[2]);
@@ -2295,8 +2320,8 @@ bool TryLandmarkSpawn(edict_t* ent, vec3_t& origin, vec3_t& angles)
 
 	// sometimes, landmark spawns can cause slight inconsistencies in collision;
 	// we'll do a bit of tracing to make sure the bbox is clear
-	if (G_FixStuckObject_Generic(origin, PLAYER_MINS, PLAYER_MAXS, [ent] (const vec3_t &start, const vec3_t &mins, const vec3_t &maxs, const vec3_t &end) {
-			return gi.trace(start, mins, maxs, end, ent, MASK_PLAYERSOLID);
+	if (G_FixStuckObject_Generic(origin, PLAYER_MINS, PLAYER_MAXS, [ent](const vec3_t& start, const vec3_t& mins, const vec3_t& maxs, const vec3_t& end) {
+		return gi.trace(start, mins, maxs, end, ent, MASK_PLAYERSOLID);
 		}) == stuck_result_t::NO_GOOD_POSITION)
 	{
 		origin = old_origin;
@@ -2323,9 +2348,9 @@ SelectSpawnPoint
 Chooses a player start, deathmatch start, coop start, etc
 ============
 */
-bool SelectSpawnPoint(edict_t *ent, vec3_t &origin, vec3_t &angles, bool force_spawn, bool &landmark)
+bool SelectSpawnPoint(edict_t* ent, vec3_t& origin, vec3_t& angles, bool force_spawn, bool& landmark)
 {
-	edict_t *spot = nullptr;
+	edict_t* spot = nullptr;
 
 	// DM spots are simple
 	if (deathmatch->integer)
@@ -2352,7 +2377,7 @@ bool SelectSpawnPoint(edict_t *ent, vec3_t &origin, vec3_t &angles, bool force_s
 
 		return false;
 	}
-	
+
 	if (coop->integer)
 	{
 		spot = SelectCoopSpawnPoint(ent, force_spawn);
@@ -2378,7 +2403,7 @@ bool SelectSpawnPoint(edict_t *ent, vec3_t &origin, vec3_t &angles, bool force_s
 	}
 
 	// spot should always be non-null here
-	
+
 	origin = spot->s.origin;
 	angles = spot->s.angles;
 
@@ -2394,7 +2419,7 @@ bool SelectSpawnPoint(edict_t *ent, vec3_t &origin, vec3_t &angles, bool force_s
 void InitBodyQue()
 {
 	int		 i;
-	edict_t *ent;
+	edict_t* ent;
 
 	level.body_que = 0;
 	for (i = 0; i < BODY_QUEUE_SIZE; i++)
@@ -2404,7 +2429,7 @@ void InitBodyQue()
 	}
 }
 
-DIE(body_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t &point, const mod_t &mod) -> void
+DIE(body_die) (edict_t* self, edict_t* inflictor, edict_t* attacker, int damage, const vec3_t& point, const mod_t& mod) -> void
 {
 	if (self->s.modelindex == MODELINDEX_PLAYER &&
 		self->health < self->gib_health)
@@ -2426,13 +2451,13 @@ DIE(body_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage,
 	}
 }
 
-void CopyToBodyQue(edict_t *ent)
+void CopyToBodyQue(edict_t* ent)
 {
 	// if we were completely removed, don't bother with a body
 	if (!ent->s.modelindex)
 		return;
 
-	edict_t *body;
+	edict_t* body;
 
 	// grab a body que and cycle to the next one
 	body = &g_edicts[game.maxclients + level.body_que + 1];
@@ -2479,7 +2504,7 @@ void CopyToBodyQue(edict_t *ent)
 	gi.linkentity(body);
 }
 
-void G_PostRespawn(edict_t *self)
+void G_PostRespawn(edict_t* self)
 {
 	if (self->svflags & SVF_NOCLIENT)
 		return;
@@ -2497,11 +2522,11 @@ void G_PostRespawn(edict_t *self)
 void CleanBodies()
 {
 	int i;
-	edict_t *ent;
+	edict_t* ent;
 
 	ent = g_edicts + game.maxclients + 1;
 	for (i = 0; i < BODY_QUEUE_SIZE; i++, ent++) {
-		gi.unlinkentity( ent );
+		gi.unlinkentity(ent);
 		ent->solid = SOLID_NOT;
 		ent->movetype = MOVETYPE_NOCLIP;
 		ent->svflags |= SVF_NOCLIENT;
@@ -2509,7 +2534,7 @@ void CleanBodies()
 	level.body_que = 0;
 }
 
-void respawn(edict_t *self)
+void respawn(edict_t* self)
 {
 	if (deathmatch->integer || coop->integer)
 	{
@@ -2531,7 +2556,7 @@ void respawn(edict_t *self)
  * only called when pers.spectator changes
  * note that resp.spectator should be the opposite of pers.spectator here
  */
-void spectator_respawn(edict_t *ent)
+void spectator_respawn(edict_t* ent)
 {
 	uint32_t i, numspec;
 
@@ -2560,7 +2585,7 @@ void spectator_respawn(edict_t *ent)
 			if (g_edicts[i].inuse && g_edicts[i].client->pers.spectator)
 				numspec++;
 
-		if (numspec >= (uint32_t) maxspectators->integer)
+		if (numspec >= (uint32_t)maxspectators->integer)
 		{
 			gi.LocClient_Print(ent, PRINT_HIGH, "Server spectator limit is full.");
 			ent->client->pers.spectator = false;
@@ -2626,10 +2651,10 @@ void spectator_respawn(edict_t *ent)
 
 //==============================================================
 
-void AllWeapons(edict_t * ent)
+void AllWeapons(edict_t* ent)
 {
 	int i;
-	gitem_t *it;
+	gitem_t* it;
 
 
 	// for (i = 0; i < IT_TOTAL; i++)
@@ -2670,7 +2695,7 @@ void AllWeapons(edict_t * ent)
 		if (!(it->flags & IF_WEAPON))
 			continue;
 
-		switch(it->id) {
+		switch (it->id) {
 		case IT_WEAPON_MK23:
 			ent->client->inventory[i] = 1;
 			ent->client->mk23_rds = ent->client->mk23_max;
@@ -2681,7 +2706,7 @@ void AllWeapons(edict_t * ent)
 			break;
 		case IT_WEAPON_M4:
 			ent->client->inventory[i] = 1;
-			ent->client->m4_rds = ent->client->m4_max;	    
+			ent->client->m4_rds = ent->client->m4_max;
 			break;
 		case IT_WEAPON_M3:
 			ent->client->inventory[i] = 1;
@@ -2708,7 +2733,7 @@ void AllWeapons(edict_t * ent)
 			break;
 		}
 	}
-	
+
 	for (i = 0; i < game.num_items; i++) {
 		it = itemlist + i;
 		if (!it->pickup)
@@ -2719,10 +2744,10 @@ void AllWeapons(edict_t * ent)
 	}
 }
 
-void AllItems(edict_t * ent)
+void AllItems(edict_t* ent)
 {
 	int i;
-	gitem_t *it;
+	gitem_t* it;
 
 	for (i = 0; i < game.num_items; i++) {
 		it = itemlist + i;
@@ -2739,11 +2764,11 @@ void AllItems(edict_t * ent)
 
 // equips a client with item/weapon in teamplay
 
-void EquipClient(edict_t * ent)
+void EquipClient(edict_t* ent)
 {
-	gclient_t *client;
-	gitem_t *item;
-	edict_t	*it_ent;
+	gclient_t* client;
+	gitem_t* item;
+	edict_t* it_ent;
 	item_id_t index;
 	int band = 0, itemNum = 0;
 
@@ -2788,7 +2813,7 @@ void EquipClient(edict_t * ent)
 	//}
 
 	itemNum = client->pers.chosenWeapon ? client->pers.chosenWeapon->id : 0;
-	
+
 	index = item->id;
 
 	switch (index) {
@@ -2925,10 +2950,10 @@ void EquipClient(edict_t * ent)
 }
 
 // Igor[Rock] start
-void EquipClientDM(edict_t * ent)
+void EquipClientDM(edict_t* ent)
 {
-	gclient_t *client;
-	gitem_t *item;
+	gclient_t* client;
+	gitem_t* item;
 	int itemNum = 0;
 	item_id_t index;
 	client = ent->client;
@@ -3102,11 +3127,11 @@ Called when a player takes leg damage
 
 // }
 
-void ClientLegDamage(edict_t *ent) {
+void ClientLegDamage(edict_t* ent) {
 	ent->client->leg_damage = 1;
 }
 
-void ClientFixLegs(edict_t *ent)
+void ClientFixLegs(edict_t* ent)
 {
 	if (ent->client->leg_damage && ent->client->ctf_grapplestate <= CTF_GRAPPLE_STATE_FLY)
 	{
@@ -3125,7 +3150,7 @@ void ClientFixLegs(edict_t *ent)
 // [Paril-KEX]
 // skinnum was historically used to pack data
 // so we're going to build onto that.
-void P_AssignClientSkinnum(edict_t *ent)
+void P_AssignClientSkinnum(edict_t* ent)
 {
 	if (ent->s.modelindex != 255)
 		return;
@@ -3138,7 +3163,7 @@ void P_AssignClientSkinnum(edict_t *ent)
 	else
 		packed.vwep_index = 0;
 	packed.viewheight = ent->client->ps.viewoffset.z + ent->client->ps.pmove.viewheight;
-	
+
 	if (coop->value)
 		packed.team_index = 1; // all players are teamed in coop
 	else if (G_TeamplayEnabled())
@@ -3155,7 +3180,7 @@ void P_AssignClientSkinnum(edict_t *ent)
 }
 
 // [Paril-KEX] send player level POI
-void P_SendLevelPOI(edict_t *ent)
+void P_SendLevelPOI(edict_t* ent)
 {
 	if (!level.valid_poi)
 		return;
@@ -3172,15 +3197,15 @@ void P_SendLevelPOI(edict_t *ent)
 
 // [Paril-KEX] force the fog transition on the given player,
 // optionally instantaneously (ignore any transition time)
-void P_ForceFogTransition(edict_t *ent, bool instant)
+void P_ForceFogTransition(edict_t* ent, bool instant)
 {
 	// sanity check; if we're not changing the values, don't bother
 	if (ent->client->fog == ent->client->pers.wanted_fog &&
 		ent->client->heightfog == ent->client->pers.wanted_heightfog)
 		return;
 
-	svc_fog_data_t fog {};
-	
+	svc_fog_data_t fog{};
+
 	// check regular fog
 	if (ent->client->pers.wanted_fog[0] != ent->client->fog[0] ||
 		ent->client->pers.wanted_fog[4] != ent->client->fog[4])
@@ -3208,13 +3233,13 @@ void P_ForceFogTransition(edict_t *ent, bool instant)
 	if (!instant && ent->client->pers.fog_transition_time)
 	{
 		fog.bits |= svc_fog_data_t::BIT_TIME;
-		fog.time = clamp(ent->client->pers.fog_transition_time.milliseconds(), (int64_t) 0, (int64_t) std::numeric_limits<uint16_t>::max());
+		fog.time = clamp(ent->client->pers.fog_transition_time.milliseconds(), (int64_t)0, (int64_t)std::numeric_limits<uint16_t>::max());
 	}
-	
+
 	// check heightfog stuff
-	auto &hf = ent->client->heightfog;
-	const auto &wanted_hf = ent->client->pers.wanted_heightfog;
-	
+	auto& hf = ent->client->heightfog;
+	const auto& wanted_hf = ent->client->pers.wanted_heightfog;
+
 	if (hf.falloff != wanted_hf.falloff)
 	{
 		fog.bits |= svc_fog_data_t::BIT_HEIGHTFOG_FALLOFF;
@@ -3284,7 +3309,7 @@ void P_ForceFogTransition(edict_t *ent, bool instant)
 		gi.WriteShort(fog.bits);
 	else
 		gi.WriteByte(fog.bits);
-	
+
 	if (fog.bits & svc_fog_data_t::BIT_DENSITY)
 	{
 		gi.WriteFloat(fog.density);
@@ -3298,7 +3323,7 @@ void P_ForceFogTransition(edict_t *ent, bool instant)
 		gi.WriteByte(fog.blue);
 	if (fog.bits & svc_fog_data_t::BIT_TIME)
 		gi.WriteShort(fog.time);
-	
+
 	if (fog.bits & svc_fog_data_t::BIT_HEIGHTFOG_FALLOFF)
 		gi.WriteFloat(fog.hf_falloff);
 	if (fog.bits & svc_fog_data_t::BIT_HEIGHTFOG_DENSITY)
@@ -3333,9 +3358,9 @@ static bool use_squad_respawn = false;
 static bool spawn_from_begin = false;
 static vec3_t squad_respawn_position, squad_respawn_angles;
 
-inline void PutClientOnSpawnPoint(edict_t *ent, const vec3_t &spawn_origin, const vec3_t &spawn_angles)
+inline void PutClientOnSpawnPoint(edict_t* ent, const vec3_t& spawn_origin, const vec3_t& spawn_angles)
 {
-	gclient_t *client = ent->client;
+	gclient_t* client = ent->client;
 
 	client->ps.pmove.origin = spawn_origin;
 
@@ -3364,11 +3389,11 @@ Called when a player connects to a server or respawns in
 a deathmatch.
 ============
 */
-void PutClientInServer(edict_t *ent)
+void PutClientInServer(edict_t* ent)
 {
 	int					index, going_observer;
 	vec3_t				spawn_origin, spawn_angles;
-	gclient_t		  *client;
+	gclient_t* client;
 	client_persistant_t saved;
 	client_respawn_t	resp;
 
@@ -3419,7 +3444,7 @@ void PutClientInServer(edict_t *ent)
 		if (!level.respawn_intermission)
 		{
 			// find an intermission spot
-			edict_t *pt = G_FindByString<&edict_t::classname>(nullptr, "info_player_intermission");
+			edict_t* pt = G_FindByString<&edict_t::classname>(nullptr, "info_player_intermission");
 			if (!pt)
 			{ // the map creator forgot to put in an intermission point...
 				pt = G_FindByString<&edict_t::classname>(nullptr, "info_player_start");
@@ -3459,7 +3484,7 @@ void PutClientInServer(edict_t *ent)
 
 		return;
 	}
-	
+
 	client->resp.ctf_state++;
 
 	bool was_waiting_for_respawn = client->awaiting_respawn;
@@ -3558,7 +3583,7 @@ void PutClientInServer(edict_t *ent)
 	ent->die = player_die;
 	ent->waterlevel = WATER_NONE;
 	ent->watertype = CONTENTS_NONE;
-	ent->flags &= ~( FL_NO_KNOCKBACK | FL_ALIVE_KNOCKBACK_ONLY | FL_NO_DAMAGE_EFFECTS );
+	ent->flags &= ~(FL_NO_KNOCKBACK | FL_ALIVE_KNOCKBACK_ONLY | FL_NO_DAMAGE_EFFECTS);
 	ent->svflags &= ~SVF_DEADMONSTER;
 	ent->svflags |= SVF_PLAYER;
 
@@ -3573,7 +3598,7 @@ void PutClientInServer(edict_t *ent)
 	//char val[MAX_INFO_VALUE];
 	char val[90];  // 90 degree FOV is max, due to sniper rifle
 	gi.Info_ValueForKey(ent->client->pers.userinfo, "fov", val, sizeof(val));
-	ent->client->ps.fov = clamp((float) atoi(val), 1.f, 90.f);
+	ent->client->ps.fov = clamp((float)atoi(val), 1.f, 90.f);
 
 	ent->client->ps.pmove.viewheight = ent->viewheight;
 	ent->client->ps.team_id = ent->client->resp.ctf_team;
@@ -3665,7 +3690,7 @@ void PutClientInServer(edict_t *ent)
 	{
 		if (coop->integer)
 		{
-			if (edict_t *collision = G_UnsafeSpawnPosition(ent->s.origin); collision && collision->client)
+			if (edict_t* collision = G_UnsafeSpawnPosition(ent->s.origin); collision && collision->client)
 			{
 				// link us early so that the other player sees us there
 				gi.linkentity(ent);
@@ -3684,7 +3709,8 @@ void PutClientInServer(edict_t *ent)
 
 	if (!teamplay->value) {	// this handles telefrags...
 		KillBox(ent, true, MOD_TELEFRAG_SPAWN);
-	} else {
+	}
+	else {
 		ent->solid = SOLID_TRIGGER;
 	}
 
@@ -3695,11 +3721,12 @@ void PutClientInServer(edict_t *ent)
 	}
 
 	if ((int)uvtime->value > 0) {
-		if (teamplay->value && ! in_warmup) {
+		if (teamplay->value && !in_warmup) {
 			if (!(gameSettings & GS_ROUNDBASED) && team_round_going && !lights_camera_action) {
 				client->uvTime = uvtime->value;
 			}
-		} else if (dm_shield->value) {
+		}
+		else if (dm_shield->value) {
 			client->uvTime = uvtime->value;
 		}
 	}
@@ -3733,10 +3760,10 @@ A client has just connected to the server in
 deathmatch mode, so clear everything out before starting them.
 =====================
 */
-void ClientBeginDeathmatch(edict_t *ent)
+void ClientBeginDeathmatch(edict_t* ent)
 {
 	G_InitEdict(ent);
-	
+
 	// make sure we have a known default
 	ent->svflags |= SVF_PLAYER;
 
@@ -3783,12 +3810,12 @@ static void G_SetLevelEntry()
 	else if (level.hub_map)
 		return;
 
-	level_entry_t *found_entry = nullptr;
+	level_entry_t* found_entry = nullptr;
 	int32_t highest_order = 0;
 
 	for (size_t i = 0; i < MAX_LEVELS_PER_UNIT; i++)
 	{
-		level_entry_t *entry = &game.level_entries[i];
+		level_entry_t* entry = &game.level_entries[i];
 
 		highest_order = max(highest_order, entry->visit_order);
 
@@ -3822,7 +3849,7 @@ static void G_SetLevelEntry()
 	}
 
 	// scan for all new maps we can go to, for secret levels
-	edict_t *changelevel = nullptr;
+	edict_t* changelevel = nullptr;
 	while ((changelevel = G_FindByString<&edict_t::classname>(changelevel, "target_changelevel")))
 	{
 		if (!changelevel->map || !*changelevel->map)
@@ -3832,7 +3859,7 @@ static void G_SetLevelEntry()
 		if (strchr(changelevel->map, '*'))
 			continue;
 
-		const char *level = strchr(changelevel->map, '+');
+		const char* level = strchr(changelevel->map, '+');
 
 		if (level)
 			level++;
@@ -3845,7 +3872,7 @@ static void G_SetLevelEntry()
 
 		size_t level_length;
 
-		const char *spawnpoint = strchr(level, '$');
+		const char* spawnpoint = strchr(level, '$');
 
 		if (spawnpoint)
 			level_length = spawnpoint - level;
@@ -3853,11 +3880,11 @@ static void G_SetLevelEntry()
 			level_length = strlen(level);
 
 		// make an entry for this level that we may or may not visit
-		level_entry_t *found_entry = nullptr;
+		level_entry_t* found_entry = nullptr;
 
 		for (size_t i = 0; i < MAX_LEVELS_PER_UNIT; i++)
 		{
-			level_entry_t *entry = &game.level_entries[i];
+			level_entry_t* entry = &game.level_entries[i];
 
 			if (!*entry->map_name || !strncmp(entry->map_name, level, level_length))
 			{
@@ -3884,7 +3911,7 @@ called when a client has finished connecting, and is ready
 to be placed into the game.  This will happen every level load.
 ============
 */
-void ClientBegin(edict_t *ent)
+void ClientBegin(edict_t* ent)
 {
 	ent->client = game.clients + (ent - g_edicts - 1);
 	ent->client->awaiting_respawn = false;
@@ -3923,7 +3950,7 @@ void ClientBegin(edict_t *ent)
 		PutClientInServer(ent);
 		spawn_from_begin = false;
 	}
-	
+
 	// make sure we have a known default
 	ent->svflags |= SVF_PLAYER;
 
@@ -3958,11 +3985,11 @@ void ClientBegin(edict_t *ent)
 P_GetLobbyUserNum
 ================
 */
-unsigned int P_GetLobbyUserNum( const edict_t * player ) {
+unsigned int P_GetLobbyUserNum(const edict_t* player) {
 	unsigned int playerNum = 0;
-	if ( player > g_edicts && player < g_edicts + MAX_EDICTS ) {
-		playerNum = ( player - g_edicts ) - 1;
-		if ( playerNum >= MAX_CLIENTS ) {
+	if (player > g_edicts && player < g_edicts + MAX_EDICTS) {
+		playerNum = (player - g_edicts) - 1;
+		if (playerNum >= MAX_CLIENTS) {
 			playerNum = 0;
 		}
 	}
@@ -3978,7 +4005,7 @@ Gets a token version of the players "name" to be decoded on the client.
 */
 std::string G_EncodedPlayerName(edict_t* player)
 {
-	unsigned int playernum = P_GetLobbyUserNum( player );
+	unsigned int playernum = P_GetLobbyUserNum(player);
 	return std::string("##P") + std::to_string(playernum);
 }
 
@@ -3989,7 +4016,7 @@ ClientUserInfoChanged
 called whenever the player updates a userinfo variable.
 ============
 */
-void ClientUserinfoChanged(edict_t *ent, const char *userinfo)
+void ClientUserinfoChanged(edict_t* ent, const char* userinfo)
 {
 	// set name
 	if (!gi.Info_ValueForKey(userinfo, "name", ent->client->pers.netname, sizeof(ent->client->pers.netname)))
@@ -4035,18 +4062,18 @@ void ClientUserinfoChanged(edict_t *ent, const char *userinfo)
 	// ZOID
 
 	// [Kex] netname is used for a couple of other things, so we update this after those.
-	if ( ( ent->svflags & SVF_BOT ) == 0 ) {
-		Q_strlcpy( ent->client->pers.netname, G_EncodedPlayerName( ent ).c_str(), sizeof( ent->client->pers.netname ) );
+	if ((ent->svflags & SVF_BOT) == 0) {
+		Q_strlcpy(ent->client->pers.netname, G_EncodedPlayerName(ent).c_str(), sizeof(ent->client->pers.netname));
 	}
 
 	// fov
 	gi.Info_ValueForKey(userinfo, "fov", val, sizeof(val));
-	ent->client->ps.fov = clamp((float) atoi(val), 1.f, 90.f);
+	ent->client->ps.fov = clamp((float)atoi(val), 1.f, 90.f);
 
 	// handedness
 	if (gi.Info_ValueForKey(userinfo, "hand", val, sizeof(val)))
 	{
-		ent->client->pers.hand = static_cast<handedness_t>(clamp(atoi(val), (int32_t) RIGHT_HANDED, (int32_t) CENTER_HANDED));
+		ent->client->pers.hand = static_cast<handedness_t>(clamp(atoi(val), (int32_t)RIGHT_HANDED, (int32_t)CENTER_HANDED));
 	}
 	else
 	{
@@ -4086,7 +4113,7 @@ void ClientUserinfoChanged(edict_t *ent, const char *userinfo)
 	Q_strlcpy(ent->client->pers.userinfo, userinfo, sizeof(ent->client->pers.userinfo));
 }
 
-inline bool IsSlotIgnored(edict_t *slot, edict_t **ignore, size_t num_ignore)
+inline bool IsSlotIgnored(edict_t* slot, edict_t** ignore, size_t num_ignore)
 {
 	for (size_t i = 0; i < num_ignore; i++)
 		if (slot == ignore[i])
@@ -4095,7 +4122,7 @@ inline bool IsSlotIgnored(edict_t *slot, edict_t **ignore, size_t num_ignore)
 	return false;
 }
 
-inline edict_t *ClientChooseSlot_Any(edict_t **ignore, size_t num_ignore)
+inline edict_t* ClientChooseSlot_Any(edict_t** ignore, size_t num_ignore)
 {
 	for (size_t i = 0; i < game.maxclients; i++)
 		if (!IsSlotIgnored(globals.edicts + i + 1, ignore, num_ignore) && !game.clients[i].pers.connected)
@@ -4104,7 +4131,7 @@ inline edict_t *ClientChooseSlot_Any(edict_t **ignore, size_t num_ignore)
 	return nullptr;
 }
 
-inline edict_t *ClientChooseSlot_Coop(const char *userinfo, const char *social_id, bool isBot, edict_t **ignore, size_t num_ignore)
+inline edict_t* ClientChooseSlot_Coop(const char* userinfo, const char* social_id, bool isBot, edict_t** ignore, size_t num_ignore)
 {
 	char name[MAX_INFO_VALUE] = { 0 };
 	gi.Info_ValueForKey(userinfo, "name", name, sizeof(name));
@@ -4136,7 +4163,7 @@ inline edict_t *ClientChooseSlot_Coop(const char *userinfo, const char *social_i
 	};
 
 	struct {
-		edict_t *slot = nullptr;
+		edict_t* slot = nullptr;
 		size_t total = 0;
 	} matches[MATCH_TYPES];
 
@@ -4154,7 +4181,7 @@ inline edict_t *ClientChooseSlot_Coop(const char *userinfo, const char *social_i
 		bool social_match = social_id && game.clients[i].pers.social_id[0] &&
 			!strcmp(game.clients[i].pers.social_id, social_id);
 
-		match_type_t type = (match_type_t) 0;
+		match_type_t type = (match_type_t)0;
 
 		if (username_match)
 			type |= MATCH_USERNAME;
@@ -4175,7 +4202,7 @@ inline edict_t *ClientChooseSlot_Coop(const char *userinfo, const char *social_i
 	{
 		if (matches[i].total == 1)
 		{
-			gi.Com_PrintFmt("coop slot {} restored for {}+{}\n", (ptrdiff_t) (matches[i].slot - globals.edicts), name, social_id);
+			gi.Com_PrintFmt("coop slot {} restored for {}+{}\n", (ptrdiff_t)(matches[i].slot - globals.edicts), name, social_id);
 
 			// spawn us a ghost now since we're gonna spawn eventually
 			if (!matches[i].slot->inuse)
@@ -4215,16 +4242,16 @@ inline edict_t *ClientChooseSlot_Coop(const char *userinfo, const char *social_i
 		}
 
 	// all slots have some player data in them, we're forced to replace one.
-	edict_t *any_slot = ClientChooseSlot_Any(ignore, num_ignore);
+	edict_t* any_slot = ClientChooseSlot_Any(ignore, num_ignore);
 
-	gi.Com_PrintFmt("coop slot {} any slot for {}+{}\n", !any_slot ? -1 : (ptrdiff_t) (any_slot - globals.edicts), name, social_id);
+	gi.Com_PrintFmt("coop slot {} any slot for {}+{}\n", !any_slot ? -1 : (ptrdiff_t)(any_slot - globals.edicts), name, social_id);
 
 	return any_slot;
 }
 
 // [Paril-KEX] for coop, we want to try to ensure that players will always get their
 // proper slot back when they connect.
-edict_t *ClientChooseSlot(const char *userinfo, const char *social_id, bool isBot, edict_t **ignore, size_t num_ignore, bool cinematic)
+edict_t* ClientChooseSlot(const char* userinfo, const char* social_id, bool isBot, edict_t** ignore, size_t num_ignore, bool cinematic)
 {
 	// coop and non-bots is the only thing that we need to do special behavior on
 	if (!cinematic && coop->integer && !isBot)
@@ -4246,7 +4273,7 @@ Changing levels will NOT cause this to be called again, but
 loadgames will.
 ============
 */
-bool ClientConnect(edict_t *ent, char *userinfo, const char *social_id, bool isBot)
+bool ClientConnect(edict_t* ent, char* userinfo, const char* social_id, bool isBot)
 {
 	// check to see if they are on the banned IP list
 #if 0
@@ -4261,11 +4288,11 @@ bool ClientConnect(edict_t *ent, char *userinfo, const char *social_id, bool isB
 	// define value
 	char value[MAX_INFO_VALUE] = { 0 };
 
-	if (gi.Info_ValueForKey(userinfo, "ip", value, sizeof(value))){
+	if (gi.Info_ValueForKey(userinfo, "ip", value, sizeof(value))) {
 		// Append to pers.ip
 		Q_strlcat(ent->client->pers.ip, value, sizeof(ent->client->pers.ip));
 	}
-	
+
 	// check for a spectator
 	gi.Info_ValueForKey(userinfo, "spectator", value, sizeof(value));
 
@@ -4286,7 +4313,7 @@ bool ClientConnect(edict_t *ent, char *userinfo, const char *social_id, bool isB
 			if (g_edicts[i + 1].inuse && g_edicts[i + 1].client->pers.spectator)
 				numspec++;
 
-		if (numspec >= (uint32_t) maxspectators->integer)
+		if (numspec >= (uint32_t)maxspectators->integer)
 		{
 			gi.Info_SetValueForKey(userinfo, "rejmsg", "Server spectator limit is full.");
 			return false;
@@ -4296,7 +4323,7 @@ bool ClientConnect(edict_t *ent, char *userinfo, const char *social_id, bool isB
 	{
 		// check for a password ( if not a bot! )
 		gi.Info_ValueForKey(userinfo, "password", value, sizeof(value));
-		if ( !isBot && *password->string && strcmp(password->string, "none") &&
+		if (!isBot && *password->string && strcmp(password->string, "none") &&
 			strcmp(password->string, value))
 		{
 			gi.Info_SetValueForKey(userinfo, "rejmsg", "Password required or incorrect.");
@@ -4326,7 +4353,7 @@ bool ClientConnect(edict_t *ent, char *userinfo, const char *social_id, bool isB
 
 	// make sure we start with known default(s)
 	ent->svflags = SVF_PLAYER;
-	if ( isBot ) {
+	if (isBot) {
 		ent->svflags |= SVF_BOT;
 	}
 
@@ -4351,7 +4378,7 @@ Called when a player drops from the server.
 Will not be called between levels.
 ============
 */
-void ClientDisconnect(edict_t *ent)
+void ClientDisconnect(edict_t* ent)
 {
 	if (!ent->client)
 		return;
@@ -4412,14 +4439,14 @@ void ClientDisconnect(edict_t *ent)
 
 //==============================================================
 
-trace_t SV_PM_Clip(const vec3_t &start, const vec3_t *mins, const vec3_t *maxs, const vec3_t &end, contents_t mask)
+trace_t SV_PM_Clip(const vec3_t& start, const vec3_t* mins, const vec3_t* maxs, const vec3_t& end, contents_t mask)
 {
 	return gi.game_import_t::clip(world, start, mins, maxs, end, mask);
 }
 
 bool G_ShouldPlayersCollide(bool weaponry)
 {
-	if (g_disable_player_collision->integer) 
+	if (g_disable_player_collision->integer)
 		return false; // only for debugging.
 
 	// always collide on dm
@@ -4461,7 +4488,7 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 	if (pm.waterlevel == WATER_UNDER)
 		return;
 
-	
+
 
 	// ZOID
 	//  never take damage if just release grapple or on grapple
@@ -4511,7 +4538,7 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 		/*if (ent->client->old_ladder)
 			return;*/
 
-		// zucc look for slippers to avoid noise
+			// zucc look for slippers to avoid noise
 		if (!INV_AMMO(ent, SLIP_NUM))
 			ent->s.event = EV_FOOTSTEP;
 
@@ -4590,7 +4617,7 @@ void P_FallingDamage(edict_t* ent, const pmove_t& pm)
 }
 //Action Add
 
-bool HandleMenuMovement(edict_t *ent, usercmd_t *ucmd)
+bool HandleMenuMovement(edict_t* ent, usercmd_t* ucmd)
 {
 	if (!ent->client->menu)
 		return false;
@@ -4631,10 +4658,10 @@ This will be called once for each client frame, which will
 usually be a couple times for each server frame.
 ==============
 */
-void ClientThink(edict_t *ent, usercmd_t *ucmd)
+void ClientThink(edict_t* ent, usercmd_t* ucmd)
 {
-	gclient_t *client;
-	edict_t	  *other;
+	gclient_t* client;
+	edict_t* other;
 	uint32_t   i;
 	pmove_t	   pm;
 
@@ -4694,13 +4721,13 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 
 		// set up for pmove
 		memset(&pm, 0, sizeof(pm));
-		
+
 		if (ent->movetype == MOVETYPE_NOCLIP)
 		{
 			if (ent->client->menu)
 			{
 				client->ps.pmove.pm_type = PM_FREEZE;
-				
+
 				// [Paril-KEX] handle menu movement
 				HandleMenuMovement(ent, ucmd);
 			}
@@ -4727,7 +4754,7 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 			client->ps.pmove.pm_flags &= ~PMF_IGNORE_PLAYER_COLLISION;
 
 		// PGM	trigger_gravity support
-		client->ps.pmove.gravity = (short) (level.gravity * ent->gravity);
+		client->ps.pmove.gravity = (short)(level.gravity * ent->gravity);
 		pm.s = client->ps.pmove;
 
 		pm.s.origin = ent->s.origin;
@@ -4829,8 +4856,11 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 		if (ent->flags & FL_SAM_RAIMI)
 			ent->viewheight = 8;
 		else
-			ent->viewheight = (int) pm.s.viewheight;
+			ent->viewheight = (int)pm.s.viewheight;
 		// ROGUE
+
+		if (!client->leg_damage && ent->groundentity && !pm.groundentity && pm.waterlevel == 0 && (pm.cmd.buttons & BUTTON_JUMP))
+			ent->client->jumping = 1;
 
 		ent->waterlevel = pm.waterlevel;
 		ent->watertype = pm.watertype;
@@ -4861,9 +4891,9 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 		// stop manipulating doors
 		client->doortoggle = 0;
 
-		if( client->jumping && (ent->solid != SOLID_NOT) && ! lights_camera_action && ! client->uvTime )
+		if (client->jumping && (ent->solid != SOLID_NOT) && !lights_camera_action && !client->uvTime)
 		{
-			kick_attack( ent );
+			kick_attack(ent);
 			client->punch_desired = false;
 		}
 
@@ -4880,7 +4910,7 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 		// touch other objects
 		for (i = 0; i < pm.touch.num; i++)
 		{
-			trace_t &tr = pm.touch.traces[i];
+			trace_t& tr = pm.touch.traces[i];
 			other = tr.ent;
 
 			if (other->touch)
@@ -4891,6 +4921,9 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 	// fire weapon from final position if needed
 	if (client->latched_buttons & BUTTON_ATTACK)
 	{
+		client->punch_framenum = level.time.frames();
+		client->punch_desired = false;
+
 		if (client->resp.spectator)
 		{
 			client->latched_buttons = BUTTON_NONE;
@@ -4952,7 +4985,7 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 // active monsters
 struct active_monsters_filter_t
 {
-	inline bool operator()(edict_t *ent) const
+	inline bool operator()(edict_t* ent) const
 	{
 		return (ent->inuse && (ent->svflags & SVF_MONSTER) && ent->health > 0);
 	}
@@ -4963,7 +4996,7 @@ inline entity_iterable_t<active_monsters_filter_t> active_monsters()
 	return entity_iterable_t<active_monsters_filter_t> { game.maxclients + (uint32_t)BODY_QUEUE_SIZE + 1U };
 }
 
-inline bool G_MonstersSearchingFor(edict_t *player)
+inline bool G_MonstersSearchingFor(edict_t* player)
 {
 	for (auto ent : active_monsters())
 	{
@@ -4985,7 +5018,7 @@ inline bool G_MonstersSearchingFor(edict_t *player)
 
 // [Paril-KEX] from the given player, find a good spot to
 // spawn a player
-inline bool G_FindRespawnSpot(edict_t *player, vec3_t &spot)
+inline bool G_FindRespawnSpot(edict_t* player, vec3_t& spot)
 {
 	// sanity check; make sure there's enough room for ourselves.
 	// (crouching in a small area, etc)
@@ -5003,7 +5036,7 @@ inline bool G_FindRespawnSpot(edict_t *player, vec3_t &spot)
 	// we don't want to spawn inside of these
 	contents_t mask = MASK_PLAYERSOLID | CONTENTS_LAVA | CONTENTS_SLIME;
 
-	for (auto &yaw : yaw_spread)
+	for (auto& yaw : yaw_spread)
 	{
 		vec3_t angles = { 0, (player->s.angles[YAW] + 180) + yaw, 0 };
 
@@ -5013,7 +5046,7 @@ inline bool G_FindRespawnSpot(edict_t *player, vec3_t &spot)
 		// one up, then back
 		// pick the one that went the farthest
 		vec3_t start = player->s.origin;
-		vec3_t end = start + vec3_t { 0, 0, up_distance };
+		vec3_t end = start + vec3_t{ 0, 0, up_distance };
 
 		tr = gi.trace(start, PLAYER_MINS, PLAYER_MAXS, end, player, mask);
 
@@ -5035,7 +5068,7 @@ inline bool G_FindRespawnSpot(edict_t *player, vec3_t &spot)
 
 		// plop us down now
 		start = tr.endpos;
-		end = tr.endpos - vec3_t { 0, 0, up_distance * 4 };
+		end = tr.endpos - vec3_t{ 0, 0, up_distance * 4 };
 
 		tr = gi.trace(start, PLAYER_MINS, PLAYER_MAXS, end, player, mask);
 
@@ -5044,7 +5077,7 @@ inline bool G_FindRespawnSpot(edict_t *player, vec3_t &spot)
 			continue;
 
 		// don't spawn us *inside* liquids
-		if (gi.pointcontents(tr.endpos + vec3_t{0, 0, player_viewheight}) & MASK_WATER)
+		if (gi.pointcontents(tr.endpos + vec3_t{ 0, 0, player_viewheight }) & MASK_WATER)
 			continue;
 
 		// don't spawn us on steep slopes
@@ -5067,7 +5100,7 @@ inline bool G_FindRespawnSpot(edict_t *player, vec3_t &spot)
 			if (tr.fraction != 1.0f)
 				continue;
 
-			tr = gi.traceline(player->s.origin + vec3_t{0, 0, player_viewheight}, tr.endpos + vec3_t{0, 0, player_viewheight}, player, mask);
+			tr = gi.traceline(player->s.origin + vec3_t{ 0, 0, player_viewheight }, tr.endpos + vec3_t{ 0, 0, player_viewheight }, player, mask);
 
 			if (tr.fraction != 1.0f)
 				continue;
@@ -5082,14 +5115,14 @@ inline bool G_FindRespawnSpot(edict_t *player, vec3_t &spot)
 
 // [Paril-KEX] check each player to find a good
 // respawn target & position
-inline std::tuple<edict_t *, vec3_t> G_FindSquadRespawnTarget()
+inline std::tuple<edict_t*, vec3_t> G_FindSquadRespawnTarget()
 {
 	for (auto player : active_players())
 	{
 		// no dead players
 		if (player->deadflag)
 			continue;
-		
+
 		// check combat state; we can't have taken damage recently
 		if (player->client->last_damage_time >= level.time)
 		{
@@ -5121,7 +5154,7 @@ inline std::tuple<edict_t *, vec3_t> G_FindSquadRespawnTarget()
 
 		// good player; pick a spot
 		vec3_t spot;
-		
+
 		if (!G_FindRespawnSpot(player, spot))
 		{
 			player->client->coop_respawn_state = COOP_RESPAWN_BLOCKED;
@@ -5147,7 +5180,7 @@ enum respawn_state_t
 // [Paril-KEX] return false to fall back to click-to-respawn behavior.
 // note that this is only called if they are allowed to respawn (not
 // restarting the level due to all being dead)
-static bool G_CoopRespawn(edict_t *ent)
+static bool G_CoopRespawn(edict_t* ent)
 {
 	// don't do this in non-coop
 	if (!coop->integer)
@@ -5191,7 +5224,7 @@ static bool G_CoopRespawn(edict_t *ent)
 				state = RESPAWN_START;
 			else
 			{
-				auto [ good_player, good_spot ] = G_FindSquadRespawnTarget();
+				auto [good_player, good_spot] = G_FindSquadRespawnTarget();
 
 				if (good_player) {
 					state = RESPAWN_SQUAD;
@@ -5201,7 +5234,8 @@ static bool G_CoopRespawn(edict_t *ent)
 					squad_respawn_angles[2] = 0;
 
 					use_squad_respawn = true;
-				} else {
+				}
+				else {
 					state = RESPAWN_SPECTATE;
 				}
 			}
@@ -5251,36 +5285,36 @@ static bool G_CoopRespawn(edict_t *ent)
 }
 
 // Raptor007: Allow weapon actions to start happening on any frame.
-static void ClientThinkWeaponIfReady( edict_t *ent, bool update_idle )
+static void ClientThinkWeaponIfReady(edict_t* ent, bool update_idle)
 {
 	int old_weaponstate, old_gunframe;
 
 	// If they just spawned, sync up the weapon animation with that.
-	if( ! ent->client->weapon_last_activity )
+	if (!ent->client->weapon_last_activity)
 		ent->client->weapon_last_activity = level.time;
 
 	// If it's too soon since the last non-idle think, keep waiting.
-	else if( level.time < ent->client->weapon_last_activity + gtime_t::from_hz(FRAMEDIV))
+	else if (level.time < ent->client->weapon_last_activity + gtime_t::from_hz(FRAMEDIV))
 		return;
 
 	// Clear weapon kicks.
-	VectorClear( ent->client->kick_origin );
-	VectorClear( ent->client->kick_angles );
+	VectorClear(ent->client->kick_origin);
+	VectorClear(ent->client->kick_angles);
 
 	old_weaponstate = ent->client->weaponstate;
 	old_gunframe = ent->client->ps.gunframe;
 
-	Think_Weapon( ent );
+	Think_Weapon(ent);
 
 	// If the weapon is or was in any state other than ready, wait before thinking again.
-	if( (ent->client->weaponstate != WEAPON_READY) || (old_weaponstate != WEAPON_READY) )
+	if ((ent->client->weaponstate != WEAPON_READY) || (old_weaponstate != WEAPON_READY))
 	{
 		ent->client->weapon_last_activity = level.time;
 		ent->client->anim_started = ent->client->weapon_last_activity;
 	}
 
 	// Only allow the idle animation to update if it's been enough time.
-	else if( ! update_idle || level.time.frames() % FRAMEDIV != ent->client->weapon_last_activity.frames() % (FRAMEDIV))
+	else if (!update_idle || level.time.frames() % FRAMEDIV != ent->client->weapon_last_activity.frames() % (FRAMEDIV))
 		ent->client->ps.gunframe = old_gunframe;
 }
 
@@ -5292,9 +5326,9 @@ This will be called once for each server frame, before running
 any other entities in the world.
 ==============
 */
-void ClientBeginServerFrame(edict_t *ent)
+void ClientBeginServerFrame(edict_t* ent)
 {
-	gclient_t *client;
+	gclient_t* client;
 	int		   buttonMask, going_observer, randomValue = 0;
 
 	if (gi.ServerFrame() != ent->client->step_frame)
@@ -5312,8 +5346,8 @@ void ClientBeginServerFrame(edict_t *ent)
 		return;
 	}
 
-	if ( ( ent->svflags & SVF_BOT ) != 0 ) {
-		Bot_BeginFrame( ent );
+	if ((ent->svflags & SVF_BOT) != 0) {
+		Bot_BeginFrame(ent);
 	}
 
 	// TODO: MOTD stuff
@@ -5332,84 +5366,84 @@ void ClientBeginServerFrame(edict_t *ent)
 
 	// TODO: auto_menu
 	// show team or weapon menu immediately when connected
-	 if (auto_menu->value && ent->client->layout != LAYOUT_MENU && !client->pers.menu_shown && (teamplay->value || dm_choose->value)) {
-	 	Cmd_Inven_f( ent );
-	 }
+	if (auto_menu->value && ent->client->layout != LAYOUT_MENU && !client->pers.menu_shown && (teamplay->value || dm_choose->value)) {
+		Cmd_Inven_f(ent);
+	}
 
-	 if (!teamplay->value)
-	 {
-		 // force spawn when weapon and item selected in dm
-		 if (!ent->client->pers.spectator && dm_choose->value && !client->pers.dm_selected) {
-			 if (client->pers.chosenWeapon && client->pers.chosenItem) {
-				 client->pers.dm_selected = 1;
+	if (!teamplay->value)
+	{
+		// force spawn when weapon and item selected in dm
+		if (!ent->client->pers.spectator && dm_choose->value && !client->pers.dm_selected) {
+			if (client->pers.chosenWeapon && client->pers.chosenItem) {
+				client->pers.dm_selected = 1;
 
-				 gi.LocBroadcast_Print(PRINT_HIGH, "%s joined the game\n", client->pers.netname);
+				gi.LocBroadcast_Print(PRINT_HIGH, "{} joined the game\n", client->pers.netname);
 
-				 respawn(ent);
+				respawn(ent);
 
-				 if (!(ent->svflags & SVF_NOCLIENT)) { // send effect
-					 gi.WriteByte(svc_muzzleflash);
-					 gi.WriteShort(ent - g_edicts);
-					 gi.WriteByte(MZ_LOGIN);
-					 gi.multicast(ent->s.origin, MULTICAST_PVS, false);
-				 }
-			 }
-			 return;
-		 }
-	 }
+				if (!(ent->svflags & SVF_NOCLIENT)) { // send effect
+					gi.WriteByte(svc_muzzleflash);
+					gi.WriteShort(ent - g_edicts);
+					gi.WriteByte(MZ_LOGIN);
+					gi.multicast(ent->s.origin, MULTICAST_PVS, false);
+				}
+			}
+			return;
+		}
+	}
 
 	// 	if (level.time.seconds() > client->respawn_framenum && (!IS_ALIVE(ent)) != ent->client->pers.spectator)
 	// 	{
 	// 		if (ent->client->pers.spectator){
 	// 			killPlayer(ent, false);
 	// 		} else {
-	// 			gi.LocBroadcast_Print(PRINT_HIGH, "%s rejoined the game\n", ent->client->pers.netname);
+	// 			gi.LocBroadcast_Print(PRINT_HIGH, "{} rejoined the game\n", ent->client->pers.netname);
 	// 			respawn(ent);
 	// 		}
 	// 	}
 	// }
 
 	// // run weapon animations if it hasn't been done by a ucmd_t
-	 ClientThinkWeaponIfReady( ent, true );
-	 PlayWeaponSound( ent );
+	ClientThinkWeaponIfReady(ent, true);
+	PlayWeaponSound(ent);
 
-	// if (ent->solid != SOLID_NOT)
-	// {
-	// 	int idleframes = client->resp.idletime ? (level.time.seconds() - client->resp.idletime) : 0;
+	if (ent->solid != SOLID_NOT)
+	{
+		int idleframes = client->resp.idletime ? (level.time.seconds() - client->resp.idletime) : 0;
 
-	// 	if( client->punch_desired && ! client->jumping && ! lights_camera_action && ! client->uvTime )
-	// 		punch_attack( ent );
-	// 	client->punch_desired = false;
+		if (client->punch_desired && !client->jumping && !lights_camera_action && !client->uvTime)
+			punch_attack(ent);
+		client->punch_desired = false;
 
-	// 	if( (ppl_idletime->value > 0) && idleframes && (idleframes % (int)(ppl_idletime->value * level.time.seconds()) == 0) )
-	// 		//plays a random sound/insane sound, insane1-9.wav
-	// 		//gi.sound( ent, CHAN_VOICE, gi.soundindex(va( "insane/insane%i.wav", rand() % 9 + 1 )), 1, ATTN_NORM, 0 );
+		// 	if( (ppl_idletime->value > 0) && idleframes && (idleframes % (int)(ppl_idletime->value * level.time.seconds()) == 0) )
+		// 		//plays a random sound/insane sound, insane1-9.wav
+		// 		//gi.sound( ent, CHAN_VOICE, gi.soundindex(va( "insane/insane%i.wav", rand() % 9 + 1 )), 1, ATTN_NORM, 0 );
 
-	// 		// ChatGPT'd: "plays a random sound/insane sound, insane1-9.wav"
-	// 		int randomValue = std::rand() % 9 + 1;
-	// 		// Format the string using fmt::format
-	// 		std::string soundPath = fmt::format("insane/insane{}.wav", randomValue);
-	// 		// Get the sound index using gi.soundindex
-	// 		int soundIndex = gi.soundindex(soundPath.c_str());
-	// 		gi.sound(ent, CHAN_VOICE, soundIndex, 1, ATTN_NORM, 0);
-			
-	// 	if( (sv_idleremove->value > 0) && (idleframes > (sv_idleremove->value * level.time.seconds())) && client->resp.team )
-	// 	{
-	// 		// Removes member from team once sv_idleremove value in seconds has been reached
-	// 		int idler_team = client->resp.team;
-	// 		if( teamplay->value )
-	// 			LeaveTeam( ent );
-	// 		client->resp.idletime = 0;
-	// 		gi.Com_PrintFmt( "%s has been removed from play due to reaching the sv_idleremove timer of %i seconds\n",
-	// 			client->pers.netname, (int) sv_idleremove->value );
-	// 	}
+		// 		// ChatGPT'd: "plays a random sound/insane sound, insane1-9.wav"
+		// 		int randomValue = std::rand() % 9 + 1;
+		// 		// Format the string using fmt::format
+		// 		std::string soundPath = fmt::format("insane/insane{}.wav", randomValue);
+		// 		// Get the sound index using gi.soundindex
+		// 		int soundIndex = gi.soundindex(soundPath.c_str());
+		// 		gi.sound(ent, CHAN_VOICE, soundIndex, 1, ATTN_NORM, 0);
 
-	 	if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
-	 		&& (client->pers.weapon->id == IT_WEAPON_MK23)) {
-	 		client->autoreloading = false;
-	 		Cmd_New_Reload_f( ent );
-	 	}
+		// 	if( (sv_idleremove->value > 0) && (idleframes > (sv_idleremove->value * level.time.seconds())) && client->resp.team )
+		// 	{
+		// 		// Removes member from team once sv_idleremove value in seconds has been reached
+		// 		int idler_team = client->resp.team;
+		// 		if( teamplay->value )
+		// 			LeaveTeam( ent );
+		// 		client->resp.idletime = 0;
+		// 		gi.Com_PrintFmt( "{} has been removed from play due to reaching the sv_idleremove timer of %i seconds\n",
+		// 			client->pers.netname, (int) sv_idleremove->value );
+		// 	}
 
+		if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
+			&& (client->pers.weapon->id == IT_WEAPON_MK23)) {
+			client->autoreloading = false;
+			Cmd_New_Reload_f(ent);
+		}
+	}
 	// if (ent->solid != SOLID_NOT)
 	// {
 	// 	if (client->uvTime && FRAMESYNC) {

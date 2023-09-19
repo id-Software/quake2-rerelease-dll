@@ -299,7 +299,7 @@ dflags		these flags are used to control how T_Damage works
 // 	return save;
 // }
 
-void BloodSprayThink(edict_t *self)
+THINK(BloodSprayThink) (edict_t* self) -> void
 {
   G_FreeEdict (self);
 }
@@ -440,7 +440,7 @@ void VerifyHeadShot(vec3_t point, vec3_t dir, float height, vec3_t newpoint)
 #define STOMACH_DAMAGE (height/1.8) - abs(targ->mins[2])
 #define CHEST_DAMAGE (height/1.4) - abs(targ->mins[2])
 
-#define HEAD_HEIGHT 12.0f
+constexpr float_t HEAD_HEIGHT = 12.0f;
 
 
 // check if the two given entities are on the same team
@@ -621,7 +621,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 					damage = damage * 1.8 + 1;
 					gi.LocClient_Print(targ, PRINT_HIGH, "Head damage\n");
 					if (attacker->client)
-						gi.LocClient_Print(attacker, PRINT_HIGH, "You hit %s in the head\n", client->pers.netname);
+						gi.LocClient_Print(attacker, PRINT_HIGH, "You hit {} in the head\n", client->pers.netname);
 
 					if (mod.id != MOD_KNIFE && mod.id != MOD_KNIFE_THROWN)
 						gi.sound(targ, CHAN_VOICE, level.snd_headshot, 1, ATTN_NORM, 0);
@@ -631,10 +631,10 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 					if (attacker->client)
 					{
 						gi.LocClient_Print(attacker, PRINT_HIGH,
-							"%s has a Kevlar Helmet, too bad you have AP rounds...\n",
+							"{} has a Kevlar Helmet, too bad you have AP rounds...\n",
 							client->pers.netname);
 						gi.LocClient_Print(targ, PRINT_HIGH,
-							"Kevlar Helmet absorbed some of %s's AP sniper round\n",
+							"Kevlar Helmet absorbed some of {}'s AP sniper round\n",
 							attacker->client->pers.netname);
 					}
 					damage = (int) (damage * 0.325);
@@ -644,10 +644,10 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 				{
 					if (attacker->client)
 					{
-						gi.LocClient_Print( attacker, PRINT_HIGH, "%s has a Kevlar Helmet - AIM FOR THE BODY!\n",
-							client->pers.netname );
-						gi.LocClient_Print( targ, PRINT_HIGH, "Kevlar Helmet absorbed a part of %s's shot\n",
-							attacker->client->pers.netname );
+						gi.LocClient_Print( attacker, PRINT_HIGH, "{} has a Kevlar Helmet - AIM FOR THE BODY!\n",
+							client->pers.netname);
+						gi.LocClient_Print(targ, PRINT_HIGH, "Kevlar Helmet absorbed a part of {}'s shot\n",
+							attacker->client->pers.netname);
 					}
 					gi.sound(targ, CHAN_ITEM, level.snd_vesthit, 1, ATTN_NORM, 0);
 					damage = (int)(damage / 2);
@@ -663,9 +663,9 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 				damage = damage * .25;
 				if (attacker->client)
 				{
-					strcpy( attacker->client->last_damaged_players, client->pers.netname );
+					strcpy(attacker->client->last_damaged_players, client->pers.netname);
 					//Stats_AddHit( attacker, mod, LOC_LDAM );
-					gi.LocClient_Print(attacker, PRINT_HIGH, "You hit %s in the legs\n",
+					gi.LocClient_Print(attacker, PRINT_HIGH, "You hit {} in the legs\n",
 						client->pers.netname);
 				}
 
@@ -679,12 +679,12 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 				gi.LocClient_Print(targ, PRINT_HIGH, "Stomach damage\n");
 				if (attacker->client)
 				{
-					strcpy( attacker->client->last_damaged_players, client->pers.netname );
+					strcpy(attacker->client->last_damaged_players, client->pers.netname);
 					//Stats_AddHit(attacker, mod, LOC_SDAM);
-					gi.LocClient_Print(attacker, PRINT_HIGH, "You hit %s in the stomach\n",
+					gi.LocClient_Print(attacker, PRINT_HIGH, "You hit {} in the stomach\n",
 						client->pers.netname);
 				}
-					
+
 				//TempFile bloody gibbing
 				if (mod.id == MOD_SNIPER && sv_gib->value)
 					ThrowGib(targ, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_NONE, targ->s.scale);
@@ -693,10 +693,10 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 			{
 				damage_type = LOC_CDAM;
 				if (mod.id != MOD_KNIFE && mod.id != MOD_KNIFE_THROWN) //Knife doesnt care about kevlar
-					gotArmor = INV_AMMO( targ, KEV_NUM );
+					gotArmor = INV_AMMO(targ, KEV_NUM);
 
 				if (attacker->client) {
-					strcpy( attacker->client->last_damaged_players, client->pers.netname );
+					strcpy(attacker->client->last_damaged_players, client->pers.netname);
 					//Stats_AddHit(attacker, mod, (gotArmor) ? LOC_KVLR_VEST : LOC_CDAM);
 				}
 
@@ -705,7 +705,7 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 					damage = damage * .65;
 					gi.LocClient_Print(targ, PRINT_HIGH, "Chest damage\n");
 					if (attacker->client)
-						gi.LocClient_Print(attacker, PRINT_HIGH, "You hit %s in the chest\n",
+						gi.LocClient_Print(attacker, PRINT_HIGH, "You hit {} in the chest\n",
 							client->pers.netname);
 
 					//TempFile bloody gibbing
@@ -716,9 +716,9 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 				{
 					if (attacker->client)
 					{
-						gi.LocClient_Print(attacker, PRINT_HIGH, "%s has a Kevlar Vest, too bad you have AP rounds...\n",
+						gi.LocClient_Print(attacker, PRINT_HIGH, "{} has a Kevlar Vest, too bad you have AP rounds...\n",
 							client->pers.netname);
-						gi.LocClient_Print(targ, PRINT_HIGH, "Kevlar Vest absorbed some of %s's AP sniper round\n",
+						gi.LocClient_Print(targ, PRINT_HIGH, "Kevlar Vest absorbed some of {}'s AP sniper round\n",
 							attacker->client->pers.netname);
 					}
 					damage = damage * .325;
@@ -727,9 +727,9 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
 				{
 					if (attacker->client)
 					{
-						gi.LocClient_Print(attacker, PRINT_HIGH, "%s has a Kevlar Vest - AIM FOR THE HEAD!\n",
+						gi.LocClient_Print(attacker, PRINT_HIGH, "{} has a Kevlar Vest - AIM FOR THE HEAD!\n",
 							client->pers.netname);
-						gi.LocClient_Print(targ, PRINT_HIGH, "Kevlar Vest absorbed most of %s's shot\n",
+						gi.LocClient_Print(targ, PRINT_HIGH, "Kevlar Vest absorbed most of {}'s shot\n",
 							attacker->client->pers.netname);
 					}
 					gi.sound(targ, CHAN_ITEM, level.snd_vesthit, 1, ATTN_NORM, 0);
