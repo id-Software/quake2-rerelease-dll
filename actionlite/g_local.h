@@ -2128,6 +2128,9 @@ constexpr size_t STANDING_VIEWHEIGHT = 22;
 constexpr gtime_t SNIPER_ZOOM_IN_TIME = 700_ms;
 constexpr gtime_t SNIPER_ZOOM_NEXT_TIME = 100_ms;
 
+constexpr gtime_t MK23_FIRE_TIME_AUTO = 400_ms;
+constexpr gtime_t MK23_FIRE_TIME_SEMI = 800_ms;
+
 
 constexpr size_t BANDAGE_TIME = 27;//  				(27)	// 10 = 1 second
 constexpr size_t ENHANCED_BANDAGE_TIME = 10;//		(10)

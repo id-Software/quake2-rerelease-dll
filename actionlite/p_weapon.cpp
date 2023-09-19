@@ -3841,6 +3841,7 @@ void Pistol_Fire(edict_t* ent)
 	int spread = MK23_SPREAD;
 	int height;
 
+	
 	if (ent->client->pers.firing_style == ACTION_FIRING_CLASSIC)
 		height = 8;
 	else
@@ -3854,6 +3855,14 @@ void Pistol_Fire(edict_t* ent)
 	}
 	ent->client->ps.gunframe++;
 
+	if (level.time < ent->client->weapon_fire_finished) {
+		return;
+	}
+	auto firing_time = MK23_FIRE_TIME_AUTO;
+	if (ent->client->pers.mk23_mode) {
+		firing_time = MK23_FIRE_TIME_SEMI;
+	}
+	ent->client->weapon_fire_finished = level.time + firing_time;
 	//Oops! Out of ammo!
 	if (ent->client->mk23_rds < 1)
 	{
