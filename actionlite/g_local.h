@@ -1825,6 +1825,10 @@ extern cvar_t *e_enhancedSlippers;
 extern cvar_t *use_voice;
 extern cvar_t *strtwpn;
 extern cvar_t *sv_gib;
+extern cvar_t *nohud;
+extern cvar_t *hud_team_icon;
+extern cvar_t *hud_items_cycle;
+
 //extern int meansOfDeath;
 
 // zucc for hitlocation of death
@@ -2120,12 +2124,18 @@ constexpr size_t CROUCHING_VIEWHEIGHT = 8;
 constexpr size_t STANDING_VIEWHEIGHT = 22;
 
 #define PG_SNDPATH "user/"
+<<<<<<< HEAD
 #define BANDAGE_TIME    		(27)	// 10 = 1 second
 #define ENHANCED_BANDAGE_TIME		(10)
 #define BLEED_TIME      		(10)	// 10 = 1 second is time for losing 1 health at slowest bleed rate
 constexpr gtime_t SNIPER_ZOOM_IN_TIME = 500_ms;
 constexpr gtime_t SNIPER_ZOOM_NEXT_TIME = 200_ms;
 
+=======
+constexpr size_t BANDAGE_TIME = 27;//  				(27)	// 10 = 1 second
+constexpr size_t ENHANCED_BANDAGE_TIME = 10;//		(10)
+constexpr size_t BLEED_TIME = 10;//     			(10)	// 10 = 1 second is time for losing 1 health at slowest bleed rate
+>>>>>>> 1ab354b97c750d2f140f4212b588bf3e917219ae
 
 // edict->client->pers.spec_flags
 #define SPECFL_KILLFEED					0x00000001

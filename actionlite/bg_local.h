@@ -247,6 +247,7 @@ enum player_stat_t
 	STAT_TEAM3_SCORE,
     STAT_GRENADE_ICON,
     STAT_GRENADES,
+	STAT_TEAM_ICON,
 
 	// don't use; just for verification
     STAT_LAST

@@ -718,92 +718,281 @@ void G_SetCoopStats(edict_t *ent)
 G_SetStats
 ===============
 */
-void G_SetStats(edict_t *ent)
+
+void G_SetStats(edict_t* ent)
 {
-	gitem_t	*item;
-	item_id_t index;
-	int		  cells = 0;
-	unsigned int invIndex;
+	gitem_t* item;
+	int index = 0;
 
-	//
-	// health
-	//
-	if (ent->s.renderfx & RF_USE_DISGUISE)
-		ent->client->ps.stats[STAT_HEALTH_ICON] = level.disguise_icon;
-	else
+	if (!ent->client->chase_mode)
+	{
+		int icons[6], numbers[2], icon_count, i;
+		int cycle = hud_items_cycle->integer * FRAMEDIV;
+		int weapon_ids[6] = { IT_WEAPON_SNIPER, IT_WEAPON_M4, IT_WEAPON_MP5, IT_WEAPON_M3, IT_WEAPON_HANDCANNON, IT_WEAPON_DUALMK23 };
+		int s_item_ids[6] = { IT_ITEM_VEST, IT_ITEM_HELM, IT_ITEM_BANDOLIER, IT_ITEM_QUIET, IT_ITEM_SLIPPERS, IT_ITEM_LASERSIGHT };
+
+		//
+		// health
+		//
 		ent->client->ps.stats[STAT_HEALTH_ICON] = level.pic_health;
-	ent->client->ps.stats[STAT_HEALTH] = ent->health;
+		ent->client->ps.stats[STAT_HEALTH] = ent->health;
 
-	//
-	// weapons
-	//
-	uint32_t weaponbits = 0;
-
-	// for (invIndex = IT_WEAPON_GRAPPLE; invIndex <= IT_WEAPON_DISRUPTOR; invIndex++)
-	// {
-	// 	if (ent->client->pers.inventory[invIndex])
-	// 	{
-	// 		weaponbits |= 1 << GetItemByIndex((item_id_t) invIndex)->weapon_wheel_index;
-	// 	}
-	// }
-
-	ent->client->ps.stats[STAT_WEAPONS_OWNED_1] = (weaponbits & 0xFFFF);
-	ent->client->ps.stats[STAT_WEAPONS_OWNED_2] = (weaponbits >> 16);
-
-	ent->client->ps.stats[STAT_ACTIVE_WHEEL_WEAPON] = (ent->client->newweapon ? ent->client->newweapon->weapon_wheel_index :
-		ent->client->pers.weapon ? ent->client->pers.weapon->weapon_wheel_index :
-		-1);
-
-	//
-	// ammo
-	//
-	ent->client->ps.stats[STAT_AMMO_ICON] = 0;
-	ent->client->ps.stats[STAT_AMMO] = 0;
-
-	if (ent->client->pers.weapon && ent->client->pers.weapon->ammo)
-	{
-		item = GetItemByIndex(ent->client->pers.weapon->ammo);
-
-		if (!G_CheckInfiniteAmmo(item))
+		//
+		// ammo (now clips really)
+		//
+		// zucc modified this to do clips instead
+		if (!ent->client->ammo_index
+			/* || !ent->client->inventory[ent->client->ammo_index] */)
 		{
-			ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex(item->icon);
-			ent->client->ps.stats[STAT_AMMO] = ent->client->pers.inventory[ent->client->pers.weapon->ammo];
+			ent->client->ps.stats[STAT_CLIP_ICON] = 0;
+			ent->client->ps.stats[STAT_CLIP] = 0;
 		}
-	}
+		else
+		{
+			item = &itemlist[ent->client->ammo_index];
+			if (item->id < AMMO_MAX)
+				ent->client->ps.stats[STAT_CLIP_ICON] = level.pic_items[item->id];
+			else
+				ent->client->ps.stats[STAT_CLIP_ICON] = gi.imageindex(item->icon);
+			ent->client->ps.stats[STAT_CLIP] = ent->client->inventory[ent->client->ammo_index];
+		}
+
+		// zucc display special item and special weapon
+		// Raptor007: Modified to rotate through all carried special weapons and items.
+
+		icon_count = 0;
+		for (i = 0; i < 6; i++)
+		{
+			if (INV_AMMO(ent, weapon_ids[i]))
+				icons[icon_count++] = level.pic_items[weapon_ids[i]];
+		}
+		if (icon_count && !cycle)
+			icon_count = 1;
+		if (icon_count)
+			//ent->client->ps.stats[STAT_WEAPONS_ICON] = icons[(level.time.seconds() / cycle) % icon_count];
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = icons[(level.time.frames() / cycle) % icon_count];
+		else
+			ent->client->ps.stats[STAT_WEAPONS_ICON] = 0;
+
+		icon_count = 0;
+		for (i = 0; i < 6; i++)
+		{
+			if (INV_AMMO(ent, s_item_ids[i]))
+				icons[icon_count++] = level.pic_items[s_item_ids[i]];
+		}
+		if (icon_count && !cycle)
+			icon_count = 1;
+		if (icon_count)
+			//ent->client->ps.stats[STAT_ITEMS_ICON] = icons[((level.framenum + cycle / 2) / cycle) % icon_count];
+			ent->client->ps.stats[STAT_ITEMS_ICON] = icons[((level.time.frames() + cycle / 2) / cycle) % icon_count];
+		else
+			ent->client->ps.stats[STAT_ITEMS_ICON] = 0;
+
+		// grenades remaining
+		icon_count = 0;
+		numbers[icon_count] = INV_AMMO(ent, GRENADE_NUM);
+		if (numbers[icon_count])
+			icons[icon_count++] = level.pic_weapon_ammo[GRENADE_NUM];
+		// MedKit
+		numbers[icon_count] = ent->client->medkit;
+		if (numbers[icon_count])
+			icons[icon_count++] = level.pic_health;
+		// Cycle grenades and medkit if player has both.
+		if (icon_count && !cycle)
+			icon_count = 1;
+		if (icon_count)
+		{
+			//int index = ((level.framenum + cycle / 4) / cycle) % icon_count;
+
+			index = (level.time.frames() + cycle / 4) % icon_count;
+			ent->client->ps.stats[STAT_GRENADE_ICON] = icons[index];
+			ent->client->ps.stats[STAT_GRENADES] = numbers[index];
+		}
+		else
+		{
+			ent->client->ps.stats[STAT_GRENADE_ICON] = 0;
+			ent->client->ps.stats[STAT_GRENADES] = 0;
+		}
+
+		//
+		// ammo by weapon
+		// 
+		//
+
+		//
+		// ammo
+		//
+		ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+		ent->client->ps.stats[STAT_AMMO] = 0;
+
+		if (ent->client->pers.weapon && ent->client->pers.weapon->ammo)
+		{
+			item = GetItemByIndex(ent->client->pers.weapon->ammo);
+
+			if (!G_CheckInfiniteAmmo(item))
+			{
+				ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex(item->icon);
+				ent->client->ps.stats[STAT_AMMO] = ent->client->pers.inventory[ent->client->pers.weapon->ammo];
+			}
+		}
 	
-	memset(&ent->client->ps.stats[STAT_AMMO_INFO_START], 0, sizeof(uint16_t) * NUM_AMMO_STATS);
-	for (unsigned int ammoIndex = AMMO_BULLETS; ammoIndex < AMMO_MAX; ++ammoIndex)
-	{
-		gitem_t *ammo = GetItemByAmmo((ammo_t) ammoIndex);
-		uint16_t val = G_CheckInfiniteAmmo(ammo) ? AMMO_VALUE_INFINITE : clamp(ent->client->pers.inventory[ammo->id], 0, AMMO_VALUE_INFINITE - 1);
-		G_SetAmmoStat((uint16_t *) &ent->client->ps.stats[STAT_AMMO_INFO_START], ammo->ammo_wheel_index, val);
+		memset(&ent->client->ps.stats[STAT_AMMO_INFO_START], 0, sizeof(uint16_t) * NUM_AMMO_STATS);
+		for (unsigned int ammoIndex = AMMO_BULLETS; ammoIndex < AMMO_MAX; ++ammoIndex)
+		{
+			gitem_t *ammo = GetItemByAmmo((ammo_t) ammoIndex);
+			uint16_t val = G_CheckInfiniteAmmo(ammo) ? AMMO_VALUE_INFINITE : clamp(ent->client->pers.inventory[ammo->id], 0, AMMO_VALUE_INFINITE - 1);
+			G_SetAmmoStat((uint16_t *) &ent->client->ps.stats[STAT_AMMO_INFO_START], ammo->ammo_wheel_index, val);
+		}
+
+
+
+		if (ent->client->pers.weapon && ent->client->curr_weap.id)
+		{
+			switch (ent->client->curr_weap.id) {
+			case IT_WEAPON_MK23:
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+				ent->client->ps.stats[STAT_AMMO] = ent->client->mk23_rds;
+				break;
+			case IT_WEAPON_MP5:
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+				ent->client->ps.stats[STAT_AMMO] = ent->client->mp5_rds;
+				break;
+			case IT_WEAPON_M4:
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+				ent->client->ps.stats[STAT_AMMO] = ent->client->m4_rds;
+				break;
+			case IT_WEAPON_M3:
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+				ent->client->ps.stats[STAT_AMMO] = ent->client->shot_rds;
+				break;
+			case IT_WEAPON_HANDCANNON:
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+				ent->client->ps.stats[STAT_AMMO] = ent->client->cannon_rds;
+				break;
+			case IT_WEAPON_SNIPER:
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+				ent->client->ps.stats[STAT_AMMO] = ent->client->sniper_rds;
+				break;
+			case IT_WEAPON_DUALMK23:
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+				ent->client->ps.stats[STAT_AMMO] = ent->client->dual_rds;
+				break;
+			case IT_WEAPON_KNIFE:
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+				ent->client->ps.stats[STAT_AMMO] = INV_AMMO(ent, KNIFE_NUM);
+				break;
+			case IT_WEAPON_GRENADES:
+				ent->client->ps.stats[STAT_AMMO_ICON] = level.pic_weapon_ammo[ent->client->curr_weap.id];
+				ent->client->ps.stats[STAT_AMMO] = INV_AMMO(ent, GRENADE_NUM);
+				break;
+			case IT_WEAPON_GRAPPLE:
+				ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+				ent->client->ps.stats[STAT_AMMO] = 0;
+				break;
+			default:
+				gi.Com_PrintFmt("Failed to find hud weapon/icon for num {}.\n", ent->client->curr_weap.pickup_name);
+				break;
+			}
+		}
+		else {
+			ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+			ent->client->ps.stats[STAT_AMMO] = 0;
+		}
+
+		//
+		// sniper mode icons
+		//
+		//if ( ent->client->resp.sniper_mode )
+		//      gi.LocClient_Print(ent, PRINT_HIGH, "Sniper Zoom set at %d.\n", ent->client->resp.sniper_mode);
+
+
+		if (ent->client->resp.sniper_mode == SNIPER_1X
+			|| ent->client->weaponstate == WEAPON_RELOADING
+			|| ent->client->weaponstate == WEAPON_BUSY
+			|| ent->client->no_sniper_display
+			|| !IS_ALIVE(ent))
+			ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
+		else
+			ent->client->ps.stats[STAT_SNIPER_ICON] = level.pic_sniper_mode[ent->client->resp.sniper_mode];
+
+		//
+		// armor
+		//
+		//ent->client->ps.stats[STAT_ARMOR_ICON] = 0; // Replaced with STAT_TEAM_ICON.
+		ent->client->ps.stats[STAT_ARMOR] = 0;
+
+		//
+		// timers
+		//
+		/*if (ent->client->quad_framenum > level.framenum)
+		{
+			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_quad");
+			ent->client->ps.stats[STAT_TIMER] = (ent->client->quad_framenum - level.framenum) / HZ;
+		}
+		else if (ent->client->invincible_framenum > level.framenum)
+		{
+			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_invulnerability");
+			ent->client->ps.stats[STAT_TIMER] = (ent->client->invincible_framenum - level.framenum) / HZ;
+		}
+		else if (ent->client->enviro_framenum > level.framenum)
+		{
+			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_envirosuit");
+			ent->client->ps.stats[STAT_TIMER] = (ent->client->enviro_framenum - level.framenum) / HZ;
+		}
+		else if (ent->client->breather_framenum > level.framenum)
+		{
+			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_rebreather");
+			ent->client->ps.stats[STAT_TIMER] = (ent->client->breather_framenum - level.framenum) / HZ;
+		}
+		else
+		{
+		*/
+		ent->client->ps.stats[STAT_TIMER_ICON] = 0;
+		ent->client->ps.stats[STAT_TIMER] = 0;
+		//}
+
+		//
+		// selected item
+		//
+		if (ent->client->selected_item.id < 1) {
+			ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
+		}
+		else {
+			item = &itemlist[ent->client->selected_item.id];
+			if (item->id < AMMO_MAX)
+				ent->client->ps.stats[STAT_SELECTED_ICON] = level.pic_items[item->id];
+			else
+				ent->client->ps.stats[STAT_SELECTED_ICON] = gi.imageindex(item->icon);
+		}
+
+		ent->client->ps.stats[STAT_SELECTED_ITEM] = ent->client->selected_item.id;
+
+		//
+		// bandaging icon / current weapon if not shown
+		//
+		// TNG: Show health icon when bandaging (thanks to Dome for this code)
+		if (ent->client->weaponstate == WEAPON_BANDAGING || ent->client->bandaging || ent->client->bandage_stopped)
+			ent->client->ps.stats[STAT_HELPICON] = level.pic_health;
+		else if ((ent->client->pers.hand == CENTER_HANDED || ent->client->ps.fov > 91) && ent->client->pers.weapon)
+			ent->client->ps.stats[STAT_HELPICON] = level.pic_items[ent->client->pers.weapon->id];
+		else
+			ent->client->ps.stats[STAT_HELPICON] = 0;
+
+		// Hide health, ammo, weapon, and bandaging state when free spectating.
+		if (!IS_ALIVE(ent))
+		{
+			ent->client->ps.stats[STAT_HEALTH_ICON] = 0;
+			ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+			ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
+			ent->client->ps.stats[STAT_HELPICON] = 0;
+		}
+
+		// Team icon.
+		if (teamplay->value && hud_team_icon->value && (ent->client->resp.team != NOTEAM) && IS_ALIVE(ent))
+			ent->client->ps.stats[STAT_TEAM_ICON] = level.pic_teamskin[ent->client->resp.team];
+		else
+			ent->client->ps.stats[STAT_TEAM_ICON] = 0;
 	}
-
-	//
-	// armor
-	//
-	// power_armor_type = PowerArmorType(ent);
-	// if (power_armor_type)
-	// 	cells = ent->client->pers.inventory[IT_AMMO_CELLS];
-
-	//index = ArmorIndex(ent);
-	// if (power_armor_type && (!index || (level.time.milliseconds() % 3000) < 1500))
-	// { // flash between power armor and other armor icon
-	// 	ent->client->ps.stats[STAT_ARMOR_ICON] = power_armor_type == IT_ITEM_POWER_SHIELD ? gi.imageindex("i_powershield") : gi.imageindex("i_powerscreen");
-	// 	ent->client->ps.stats[STAT_ARMOR] = cells;
-	// }
-	//else 
-	// if (index)
-	// {
-	// 	item = GetItemByIndex(index);
-	// 	ent->client->ps.stats[STAT_ARMOR_ICON] = gi.imageindex(item->icon);
-	// 	ent->client->ps.stats[STAT_ARMOR] = ent->client->pers.inventory[index];
-	// }
-	// else
-	// {
-	ent->client->ps.stats[STAT_ARMOR_ICON] = 0;
-	ent->client->ps.stats[STAT_ARMOR] = 0;
-	//}
 
 	//
 	// pickup message
@@ -814,269 +1003,398 @@ void G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_PICKUP_STRING] = 0;
 	}
 
-	// owned powerups
-	memset(&ent->client->ps.stats[STAT_POWERUP_INFO_START], 0, sizeof(uint16_t) * NUM_POWERUP_STATS);
-	// for (unsigned int powerupIndex = POWERUP_SCREEN; powerupIndex < POWERUP_MAX; ++powerupIndex)
-	// {
-	// 	gitem_t *powerup = GetItemByPowerup((powerup_t) powerupIndex);
-	// 	uint16_t val;
-
-	// 	switch (powerup->id)
-	// 	{
-	// 	// case IT_ITEM_POWER_SCREEN:
-	// 	// case IT_ITEM_POWER_SHIELD:
-	// 	// 	if (!ent->client->pers.inventory[powerup->id])
-	// 	// 		val = 0;
-	// 	// 	else if (ent->flags & FL_POWER_ARMOR)
-	// 	// 		val = 2;
-	// 	// 	else
-	// 	// 		val = 1;
-	// 	// 	break;
-	// 	case IT_ITEM_FLASHLIGHT:
-	// 		if (!ent->client->pers.inventory[powerup->id])
-	// 			val = 0;
-	// 		else if (ent->flags & FL_FLASHLIGHT)
-	// 			val = 2;
-	// 		else
-	// 			val = 1;
-	// 		break;
-	// 	default:
-	// 		val = clamp(ent->client->pers.inventory[powerup->id], 0, 3);
-	// 		break;
-	// 	}
-
-	// 	G_SetPowerupStat((uint16_t *) &ent->client->ps.stats[STAT_POWERUP_INFO_START], powerup->powerup_wheel_index, val);
-	// }
-
-	ent->client->ps.stats[STAT_TIMER_ICON] = 0;
-	ent->client->ps.stats[STAT_TIMER] = 0;
-
-	//
-	// timers
-	//
-	// PGM
-	if (ent->client->owned_sphere)
-	{
-		if (ent->client->owned_sphere->spawnflags == SPHERE_DEFENDER) // defender
-			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_defender");
-		else if (ent->client->owned_sphere->spawnflags == SPHERE_HUNTER) // hunter
-			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_hunter");
-		else if (ent->client->owned_sphere->spawnflags == SPHERE_VENGEANCE) // vengeance
-			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_vengeance");
-		else // error case
-			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("i_fixme");
-
-		ent->client->ps.stats[STAT_TIMER] = ceil(ent->client->owned_sphere->wait - level.time.seconds());
-	}
-
-	// Action: No need for powerup_info_t anymore
-	// else
-	// {
-	// 	powerup_info_t *best_powerup = nullptr;
-
-	// 	for (auto &powerup : powerup_table)
-	// 	{
-	// 		auto *powerup_time = powerup.time_ptr ? &(ent->client->*powerup.time_ptr) : nullptr;
-	// 		auto *powerup_count = powerup.count_ptr ? &(ent->client->*powerup.count_ptr) : nullptr;
-
-	// 		if (powerup_time && *powerup_time <= level.time)
-	// 			continue;
-	// 		else if (powerup_count && !*powerup_count)
-	// 			continue;
-
-	// 		if (!best_powerup)
-	// 		{
-	// 			best_powerup = &powerup;
-	// 			continue;
-	// 		}
-			
-	// 		if (powerup_time && *powerup_time < ent->client->*best_powerup->time_ptr)
-	// 		{
-	// 			best_powerup = &powerup;
-	// 			continue;
-	// 		}
-	// 		else if (powerup_count && !best_powerup->time_ptr)
-	// 		{
-	// 			best_powerup = &powerup;
-	// 			continue;
-	// 		}
-	// 	}
-
-	// 	if (best_powerup)
-	// 	{
-	// 		int16_t value;
-
-	// 		if (best_powerup->count_ptr)
-	// 			value = (ent->client->*best_powerup->count_ptr);
-	// 		else
-	// 			value = ceil((ent->client->*best_powerup->time_ptr - level.time).seconds());
-
-	// 		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex(GetItemByIndex(best_powerup->item)->icon);
-	// 		ent->client->ps.stats[STAT_TIMER] = value;
-	// 	}
-	// }
-	// PGM
-
-	//
-	// selected item
-	//
-	ent->client->ps.stats[STAT_SELECTED_ITEM] = ent->client->pers.selected_item;
-
-	if (ent->client->pers.selected_item == IT_NULL)
-		ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
-	else
-	{
-		ent->client->ps.stats[STAT_SELECTED_ICON] = gi.imageindex(itemlist[ent->client->pers.selected_item].icon);
-
-		if (ent->client->pers.selected_item_time < level.time)
-			ent->client->ps.stats[STAT_SELECTED_ITEM_NAME] = 0;
-	}
-
-	//
-	// layouts
-	//
-	ent->client->ps.stats[STAT_LAYOUTS] = 0;
-
-	if (deathmatch->integer)
-	{
-		if (ent->client->pers.health <= 0 || level.intermissiontime || ent->client->showscores)
-			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
-		if (ent->client->showinventory && ent->client->pers.health > 0)
-			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
-	}
-	else
-	{
-		if (ent->client->showscores || ent->client->showhelp || ent->client->showeou)
-			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
-		if (ent->client->showinventory && ent->client->pers.health > 0)
-			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
-
-		if (ent->client->showhelp)
-			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_HELP;
-	}
-
-	if (level.intermissiontime || ent->client->awaiting_respawn)
-	{
-		if (ent->client->awaiting_respawn || (level.intermission_eou || level.is_n64 || (deathmatch->integer && level.intermissiontime)))
-			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_HIDE_HUD;
-
-		// N64 always merges into one screen on level ends
-		if (level.intermission_eou || level.is_n64 || (deathmatch->integer && level.intermissiontime))
-			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_INTERMISSION;
-	}
-	
-	if (level.story_active)
-		ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_HIDE_CROSSHAIR;
-	else
-		ent->client->ps.stats[STAT_LAYOUTS] &= ~LAYOUTS_HIDE_CROSSHAIR;
-
-	// [Paril-KEX] key display
-	if (!deathmatch->integer)
-	{
-		int32_t key_offset = 0;
-		// player_stat_t stat = STAT_KEY_A;
-		
-		// ent->client->ps.stats[STAT_KEY_A] = 
-		// ent->client->ps.stats[STAT_KEY_B] = 
-		// ent->client->ps.stats[STAT_KEY_C] = 0;
-
-		// there's probably a way to do this in one pass but
-		// I'm lazy
-		std::array<item_id_t, IT_TOTAL> keys_held;
-		size_t num_keys_held = 0;
-
-		for (auto &item : itemlist)
-		{
-			if (!(item.flags & IF_KEY))
-				continue;
-			else if (!ent->client->pers.inventory[item.id])
-				continue;
-
-			keys_held[num_keys_held++] = item.id;
-		}
-
-		if (num_keys_held > 3)
-			key_offset = (int32_t) (level.time.seconds() / 5);
-
-		//for (int32_t i = 0; i < min(num_keys_held, (size_t) 3); i++, stat = (player_stat_t) (stat + 1))
-		//	ent->client->ps.stats[stat] = gi.imageindex(GetItemByIndex(keys_held[(i + key_offset) % num_keys_held])->icon);
-	}
-
 	//
 	// frags
 	//
 	ent->client->ps.stats[STAT_FRAGS] = ent->client->resp.score;
 
 	//
-	// help icon / current weapon if not shown
+	// layouts
 	//
-	if (ent->client->pers.helpchanged >= 1 && ent->client->pers.helpchanged <= 2 && (level.time.milliseconds() % 1000) < 500) // haleyjd: time-limited
-		ent->client->ps.stats[STAT_HELPICON] = gi.imageindex("i_help");
-	else if ((ent->client->pers.hand == CENTER_HANDED) && ent->client->pers.weapon)
-		ent->client->ps.stats[STAT_HELPICON] = gi.imageindex(ent->client->pers.weapon->icon);
-	else
+	ent->client->ps.stats[STAT_LAYOUTS] = 0;
+
+	if (level.intermission_server_frame || ent->client->layout)
+		ent->client->ps.stats[STAT_LAYOUTS] |= 1;
+	if (ent->client->showinventory && ent->health > 0)
+		ent->client->ps.stats[STAT_LAYOUTS] |= 2;
+
+	if (level.intermission_server_frame) {
+		ent->client->ps.stats[STAT_SNIPER_ICON] = 0;
 		ent->client->ps.stats[STAT_HELPICON] = 0;
-
-	ent->client->ps.stats[STAT_SPECTATOR] = 0;
-
-	// set & run the health bar stuff
-	for (size_t i = 0; i < MAX_HEALTH_BARS; i++)
-	{
-		byte *health_byte = reinterpret_cast<byte *>(&ent->client->ps.stats[STAT_HEALTH_BARS]) + i;
-
-		if (!level.health_bar_entities[i])
-			*health_byte = 0;
-		else if (level.health_bar_entities[i]->timestamp)
-		{
-			if (level.health_bar_entities[i]->timestamp < level.time)
-			{
-				level.health_bar_entities[i] = nullptr;
-				*health_byte = 0;
-				continue;
-			}
-
-			*health_byte = 0b10000000;
-		}
-		else
-		{
-			// enemy dead
-			if (!level.health_bar_entities[i]->enemy->inuse || level.health_bar_entities[i]->enemy->health <= 0)
-			{
-				// hack for Makron
-				if (level.health_bar_entities[i]->enemy->monsterinfo.aiflags & AI_DOUBLE_TROUBLE)
-				{
-					*health_byte = 0b10000000;
-					continue;
-				}
-
-				if (level.health_bar_entities[i]->delay)
-				{
-					level.health_bar_entities[i]->timestamp = level.time + gtime_t::from_sec(level.health_bar_entities[i]->delay);
-					*health_byte = 0b10000000;
-				}
-				else
-				{
-					level.health_bar_entities[i] = nullptr;
-					*health_byte = 0;
-				}
-				
-				continue;
-			}
-			else if (level.health_bar_entities[i]->spawnflags.has(SPAWNFLAG_HEALTHBAR_PVS_ONLY) && !gi.inPVS(ent->s.origin, level.health_bar_entities[i]->enemy->s.origin, true))
-			{
-				*health_byte = 0;
-				continue;
-			}
-
-			float health_remaining = ((float) level.health_bar_entities[i]->enemy->health) / level.health_bar_entities[i]->enemy->max_health;
-			*health_byte = ((byte) (health_remaining * 0b01111111)) | 0b10000000;
-		}
+		ent->client->ps.stats[STAT_ID_VIEW] = 0;
 	}
+	//else {
+	//	SetIDView(ent);
+	//}
 
-	// ZOID
-	SetCTFStats(ent);
-	// ZOID
+	//FIREBLADE
+	if (ctf->value)
+		SetCTFStats(ent);
+	else if (teamplay->value)
+		A_Scoreboard(ent);
+	//FIREBLADE
 }
+
+// Vanilla Q2R
+//void G_SetStats(edict_t *ent)
+//{
+//	gitem_t	*item;
+//	item_id_t index;
+//	int		  cells = 0;
+//	unsigned int invIndex;
+//
+//	//
+//	// health
+//	//
+//	if (ent->s.renderfx & RF_USE_DISGUISE)
+//		ent->client->ps.stats[STAT_HEALTH_ICON] = level.disguise_icon;
+//	else
+//		ent->client->ps.stats[STAT_HEALTH_ICON] = level.pic_health;
+//	ent->client->ps.stats[STAT_HEALTH] = ent->health;
+//
+//	//
+//	// weapons
+//	//
+//	uint32_t weaponbits = 0;
+//
+//	// for (invIndex = IT_WEAPON_GRAPPLE; invIndex <= IT_WEAPON_DISRUPTOR; invIndex++)
+//	// {
+//	// 	if (ent->client->pers.inventory[invIndex])
+//	// 	{
+//	// 		weaponbits |= 1 << GetItemByIndex((item_id_t) invIndex)->weapon_wheel_index;
+//	// 	}
+//	// }
+//
+//	ent->client->ps.stats[STAT_WEAPONS_OWNED_1] = (weaponbits & 0xFFFF);
+//	ent->client->ps.stats[STAT_WEAPONS_OWNED_2] = (weaponbits >> 16);
+//
+//	ent->client->ps.stats[STAT_ACTIVE_WHEEL_WEAPON] = (ent->client->newweapon ? ent->client->newweapon->weapon_wheel_index :
+//		ent->client->pers.weapon ? ent->client->pers.weapon->weapon_wheel_index :
+//		-1);
+//
+//	//
+//	// ammo
+//	//
+//	ent->client->ps.stats[STAT_AMMO_ICON] = 0;
+//	ent->client->ps.stats[STAT_AMMO] = 0;
+//
+//	if (ent->client->pers.weapon && ent->client->pers.weapon->ammo)
+//	{
+//		item = GetItemByIndex(ent->client->pers.weapon->ammo);
+//
+//		if (!G_CheckInfiniteAmmo(item))
+//		{
+//			ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex(item->icon);
+//			ent->client->ps.stats[STAT_AMMO] = ent->client->pers.inventory[ent->client->pers.weapon->ammo];
+//		}
+//	}
+//	
+//	memset(&ent->client->ps.stats[STAT_AMMO_INFO_START], 0, sizeof(uint16_t) * NUM_AMMO_STATS);
+//	for (unsigned int ammoIndex = AMMO_BULLETS; ammoIndex < AMMO_MAX; ++ammoIndex)
+//	{
+//		gitem_t *ammo = GetItemByAmmo((ammo_t) ammoIndex);
+//		uint16_t val = G_CheckInfiniteAmmo(ammo) ? AMMO_VALUE_INFINITE : clamp(ent->client->pers.inventory[ammo->id], 0, AMMO_VALUE_INFINITE - 1);
+//		G_SetAmmoStat((uint16_t *) &ent->client->ps.stats[STAT_AMMO_INFO_START], ammo->ammo_wheel_index, val);
+//	}
+//
+//	//
+//	// armor
+//	//
+//	// power_armor_type = PowerArmorType(ent);
+//	// if (power_armor_type)
+//	// 	cells = ent->client->pers.inventory[IT_AMMO_CELLS];
+//
+//	//index = ArmorIndex(ent);
+//	// if (power_armor_type && (!index || (level.time.milliseconds() % 3000) < 1500))
+//	// { // flash between power armor and other armor icon
+//	// 	ent->client->ps.stats[STAT_ARMOR_ICON] = power_armor_type == IT_ITEM_POWER_SHIELD ? gi.imageindex("i_powershield") : gi.imageindex("i_powerscreen");
+//	// 	ent->client->ps.stats[STAT_ARMOR] = cells;
+//	// }
+//	//else 
+//	// if (index)
+//	// {
+//	// 	item = GetItemByIndex(index);
+//	// 	ent->client->ps.stats[STAT_ARMOR_ICON] = gi.imageindex(item->icon);
+//	// 	ent->client->ps.stats[STAT_ARMOR] = ent->client->pers.inventory[index];
+//	// }
+//	// else
+//	// {
+//	ent->client->ps.stats[STAT_ARMOR_ICON] = 0;
+//	ent->client->ps.stats[STAT_ARMOR] = 0;
+//	//}
+//
+//	//
+//	// pickup message
+//	//
+//	if (level.time > ent->client->pickup_msg_time)
+//	{
+//		ent->client->ps.stats[STAT_PICKUP_ICON] = 0;
+//		ent->client->ps.stats[STAT_PICKUP_STRING] = 0;
+//	}
+//
+//	// owned powerups
+//	memset(&ent->client->ps.stats[STAT_POWERUP_INFO_START], 0, sizeof(uint16_t) * NUM_POWERUP_STATS);
+//	// for (unsigned int powerupIndex = POWERUP_SCREEN; powerupIndex < POWERUP_MAX; ++powerupIndex)
+//	// {
+//	// 	gitem_t *powerup = GetItemByPowerup((powerup_t) powerupIndex);
+//	// 	uint16_t val;
+//
+//	// 	switch (powerup->id)
+//	// 	{
+//	// 	// case IT_ITEM_POWER_SCREEN:
+//	// 	// case IT_ITEM_POWER_SHIELD:
+//	// 	// 	if (!ent->client->pers.inventory[powerup->id])
+//	// 	// 		val = 0;
+//	// 	// 	else if (ent->flags & FL_POWER_ARMOR)
+//	// 	// 		val = 2;
+//	// 	// 	else
+//	// 	// 		val = 1;
+//	// 	// 	break;
+//	// 	case IT_ITEM_FLASHLIGHT:
+//	// 		if (!ent->client->pers.inventory[powerup->id])
+//	// 			val = 0;
+//	// 		else if (ent->flags & FL_FLASHLIGHT)
+//	// 			val = 2;
+//	// 		else
+//	// 			val = 1;
+//	// 		break;
+//	// 	default:
+//	// 		val = clamp(ent->client->pers.inventory[powerup->id], 0, 3);
+//	// 		break;
+//	// 	}
+//
+//	// 	G_SetPowerupStat((uint16_t *) &ent->client->ps.stats[STAT_POWERUP_INFO_START], powerup->powerup_wheel_index, val);
+//	// }
+//
+//	ent->client->ps.stats[STAT_TIMER_ICON] = 0;
+//	ent->client->ps.stats[STAT_TIMER] = 0;
+//
+//	//
+//	// timers
+//	//
+//	// PGM
+//	if (ent->client->owned_sphere)
+//	{
+//		if (ent->client->owned_sphere->spawnflags == SPHERE_DEFENDER) // defender
+//			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_defender");
+//		else if (ent->client->owned_sphere->spawnflags == SPHERE_HUNTER) // hunter
+//			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_hunter");
+//		else if (ent->client->owned_sphere->spawnflags == SPHERE_VENGEANCE) // vengeance
+//			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_vengeance");
+//		else // error case
+//			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("i_fixme");
+//
+//		ent->client->ps.stats[STAT_TIMER] = ceil(ent->client->owned_sphere->wait - level.time.seconds());
+//	}
+//
+//	// Action: No need for powerup_info_t anymore
+//	// else
+//	// {
+//	// 	powerup_info_t *best_powerup = nullptr;
+//
+//	// 	for (auto &powerup : powerup_table)
+//	// 	{
+//	// 		auto *powerup_time = powerup.time_ptr ? &(ent->client->*powerup.time_ptr) : nullptr;
+//	// 		auto *powerup_count = powerup.count_ptr ? &(ent->client->*powerup.count_ptr) : nullptr;
+//
+//	// 		if (powerup_time && *powerup_time <= level.time)
+//	// 			continue;
+//	// 		else if (powerup_count && !*powerup_count)
+//	// 			continue;
+//
+//	// 		if (!best_powerup)
+//	// 		{
+//	// 			best_powerup = &powerup;
+//	// 			continue;
+//	// 		}
+//			
+//	// 		if (powerup_time && *powerup_time < ent->client->*best_powerup->time_ptr)
+//	// 		{
+//	// 			best_powerup = &powerup;
+//	// 			continue;
+//	// 		}
+//	// 		else if (powerup_count && !best_powerup->time_ptr)
+//	// 		{
+//	// 			best_powerup = &powerup;
+//	// 			continue;
+//	// 		}
+//	// 	}
+//
+//	// 	if (best_powerup)
+//	// 	{
+//	// 		int16_t value;
+//
+//	// 		if (best_powerup->count_ptr)
+//	// 			value = (ent->client->*best_powerup->count_ptr);
+//	// 		else
+//	// 			value = ceil((ent->client->*best_powerup->time_ptr - level.time).seconds());
+//
+//	// 		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex(GetItemByIndex(best_powerup->item)->icon);
+//	// 		ent->client->ps.stats[STAT_TIMER] = value;
+//	// 	}
+//	// }
+//	// PGM
+//
+//	//
+//	// selected item
+//	//
+//	ent->client->ps.stats[STAT_SELECTED_ITEM] = ent->client->pers.selected_item;
+//
+//	if (ent->client->pers.selected_item == IT_NULL)
+//		ent->client->ps.stats[STAT_SELECTED_ICON] = 0;
+//	else
+//	{
+//		ent->client->ps.stats[STAT_SELECTED_ICON] = gi.imageindex(itemlist[ent->client->pers.selected_item].icon);
+//
+//		if (ent->client->pers.selected_item_time < level.time)
+//			ent->client->ps.stats[STAT_SELECTED_ITEM_NAME] = 0;
+//	}
+//
+//	//
+//	// layouts
+//	//
+//	ent->client->ps.stats[STAT_LAYOUTS] = 0;
+//
+//	if (deathmatch->integer)
+//	{
+//		if (ent->client->pers.health <= 0 || level.intermissiontime || ent->client->showscores)
+//			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
+//		if (ent->client->showinventory && ent->client->pers.health > 0)
+//			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
+//	}
+//	else
+//	{
+//		if (ent->client->showscores || ent->client->showhelp || ent->client->showeou)
+//			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
+//		if (ent->client->showinventory && ent->client->pers.health > 0)
+//			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
+//
+//		if (ent->client->showhelp)
+//			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_HELP;
+//	}
+//
+//	if (level.intermissiontime || ent->client->awaiting_respawn)
+//	{
+//		if (ent->client->awaiting_respawn || (level.intermission_eou || level.is_n64 || (deathmatch->integer && level.intermissiontime)))
+//			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_HIDE_HUD;
+//
+//		// N64 always merges into one screen on level ends
+//		if (level.intermission_eou || level.is_n64 || (deathmatch->integer && level.intermissiontime))
+//			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_INTERMISSION;
+//	}
+//	
+//	if (level.story_active)
+//		ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_HIDE_CROSSHAIR;
+//	else
+//		ent->client->ps.stats[STAT_LAYOUTS] &= ~LAYOUTS_HIDE_CROSSHAIR;
+//
+//	// [Paril-KEX] key display
+//	if (!deathmatch->integer)
+//	{
+//		int32_t key_offset = 0;
+//		// player_stat_t stat = STAT_KEY_A;
+//		
+//		// ent->client->ps.stats[STAT_KEY_A] = 
+//		// ent->client->ps.stats[STAT_KEY_B] = 
+//		// ent->client->ps.stats[STAT_KEY_C] = 0;
+//
+//		// there's probably a way to do this in one pass but
+//		// I'm lazy
+//		std::array<item_id_t, IT_TOTAL> keys_held;
+//		size_t num_keys_held = 0;
+//
+//		for (auto &item : itemlist)
+//		{
+//			if (!(item.flags & IF_KEY))
+//				continue;
+//			else if (!ent->client->pers.inventory[item.id])
+//				continue;
+//
+//			keys_held[num_keys_held++] = item.id;
+//		}
+//
+//		if (num_keys_held > 3)
+//			key_offset = (int32_t) (level.time.seconds() / 5);
+//
+//		//for (int32_t i = 0; i < min(num_keys_held, (size_t) 3); i++, stat = (player_stat_t) (stat + 1))
+//		//	ent->client->ps.stats[stat] = gi.imageindex(GetItemByIndex(keys_held[(i + key_offset) % num_keys_held])->icon);
+//	}
+//
+//	//
+//	// frags
+//	//
+//	ent->client->ps.stats[STAT_FRAGS] = ent->client->resp.score;
+//
+//	//
+//	// help icon / current weapon if not shown
+//	//
+//	if (ent->client->pers.helpchanged >= 1 && ent->client->pers.helpchanged <= 2 && (level.time.milliseconds() % 1000) < 500) // haleyjd: time-limited
+//		ent->client->ps.stats[STAT_HELPICON] = gi.imageindex("i_help");
+//	else if ((ent->client->pers.hand == CENTER_HANDED) && ent->client->pers.weapon)
+//		ent->client->ps.stats[STAT_HELPICON] = gi.imageindex(ent->client->pers.weapon->icon);
+//	else
+//		ent->client->ps.stats[STAT_HELPICON] = 0;
+//
+//	ent->client->ps.stats[STAT_SPECTATOR] = 0;
+//
+//	// set & run the health bar stuff
+//	for (size_t i = 0; i < MAX_HEALTH_BARS; i++)
+//	{
+//		byte *health_byte = reinterpret_cast<byte *>(&ent->client->ps.stats[STAT_HEALTH_BARS]) + i;
+//
+//		if (!level.health_bar_entities[i])
+//			*health_byte = 0;
+//		else if (level.health_bar_entities[i]->timestamp)
+//		{
+//			if (level.health_bar_entities[i]->timestamp < level.time)
+//			{
+//				level.health_bar_entities[i] = nullptr;
+//				*health_byte = 0;
+//				continue;
+//			}
+//
+//			*health_byte = 0b10000000;
+//		}
+//		else
+//		{
+//			// enemy dead
+//			if (!level.health_bar_entities[i]->enemy->inuse || level.health_bar_entities[i]->enemy->health <= 0)
+//			{
+//				// hack for Makron
+//				if (level.health_bar_entities[i]->enemy->monsterinfo.aiflags & AI_DOUBLE_TROUBLE)
+//				{
+//					*health_byte = 0b10000000;
+//					continue;
+//				}
+//
+//				if (level.health_bar_entities[i]->delay)
+//				{
+//					level.health_bar_entities[i]->timestamp = level.time + gtime_t::from_sec(level.health_bar_entities[i]->delay);
+//					*health_byte = 0b10000000;
+//				}
+//				else
+//				{
+//					level.health_bar_entities[i] = nullptr;
+//					*health_byte = 0;
+//				}
+//				
+//				continue;
+//			}
+//			else if (level.health_bar_entities[i]->spawnflags.has(SPAWNFLAG_HEALTHBAR_PVS_ONLY) && !gi.inPVS(ent->s.origin, level.health_bar_entities[i]->enemy->s.origin, true))
+//			{
+//				*health_byte = 0;
+//				continue;
+//			}
+//
+//			float health_remaining = ((float) level.health_bar_entities[i]->enemy->health) / level.health_bar_entities[i]->enemy->max_health;
+//			*health_byte = ((byte) (health_remaining * 0b01111111)) | 0b10000000;
+//		}
+//	}
+//
+//	// ZOID
+//	SetCTFStats(ent);
+//	// ZOID
+//}
 
 /*
 ===============
