@@ -4859,6 +4859,9 @@ void ClientThink(edict_t* ent, usercmd_t* ucmd)
 			ent->viewheight = (int)pm.s.viewheight;
 		// ROGUE
 
+		if (!client->leg_damage && ent->groundentity && !pm.groundentity && pm.waterlevel == 0 && (pm.cmd.buttons & BUTTON_JUMP))
+			ent->client->jumping = 1;
+
 		ent->waterlevel = pm.waterlevel;
 		ent->watertype = pm.watertype;
 		ent->groundentity = pm.groundentity;
@@ -4918,6 +4921,9 @@ void ClientThink(edict_t* ent, usercmd_t* ucmd)
 	// fire weapon from final position if needed
 	if (client->latched_buttons & BUTTON_ATTACK)
 	{
+		client->punch_framenum = level.time.frames();
+		client->punch_desired = false;
+
 		if (client->resp.spectator)
 		{
 			client->latched_buttons = BUTTON_NONE;
@@ -5401,43 +5407,43 @@ void ClientBeginServerFrame(edict_t* ent)
 	ClientThinkWeaponIfReady(ent, true);
 	PlayWeaponSound(ent);
 
-	// if (ent->solid != SOLID_NOT)
-	// {
-	// 	int idleframes = client->resp.idletime ? (level.time.seconds() - client->resp.idletime) : 0;
+	if (ent->solid != SOLID_NOT)
+	{
+		int idleframes = client->resp.idletime ? (level.time.seconds() - client->resp.idletime) : 0;
 
-	// 	if( client->punch_desired && ! client->jumping && ! lights_camera_action && ! client->uvTime )
-	// 		punch_attack( ent );
-	// 	client->punch_desired = false;
+		if (client->punch_desired && !client->jumping && !lights_camera_action && !client->uvTime)
+			punch_attack(ent);
+		client->punch_desired = false;
 
-	// 	if( (ppl_idletime->value > 0) && idleframes && (idleframes % (int)(ppl_idletime->value * level.time.seconds()) == 0) )
-	// 		//plays a random sound/insane sound, insane1-9.wav
-	// 		//gi.sound( ent, CHAN_VOICE, gi.soundindex(va( "insane/insane%i.wav", rand() % 9 + 1 )), 1, ATTN_NORM, 0 );
+		// 	if( (ppl_idletime->value > 0) && idleframes && (idleframes % (int)(ppl_idletime->value * level.time.seconds()) == 0) )
+		// 		//plays a random sound/insane sound, insane1-9.wav
+		// 		//gi.sound( ent, CHAN_VOICE, gi.soundindex(va( "insane/insane%i.wav", rand() % 9 + 1 )), 1, ATTN_NORM, 0 );
 
-	// 		// ChatGPT'd: "plays a random sound/insane sound, insane1-9.wav"
-	// 		int randomValue = std::rand() % 9 + 1;
-	// 		// Format the string using fmt::format
-	// 		std::string soundPath = fmt::format("insane/insane{}.wav", randomValue);
-	// 		// Get the sound index using gi.soundindex
-	// 		int soundIndex = gi.soundindex(soundPath.c_str());
-	// 		gi.sound(ent, CHAN_VOICE, soundIndex, 1, ATTN_NORM, 0);
+		// 		// ChatGPT'd: "plays a random sound/insane sound, insane1-9.wav"
+		// 		int randomValue = std::rand() % 9 + 1;
+		// 		// Format the string using fmt::format
+		// 		std::string soundPath = fmt::format("insane/insane{}.wav", randomValue);
+		// 		// Get the sound index using gi.soundindex
+		// 		int soundIndex = gi.soundindex(soundPath.c_str());
+		// 		gi.sound(ent, CHAN_VOICE, soundIndex, 1, ATTN_NORM, 0);
 
-	// 	if( (sv_idleremove->value > 0) && (idleframes > (sv_idleremove->value * level.time.seconds())) && client->resp.team )
-	// 	{
-	// 		// Removes member from team once sv_idleremove value in seconds has been reached
-	// 		int idler_team = client->resp.team;
-	// 		if( teamplay->value )
-	// 			LeaveTeam( ent );
-	// 		client->resp.idletime = 0;
-	// 		gi.Com_PrintFmt( "{} has been removed from play due to reaching the sv_idleremove timer of %i seconds\n",
-	// 			client->pers.netname, (int) sv_idleremove->value );
-	// 	}
+		// 	if( (sv_idleremove->value > 0) && (idleframes > (sv_idleremove->value * level.time.seconds())) && client->resp.team )
+		// 	{
+		// 		// Removes member from team once sv_idleremove value in seconds has been reached
+		// 		int idler_team = client->resp.team;
+		// 		if( teamplay->value )
+		// 			LeaveTeam( ent );
+		// 		client->resp.idletime = 0;
+		// 		gi.Com_PrintFmt( "{} has been removed from play due to reaching the sv_idleremove timer of %i seconds\n",
+		// 			client->pers.netname, (int) sv_idleremove->value );
+		// 	}
 
-	 	if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
-	 		&& (client->pers.weapon->id == IT_WEAPON_MK23)) {
-	 		client->autoreloading = false;
-	 		Cmd_New_Reload_f( ent );
-	 	}
-
+		if (client->autoreloading && (client->weaponstate == WEAPON_END_MAG)
+			&& (client->pers.weapon->id == IT_WEAPON_MK23)) {
+			client->autoreloading = false;
+			Cmd_New_Reload_f(ent);
+		}
+	}
 	// if (ent->solid != SOLID_NOT)
 	// {
 	// 	if (client->uvTime && FRAMESYNC) {
