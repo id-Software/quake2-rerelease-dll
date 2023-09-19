@@ -2436,6 +2436,16 @@ static void Cmd_Ent_Count_f (edict_t * ent)
 	gi.LocClient_Print(ent, PRINT_HIGH, "%d entities counted\n", x);
 }
 
+static void SniperAddZoomDelay(edict_t* ent, int sniper_mode) {
+	if (sniper_mode == SNIPER_1X) {
+		ent->client->weapon_think_time = level.time + SNIPER_ZOOM_IN_TIME;
+	}
+	else {
+		ent->client->weapon_think_time = level.time + SNIPER_ZOOM_NEXT_TIME;
+	}
+
+}
+
 void _SetSniper(edict_t * ent, int zoom)
 {
 	int desired_fov, sniper_mode, oldmode;
@@ -2470,6 +2480,7 @@ void _SetSniper(edict_t * ent, int zoom)
 
 	ent->client->resp.sniper_mode = sniper_mode;
 	ent->client->desired_fov = desired_fov;
+	SniperAddZoomDelay(ent, sniper_mode);
 
 	if (sniper_mode == SNIPER_1X && ent->client->pers.weapon)
 		ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
@@ -2502,7 +2513,10 @@ int _SniperMode(edict_t *ent)
 
 void _ZoomIn(edict_t * ent, bool overflow)
 {
-	switch (_SniperMode(ent)) {
+	ent->client->weapon_think_time = level.time + 1000_ms;
+	auto sniper_mode = _SniperMode(ent);
+	SniperAddZoomDelay(ent, sniper_mode);
+	switch (sniper_mode) {
 	case SNIPER_1X:
 		ent->client->desired_zoom = 2;
 		break;
@@ -2521,7 +2535,9 @@ void _ZoomIn(edict_t * ent, bool overflow)
 
 void _ZoomOut(edict_t * ent, bool overflow)
 {
-	switch (_SniperMode(ent)) {
+	auto sniper_mode = _SniperMode(ent);
+	SniperAddZoomDelay(ent, sniper_mode);
+	switch (sniper_mode) {
 	case SNIPER_1X:
 		if (overflow)
 			ent->client->desired_zoom = 6;

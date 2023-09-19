@@ -2124,9 +2124,15 @@ constexpr size_t CROUCHING_VIEWHEIGHT = 8;
 constexpr size_t STANDING_VIEWHEIGHT = 22;
 
 #define PG_SNDPATH "user/"
+
+constexpr gtime_t SNIPER_ZOOM_IN_TIME = 700_ms;
+constexpr gtime_t SNIPER_ZOOM_NEXT_TIME = 100_ms;
+
+
 constexpr size_t BANDAGE_TIME = 27;//  				(27)	// 10 = 1 second
 constexpr size_t ENHANCED_BANDAGE_TIME = 10;//		(10)
 constexpr size_t BLEED_TIME = 10;//     			(10)	// 10 = 1 second is time for losing 1 health at slowest bleed rate
+
 
 // edict->client->pers.spec_flags
 #define SPECFL_KILLFEED					0x00000001
