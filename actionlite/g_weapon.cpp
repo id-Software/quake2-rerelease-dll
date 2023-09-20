@@ -1449,14 +1449,14 @@ void kick_attack (edict_t *ent)
 	vec3_t offset;
 	int damage = 20, kick = 400, friendlyFire = 0;
 	trace_t tr;
-	vec3_t end;
+	vec3_t end, dir;
 
 	AngleVectors(ent->client->v_angle, forward, right, NULL);
 
 	VectorScale(forward, 0, ent->client->kick_origin);
 
 	VectorSet(offset, 0, 0, ent->viewheight - 20);
-	P_ProjectSource(ent, ent->client->v_angle, offset, start, forward);
+	P_ProjectSource(ent, ent->client->v_angle, { 0, 0, 0 }, start, dir);
 
 	VectorMA(start, 25, forward, end);
 

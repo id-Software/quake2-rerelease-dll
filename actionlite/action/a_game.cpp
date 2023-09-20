@@ -1003,44 +1003,44 @@ void GetAmmo( edict_t *ent, char *buf )
 		case IT_WEAPON_MK23:
 			sprintf(buf, "{} round{} ({} extra mag{})",
 				ent->client->mk23_rds, ent->client->mk23_rds == 1 ? "" : "s",
-				ent->client->inventory[ent->client->ammo_index],
-				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_MP5:
 			sprintf( buf, "{} round{} ({} extra mag{})",
 				ent->client->mp5_rds, ent->client->mp5_rds == 1 ? "" : "s",
-				ent->client->inventory[ent->client->ammo_index],
-				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_M4:
 			sprintf( buf, "{} round{} ({} extra mag{})",
 				ent->client->m4_rds, ent->client->m4_rds == 1 ? "" : "s",
-				ent->client->inventory[ent->client->ammo_index],
-				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_M3:
 			sprintf( buf, "{} shell{} ({} extra shell{}s)",
 				ent->client->shot_rds, ent->client->shot_rds == 1 ? "" : "s",
-				ent->client->inventory[ent->client->ammo_index],
-				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_HANDCANNON:
 			sprintf( buf, "{} shell{} ({} extra shell{})",
 				ent->client->cannon_rds, ent->client->cannon_rds == 1 ? "" : "s",
-				ent->client->inventory[ent->client->ammo_index],
-				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_SNIPER:
 			sprintf( buf, "{} round{} (%d extra round{})",
 				ent->client->sniper_rds, ent->client->sniper_rds == 1 ? "" : "s",
-				ent->client->inventory[ent->client->ammo_index],
-				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_DUALMK23:
 			sprintf( buf, "{} round{} ({} extra mag{})",
 				ent->client->dual_rds, ent->client->dual_rds == 1 ? "" : "s",
-				ent->client->inventory[ent->client->ammo_index],
-				ent->client->inventory[ent->client->ammo_index] == 1 ? "" : "s");
+				ent->client->pers.inventory[ent->client->ammo_index],
+				ent->client->pers.inventory[ent->client->ammo_index] == 1 ? "" : "s");
 			return;
 		case IT_WEAPON_KNIFE:
 			ammo = INV_AMMO( ent, IT_WEAPON_KNIFE );

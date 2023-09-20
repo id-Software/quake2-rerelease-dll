@@ -1038,6 +1038,9 @@ enum item_id_t : int32_t {
 	IT_TOTAL
 };
 
+constexpr int32_t MAX_WEAPONS = IT_WEAPON_GRAPPLE;
+
+
 struct gitem_t
 {
 	item_id_t	id;		   // matches item list index
@@ -3374,7 +3377,7 @@ struct gclient_t
 	int32_t			unique_item_total;
 	int32_t			unique_weapon_total;
 
-	int32_t			inventory[MAX_ITEMS];
+	//int32_t			inventory[MAX_ITEMS];  // use pers.inventory instead
 
 	int32_t			respawn_framenum;		// can respawn when time > this
 	edict_t		    *chase_target;

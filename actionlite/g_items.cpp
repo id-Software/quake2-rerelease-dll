@@ -496,13 +496,13 @@ bool Add_Ammo(edict_t *ent, gitem_t *item, int count)
 
 	index = ITEM_INDEX(item);
 
-	if (ent->client->inventory[index] == max)
+	if (ent->client->pers.inventory[index] == max)
 		return false;
 
-	ent->client->inventory[index] += count;
+	ent->client->pers.inventory[index] += count;
 
-	if (ent->client->inventory[index] > max)
-		ent->client->inventory[index] = max;
+	if (ent->client->pers.inventory[index] > max)
+		ent->client->pers.inventory[index] = max;
 
 	return true;
 }
@@ -1534,7 +1534,7 @@ bool Pickup_Special (edict_t * ent, edict_t * other)
 		return false;
 
 	// Don't allow picking up multiple of the same special item.
-	if( (! allow_hoarding->value) && other->client->inventory[ITEM_INDEX(ent->item)] )
+	if( (! allow_hoarding->value) && other->client->pers.inventory[ITEM_INDEX(ent->item)] )
 		return false;
 
 	AddItem(other, ent->item);

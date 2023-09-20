@@ -2412,7 +2412,7 @@ void A_ScoreboardMessage (edict_t * ent, edict_t * killer)
 					}
 
 					len = strlen( string );
-					if (ctf->value && cl->inventory[flagindex]){
+					if (ctf->value && cl->pers.inventory[flagindex]){
 						sprintf( string + len, "xv %i picn sbfctf%s xv %i ", line_x - 8, i == TEAM1 ? "2" : "1", line_x );
 						len = strlen( string );
 					}

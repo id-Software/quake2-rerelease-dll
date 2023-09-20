@@ -238,7 +238,7 @@ void Cmd_Reload_f(edict_t * ent)
 		if (ent->client->shot_rds >= ent->client->shot_max)
 			return;
 
-		if(ent->client->inventory[ent->client->pers.weapon->ammo] <= 0) {
+		if(ent->client->pers.inventory[ent->client->pers.weapon->ammo] <= 0) {
 			gi.LocClient_Print(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
@@ -251,7 +251,7 @@ void Cmd_Reload_f(edict_t * ent)
 			// this gives them a chance to break off from reloading to fire the weapon - zucc
 			if (ent->client->ps.gunframe >= 48) {
 				ent->client->fast_reload = 1;
-				(ent->client->inventory[ent->client->ammo_index])--;
+				(ent->client->pers.inventory[ent->client->pers.weapon->ammo])--;
 			} else {
 				ent->client->reload_attempts++;
 			}
@@ -261,7 +261,7 @@ void Cmd_Reload_f(edict_t * ent)
 		if (ent->client->cannon_rds >= ent->client->cannon_max)
 			return;
 
-		if(ent->client->inventory[ent->client->pers.weapon->ammo] <= 0) {
+		if(ent->client->pers.inventory[ent->client->pers.weapon->ammo] <= 0) {
 			gi.LocClient_Print(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
@@ -281,7 +281,7 @@ void Cmd_Reload_f(edict_t * ent)
 		if (ent->client->sniper_rds >= ent->client->sniper_max)
 			return;
 
-		if(ent->client->inventory[ent->client->pers.weapon->ammo] <= 0) {
+		if(ent->client->pers.inventory[ent->client->pers.weapon->ammo] <= 0) {
 			gi.LocClient_Print(ent, PRINT_HIGH, "Out of ammo\n");
 			return;
 		}
@@ -289,12 +289,12 @@ void Cmd_Reload_f(edict_t * ent)
 		if (ent->client->weaponstate == WEAPON_RELOADING
 		    && (ent->client->sniper_rds < (ent->client->sniper_max - 1))
 		    && !(ent->client->fast_reload)
-		    && ((ent->client->pers.weapon->ammo - 1) > 0)) {
+		    && ((ent->client->pers.inventory[ent->client->pers.weapon->ammo] - 1) > 0)) {
 			// don't let them start fast reloading until far enough into the firing sequence
 			// this gives them a chance to break off from reloading to fire the weapon - zucc
 			if (ent->client->ps.gunframe >= 72) {
 				ent->client->fast_reload = 1;
-				(ent->client->inventory[ent->client->ammo_index])--;
+				(ent->client->pers.inventory[ent->client->ammo_index])--;
 			} else {
 				ent->client->reload_attempts++;
 			}
@@ -1106,7 +1106,7 @@ static void Cmd_Use_f (edict_t * ent)
 		return;
 	}
 
-	if (!ent->client->inventory[ITEM_INDEX(it)]) {
+	if (!ent->client->pers.inventory[ITEM_INDEX(it)]) {
 		gi.LocClient_Print (ent, PRINT_HIGH, "Out of item: {}\n", s);
 		return;
 	}
@@ -1390,10 +1390,11 @@ void Cmd_WeapNext_f(edict_t *ent)
 	selected_weapon = cl->pers.weapon->id;
 
 	// scan  for the next valid one
-	for (i = static_cast<item_id_t>(IT_NULL + 1); i <= IT_TOTAL; i = static_cast<item_id_t>(i + 1))
+	// Updated to only scroll through weapons
+	for (i = static_cast<item_id_t>(IT_NULL + 1); i <= IT_WEAPON_GRAPPLE; i = static_cast<item_id_t>(i + 1))
 	{
 		// PMM - prevent scrolling through ALL weapons
-		index = static_cast<item_id_t>((selected_weapon + i) % IT_TOTAL);
+		index = static_cast<item_id_t>((selected_weapon + i) % IT_WEAPON_GRAPPLE);
 		if (!cl->pers.inventory[index])
 			continue;
 		it = &itemlist[index];

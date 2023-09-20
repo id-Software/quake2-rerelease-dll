@@ -37,7 +37,7 @@ void MoveClientToIntermission(edict_t *ent)
 	ent->client->invisible_time = 0_ms;
 	ent->client->grenade_blew_up = false;
 	ent->client->grenade_time = 0_ms;
-	
+
 	ent->client->showhelp = false;
 	ent->client->showscores = false;
 
@@ -79,14 +79,14 @@ void G_UpdateLevelEntry()
 {
 	if (!level.entry)
 		return;
-	
+
 	level.entry->found_secrets = level.found_secrets;
 	level.entry->total_secrets = level.total_secrets;
 	level.entry->killed_monsters = level.killed_monsters;
 	level.entry->total_monsters = level.total_monsters;
 }
 
-inline void G_EndOfUnitEntry(std::stringstream &layout, const int &y, const level_entry_t &entry)
+inline void G_EndOfUnitEntry(std::stringstream& layout, const int& y, const level_entry_t& entry)
 {
 	layout << G_Fmt("yv {} ", y);
 
@@ -97,8 +97,8 @@ inline void G_EndOfUnitEntry(std::stringstream &layout, const int &y, const leve
 		return;
 	}
 
-	layout << G_Fmt("table_row 4 \"{}\" ", entry.pretty_name) << 
-		G_Fmt("{}/{} ", entry.killed_monsters, entry.total_monsters) << 
+	layout << G_Fmt("table_row 4 \"{}\" ", entry.pretty_name) <<
+		G_Fmt("{}/{} ", entry.killed_monsters, entry.total_monsters) <<
 		G_Fmt("{}/{} ", entry.found_secrets, entry.total_secrets);
 
 	int32_t minutes = entry.time.milliseconds() / 60000;
@@ -116,20 +116,20 @@ void G_EndOfUnitMessage()
 	std::stringstream layout;
 
 	// sort entries
-	std::sort(game.level_entries.begin(), game.level_entries.end(), [](const level_entry_t &a, const level_entry_t &b) {
+	std::sort(game.level_entries.begin(), game.level_entries.end(), [](const level_entry_t& a, const level_entry_t& b) {
 		int32_t a_order = a.visit_order ? a.visit_order : (*a.pretty_name ? (MAX_LEVELS_PER_UNIT + 1) : (MAX_LEVELS_PER_UNIT + 2));
 		int32_t b_order = b.visit_order ? b.visit_order : (*b.pretty_name ? (MAX_LEVELS_PER_UNIT + 1) : (MAX_LEVELS_PER_UNIT + 2));
 
 		return a_order < b_order;
-	});
+		});
 
 	layout << "start_table 4 $m_eou_level $m_eou_kills $m_eou_secrets $m_eou_time ";
 
 	int y = 16;
-	level_entry_t totals {};
+	level_entry_t totals{};
 	int32_t num_rows = 0;
 
-	for (auto &entry : game.level_entries)
+	for (auto& entry : game.level_entries)
 	{
 		if (!*entry.map_name)
 			break;
@@ -137,7 +137,7 @@ void G_EndOfUnitMessage()
 		G_EndOfUnitEntry(layout, y, entry);
 
 		y += 8;
-		
+
 		totals.found_secrets += entry.found_secrets;
 		totals.killed_monsters += entry.killed_monsters;
 		totals.time += entry.time;
@@ -202,13 +202,13 @@ void G_ReportMatchDetails(bool is_end)
 	{
 		// sort players by score, then match everybody to
 		// the current highest score downwards until we run out of players.
-		static std::array<edict_t *, MAX_CLIENTS> sorted_players;
+		static std::array<edict_t*, MAX_CLIENTS> sorted_players;
 		size_t num_active_players = 0;
 
 		for (auto player : active_players())
 			sorted_players[num_active_players++] = player;
 
-		std::sort(sorted_players.begin(), sorted_players.begin() + num_active_players, [](const edict_t *a, const edict_t *b) { return b->client->resp.score < a->client->resp.score; });
+		std::sort(sorted_players.begin(), sorted_players.begin() + num_active_players, [](const edict_t* a, const edict_t* b) { return b->client->resp.score < a->client->resp.score; });
 
 		int32_t current_score = INT_MIN;
 		int32_t current_rank = 0;
@@ -265,9 +265,9 @@ void G_ReportMatchDetails(bool is_end)
 	gi.ReportMatchDetails_Multicast(is_end);
 }
 
-void BeginIntermission(edict_t *targ)
+void BeginIntermission(edict_t* targ)
 {
-	edict_t *ent, *client;
+	edict_t* ent, * client;
 
 	if (level.intermissiontime)
 		return; // already activated
@@ -395,7 +395,7 @@ DeathmatchScoreboardMessage
 
 ==================
 */
-void DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
+void DeathmatchScoreboardMessage(edict_t* ent, edict_t* killer)
 {
 	static std::string entry, string;
 	size_t		j;
@@ -403,9 +403,9 @@ void DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 	int			sortedscores[MAX_CLIENTS];
 	int			score;
 	int			x, y;
-	gclient_t  *cl;
-	edict_t	*cl_ent;
-	const char *tag;
+	gclient_t* cl;
+	edict_t* cl_ent;
+	const char* tag;
 
 	// ZOID
 	if (G_TeamplayEnabled())
@@ -490,8 +490,8 @@ void DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 		entry.clear();
 
 		fmt::format_to(std::back_inserter(entry),
-					FMT_STRING("client {} {} {} {} {} {} "),
-					x, y, sorted[i], cl->resp.score, cl->ping, (int32_t) (level.time - cl->resp.entertime).minutes());
+			FMT_STRING("client {} {} {} {} {} {} "),
+			x, y, sorted[i], cl->resp.score, cl->ping, (int32_t)(level.time - cl->resp.entertime).minutes());
 
 		if (string.length() + entry.length() > MAX_SCOREBOARD_SIZE)
 			break;
@@ -526,7 +526,7 @@ Draw instead of help message.
 Note that it isn't that hard to overflow the 1400 byte message limit!
 ==================
 */
-void DeathmatchScoreboard(edict_t *ent)
+void DeathmatchScoreboard(edict_t* ent)
 {
 	DeathmatchScoreboardMessage(ent, ent->enemy);
 	gi.unicast(ent, true);
@@ -540,7 +540,7 @@ Cmd_Score_f
 Display the scoreboard
 ==================
 */
-void Cmd_Score_f(edict_t *ent)
+void Cmd_Score_f(edict_t* ent)
 {
 	if (level.intermissiontime)
 		return;
@@ -576,9 +576,9 @@ HelpComputer
 Draw help computer.
 ==================
 */
-void HelpComputer(edict_t *ent)
+void HelpComputer(edict_t* ent)
 {
-	const char *sk;
+	const char* sk;
 
 	if (skill->integer == 0)
 		sk = "$m_easy";
@@ -602,7 +602,7 @@ void HelpComputer(edict_t *ent)
 		helpString += G_Fmt("xv 0 yv 54 loc_cstring 1 \"{{}}\" \"{}\" ",  // help 1
 			game.helpmessage1);
 	}
-	else 
+	else
 	{
 		int y = 54;
 		if (strlen(game.helpmessage1))
@@ -648,7 +648,7 @@ Cmd_Help_f
 Display the current help message
 ==================
 */
-void Cmd_Help_f(edict_t *ent)
+void Cmd_Help_f(edict_t* ent)
 {
 	// this is for backwards compatability
 	if (deathmatch->integer)
@@ -664,7 +664,7 @@ void Cmd_Help_f(edict_t *ent)
 	ent->client->showscores = false;
 
 	if (ent->client->showhelp &&
-			(ent->client->pers.game_help1changed == game.help1changed ||
+		(ent->client->pers.game_help1changed == game.help1changed ||
 			ent->client->pers.game_help2changed == game.help2changed))
 	{
 		ent->client->showhelp = false;
@@ -682,7 +682,7 @@ void Cmd_Help_f(edict_t *ent)
 
 // [Paril-KEX] for stats we want to always be set in coop
 // even if we're spectating
-void G_SetCoopStats(edict_t *ent)
+void G_SetCoopStats(edict_t* ent)
 {
 	if (coop->integer && g_coop_enable_lives->integer)
 		ent->client->ps.stats[STAT_LIVES] = ent->client->pers.lives + 1;
@@ -742,7 +742,7 @@ void G_SetStats(edict_t* ent)
 		//
 		// zucc modified this to do clips instead
 		if (!ent->client->ammo_index
-			/* || !ent->client->inventory[ent->client->ammo_index] */)
+			/* || !ent->client->pers.inventory[ent->client->ammo_index] */)
 		{
 			ent->client->ps.stats[STAT_CLIP_ICON] = 0;
 			ent->client->ps.stats[STAT_CLIP] = 0;
@@ -754,7 +754,7 @@ void G_SetStats(edict_t* ent)
 				ent->client->ps.stats[STAT_CLIP_ICON] = level.pic_items[item->id];
 			else
 				ent->client->ps.stats[STAT_CLIP_ICON] = gi.imageindex(item->icon);
-			ent->client->ps.stats[STAT_CLIP] = ent->client->inventory[ent->client->ammo_index];
+			ent->client->ps.stats[STAT_CLIP] = ent->client->pers.inventory[ent->client->ammo_index];
 		}
 
 		// zucc display special item and special weapon
@@ -818,7 +818,7 @@ void G_SetStats(edict_t* ent)
 		// ammo by weapon
 		// 
 		//
-		/*if (ent->client->pers.weapon && ent->client->pers.weapon->ammo)
+		if (ent->client->pers.weapon && ent->client->pers.weapon->ammo)
 		{
 			item = GetItemByIndex(ent->client->pers.weapon->ammo);
 
@@ -828,16 +828,14 @@ void G_SetStats(edict_t* ent)
 				ent->client->ps.stats[STAT_AMMO] = ent->client->pers.inventory[ent->client->pers.weapon->ammo];
 			}
 		}
-	
+
 		memset(&ent->client->ps.stats[STAT_AMMO_INFO_START], 0, sizeof(uint16_t) * NUM_AMMO_STATS);
 		for (unsigned int ammoIndex = AMMO_BULLETS; ammoIndex < AMMO_MAX; ++ammoIndex)
 		{
-			gitem_t *ammo = GetItemByAmmo((ammo_t) ammoIndex);
+			gitem_t* ammo = GetItemByAmmo((ammo_t)ammoIndex);
 			uint16_t val = G_CheckInfiniteAmmo(ammo) ? AMMO_VALUE_INFINITE : clamp(ent->client->pers.inventory[ammo->id], 0, AMMO_VALUE_INFINITE - 1);
-			G_SetAmmoStat((uint16_t *) &ent->client->ps.stats[STAT_AMMO_INFO_START], ammo->ammo_wheel_index, val);
-		}*/
-
-
+			G_SetAmmoStat((uint16_t*)&ent->client->ps.stats[STAT_AMMO_INFO_START], ammo->ammo_wheel_index, val);
+		}
 
 		if (ent->client->pers.weapon && ent->client->curr_weap.id)
 		{
@@ -922,10 +920,10 @@ void G_SetStats(edict_t* ent)
 			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_quad");
 			ent->client->ps.stats[STAT_TIMER] = (ent->client->quad_framenum - level.framenum) / HZ;
 		}
-		else if (ent->client->invincible_framenum > level.framenum)
+		else if (ent->client->pers.invincible_framenum > level.framenum)
 		{
 			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_invulnerability");
-			ent->client->ps.stats[STAT_TIMER] = (ent->client->invincible_framenum - level.framenum) / HZ;
+			ent->client->ps.stats[STAT_TIMER] = (ent->client->pers.invincible_framenum - level.framenum) / HZ;
 		}
 		else if (ent->client->enviro_framenum > level.framenum)
 		{
