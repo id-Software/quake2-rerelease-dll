@@ -1659,8 +1659,9 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 	int bOut = 0;
 
 	if (level.time < ent->client->weapon_think_time) {
-		bool request_firing = ent->client->weapon_fire_buffered || ((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK);
-		if (request_firing && ent->client->weaponstate == WEAPON_READY) {}
+		bool request_firing = ((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK);
+		if (ent->client->fired == 1 || ent->client->weaponstate == WEAPON_FIRING) { return; }
+		else if (request_firing && ent->client->weaponstate == WEAPON_READY) {}
 		else return;
 	}
 	ent->client->weapon_think_time = level.time + 100_ms;
