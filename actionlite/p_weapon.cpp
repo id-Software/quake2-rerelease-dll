@@ -1679,7 +1679,8 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 	if (ent->client->weaponstate == WEAPON_FIRING &&
 		//((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) ||
 		(IS_ALIVE(ent) ||
-			lights_camera_action))
+			lights_camera_action)
+		&& ent->client->pers.weapon->id != IT_WEAPON_SNIPER)
 	{
 		ent->client->weaponstate = WEAPON_READY;
 	}
@@ -4778,8 +4779,7 @@ void Sniper_Fire(edict_t* ent)
 	int kick = 200;
 	vec3_t offset;
 	int spread = SNIPER_SPREAD;
-
-
+	
 	if (ent->client->ps.gunframe == 13)
 	{
 		gi.sound(ent, CHAN_AUTO, gi.soundindex("weapons/ssgbolt.wav"), 1, ATTN_NORM, 0);

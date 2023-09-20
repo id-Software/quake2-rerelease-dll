@@ -2436,14 +2436,31 @@ static void Cmd_Ent_Count_f (edict_t * ent)
 	gi.LocClient_Print(ent, PRINT_HIGH, "%d entities counted\n", x);
 }
 
-static void SniperAddZoomDelay(edict_t* ent, int sniper_mode) {
-	if (sniper_mode == SNIPER_1X) {
-		ent->client->weapon_think_time = level.time + SNIPER_ZOOM_IN_TIME;
+int _SniperMode(edict_t *ent)
+{
+	switch (ent->client->desired_zoom) { //lets update old desired zoom
+	case 1:
+		return SNIPER_1X;
+	case 2:
+		return SNIPER_2X;
+	case 4:
+		return SNIPER_4X;
+	case 6:
+		return SNIPER_6X;
 	}
-	else {
-		ent->client->weapon_think_time = level.time + SNIPER_ZOOM_NEXT_TIME;
-	}
+	return ent->client->resp.sniper_mode;
+}
 
+static void SniperAddZoomDelay(edict_t* ent, int next_mode) {
+	int current_mode = _SniperMode(ent);
+	auto zoom_delay = SNIPER_ZOOM_NEXT_TIME;
+	if (next_mode == SNIPER_2X && current_mode == SNIPER_1X) {
+		zoom_delay = SNIPER_ZOOM_IN_TIME;
+	}
+	else if (next_mode == SNIPER_1X && current_mode == SNIPER_6X) {
+		zoom_delay = 0_ms;
+	}
+	ent->client->weapon_think_time = level.time + zoom_delay;
 }
 
 void _SetSniper(edict_t * ent, int zoom)
@@ -2496,20 +2513,6 @@ void _SetSniper(edict_t * ent, int zoom)
 
 //tempfile END
 
-int _SniperMode(edict_t *ent)
-{
-	switch (ent->client->desired_zoom) { //lets update old desired zoom
-	case 1:
-		return SNIPER_1X;
-	case 2:
-		return SNIPER_2X;
-	case 4:
-		return SNIPER_4X;
-	case 6:
-		return SNIPER_6X;
-	}
-	return ent->client->resp.sniper_mode;
-}
 
 void _ZoomIn(edict_t * ent, bool overflow)
 {
