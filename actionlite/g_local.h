@@ -2693,6 +2693,7 @@ void ShowGun(edict_t* ent);	// hentai's vwep function added by zucc
 void PlaceHolder(edict_t* ent);
 void ThinkSpecWeap(edict_t* ent);
 void temp_think_specweap(edict_t* ent);
+void Drop_General(edict_t* ent, gitem_t* item);
 //ACTION
 
 //

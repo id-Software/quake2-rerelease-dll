@@ -1320,10 +1320,8 @@ void Drop_Weapon(edict_t* ent, gitem_t* item)
 		}
 		ent->client->unique_weapon_total--;	// dropping 1 unique weapon
 		temp = Drop_Item(ent, item);
-		/*temp->think = temp_think_specweap;
-		ent->client->inventory[index]--;*/
-		temp->spawnflags |= SPAWNFLAG_ITEM_DROPPED_PLAYER;
-		temp->svflags &= ~SVF_INSTANCED;
+		temp->think = temp_think_specweap;
+		ent->client->inventory[index]--;
 	}
 	else if (index == IT_WEAPON_DUALMK23)
 	{
@@ -1375,7 +1373,7 @@ void Drop_Weapon(edict_t* ent, gitem_t* item)
 				/*if (ent->client->quad_framenum > level.framenum)
 					damage *= 1.5f;*/
 
-				fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, gtime_t::from_sec(2), damage * 2, false);
+				fire_grenade2(ent, ent->s.origin, vec3_origin, damage, 0, gtime_t::from_hz(2), damage * 2, false);
 
 				INV_AMMO(ent, GRENADE_NUM)--;
 				ent->client->newweapon = GetItemByIndex(IT_WEAPON_MK23);
@@ -5982,7 +5980,7 @@ static void SpawnSpecWeap(gitem_t* item, edict_t* spot)
 	gi.linkentity(spot);
 }
 
-void ThinkSpecWeap(edict_t* ent)
+THINK(ThinkSpecWeap) (edict_t* ent) -> void
 {
 	edict_t* spot;
 
@@ -5998,32 +5996,33 @@ void ThinkSpecWeap(edict_t* ent)
 	}
 }
 
-void temp_think_specweap(edict_t* ent)
+THINK(temp_think_specweap) (edict_t* ent) -> void
 {
 	ent->touch = Touch_Item;
 
 	if (allweapon->value) { // allweapon set
-		ent->nextthink = level.time + 10_ms;
+		ent->nextthink = level.time + gtime_t::from_hz(1);
 		ent->think = G_FreeEdict;
 		return;
 	}
 
 	if (gameSettings & GS_ROUNDBASED) {
-		ent->nextthink = level.time + 1_sec;
+		ent->nextthink = level.time + gtime_t::from_hz(1000);
 		ent->think = PlaceHolder;
 		return;
 	}
 
 	if (gameSettings & GS_WEAPONCHOOSE) {
-		ent->nextthink = level.time + 60_ms;
+		ent->nextthink = level.time + gtime_t::from_hz(6);
 		ent->think = ThinkSpecWeap;
 	}
+	// There is no DF_WEAPON_RESPAWN in Q2R
 	// else if (DMFLAGS(DF_WEAPON_RESPAWN)) {
 	// 	ent->nextthink = level.time + 60_sec;
 	// 	ent->think = G_FreeEdict;
 	// }
 	else {
-		ent->nextthink = level.time + 1_sec;
+		ent->nextthink = level.time + gtime_t::from_hz(weapon_respawn->integer * 10);
 		ent->think = ThinkSpecWeap;
 	}
 }

@@ -4862,6 +4862,12 @@ void ClientThink(edict_t* ent, usercmd_t* ucmd)
 		if (!client->leg_damage && ent->groundentity && !pm.groundentity && pm.waterlevel == 0 && (pm.cmd.buttons & BUTTON_JUMP))
 			ent->client->jumping = 1;
 
+		VectorCopy(pm.mins, ent->mins);
+		VectorCopy(pm.maxs, ent->maxs);
+		client->resp.cmd_angles[0] = SHORT2ANGLE(ucmd->angles[0]);
+		client->resp.cmd_angles[1] = SHORT2ANGLE(ucmd->angles[1]);
+		client->resp.cmd_angles[2] = SHORT2ANGLE(ucmd->angles[2]);
+
 		ent->waterlevel = pm.waterlevel;
 		ent->watertype = pm.watertype;
 		ent->groundentity = pm.groundentity;

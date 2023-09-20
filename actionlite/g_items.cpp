@@ -870,7 +870,7 @@ edict_t *Drop_Item(edict_t *ent, gitem_t *item)
 	dropped->velocity[2] = 300;
 
 	dropped->think = drop_make_touchable;
-	dropped->nextthink = level.time + 1_sec;
+	dropped->nextthink = level.time + gtime_t::from_hz(1);
 
 	if (coop->integer && P_UseCoopInstancedItems())
 		dropped->svflags |= SVF_INSTANCED;
