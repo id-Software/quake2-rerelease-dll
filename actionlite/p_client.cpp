@@ -4860,7 +4860,7 @@ void ClientThink(edict_t* ent, usercmd_t* ucmd)
 		// ROGUE
 
 		if (!client->leg_damage && ent->groundentity && !pm.groundentity && pm.waterlevel == 0 && (pm.cmd.buttons & BUTTON_JUMP))
-			ent->client->jumping = 1;
+			ent->client->jumping = true;
 
 		VectorCopy(pm.mins, ent->mins);
 		VectorCopy(pm.maxs, ent->maxs);

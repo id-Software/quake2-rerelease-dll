@@ -1831,6 +1831,8 @@ extern cvar_t *sv_gib;
 extern cvar_t *nohud;
 extern cvar_t *hud_team_icon;
 extern cvar_t *hud_items_cycle;
+extern cvar_t *item_respawnmode;
+extern cvar_t *g_spawn_items;
 
 //extern int meansOfDeath;
 
@@ -3384,7 +3386,7 @@ struct gclient_t
 	int32_t			chase_mode;
 	gitem_t			selected_item;
 	bool			team_force;		// are we forcing a team change
-	int				jumping;
+	bool			jumping;
 	// ammo capacities
 	int32_t			ammo_index;
 	int32_t			max_pistolmags;

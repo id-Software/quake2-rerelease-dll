@@ -490,6 +490,42 @@ void ED_CallSpawn(edict_t *ent)
 			continue;
 		if (!strcmp(item->classname, ent->classname))
 		{
+
+
+			//FIXME: We do same checks in SpawnItem, do we need these here? -M
+			if ((gameSettings & GS_TEAMPLAY) && g_spawn_items->value && !matchmode->value) // Force spawn ammo/items/weapons for teamplay, non-matchmode
+			{
+				SpawnItem(ent, item);
+			}
+			else if (gameSettings & GS_DEATHMATCH)
+			{
+				if ((gameSettings & GS_WEAPONCHOOSE) && g_spawn_items->value) // Force spawn ammo/items/weapons for DM modes
+					SpawnItem(ent, item);
+				else if (gameSettings & GS_WEAPONCHOOSE) // Traditional teamplay / dm_choose 1 mode
+					G_FreeEdict(ent);
+				else if (item->flags & (IF_AMMO | IF_WEAPON))
+					SpawnItem(ent, item);
+				else if ((item->flags & IF_POWERUP) && item_respawnmode->value)
+					SpawnItem(ent, item);
+				else
+					G_FreeEdict(ent);
+			}
+			else if (ctf->value)
+			{
+				// Handled differently in Q2R
+				/*if (item->flags & IF_FLAG)
+					SpawnItem(ent, item);*/
+				if (ctf->value == 2 && (item->flags & (IF_AMMO | IF_WEAPON | IF_POWERUP)))
+					SpawnItem(ent, item);
+				else
+					G_FreeEdict(ent);
+			}
+			else
+			{
+				G_FreeEdict(ent);
+			}
+
+			return;
 			// found it
 			// before spawning, pick random item replacement
 			// if (g_dm_random_items->integer)
@@ -504,8 +540,8 @@ void ED_CallSpawn(edict_t *ent)
 			// 	}
 			// }
 
-			SpawnItem(ent, item);
-			return;
+			//SpawnItem(ent, item);
+			//return;
 		}
 	}
 

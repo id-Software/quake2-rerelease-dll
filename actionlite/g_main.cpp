@@ -176,6 +176,8 @@ cvar_t *tgren;
 cvar_t *rrot;
 cvar_t *vrot;
 cvar_t *maptime;
+cvar_t *item_respawnmode;
+cvar_t *g_spawn_items;
 
 
 // UI / Menu / Messaging Settings
@@ -275,6 +277,8 @@ void ActionInit()
 	use_killcounts = gi.cvar("use_killcounts", "0", CVAR_NOFLAGS);
 	use_rewards = gi.cvar("use_rewards", "1", CVAR_NOFLAGS);
 	motd_time = gi.cvar("motd_time", "3", CVAR_NOFLAGS);
+	g_spawn_items= gi.cvar("g_spawn_items", "0", CVAR_LATCH);
+	item_respawnmode = gi.cvar("item_respawnmode", "0", CVAR_LATCH);
 
 	actionmaps = gi.cvar("actionmaps", "1", CVAR_NOFLAGS);
 	if (actionmaps->value && num_maps < 1)
