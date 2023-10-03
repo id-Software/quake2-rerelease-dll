@@ -1327,7 +1327,15 @@ USE(use_target_camera) (edict_t *self, edict_t *other, edict_t *activator) -> vo
 		
 	// respawn any dead clients
 		if (client->health <= 0)
+		{
+			// give us our max health back since it will reset
+			// to pers.health; in instanced items we'd lose the items
+			// we touched so we always want to respawn with our max.
+			if (P_UseCoopInstancedItems())
+				client->client->pers.health = client->client->pers.max_health = client->max_health;
+
 			respawn(client);
+		}
 
         MoveClientToIntermission(client);
     }
@@ -1606,6 +1614,9 @@ static float distance_to_poi(vec3_t start, vec3_t end)
 	if (gi.GetPathToGoal(request, info))
 		return info.pathDistSqr;
 
+	if (info.returnCode == PathReturnCode::NoNavAvailable)
+		return (end - start).lengthSquared();
+
 	return std::numeric_limits<float>::infinity();
 }
 
@@ -1698,6 +1709,13 @@ USE(target_poi_use) (edict_t *ent, edict_t *other, edict_t *activator) -> void
 				ent = dummy_fallback;
 			else
 				return;
+		}
+
+		// copy over POI stage value
+		if (ent->count)
+		{
+			if (level.current_poi_stage <= ent->count)
+				level.current_poi_stage = ent->count;
 		}
 	}
 	else

@@ -480,7 +480,7 @@ constexpr spawnflags_t SPAWNFLAG_PUSH_START_OFF = 0x08_spawnflag;
 constexpr spawnflags_t SPAWNFLAG_PUSH_CLIP = 0x10_spawnflag;
 // PGM
 
-static int windsound;
+static cached_soundindex windsound;
 
 TOUCH(trigger_push_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool other_touching_self) -> void
 {
@@ -601,7 +601,7 @@ void SP_trigger_push(edict_t *self)
 {
 	InitTrigger(self);
 	if (!(self->spawnflags & SPAWNFLAG_PUSH_SILENT))
-		windsound = gi.soundindex("misc/windfly.wav");
+		windsound.assign("misc/windfly.wav");
 	self->touch = trigger_push_touch;
 
 	// RAFAEL
@@ -1054,11 +1054,11 @@ TOUCH(trigger_fog_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool
 		if (self->spawnflags.has(SPAWNFLAG_FOG_AFFECT_FOG))
 		{
 			other->client->pers.wanted_fog = {
-				lerp(fog_value_storage->fog.density, fog_value_storage->fog.density_off, dist),
-				lerp(fog_value_storage->fog.color[0], fog_value_storage->fog.color_off[0], dist),
-				lerp(fog_value_storage->fog.color[1], fog_value_storage->fog.color_off[1], dist),
-				lerp(fog_value_storage->fog.color[2], fog_value_storage->fog.color_off[2], dist),
-				lerp(fog_value_storage->fog.sky_factor, fog_value_storage->fog.sky_factor_off, dist)
+				lerp(fog_value_storage->fog.density_off, fog_value_storage->fog.density, dist),
+				lerp(fog_value_storage->fog.color_off[0], fog_value_storage->fog.color[0], dist),
+				lerp(fog_value_storage->fog.color_off[1], fog_value_storage->fog.color[1], dist),
+				lerp(fog_value_storage->fog.color_off[2], fog_value_storage->fog.color[2], dist),
+				lerp(fog_value_storage->fog.sky_factor_off, fog_value_storage->fog.sky_factor, dist)
 			};
 		}
 
@@ -1066,19 +1066,19 @@ TOUCH(trigger_fog_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool
 		{
 			other->client->pers.wanted_heightfog = {
 				{
-					lerp(fog_value_storage->heightfog.start_color[0], fog_value_storage->heightfog.start_color_off[0], dist),
-					lerp(fog_value_storage->heightfog.start_color[1], fog_value_storage->heightfog.start_color_off[1], dist),
-					lerp(fog_value_storage->heightfog.start_color[2], fog_value_storage->heightfog.start_color_off[2], dist),
-					lerp(fog_value_storage->heightfog.start_dist, fog_value_storage->heightfog.start_dist_off, dist)
+					lerp(fog_value_storage->heightfog.start_color_off[0], fog_value_storage->heightfog.start_color[0], dist),
+					lerp(fog_value_storage->heightfog.start_color_off[1], fog_value_storage->heightfog.start_color[1], dist),
+					lerp(fog_value_storage->heightfog.start_color_off[2], fog_value_storage->heightfog.start_color[2], dist),
+					lerp(fog_value_storage->heightfog.start_dist_off, fog_value_storage->heightfog.start_dist, dist)
 				},
 			{
-				lerp(fog_value_storage->heightfog.end_color[0], fog_value_storage->heightfog.end_color_off[0], dist),
-				lerp(fog_value_storage->heightfog.end_color[1],	fog_value_storage->heightfog.end_color_off[1], dist),
-				lerp(fog_value_storage->heightfog.end_color[2],	fog_value_storage->heightfog.end_color_off[2], dist),
-				lerp(fog_value_storage->heightfog.end_dist, fog_value_storage->heightfog.end_dist_off, dist)
+				lerp(fog_value_storage->heightfog.end_color_off[0], fog_value_storage->heightfog.end_color[0], dist),
+				lerp(fog_value_storage->heightfog.end_color_off[1], fog_value_storage->heightfog.end_color[1], dist),
+				lerp(fog_value_storage->heightfog.end_color_off[2], fog_value_storage->heightfog.end_color[2], dist),
+				lerp(fog_value_storage->heightfog.end_dist_off, fog_value_storage->heightfog.end_dist, dist)
 			},
-				lerp(fog_value_storage->heightfog.falloff, fog_value_storage->heightfog.falloff_off, dist),
-				lerp(fog_value_storage->heightfog.density, fog_value_storage->heightfog.density_off, dist)
+				lerp(fog_value_storage->heightfog.falloff_off, fog_value_storage->heightfog.falloff, dist),
+				lerp(fog_value_storage->heightfog.density_off, fog_value_storage->heightfog.density, dist)
 			};
 		}
 

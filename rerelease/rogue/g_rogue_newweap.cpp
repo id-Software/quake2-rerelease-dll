@@ -567,6 +567,8 @@ bool fire_player_melee(edict_t *self, const vec3_t &start, const vec3_t &aim, in
 
 		if (!hit->inuse || !hit->takedamage)
 			continue;
+		else if (!CanDamage(self, hit))
+			continue;
 
 		// do the damage
 		vec3_t closest_point_to_check = closest_point_to_box(start, hit->s.origin + hit->mins, hit->s.origin + hit->maxs);

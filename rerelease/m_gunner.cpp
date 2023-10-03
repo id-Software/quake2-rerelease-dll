@@ -12,13 +12,13 @@ GUNNER
 #include "m_gunner.h"
 #include "m_flash.h"
 
-static int sound_pain;
-static int sound_pain2;
-static int sound_death;
-static int sound_idle;
-static int sound_open;
-static int sound_search;
-static int sound_sight;
+static cached_soundindex sound_pain;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_death;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_open;
+static cached_soundindex sound_search;
+static cached_soundindex sound_sight;
 
 void gunner_idlesound(edict_t *self)
 {
@@ -858,13 +858,13 @@ void SP_monster_gunner(edict_t *self)
 		return;
 	}
 
-	sound_death = gi.soundindex("gunner/death1.wav");
-	sound_pain = gi.soundindex("gunner/gunpain2.wav");
-	sound_pain2 = gi.soundindex("gunner/gunpain1.wav");
-	sound_idle = gi.soundindex("gunner/gunidle1.wav");
-	sound_open = gi.soundindex("gunner/gunatck1.wav");
-	sound_search = gi.soundindex("gunner/gunsrch1.wav");
-	sound_sight = gi.soundindex("gunner/sight1.wav");
+	sound_death.assign("gunner/death1.wav");
+	sound_pain.assign("gunner/gunpain2.wav");
+	sound_pain2.assign("gunner/gunpain1.wav");
+	sound_idle.assign("gunner/gunidle1.wav");
+	sound_open.assign("gunner/gunatck1.wav");
+	sound_search.assign("gunner/gunsrch1.wav");
+	sound_sight.assign("gunner/sight1.wav");
 
 	gi.soundindex("gunner/gunatck2.wav");
 	gi.soundindex("gunner/gunatck3.wav");

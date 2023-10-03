@@ -81,7 +81,7 @@ MONSTERINFO_STAND(guardian_stand) (edict_t *self) -> void
 // walk
 //
 
-static int sound_step;
+static cached_soundindex sound_step;
 
 void guardian_footstep(edict_t *self)
 {
@@ -213,8 +213,8 @@ void guardian_atk1_finish(edict_t *self)
 	self->monsterinfo.weapon_sound = 0;
 }
 
-static int sound_charge;
-static int sound_spin_loop;
+static cached_soundindex sound_charge;
+static cached_soundindex sound_spin_loop;
 
 void guardian_atk1_charge(edict_t *self)
 {
@@ -292,7 +292,7 @@ void guardian_atk2_out(edict_t *self)
 	M_SetAnimation(self, &guardian_move_atk2_out);
 }
 
-static int sound_laser;
+static cached_soundindex sound_laser;
 
 constexpr vec3_t laser_positions[] = {
 	{ 125.0f, -70.f, 60.f },
@@ -487,10 +487,10 @@ void SP_monster_guardian(edict_t *self)
 		return;
 	}
 
-	sound_step = gi.soundindex("zortemp/step.wav");
-	sound_charge = gi.soundindex("weapons/hyprbu1a.wav");
-	sound_spin_loop = gi.soundindex("weapons/hyprbl1a.wav");
-	sound_laser = gi.soundindex("weapons/laser2.wav");
+	sound_step.assign("zortemp/step.wav");
+	sound_charge.assign("weapons/hyprbu1a.wav");
+	sound_spin_loop.assign("weapons/hyprbl1a.wav");
+	sound_laser.assign("weapons/laser2.wav");
 
 	for (auto &gib : gibs)
 		gi.modelindex(gib);

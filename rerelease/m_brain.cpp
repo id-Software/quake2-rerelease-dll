@@ -11,20 +11,20 @@ brain
 #include "g_local.h"
 #include "m_brain.h"
 
-static int sound_chest_open;
-static int sound_tentacles_extend;
-static int sound_tentacles_retract;
-static int sound_death;
-static int sound_idle1;
-static int sound_idle2;
-static int sound_idle3;
-static int sound_pain1;
-static int sound_pain2;
-static int sound_sight;
-static int sound_search;
-static int sound_melee1;
-static int sound_melee2;
-static int sound_melee3;
+static cached_soundindex sound_chest_open;
+static cached_soundindex sound_tentacles_extend;
+static cached_soundindex sound_tentacles_retract;
+static cached_soundindex sound_death;
+static cached_soundindex sound_idle1;
+static cached_soundindex sound_idle2;
+static cached_soundindex sound_idle3;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_search;
+static cached_soundindex sound_melee1;
+static cached_soundindex sound_melee2;
+static cached_soundindex sound_melee3;
 
 MONSTERINFO_SIGHT(brain_sight) (edict_t *self, edict_t *other) -> void
 {
@@ -321,11 +321,9 @@ mframe_t brain_frames_attack1[] = {
 };
 MMOVE_T(brain_move_attack1) = { FRAME_attak101, FRAME_attak118, brain_frames_attack1, brain_run };
 
-constexpr spawnflags_t SPAWNFLAG_BRAIN_TENTACLES_HIT = 65536_spawnflag;
-
 void brain_chest_open(edict_t *self)
 {
-	self->spawnflags &= ~SPAWNFLAG_BRAIN_TENTACLES_HIT;
+	self->count = 0;
 	self->monsterinfo.power_armor_type = IT_NULL;
 	gi.sound(self, CHAN_BODY, sound_chest_open, 1, ATTN_NORM, 0);
 }
@@ -334,7 +332,7 @@ void brain_tentacle_attack(edict_t *self)
 {
 	vec3_t aim = { MELEE_DISTANCE, 0, 8 };
 	if (fire_hit(self, aim, irandom(10, 15), -600))
-		self->spawnflags |= SPAWNFLAG_BRAIN_TENTACLES_HIT;
+		self->count = 1;
 	else
 		self->monsterinfo.melee_debounce_time = level.time + 3_sec;
 	gi.sound(self, CHAN_WEAPON, sound_tentacles_retract, 1, ATTN_NORM, 0);
@@ -343,9 +341,9 @@ void brain_tentacle_attack(edict_t *self)
 void brain_chest_closed(edict_t *self)
 {
 	self->monsterinfo.power_armor_type = IT_ITEM_POWER_SCREEN;
-	if (self->spawnflags.has(SPAWNFLAG_BRAIN_TENTACLES_HIT))
+	if (self->count)
 	{
-		self->spawnflags &= ~SPAWNFLAG_BRAIN_TENTACLES_HIT;
+		self->count = 0;
 		M_SetAnimation(self, &brain_move_attack1);
 	}
 }
@@ -731,20 +729,20 @@ void SP_monster_brain(edict_t *self)
 		return;
 	}
 
-	sound_chest_open = gi.soundindex("brain/brnatck1.wav");
-	sound_tentacles_extend = gi.soundindex("brain/brnatck2.wav");
-	sound_tentacles_retract = gi.soundindex("brain/brnatck3.wav");
-	sound_death = gi.soundindex("brain/brndeth1.wav");
-	sound_idle1 = gi.soundindex("brain/brnidle1.wav");
-	sound_idle2 = gi.soundindex("brain/brnidle2.wav");
-	sound_idle3 = gi.soundindex("brain/brnlens1.wav");
-	sound_pain1 = gi.soundindex("brain/brnpain1.wav");
-	sound_pain2 = gi.soundindex("brain/brnpain2.wav");
-	sound_sight = gi.soundindex("brain/brnsght1.wav");
-	sound_search = gi.soundindex("brain/brnsrch1.wav");
-	sound_melee1 = gi.soundindex("brain/melee1.wav");
-	sound_melee2 = gi.soundindex("brain/melee2.wav");
-	sound_melee3 = gi.soundindex("brain/melee3.wav");
+	sound_chest_open.assign("brain/brnatck1.wav");
+	sound_tentacles_extend.assign("brain/brnatck2.wav");
+	sound_tentacles_retract.assign("brain/brnatck3.wav");
+	sound_death.assign("brain/brndeth1.wav");
+	sound_idle1.assign("brain/brnidle1.wav");
+	sound_idle2.assign("brain/brnidle2.wav");
+	sound_idle3.assign("brain/brnlens1.wav");
+	sound_pain1.assign("brain/brnpain1.wav");
+	sound_pain2.assign("brain/brnpain2.wav");
+	sound_sight.assign("brain/brnsght1.wav");
+	sound_search.assign("brain/brnsrch1.wav");
+	sound_melee1.assign("brain/melee1.wav");
+	sound_melee2.assign("brain/melee2.wav");
+	sound_melee3.assign("brain/melee3.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

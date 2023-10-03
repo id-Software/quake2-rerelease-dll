@@ -783,6 +783,8 @@ THINK(CTFDropFlagThink) (edict_t *ent) -> void
 		gi.LocBroadcast_Print(PRINT_HIGH, "$g_flag_returned",
 				   CTFTeamName(CTF_TEAM2));
 	}
+
+	gi.sound(ent, CHAN_RELIABLE | CHAN_NO_PHS_ADD | CHAN_AUX, gi.soundindex("ctf/flagret.wav"), 1, ATTN_NONE, 0);
 }
 
 // Called from PlayerDie, to drop the flag from a dying player
@@ -1087,6 +1089,20 @@ void SetCTFStats(edict_t *ent)
 						p1 = imageindex_i_ctf1t;
 						break;
 					}
+
+				// [Paril-KEX] make sure there is a dropped version on the map somewhere
+				if (p1 == imageindex_i_ctf1d)
+				{
+					e = G_FindByString<&edict_t::classname>(e, "item_flag_team1");
+
+					if (e == nullptr)
+					{
+						CTFResetFlag(CTF_TEAM1);
+						gi.LocBroadcast_Print(PRINT_HIGH, "$g_flag_returned",
+							CTFTeamName(CTF_TEAM1));
+						gi.sound(ent, CHAN_RELIABLE | CHAN_NO_PHS_ADD | CHAN_AUX, gi.soundindex("ctf/flagret.wav"), 1, ATTN_NONE, 0);
+					}
+				}
 			}
 			else if (e->spawnflags.has(SPAWNFLAG_ITEM_DROPPED))
 				p1 = imageindex_i_ctf1d; // must be dropped
@@ -1108,6 +1124,20 @@ void SetCTFStats(edict_t *ent)
 						p2 = imageindex_i_ctf2t;
 						break;
 					}
+
+				// [Paril-KEX] make sure there is a dropped version on the map somewhere
+				if (p2 == imageindex_i_ctf2d)
+				{
+					e = G_FindByString<&edict_t::classname>(e, "item_flag_team2");
+
+					if (e == nullptr)
+					{
+						CTFResetFlag(CTF_TEAM2);
+						gi.LocBroadcast_Print(PRINT_HIGH, "$g_flag_returned",
+							CTFTeamName(CTF_TEAM2));
+						gi.sound(ent, CHAN_RELIABLE | CHAN_NO_PHS_ADD | CHAN_AUX, gi.soundindex("ctf/flagret.wav"), 1, ATTN_NONE, 0);
+					}
+				}
 			}
 			else if (e->spawnflags.has(SPAWNFLAG_ITEM_DROPPED))
 				p2 = imageindex_i_ctf2d; // must be dropped
@@ -2960,7 +2990,7 @@ bool CTFStartClient(edict_t *ent)
 
 void CTFObserver(edict_t *ent)
 {
-	if (!G_TeamplayEnabled())
+	if (!G_TeamplayEnabled() || g_teamplay_force_join->integer)
 		return;
 
 	// start as 'observer'

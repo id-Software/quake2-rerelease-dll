@@ -479,10 +479,27 @@ void PM_StepSlideMove()
 	// push down the final amount
 	down = pml.origin;
 	down[2] -= stepSize;
+
+	// [Paril-KEX] jitspoe suggestion for stair clip fix; store
+	// the old down position, and pick a better spot for downwards
+	// trace if the start origin's Z position is lower than the down end pt.
+	vec3_t original_down = down;
+
+	if (start_o[2] < down[2])
+		down[2] = start_o[2] - 1.f;
+
 	trace = PM_Trace(pml.origin, pm->mins, pm->maxs, down);
 	if (!trace.allsolid)
 	{
-		pml.origin = trace.endpos;
+		// [Paril-KEX] from above, do the proper trace now
+		trace_t real_trace = PM_Trace(pml.origin, pm->mins, pm->maxs, original_down);
+		pml.origin = real_trace.endpos;
+
+		// only an upwards jump is a stair clip
+		if (pml.velocity.z > 0.f)
+		{
+			pm->step_clip = true;
+		}
 	}
 
 	up = pml.origin;
@@ -496,7 +513,9 @@ void PM_StepSlideMove()
 		pml.origin = down_o;
 		pml.velocity = down_v;
 	}
-	else if (pm->s.pm_flags & PMF_ON_GROUND)
+	// [Paril-KEX] NB: this line being commented is crucial for ramp-jumps to work.
+	// thanks to Jitspoe for pointing this one out.
+	else// if (pm->s.pm_flags & PMF_ON_GROUND)
 		//!! Special case
 		// if we were walking along a plane, then we need to copy the Z over
 		pml.velocity[2] = down_v[2];
@@ -1012,7 +1031,12 @@ void PM_CatagorizePosition()
 					pm->s.pm_time = 64;
 				}
 
-				PM_ClipVelocity(pml.velocity, pm->groundplane.normal, pml.velocity, 1.01f);
+				// [Paril-KEX] calculate impact delta; this also fixes triple jumping
+				vec3_t clipped_velocity;
+				PM_ClipVelocity(pml.velocity, pm->groundplane.normal, clipped_velocity, 1.01f);
+
+				pm->impact_delta = pml.start_velocity[2] - clipped_velocity[2];
+
 				pm->s.pm_flags |= PMF_ON_GROUND;
 
 				if (pm_config.n64_physics || (pm->s.pm_flags & PMF_DUCKED))
@@ -1073,15 +1097,6 @@ void PM_CheckJump()
 
 	float jump_height = 270.f;
 
-	// [Paril-KEX]
-	if (pm->s.pm_flags & PMF_TIME_TRICK)
-	{
-		pm->s.pm_flags &= ~PMF_TIME_TRICK;
-		pm->s.pm_time = 0;
-
-		jump_height *= 1.40f;
-	}
-
 	pml.velocity[2] += jump_height;
 	if (pml.velocity[2] < jump_height)
 		pml.velocity[2] = jump_height;
@@ -1124,6 +1139,9 @@ void PM_CheckSpecialMovement()
 		return;
 
 	if (pm->waterlevel != WATER_WAIST)
+		return;
+	// [Paril-KEX]
+	else if (pm->watertype & CONTENTS_NO_WATERJUMP)
 		return;
 
 	// quick check that something is even blocking us forward
@@ -1561,6 +1579,7 @@ void Pmove(pmove_t *pmove)
 	pm->screen_blend = {};
 	pm->rdflags = RDF_NONE;
 	pm->jump_sound = false;
+	pm->step_clip = false;
 	pm->impact_delta = 0;
 
 	// clear all pmove local vars
@@ -1621,8 +1640,6 @@ void Pmove(pmove_t *pmove)
 	if (PM_CheckDuck())
 		PM_CatagorizePosition();
 
-	bool was_on_ground = !!pm->groundentity;
-
 	if (pm->s.pm_type == PM_DEAD)
 		PM_DeadMove();
 
@@ -1680,10 +1697,6 @@ void Pmove(pmove_t *pmove)
 	// set groundentity, watertype, and waterlevel for final spot
 	PM_CatagorizePosition();
 
-	// impact
-	if (pm->groundentity && !was_on_ground)
-		pm->impact_delta = pml.start_velocity[2] - pml.velocity[2];
-	
 	// trick jump
 	if (pm->s.pm_flags & PMF_TIME_TRICK)
 		PM_CheckJump();

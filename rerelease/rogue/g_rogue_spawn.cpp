@@ -169,7 +169,7 @@ THINK(spawngrow_think) (edict_t *self) -> void
 
 	float t = 1.f - ((level.time - self->teleport_time).seconds() / self->wait);
 
-	self->s.scale = clamp(lerp(self->accel, self->decel, t) / 16.f, 0.001f, 16.f);
+	self->s.scale = clamp(lerp(self->decel, self->accel, t) / 16.f, 0.001f, 16.f);
 	self->s.alpha = t * t;
 
 	self->nextthink += FRAME_TIME_MS;

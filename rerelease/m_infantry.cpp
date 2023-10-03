@@ -14,18 +14,18 @@ INFANTRY
 
 void InfantryMachineGun(edict_t *self);
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_die1;
-static int sound_die2;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_die1;
+static cached_soundindex sound_die2;
 
-static int sound_gunshot;
-static int sound_weapon_cock;
-static int sound_punch_swing;
-static int sound_punch_hit;
-static int sound_sight;
-static int sound_search;
-static int sound_idle;
+static cached_soundindex sound_gunshot;
+static cached_soundindex sound_weapon_cock;
+static cached_soundindex sound_punch_swing;
+static cached_soundindex sound_punch_hit;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_search;
+static cached_soundindex sound_idle;
 
 // range at which we'll try to initiate a run-attack to close distance
 constexpr float RANGE_RUN_ATTACK = RANGE_NEAR * 0.75f;
@@ -848,19 +848,19 @@ MONSTERINFO_SIDESTEP(infantry_sidestep) (edict_t *self) -> bool
 
 void InfantryPrecache()
 {
-	sound_pain1 = gi.soundindex("infantry/infpain1.wav");
-	sound_pain2 = gi.soundindex("infantry/infpain2.wav");
-	sound_die1 = gi.soundindex("infantry/infdeth1.wav");
-	sound_die2 = gi.soundindex("infantry/infdeth2.wav");
+	sound_pain1.assign("infantry/infpain1.wav");
+	sound_pain2.assign("infantry/infpain2.wav");
+	sound_die1.assign("infantry/infdeth1.wav");
+	sound_die2.assign("infantry/infdeth2.wav");
 
-	sound_gunshot = gi.soundindex("infantry/infatck1.wav");
-	sound_weapon_cock = gi.soundindex("infantry/infatck3.wav");
-	sound_punch_swing = gi.soundindex("infantry/infatck2.wav");
-	sound_punch_hit = gi.soundindex("infantry/melee2.wav");
+	sound_gunshot.assign("infantry/infatck1.wav");
+	sound_weapon_cock.assign("infantry/infatck3.wav");
+	sound_punch_swing.assign("infantry/infatck2.wav");
+	sound_punch_hit.assign("infantry/melee2.wav");
 
-	sound_sight = gi.soundindex("infantry/infsght1.wav");
-	sound_search = gi.soundindex("infantry/infsrch1.wav");
-	sound_idle = gi.soundindex("infantry/infidle1.wav");
+	sound_sight.assign("infantry/infsght1.wav");
+	sound_search.assign("infantry/infsrch1.wav");
+	sound_idle.assign("infantry/infidle1.wav");
 }
 
 constexpr spawnflags_t SPAWNFLAG_INFANTRY_NOJUMPING = 8_spawnflag;

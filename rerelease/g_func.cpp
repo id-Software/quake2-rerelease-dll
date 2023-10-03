@@ -112,7 +112,27 @@ THINK(Move_Begin) (edict_t *ent) -> void
 	ent->think = Move_Final;
 }
 
+void Think_AccelMove_New(edict_t *ent);
 void Think_AccelMove(edict_t *ent);
+bool Think_AccelMove_MoveInfo(moveinfo_t *moveinfo);
+
+constexpr float AccelerationDistance(float target, float rate)
+{
+	return (target * ((target / rate) + 1) / 2);
+}
+
+inline void Move_Regular(edict_t *ent, const vec3_t &dest, void(*endfunc)(edict_t *self))
+{
+	if (level.current_entity == ((ent->flags & FL_TEAMSLAVE) ? ent->teammaster : ent))
+	{
+		Move_Begin(ent);
+	}
+	else
+	{
+		ent->nextthink = level.time + FRAME_TIME_S;
+		ent->think = Move_Begin;
+	}
+}
 
 void Move_Calc(edict_t *ent, const vec3_t &dest, void(*endfunc)(edict_t *self))
 {
@@ -124,23 +144,99 @@ void Move_Calc(edict_t *ent, const vec3_t &dest, void(*endfunc)(edict_t *self))
 
 	if (ent->moveinfo.speed == ent->moveinfo.accel && ent->moveinfo.speed == ent->moveinfo.decel)
 	{
-		if (level.current_entity == ((ent->flags & FL_TEAMSLAVE) ? ent->teammaster : ent))
-		{
-			Move_Begin(ent);
-		}
-		else
-		{
-			ent->nextthink = level.time + FRAME_TIME_S;
-			ent->think = Move_Begin;
-		}
+		Move_Regular(ent, dest, endfunc);
 	}
 	else
 	{
 		// accelerative
 		ent->moveinfo.current_speed = 0;
-		ent->think = Think_AccelMove;
+
+		if (gi.tick_rate == 10)
+			ent->think = Think_AccelMove;
+		else
+		{
+			// [Paril-KEX] rewritten to work better at higher tickrates
+			ent->moveinfo.curve_frame = 0;
+			ent->moveinfo.num_subframes = (0.1f / gi.frame_time_s) - 1;
+
+			float total_dist = ent->moveinfo.remaining_distance;
+
+			std::vector<float> distances;
+
+			if (ent->moveinfo.num_subframes)
+			{
+				distances.push_back(0);
+				ent->moveinfo.curve_frame = 1;
+			}
+			else
+				ent->moveinfo.curve_frame = 0;
+
+			// simulate 10hz movement
+			while (ent->moveinfo.remaining_distance)
+			{
+				if (!Think_AccelMove_MoveInfo(&ent->moveinfo))
+					break;
+
+				ent->moveinfo.remaining_distance -= ent->moveinfo.current_speed;
+				distances.push_back(total_dist - ent->moveinfo.remaining_distance);
+			}
+
+			if (ent->moveinfo.num_subframes)
+				distances.push_back(total_dist);
+
+			ent->moveinfo.subframe = 0;
+			ent->moveinfo.curve_ref = ent->s.origin;
+			ent->moveinfo.curve_positions = make_savable_memory<float, TAG_LEVEL>(distances.size());
+			std::copy(distances.begin(), distances.end(), ent->moveinfo.curve_positions.ptr);
+
+			ent->moveinfo.num_frames_done = 0;
+
+			ent->think = Think_AccelMove_New;
+		}
+
 		ent->nextthink = level.time + FRAME_TIME_S;
 	}
+}
+
+THINK(Think_AccelMove_New) (edict_t *ent) -> void
+{
+	float t = 0.f;
+	float target_dist;
+
+	if (ent->moveinfo.num_subframes)
+	{
+		if (ent->moveinfo.subframe == ent->moveinfo.num_subframes + 1)
+		{
+			ent->moveinfo.subframe = 0;
+			ent->moveinfo.curve_frame++;
+
+			if (ent->moveinfo.curve_frame == ent->moveinfo.curve_positions.count)
+			{
+				Move_Final(ent);
+				return;
+			}
+		}
+
+		t = (ent->moveinfo.subframe + 1) / ((float) ent->moveinfo.num_subframes + 1);
+
+		target_dist = lerp(ent->moveinfo.curve_positions[ent->moveinfo.curve_frame - 1], ent->moveinfo.curve_positions[ent->moveinfo.curve_frame], t);
+		ent->moveinfo.subframe++;
+	}
+	else
+	{
+		if (ent->moveinfo.curve_frame == ent->moveinfo.curve_positions.count)
+		{
+			Move_Final(ent);
+			return;
+		}
+
+		target_dist = ent->moveinfo.curve_positions[ent->moveinfo.curve_frame++];
+	}
+
+	ent->moveinfo.num_frames_done++;
+	vec3_t target_pos = ent->moveinfo.curve_ref + (ent->moveinfo.dir * target_dist);
+	ent->velocity = (target_pos - ent->s.origin) * (1.f / gi.frame_time_s);
+	ent->nextthink = level.time + FRAME_TIME_S;
 }
 
 //
@@ -269,11 +365,6 @@ The team has completed a frame of movement, so
 change the speed for the next frame
 ==============
 */
-constexpr float AccelerationDistance(float target, float rate)
-{
-	return (target * ((target / rate) + 1) / 2);
-}
-
 void plat_CalcAcceleratedMove(moveinfo_t *moveinfo)
 {
 	float accel_dist;
@@ -382,6 +473,18 @@ void plat_Accelerate(moveinfo_t *moveinfo)
 	return;
 }
 
+bool Think_AccelMove_MoveInfo (moveinfo_t *moveinfo)
+{
+	if (moveinfo->current_speed == 0)		// starting or blocked
+		plat_CalcAcceleratedMove(moveinfo);
+
+	plat_Accelerate(moveinfo);
+
+	// will the entire move complete on next frame?
+	return moveinfo->remaining_distance > moveinfo->current_speed;
+}
+
+// Paril: old acceleration code; this is here only to support old save games.
 THINK(Think_AccelMove) (edict_t *ent) -> void
 {
 	// [Paril-KEX] calculate distance dynamically
@@ -390,12 +493,13 @@ THINK(Think_AccelMove) (edict_t *ent) -> void
 	else
 		ent->moveinfo.remaining_distance = (ent->moveinfo.end_origin - ent->s.origin).length();
 
-	if (ent->moveinfo.current_speed == 0)		// starting or blocked
-		plat_CalcAcceleratedMove(&ent->moveinfo);
-
-	plat_Accelerate(&ent->moveinfo);
-
 	// will the entire move complete on next frame?
+	if (!Think_AccelMove_MoveInfo(&ent->moveinfo))
+	{
+		Move_Final(ent);
+		return;
+	}
+
 	if (ent->moveinfo.remaining_distance <= ent->moveinfo.current_speed)
 	{
 		Move_Final(ent);
@@ -2232,6 +2336,8 @@ void train_resume(edict_t *self)
 		if (self->spawnflags.has(SPAWNFLAG_TRAIN_FIX_OFFSET))
 			dest -= vec3_t{1.f, 1.f, 1.f};
 	}
+
+	self->s.sound = self->moveinfo.sound_middle;
 
 	self->moveinfo.state = STATE_TOP;
 	self->moveinfo.start_origin = self->s.origin;

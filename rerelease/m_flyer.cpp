@@ -12,13 +12,13 @@ flyer
 #include "m_flyer.h"
 #include "m_flash.h"
 
-static int sound_sight;
-static int sound_idle;
-static int sound_pain1;
-static int sound_pain2;
-static int sound_slash;
-static int sound_sproing;
-static int sound_die;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_slash;
+static cached_soundindex sound_sproing;
+static cached_soundindex sound_die;
 
 void flyer_check_melee(edict_t *self);
 void flyer_loop_melee(edict_t *self);
@@ -704,13 +704,13 @@ void SP_monster_flyer(edict_t *self)
 		return;
 	}
 
-	sound_sight = gi.soundindex("flyer/flysght1.wav");
-	sound_idle = gi.soundindex("flyer/flysrch1.wav");
-	sound_pain1 = gi.soundindex("flyer/flypain1.wav");
-	sound_pain2 = gi.soundindex("flyer/flypain2.wav");
-	sound_slash = gi.soundindex("flyer/flyatck2.wav");
-	sound_sproing = gi.soundindex("flyer/flyatck1.wav");
-	sound_die = gi.soundindex("flyer/flydeth1.wav");
+	sound_sight.assign("flyer/flysght1.wav");
+	sound_idle.assign("flyer/flysrch1.wav");
+	sound_pain1.assign("flyer/flypain1.wav");
+	sound_pain2.assign("flyer/flypain2.wav");
+	sound_slash.assign("flyer/flyatck2.wav");
+	sound_sproing.assign("flyer/flyatck1.wav");
+	sound_die.assign("flyer/flydeth1.wav");
 
 	gi.soundindex("flyer/flyatck3.wav");
 

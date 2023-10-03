@@ -11,11 +11,11 @@
 bool infront(edict_t *self, edict_t *other);
 bool FindTarget(edict_t *self);
 
-static int sound_pain1;
-static int sound_die;
-static int sound_weld1;
-static int sound_weld2;
-static int sound_weld3;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_die;
+static cached_soundindex sound_weld1;
+static cached_soundindex sound_weld2;
+static cached_soundindex sound_weld3;
 
 void fixbot_run(edict_t *self);
 void fixbot_attack(edict_t *self);
@@ -1335,6 +1335,8 @@ PAIN(fixbot_pain) (edict_t *self, edict_t *other, float kick, int damage, const 
 		M_SetAnimation(self, &fixbot_move_painb);
 	else
 		M_SetAnimation(self, &fixbot_move_paina);
+
+	abortHeal(self, false, false, false);
 }
 
 void fixbot_dead(edict_t *self)
@@ -1364,12 +1366,12 @@ void SP_monster_fixbot(edict_t *self)
 		return;
 	}
 
-	sound_pain1 = gi.soundindex("flyer/flypain1.wav");
-	sound_die = gi.soundindex("flyer/flydeth1.wav");
+	sound_pain1.assign("flyer/flypain1.wav");
+	sound_die.assign("flyer/flydeth1.wav");
 
-	sound_weld1 = gi.soundindex("misc/welder1.wav");
-	sound_weld2 = gi.soundindex("misc/welder2.wav");
-	sound_weld3 = gi.soundindex("misc/welder3.wav");
+	sound_weld1.assign("misc/welder1.wav");
+	sound_weld2.assign("misc/welder2.wav");
+	sound_weld3.assign("misc/welder3.wav");
 
 	self->s.modelindex = gi.modelindex("models/monsters/fixbot/tris.md2");
 

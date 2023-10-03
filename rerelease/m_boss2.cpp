@@ -17,11 +17,11 @@ constexpr spawnflags_t SPAWNFLAG_BOSS2_N64 = 8_spawnflag;
 
 bool infront(edict_t *self, edict_t *other);
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_pain3;
-static int sound_death;
-static int sound_search1;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_pain3;
+static cached_soundindex sound_death;
+static cached_soundindex sound_search1;
 
 MONSTERINFO_SEARCH(boss2_search) (edict_t *self) -> void
 {
@@ -607,93 +607,10 @@ DIE(boss2_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	M_SetAnimation(self, &boss2_move_death);
 }
 
+// [Paril-KEX] use generic function
 MONSTERINFO_CHECKATTACK(Boss2_CheckAttack) (edict_t *self) -> bool
 {
-	vec3_t	spot1, spot2;
-	vec3_t	temp;
-	float	chance;
-	trace_t tr;
-	float	enemy_yaw;
-
-	if (self->enemy->health > 0)
-	{
-		// see if any entities are in the way of the shot
-		spot1 = self->s.origin;
-		spot1[2] += self->viewheight;
-		spot2 = self->enemy->s.origin;
-		spot2[2] += self->enemy->viewheight;
-
-		tr = gi.traceline(spot1, spot2, self, CONTENTS_SOLID | CONTENTS_PLAYER | CONTENTS_MONSTER | CONTENTS_SLIME | CONTENTS_LAVA);
-
-		// do we have a clear shot?
-		if (tr.ent != self->enemy && !(tr.ent->svflags & SVF_PLAYER))
-		{
-			// PGM - we want them to go ahead and shoot at info_notnulls if they can.
-			if (self->enemy->solid != SOLID_NOT || tr.fraction < 1.0f) // PGM
-				return false;
-		}
-	}
-
-	float enemy_range = range_to(self, self->enemy);
-	temp = self->enemy->s.origin - self->s.origin;
-	enemy_yaw = vectoyaw(temp);
-
-	self->ideal_yaw = enemy_yaw;
-
-	// melee attack
-	if (enemy_range <= RANGE_MELEE)
-	{
-		if (self->monsterinfo.melee)
-			self->monsterinfo.attack_state = AS_MELEE;
-		else
-			self->monsterinfo.attack_state = AS_MISSILE;
-		return true;
-	}
-
-	// missile attack
-	if (!self->monsterinfo.attack)
-		return false;
-
-	if (level.time < self->monsterinfo.attack_finished)
-		return false;
-
-	if (enemy_range > RANGE_MID)
-		return false;
-
-	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
-	{
-		chance = 0.4f;
-	}
-	else if (enemy_range <= RANGE_MELEE)
-	{
-		chance = 0.8f;
-	}
-	else if (enemy_range <= RANGE_NEAR)
-	{
-		chance = 0.8f;
-	}
-	else
-	{
-		chance = 0.8f;
-	}
-
-	// PGM - go ahead and shoot every time if it's a info_notnull
-	if ((frandom() < chance) || (self->enemy->solid == SOLID_NOT))
-	{
-		self->monsterinfo.attack_state = AS_MISSILE;
-		self->monsterinfo.attack_finished = level.time + random_time(2_sec);
-		return true;
-	}
-
-	if (self->flags & FL_FLY)
-	{
-		if (frandom() < 0.3f)
-			self->monsterinfo.attack_state = AS_SLIDING;
-		else
-			self->monsterinfo.attack_state = AS_STRAIGHT;
-	}
-
-	return false;
+	return M_CheckAttack_Base(self, 0.4f, 0.8f, 0.8f, 0.8f, 0.f, 0.f);
 }
 
 /*QUAKED monster_boss2 (1 .5 0) (-56 -56 0) (56 56 80) Ambush Trigger_Spawn Sight Hyperblaster
@@ -705,11 +622,11 @@ void SP_monster_boss2(edict_t *self)
 		return;
 	}
 
-	sound_pain1 = gi.soundindex("bosshovr/bhvpain1.wav");
-	sound_pain2 = gi.soundindex("bosshovr/bhvpain2.wav");
-	sound_pain3 = gi.soundindex("bosshovr/bhvpain3.wav");
-	sound_death = gi.soundindex("bosshovr/bhvdeth1.wav");
-	sound_search1 = gi.soundindex("bosshovr/bhvunqv1.wav");
+	sound_pain1.assign("bosshovr/bhvpain1.wav");
+	sound_pain2.assign("bosshovr/bhvpain2.wav");
+	sound_pain3.assign("bosshovr/bhvpain3.wav");
+	sound_death.assign("bosshovr/bhvdeth1.wav");
+	sound_search1.assign("bosshovr/bhvunqv1.wav");
 
 	gi.soundindex("tank/rocket.wav");
 

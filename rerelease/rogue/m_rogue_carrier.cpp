@@ -31,15 +31,15 @@ void drawbbox(edict_t *self);
 
 void ED_CallSpawn(edict_t *ent);
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_pain3;
-static int sound_death;
-static int sound_sight;
-static int sound_rail;
-static int sound_spawn;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_pain3;
+static cached_soundindex sound_death;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_rail;
+static cached_soundindex sound_spawn;
 
-static int sound_cg_down, sound_cg_loop, sound_cg_up;
+static cached_soundindex sound_cg_down, sound_cg_loop, sound_cg_up;
 
 float orig_yaw_speed;
 
@@ -1002,48 +1002,9 @@ DIE(carrier_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 
 MONSTERINFO_CHECKATTACK(Carrier_CheckAttack) (edict_t *self) -> bool
 {
-	vec3_t	spot1, spot2;
-	vec3_t	temp;
-	float	chance;
-	trace_t tr;
-	bool	enemy_infront, enemy_inback, enemy_below;
-	float	enemy_yaw;
-
-	if (self->enemy->health > 0)
-	{
-		// see if any entities are in the way of the shot
-		spot1 = self->s.origin;
-		spot1[2] += self->viewheight;
-		spot2 = self->enemy->s.origin;
-		spot2[2] += self->enemy->viewheight;
-
-		tr = gi.traceline(spot1, spot2, self, CONTENTS_SOLID | CONTENTS_PLAYER | CONTENTS_MONSTER | CONTENTS_SLIME | CONTENTS_LAVA);
-
-		// do we have a clear shot?
-		if (tr.ent != self->enemy && !(tr.ent->svflags & SVF_PLAYER))
-		{
-			// go ahead and spawn stuff if we're mad a a client
-			if (self->enemy->client && M_SlotsLeft(self) > 2)
-			{
-				self->monsterinfo.attack_state = AS_BLIND;
-				return true;
-			}
-
-			// PGM - we want them to go ahead and shoot at info_notnulls if they can.
-			if (self->enemy->solid != SOLID_NOT || tr.fraction < 1.0f) // PGM
-				return false;
-		}
-	}
-
-	enemy_infront = infront(self, self->enemy);
-	enemy_inback = inback(self, self->enemy);
-	enemy_below = below(self, self->enemy);
-
-	float enemy_range = range_to(self, self->enemy);
-	temp = self->enemy->s.origin - self->s.origin;
-	enemy_yaw = vectoyaw(temp);
-
-	self->ideal_yaw = enemy_yaw;
+	bool enemy_infront = infront(self, self->enemy);
+	bool enemy_inback = inback(self, self->enemy);
+	bool enemy_below = below(self, self->enemy);
 
 	// PMM - shoot out the back if appropriate
 	if ((enemy_inback) || (!enemy_infront && enemy_below))
@@ -1061,53 +1022,7 @@ MONSTERINFO_CHECKATTACK(Carrier_CheckAttack) (edict_t *self) -> bool
 		}
 	}
 
-	// melee attack
-	if (enemy_range <= RANGE_MELEE)
-	{
-		self->monsterinfo.attack_state = AS_MISSILE;
-		return true;
-	}
-
-	//	if (level.time < self->monsterinfo.attack_finished)
-	//		return false;
-
-	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
-	{
-		chance = 0.4f;
-	}
-	else if (enemy_range <= RANGE_MELEE)
-	{
-		chance = 0.8f;
-	}
-	else if (enemy_range <= RANGE_NEAR)
-	{
-		chance = 0.8f;
-	}
-	else if (enemy_range <= RANGE_MID)
-	{
-		chance = 0.8f;
-	}
-	else
-	{
-		chance = 0.5f;
-	}
-
-	// PGM - go ahead and shoot every time if it's a info_notnull
-	if ((frandom() < chance) || (self->enemy->solid == SOLID_NOT))
-	{
-		self->monsterinfo.attack_state = AS_MISSILE;
-		return true;
-	}
-
-	if (self->flags & FL_FLY)
-	{
-		if (frandom() < 0.6f)
-			self->monsterinfo.attack_state = AS_SLIDING;
-		else
-			self->monsterinfo.attack_state = AS_STRAIGHT;
-	}
-
-	return false;
+	return M_CheckAttack_Base(self, 0.4f, 0.8f, 0.8f, 0.8f, 0.5f, 0.f);
 }
 
 void CarrierPrecache()
@@ -1145,17 +1060,17 @@ void SP_monster_carrier(edict_t *self)
 		return;
 	}
 
-	sound_pain1 = gi.soundindex("carrier/pain_md.wav");
-	sound_pain2 = gi.soundindex("carrier/pain_lg.wav");
-	sound_pain3 = gi.soundindex("carrier/pain_sm.wav");
-	sound_death = gi.soundindex("carrier/death.wav");
-	sound_rail = gi.soundindex("gladiator/railgun.wav");
-	sound_sight = gi.soundindex("carrier/sight.wav");
-	sound_spawn = gi.soundindex("medic_commander/monsterspawn1.wav");
+	sound_pain1.assign("carrier/pain_md.wav");
+	sound_pain2.assign("carrier/pain_lg.wav");
+	sound_pain3.assign("carrier/pain_sm.wav");
+	sound_death.assign("carrier/death.wav");
+	sound_rail.assign("gladiator/railgun.wav");
+	sound_sight.assign("carrier/sight.wav");
+	sound_spawn.assign("medic_commander/monsterspawn1.wav");
 
-	sound_cg_down = gi.soundindex("weapons/chngnd1a.wav");
-	sound_cg_loop = gi.soundindex("weapons/chngnl1a.wav");
-	sound_cg_up = gi.soundindex("weapons/chngnu1a.wav");
+	sound_cg_down.assign("weapons/chngnd1a.wav");
+	sound_cg_loop.assign("weapons/chngnl1a.wav");
+	sound_cg_up.assign("weapons/chngnu1a.wav");
 
 	self->monsterinfo.engine_sound = gi.soundindex("bosshovr/bhvengn1.wav");
 

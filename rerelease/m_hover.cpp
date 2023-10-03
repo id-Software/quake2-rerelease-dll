@@ -12,23 +12,23 @@ hover
 #include "m_hover.h"
 #include "m_flash.h"
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_death1;
-static int sound_death2;
-static int sound_sight;
-static int sound_search1;
-static int sound_search2;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_death1;
+static cached_soundindex sound_death2;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_search1;
+static cached_soundindex sound_search2;
 
 // ROGUE
 // daedalus sounds
-static int daed_sound_pain1;
-static int daed_sound_pain2;
-static int daed_sound_death1;
-static int daed_sound_death2;
-static int daed_sound_sight;
-static int daed_sound_search1;
-static int daed_sound_search2;
+static cached_soundindex daed_sound_pain1;
+static cached_soundindex daed_sound_pain2;
+static cached_soundindex daed_sound_death1;
+static cached_soundindex daed_sound_death2;
+static cached_soundindex daed_sound_sight;
+static cached_soundindex daed_sound_search1;
+static cached_soundindex daed_sound_search2;
 // ROGUE
 
 MONSTERINFO_SIGHT(hover_sight) (edict_t *self, edict_t *other) -> void
@@ -619,26 +619,26 @@ void SP_monster_hover(edict_t *self)
 			self->monsterinfo.power_armor_power = 100;
 		// PMM - daedalus sounds
 		self->monsterinfo.engine_sound = gi.soundindex("daedalus/daedidle1.wav");
-		daed_sound_pain1 = gi.soundindex("daedalus/daedpain1.wav");
-		daed_sound_pain2 = gi.soundindex("daedalus/daedpain2.wav");
-		daed_sound_death1 = gi.soundindex("daedalus/daeddeth1.wav");
-		daed_sound_death2 = gi.soundindex("daedalus/daeddeth2.wav");
-		daed_sound_sight = gi.soundindex("daedalus/daedsght1.wav");
-		daed_sound_search1 = gi.soundindex("daedalus/daedsrch1.wav");
-		daed_sound_search2 = gi.soundindex("daedalus/daedsrch2.wav");
+		daed_sound_pain1.assign("daedalus/daedpain1.wav");
+		daed_sound_pain2.assign("daedalus/daedpain2.wav");
+		daed_sound_death1.assign("daedalus/daeddeth1.wav");
+		daed_sound_death2.assign("daedalus/daeddeth2.wav");
+		daed_sound_sight.assign("daedalus/daedsght1.wav");
+		daed_sound_search1.assign("daedalus/daedsrch1.wav");
+		daed_sound_search2.assign("daedalus/daedsrch2.wav");
 		gi.soundindex("tank/tnkatck3.wav");
 		// pmm
 	}
 	else
 	{
 		self->yaw_speed = 18;
-		sound_pain1 = gi.soundindex("hover/hovpain1.wav");
-		sound_pain2 = gi.soundindex("hover/hovpain2.wav");
-		sound_death1 = gi.soundindex("hover/hovdeth1.wav");
-		sound_death2 = gi.soundindex("hover/hovdeth2.wav");
-		sound_sight = gi.soundindex("hover/hovsght1.wav");
-		sound_search1 = gi.soundindex("hover/hovsrch1.wav");
-		sound_search2 = gi.soundindex("hover/hovsrch2.wav");
+		sound_pain1.assign("hover/hovpain1.wav");
+		sound_pain2.assign("hover/hovpain2.wav");
+		sound_death1.assign("hover/hovdeth1.wav");
+		sound_death2.assign("hover/hovdeth2.wav");
+		sound_sight.assign("hover/hovsght1.wav");
+		sound_search1.assign("hover/hovsrch1.wav");
+		sound_search2.assign("hover/hovsrch2.wav");
 		gi.soundindex("hover/hovatck1.wav");
 
 		self->monsterinfo.engine_sound = gi.soundindex("hover/hovidle1.wav");

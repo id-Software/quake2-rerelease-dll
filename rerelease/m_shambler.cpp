@@ -12,15 +12,15 @@ SHAMBLER
 #include "m_shambler.h"
 #include "m_flash.h"
 
-static int sound_pain;
-static int sound_idle;
-static int sound_die;
-static int sound_sight;
-static int sound_windup;
-static int sound_melee1;
-static int sound_melee2;
-static int sound_smack;
-static int sound_boom;
+static cached_soundindex sound_pain;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_die;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_windup;
+static cached_soundindex sound_melee1;
+static cached_soundindex sound_melee2;
+static cached_soundindex sound_smack;
+static cached_soundindex sound_boom;
 
 //
 // misc
@@ -558,15 +558,15 @@ void SP_monster_shambler(edict_t* self)
 	self->solid = SOLID_BBOX;
 
 	gi.modelindex("models/proj/lightning/tris.md2");
-	sound_pain = gi.soundindex("shambler/shurt2.wav");
-	sound_idle = gi.soundindex("shambler/sidle.wav");
-	sound_die = gi.soundindex("shambler/sdeath.wav");
-	sound_windup = gi.soundindex("shambler/sattck1.wav");
-	sound_melee1 = gi.soundindex("shambler/melee1.wav");
-	sound_melee2 = gi.soundindex("shambler/melee2.wav");
-	sound_sight = gi.soundindex("shambler/ssight.wav");
-	sound_smack = gi.soundindex("shambler/smack.wav");
-	sound_boom = gi.soundindex("shambler/sboom.wav");
+	sound_pain.assign("shambler/shurt2.wav");
+	sound_idle.assign("shambler/sidle.wav");
+	sound_die.assign("shambler/sdeath.wav");
+	sound_windup.assign("shambler/sattck1.wav");
+	sound_melee1.assign("shambler/melee1.wav");
+	sound_melee2.assign("shambler/melee2.wav");
+	sound_sight.assign("shambler/ssight.wav");
+	sound_smack.assign("shambler/smack.wav");
+	sound_boom.assign("shambler/sboom.wav");
 
 	self->health = 600 * st.health_multiplier;
 	self->gib_health = -60;

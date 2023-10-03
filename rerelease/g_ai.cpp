@@ -93,7 +93,8 @@ void ai_stand(edict_t *self, float dist)
     if (self->monsterinfo.aiflags & AI_STAND_GROUND)
     {
         // [Paril-KEX] check if we've been pushed out of our point_combat
-        if (self->movetarget)
+        if (!(self->monsterinfo.aiflags & AI_TEMP_STAND_GROUND) &&
+            self->movetarget && self->movetarget->classname && !strcmp(self->movetarget->classname, "point_combat"))
         {
             if (!boxes_intersect(self->absmin, self->absmax, self->movetarget->absmin, self->movetarget->absmax))
             {
@@ -105,7 +106,7 @@ void ai_stand(edict_t *self, float dist)
             }
         }
 
-        if (self->enemy)
+        if (self->enemy && !(self->enemy->classname && !strcmp(self->enemy->classname, "player_noise")))
         {
             v = self->enemy->s.origin - self->s.origin;
             self->ideal_yaw = vectoyaw(v);
@@ -453,6 +454,12 @@ bool infront(edict_t *self, edict_t *other)
     vec = other->s.origin - self->s.origin;
     vec.normalize();
     dot = vec.dot(forward);
+
+    // [Paril-KEX] if we're an ambush monster, reduce our cone of
+    // vision to not ruin surprises, unless we already had an enemy.
+    if (self->spawnflags.has(SPAWNFLAG_MONSTER_AMBUSH) && !self->monsterinfo.trail_time && !self->enemy)
+        return dot > 0.15f;
+
     return dot > -0.30f;
 }
 
@@ -730,7 +737,31 @@ bool FindTarget(edict_t *self)
         return false;
 
     if (client == self->enemy)
-        return true; // JDC false;
+    {
+        bool skip_found = true;
+
+        // [Paril-KEX] slight special behavior if we are currently going to a sound
+        // and we hear a new one; because player noises are re-used, this can leave
+        // us with the "same" enemy even though it's a different noise.
+        if (heardit && (self->monsterinfo.aiflags & AI_SOUND_TARGET))
+        {
+            vec3_t temp = client->s.origin - self->s.origin;
+            self->ideal_yaw = vectoyaw(temp);
+
+            if (!FacingIdeal(self))
+                skip_found = false;
+            else if (!SV_CloseEnough(self, client, 8.f))
+                skip_found = false;
+
+            if (!skip_found && (self->monsterinfo.aiflags & AI_TEMP_STAND_GROUND))
+            {
+                self->monsterinfo.aiflags &= ~(AI_STAND_GROUND | AI_TEMP_STAND_GROUND);
+            }
+        }
+
+        if (skip_found)
+            return true; // JDC false;
+    }
 
     // ROGUE - hintpath coop fix
     if ((self->monsterinfo.aiflags & AI_HINT_PATH) && coop->integer)
@@ -873,7 +904,8 @@ bool FacingIdeal(edict_t *self)
 
 //=============================================================================
 
-MONSTERINFO_CHECKATTACK(M_CheckAttack) (edict_t *self) -> bool
+// [Paril-KEX] split this out so we can use it for the other bosses
+bool M_CheckAttack_Base(edict_t *self, float stand_ground_chance, float melee_chance, float near_chance, float mid_chance, float far_chance, float strafe_scalar)
 {
     vec3_t  spot1, spot2;
     float   chance;
@@ -903,7 +935,7 @@ MONSTERINFO_CHECKATTACK(M_CheckAttack) (edict_t *self) -> bool
             spot2[2] += self->enemy->viewheight;
 
             tr = gi.traceline(spot1, spot2, self,
-                          MASK_SOLID | CONTENTS_MONSTER | CONTENTS_PLAYER | CONTENTS_SLIME | CONTENTS_LAVA);
+                MASK_SOLID | CONTENTS_MONSTER | CONTENTS_PLAYER | CONTENTS_SLIME | CONTENTS_LAVA);
         }
         else
         {
@@ -938,7 +970,7 @@ MONSTERINFO_CHECKATTACK(M_CheckAttack) (edict_t *self) -> bool
                         {
                             // make sure we're not going to shoot a monster
                             tr = gi.traceline(spot1, self->monsterinfo.blind_fire_target, self,
-                                          CONTENTS_MONSTER);
+                                CONTENTS_MONSTER);
                             if (tr.allsolid || tr.startsolid || ((tr.fraction < 1.0f) && (tr.ent != self->enemy)))
                                 return false;
 
@@ -982,28 +1014,29 @@ MONSTERINFO_CHECKATTACK(M_CheckAttack) (edict_t *self) -> bool
     if (level.time < self->monsterinfo.attack_finished)
         return false;
 
-    if (enemy_range > RANGE_MID)
-        return false;
-
     if (self->monsterinfo.aiflags & AI_STAND_GROUND)
     {
-        chance = 0.7f;
+        chance = stand_ground_chance;
     }
     else if (enemy_range <= RANGE_MELEE)
     {
-        chance = 0.4f;
+        chance = melee_chance;
     }
     else if (enemy_range <= RANGE_NEAR)
     {
-        chance = 0.25f;
+        chance = near_chance;
+    }
+    else if (enemy_range <= RANGE_MID)
+    {
+        chance = mid_chance;
     }
     else
     {
-        chance = 0.06f;
+        chance = far_chance;
     }
 
     // PGM - go ahead and shoot every time if it's a info_notnull
-    if ((frandom() < chance) || (!self->enemy->client && self->enemy->solid == SOLID_NOT))
+    if ((!self->enemy->client && self->enemy->solid == SOLID_NOT) || (frandom() < chance))
     {
         self->monsterinfo.attack_state = AS_MISSILE;
         self->monsterinfo.attack_finished = level.time;
@@ -1018,6 +1051,7 @@ MONSTERINFO_CHECKATTACK(M_CheckAttack) (edict_t *self) -> bool
         {
             // originally, just 0.3
             float strafe_chance;
+
             if (!(strcmp(self->classname, "monster_daedalus")))
                 strafe_chance = 0.8f;
             else
@@ -1026,16 +1060,21 @@ MONSTERINFO_CHECKATTACK(M_CheckAttack) (edict_t *self) -> bool
             // if enemy is tesla, never strafe
             if ((self->enemy) && (self->enemy->classname) && (!strcmp(self->enemy->classname, "tesla_mine")))
                 strafe_chance = 0;
+            else
+                strafe_chance *= strafe_scalar;
 
-            monster_attack_state_t new_state = AS_STRAIGHT;
-
-            if (frandom() < strafe_chance)
-                new_state = AS_SLIDING;
-
-            if (new_state != self->monsterinfo.attack_state)
+            if (strafe_chance)
             {
-                self->monsterinfo.strafe_check_time = level.time + random_time(1_sec, 3_sec);
-                self->monsterinfo.attack_state = new_state;
+                monster_attack_state_t new_state = AS_STRAIGHT;
+
+                if (frandom() < strafe_chance)
+                    new_state = AS_SLIDING;
+
+                if (new_state != self->monsterinfo.attack_state)
+                {
+                    self->monsterinfo.strafe_check_time = level.time + random_time(1_sec, 3_sec);
+                    self->monsterinfo.attack_state = new_state;
+                }
             }
         }
     }
@@ -1049,6 +1088,11 @@ MONSTERINFO_CHECKATTACK(M_CheckAttack) (edict_t *self) -> bool
     // ROGUE
 
     return false;
+}
+
+MONSTERINFO_CHECKATTACK(M_CheckAttack) (edict_t *self) -> bool
+{
+    return M_CheckAttack_Base(self, 0.7f, 0.4f, 0.25f, 0.06f, 0.f, 1.0f);
 }
 
 /*
@@ -1222,12 +1266,7 @@ bool ai_checkattack(edict_t *self, float dist)
     }
     else
     {
-        if (self->monsterinfo.aiflags & AI_BRUTAL)
-        {
-            if (self->enemy->health <= self->enemy->gib_health)
-                hesDeadJim = true;
-        }
-        else
+        if (!(self->monsterinfo.aiflags & AI_BRUTAL))
         {
             if (self->enemy->health <= 0)
                 hesDeadJim = true;

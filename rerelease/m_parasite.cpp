@@ -15,17 +15,17 @@ constexpr float g_athena_parasite_miss_chance = 0.1f;
 constexpr float g_athena_parasite_proboscis_speed = 1250;
 constexpr float g_athena_parasite_proboscis_retract_modifier = 2.0f;
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_die;
-static int sound_launch;
-static int sound_impact;
-static int sound_suck;
-static int sound_reelin;
-static int sound_sight;
-static int sound_tap;
-static int sound_scratch;
-static int sound_search;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_die;
+static cached_soundindex sound_launch;
+static cached_soundindex sound_impact;
+static cached_soundindex sound_suck;
+static cached_soundindex sound_reelin;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_tap;
+static cached_soundindex sound_scratch;
+static cached_soundindex sound_search;
 
 void parasite_stand(edict_t *self);
 void parasite_start_run(edict_t *self);
@@ -909,17 +909,17 @@ void SP_monster_parasite(edict_t *self)
 		return;
 	}
 
-	sound_pain1 = gi.soundindex("parasite/parpain1.wav");
-	sound_pain2 = gi.soundindex("parasite/parpain2.wav");
-	sound_die = gi.soundindex("parasite/pardeth1.wav");
-	sound_launch = gi.soundindex("parasite/paratck1.wav");
-	sound_impact = gi.soundindex("parasite/paratck2.wav");
-	sound_suck = gi.soundindex("parasite/paratck3.wav");
-	sound_reelin = gi.soundindex("parasite/paratck4.wav");
-	sound_sight = gi.soundindex("parasite/parsght1.wav");
-	sound_tap = gi.soundindex("parasite/paridle1.wav");
-	sound_scratch = gi.soundindex("parasite/paridle2.wav");
-	sound_search = gi.soundindex("parasite/parsrch1.wav");
+	sound_pain1.assign("parasite/parpain1.wav");
+	sound_pain2.assign("parasite/parpain2.wav");
+	sound_die.assign("parasite/pardeth1.wav");
+	sound_launch.assign("parasite/paratck1.wav");
+	sound_impact.assign("parasite/paratck2.wav");
+	sound_suck.assign("parasite/paratck3.wav");
+	sound_reelin.assign("parasite/paratck4.wav");
+	sound_sight.assign("parasite/parsght1.wav");
+	sound_tap.assign("parasite/paridle1.wav");
+	sound_scratch.assign("parasite/paridle2.wav");
+	sound_search.assign("parasite/parsrch1.wav");
 
 	gi.modelindex("models/monsters/parasite/tip/tris.md2");
 	gi.modelindex("models/monsters/parasite/segment/tris.md2");

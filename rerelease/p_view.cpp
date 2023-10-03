@@ -323,7 +323,7 @@ void SV_CalcViewOffset(edict_t *ent)
 		}
 		ent->client->ps.viewangles[YAW] = ent->client->killer_yaw;
 	}
-	else
+	else if (!ent->client->pers.bob_skip && !SkipViewModifiers())
 	{
 		// add angles based on weapon kick
 		angles = P_CurrentKickAngles(ent);
@@ -416,29 +416,29 @@ void SV_CalcViewOffset(edict_t *ent)
 	v = {};
 
 	// add fall height
-	
-	if (ent->client->fall_time > level.time)
-	{
-		// [Paril-KEX] 100ms of slack is added to account for
-		// visual difference in higher tickrates
-		gtime_t diff = ent->client->fall_time - level.time;
 
-		// slack time remaining
-		if (DAMAGE_TIME_SLACK())
-		{
-			if (diff > FALL_TIME() - DAMAGE_TIME_SLACK())
-				ratio = (FALL_TIME() - diff).seconds() / DAMAGE_TIME_SLACK().seconds();
-			else
-				ratio = diff.seconds() / (FALL_TIME() - DAMAGE_TIME_SLACK()).seconds();
-		}
-		else
-			ratio = diff.seconds() / (FALL_TIME() - DAMAGE_TIME_SLACK()).seconds();
-		v[2] -= ratio * ent->client->fall_value * 0.4f;
-	}
-
-	// add bob height
 	if (!ent->client->pers.bob_skip && !SkipViewModifiers())
 	{
+		if (ent->client->fall_time > level.time)
+		{
+			// [Paril-KEX] 100ms of slack is added to account for
+			// visual difference in higher tickrates
+			gtime_t diff = ent->client->fall_time - level.time;
+
+			// slack time remaining
+			if (DAMAGE_TIME_SLACK())
+			{
+				if (diff > FALL_TIME() - DAMAGE_TIME_SLACK())
+					ratio = (FALL_TIME() - diff).seconds() / DAMAGE_TIME_SLACK().seconds();
+				else
+					ratio = diff.seconds() / (FALL_TIME() - DAMAGE_TIME_SLACK()).seconds();
+			}
+			else
+				ratio = diff.seconds() / (FALL_TIME() - DAMAGE_TIME_SLACK()).seconds();
+			v[2] -= ratio * ent->client->fall_value * 0.4f;
+		}
+
+	// add bob height
 		bob = bobfracsin * xyspeed * bob_up->value;
 		if (bob > 6)
 			bob = 6;
@@ -447,9 +447,9 @@ void SV_CalcViewOffset(edict_t *ent)
 	}
 
 	// add kick offset
-	
 
-	v += P_CurrentKickOrigin(ent);
+	if (!ent->client->pers.bob_skip && !SkipViewModifiers())
+		v += P_CurrentKickOrigin(ent);
 
 	// absolutely bound offsets
 	// so the view can never be outside the player box
@@ -532,6 +532,9 @@ void SV_CalcGunOffset(edict_t *ent)
 			else if (d < 0)
 				d = min(0.f, d + gi.frame_time_ms * reduction_factor);
 		}
+
+		// [Paril-KEX] cl_rollhack
+		ent->client->ps.gunangles[ROLL] = -ent->client->ps.gunangles[ROLL];
 	}
 	// ROGUE
 	else
@@ -790,7 +793,7 @@ void P_WorldEffects()
 
 				// play a gurp sound instead of a normal pain sound
 				if (current_player->health <= current_player->dmg)
-					gi.sound(current_player, CHAN_VOICE, gi.soundindex("player/drown1.wav"), 1, ATTN_NORM, 0);
+					gi.sound(current_player, CHAN_VOICE, gi.soundindex("*drown1.wav"), 1, ATTN_NORM, 0); // [Paril-KEX]
 				else if (brandom())
 					gi.sound(current_player, CHAN_VOICE, gi.soundindex("*gurp1.wav"), 1, ATTN_NORM, 0);
 				else
@@ -802,12 +805,11 @@ void P_WorldEffects()
 			}
 		}
 		// Paril: almost-drowning sounds
-		// FIXME use better sound + precache in worldspawn
 		else if (current_player->air_finished <= level.time + 3_sec)
 		{
 			if (current_player->client->next_drown_time < level.time)
 			{
-				gi.sound(current_player, CHAN_VOICE, gi.soundindex("player/wade1.wav"), 1, ATTN_NORM, 0);
+				gi.sound(current_player, CHAN_VOICE, gi.soundindex(fmt::format("player/wade{}.wav", 1 + ((int32_t) level.time.seconds() % 3)).c_str()), 1, ATTN_NORM, 0);
 				current_player->client->next_drown_time = level.time + 1_sec;
 			}
 		}
@@ -998,7 +1000,8 @@ void G_SetClientEvent(edict_t *ent)
 
 	if (ent->client->ps.pmove.pm_flags & PMF_ON_LADDER)
 	{
-		if (current_client->last_ladder_sound < level.time &&
+		if (!deathmatch->integer &&
+			current_client->last_ladder_sound < level.time &&
 			(current_client->last_ladder_pos - ent->s.origin).length() > 48.f)
 		{
 			ent->s.event = EV_LADDER_STEP;
@@ -1416,7 +1419,8 @@ void ClientEndServerFrame(edict_t *ent)
 	
 	ent->s.angles[YAW] = ent->client->v_angle[YAW];
 	ent->s.angles[ROLL] = 0;
-	ent->s.angles[ROLL] = SV_CalcRoll(ent->s.angles, ent->velocity) * 4;
+	// [Paril-KEX] cl_rollhack
+	ent->s.angles[ROLL] = -SV_CalcRoll(ent->s.angles, ent->velocity) * 4;
 
 	//
 	// calculate speed and cycle to be used for
@@ -1524,4 +1528,30 @@ void ClientEndServerFrame(edict_t *ent)
 		G_SaveLagCompensation(ent);
 
 	Compass_Update(ent, false);
+
+	// [Paril-KEX] in coop, if player collision is enabled and
+	// we are currently in no-player-collision mode, check if
+	// it's safe.
+	if (coop->integer && G_ShouldPlayersCollide(false) && !(ent->clipmask & CONTENTS_PLAYER) && ent->takedamage)
+	{
+		bool clipped_player = false;
+
+		for (auto player : active_players())
+		{
+			if (player == ent)
+				continue;
+
+			trace_t clip = gi.clip(player, ent->s.origin, ent->mins, ent->maxs, ent->s.origin, CONTENTS_MONSTER | CONTENTS_PLAYER);
+
+			if (clip.startsolid || clip.allsolid)
+			{
+				clipped_player = true;
+				break;
+			}
+		}
+
+		// safe!
+		if (!clipped_player)
+			ent->clipmask |= CONTENTS_PLAYER;
+	}
 }

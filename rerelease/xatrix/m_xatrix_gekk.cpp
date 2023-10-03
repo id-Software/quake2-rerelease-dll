@@ -12,22 +12,22 @@ constexpr spawnflags_t SPAWNFLAG_GEKK_CHANT = 8_spawnflag;
 constexpr spawnflags_t SPAWNFLAG_GEKK_NOJUMPING = 16_spawnflag;
 constexpr spawnflags_t SPAWNFLAG_GEKK_NOSWIM = 32_spawnflag;
 
-static int sound_swing;
-static int sound_hit;
-static int sound_hit2;
-static int sound_speet;
-static int loogie_hit;
-static int sound_death;
-static int sound_pain1;
-static int sound_sight;
-static int sound_search;
-static int sound_step1;
-static int sound_step2;
-static int sound_step3;
-static int sound_thud;
-static int sound_chantlow;
-static int sound_chantmid;
-static int sound_chanthigh;
+static cached_soundindex sound_swing;
+static cached_soundindex sound_hit;
+static cached_soundindex sound_hit2;
+static cached_soundindex sound_speet;
+static cached_soundindex loogie_hit;
+static cached_soundindex sound_death;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_search;
+static cached_soundindex sound_step1;
+static cached_soundindex sound_step2;
+static cached_soundindex sound_step3;
+static cached_soundindex sound_thud;
+static cached_soundindex sound_chantlow;
+static cached_soundindex sound_chantmid;
+static cached_soundindex sound_chanthigh;
 
 void gekk_swim(edict_t *self);
 
@@ -1589,23 +1589,23 @@ void SP_monster_gekk(edict_t *self)
 		return;
 	}
 
-	sound_swing = gi.soundindex("gek/gk_atck1.wav");
-	sound_hit = gi.soundindex("gek/gk_atck2.wav");
-	sound_hit2 = gi.soundindex("gek/gk_atck3.wav");
-	sound_speet = gi.soundindex("gek/gk_atck4.wav");
-	loogie_hit = gi.soundindex("gek/loogie_hit.wav");
-	sound_death = gi.soundindex("gek/gk_deth1.wav");
-	sound_pain1 = gi.soundindex("gek/gk_pain1.wav");
-	sound_sight = gi.soundindex("gek/gk_sght1.wav");
-	sound_search = gi.soundindex("gek/gk_idle1.wav");
-	sound_step1 = gi.soundindex("gek/gk_step1.wav");
-	sound_step2 = gi.soundindex("gek/gk_step2.wav");
-	sound_step3 = gi.soundindex("gek/gk_step3.wav");
-	sound_thud = gi.soundindex("mutant/thud1.wav");
+	sound_swing.assign("gek/gk_atck1.wav");
+	sound_hit.assign("gek/gk_atck2.wav");
+	sound_hit2.assign("gek/gk_atck3.wav");
+	sound_speet.assign("gek/gk_atck4.wav");
+	loogie_hit.assign("gek/loogie_hit.wav");
+	sound_death.assign("gek/gk_deth1.wav");
+	sound_pain1.assign("gek/gk_pain1.wav");
+	sound_sight.assign("gek/gk_sght1.wav");
+	sound_search.assign("gek/gk_idle1.wav");
+	sound_step1.assign("gek/gk_step1.wav");
+	sound_step2.assign("gek/gk_step2.wav");
+	sound_step3.assign("gek/gk_step3.wav");
+	sound_thud.assign("mutant/thud1.wav");
 
-	sound_chantlow = gi.soundindex("gek/gek_low.wav");
-	sound_chantmid = gi.soundindex("gek/gek_mid.wav");
-	sound_chanthigh = gi.soundindex("gek/gek_high.wav");
+	sound_chantlow.assign("gek/gek_low.wav");
+	sound_chantmid.assign("gek/gek_mid.wav");
+	sound_chanthigh.assign("gek/gek_high.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

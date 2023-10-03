@@ -12,13 +12,13 @@ floater
 #include "m_float.h"
 #include "m_flash.h"
 
-static int sound_attack2;
-static int sound_attack3;
-static int sound_death1;
-static int sound_idle;
-static int sound_pain1;
-static int sound_pain2;
-static int sound_sight;
+static cached_soundindex sound_attack2;
+static cached_soundindex sound_attack3;
+static cached_soundindex sound_death1;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_sight;
 
 MONSTERINFO_SIGHT(floater_sight) (edict_t *self, edict_t *other) -> void
 {
@@ -658,13 +658,13 @@ void SP_monster_floater(edict_t *self)
 		return;
 	}
 
-	sound_attack2 = gi.soundindex("floater/fltatck2.wav");
-	sound_attack3 = gi.soundindex("floater/fltatck3.wav");
-	sound_death1 = gi.soundindex("floater/fltdeth1.wav");
-	sound_idle = gi.soundindex("floater/fltidle1.wav");
-	sound_pain1 = gi.soundindex("floater/fltpain1.wav");
-	sound_pain2 = gi.soundindex("floater/fltpain2.wav");
-	sound_sight = gi.soundindex("floater/fltsght1.wav");
+	sound_attack2.assign("floater/fltatck2.wav");
+	sound_attack3.assign("floater/fltatck3.wav");
+	sound_death1.assign("floater/fltdeth1.wav");
+	sound_idle.assign("floater/fltidle1.wav");
+	sound_pain1.assign("floater/fltpain1.wav");
+	sound_pain2.assign("floater/fltpain2.wav");
+	sound_sight.assign("floater/fltsght1.wav");
 
 	gi.soundindex("floater/fltatck1.wav");
 

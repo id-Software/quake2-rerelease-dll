@@ -18,21 +18,21 @@ void chick_reslash(edict_t *self);
 void chick_rerocket(edict_t *self);
 void chick_attack1(edict_t *self);
 
-static int sound_missile_prelaunch;
-static int sound_missile_launch;
-static int sound_melee_swing;
-static int sound_melee_hit;
-static int sound_missile_reload;
-static int sound_death1;
-static int sound_death2;
-static int sound_fall_down;
-static int sound_idle1;
-static int sound_idle2;
-static int sound_pain1;
-static int sound_pain2;
-static int sound_pain3;
-static int sound_sight;
-static int sound_search;
+static cached_soundindex sound_missile_prelaunch;
+static cached_soundindex sound_missile_launch;
+static cached_soundindex sound_melee_swing;
+static cached_soundindex sound_melee_hit;
+static cached_soundindex sound_missile_reload;
+static cached_soundindex sound_death1;
+static cached_soundindex sound_death2;
+static cached_soundindex sound_fall_down;
+static cached_soundindex sound_idle1;
+static cached_soundindex sound_idle2;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_pain3;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_search;
 
 void ChickMoan(edict_t *self)
 {
@@ -795,21 +795,21 @@ void SP_monster_chick(edict_t *self)
 		return;
 	}
 
-	sound_missile_prelaunch = gi.soundindex("chick/chkatck1.wav");
-	sound_missile_launch = gi.soundindex("chick/chkatck2.wav");
-	sound_melee_swing = gi.soundindex("chick/chkatck3.wav");
-	sound_melee_hit = gi.soundindex("chick/chkatck4.wav");
-	sound_missile_reload = gi.soundindex("chick/chkatck5.wav");
-	sound_death1 = gi.soundindex("chick/chkdeth1.wav");
-	sound_death2 = gi.soundindex("chick/chkdeth2.wav");
-	sound_fall_down = gi.soundindex("chick/chkfall1.wav");
-	sound_idle1 = gi.soundindex("chick/chkidle1.wav");
-	sound_idle2 = gi.soundindex("chick/chkidle2.wav");
-	sound_pain1 = gi.soundindex("chick/chkpain1.wav");
-	sound_pain2 = gi.soundindex("chick/chkpain2.wav");
-	sound_pain3 = gi.soundindex("chick/chkpain3.wav");
-	sound_sight = gi.soundindex("chick/chksght1.wav");
-	sound_search = gi.soundindex("chick/chksrch1.wav");
+	sound_missile_prelaunch.assign("chick/chkatck1.wav");
+	sound_missile_launch.assign("chick/chkatck2.wav");
+	sound_melee_swing.assign("chick/chkatck3.wav");
+	sound_melee_hit.assign("chick/chkatck4.wav");
+	sound_missile_reload.assign("chick/chkatck5.wav");
+	sound_death1.assign("chick/chkdeth1.wav");
+	sound_death2.assign("chick/chkdeth2.wav");
+	sound_fall_down.assign("chick/chkfall1.wav");
+	sound_idle1.assign("chick/chkidle1.wav");
+	sound_idle2.assign("chick/chkidle2.wav");
+	sound_pain1.assign("chick/chkpain1.wav");
+	sound_pain2.assign("chick/chkpain2.wav");
+	sound_pain3.assign("chick/chkpain3.wav");
+	sound_sight.assign("chick/chksght1.wav");
+	sound_search.assign("chick/chksrch1.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

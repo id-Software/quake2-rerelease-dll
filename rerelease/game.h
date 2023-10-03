@@ -110,7 +110,7 @@ constexpr bit_t<n> bit_v = 1ull << n;
 
 // game.h -- game dll information visible to server
 // PARIL_NEW_API - value likely not used by any other Q2-esque engine in the wild
-constexpr int32_t GAME_API_VERSION = 2022;
+constexpr int32_t GAME_API_VERSION = 2023;
 constexpr int32_t CGAME_API_VERSION = 2022;
 
 // forward declarations
@@ -238,6 +238,7 @@ enum contents_t : uint32_t
 
 	// remaining contents are non-visible, and don't eat brushes
 
+    CONTENTS_NO_WATERJUMP = bit_v<13>, // [Paril-KEX] this brush cannot be waterjumped out of
     CONTENTS_PROJECTILECLIP = bit_v<14>, // [Paril-KEX] projectiles will collide with this
 
 	CONTENTS_AREAPORTAL = bit_v<15>,
@@ -504,6 +505,7 @@ struct pmove_t
     gvec4_t screen_blend;
     refdef_flags_t rdflags; // merged with rdflags from server
     bool jump_sound; // play jump sound
+    bool step_clip; // we clipped on top of an object from below
     float impact_delta; // impact delta, for falling damage
 };
 
@@ -1740,8 +1742,6 @@ enum sv_ent_flags_t : uint64_t {
 };
 MAKE_ENUM_BITFLAGS( sv_ent_flags_t );
 
-#include <bitset>
-
 static constexpr int Max_Armor_Types = 3;
 
 struct armorInfo_t {
@@ -1780,7 +1780,6 @@ struct sv_entity_t {
     char                        netname[ MAX_NETNAME ];
     int32_t                     inventory[ MAX_ITEMS ] = { 0 };
     armorInfo_t                 armor_info[ Max_Armor_Types ];
-   std::bitset<MAX_CLIENTS>    pickedup_list;
 };
 
 #ifndef GAME_INCLUDE
@@ -2005,9 +2004,10 @@ struct game_import_t
     void (*Draw_Bounds)(gvec3_cref_t mins, gvec3_cref_t maxs, const rgba_t &color, const float lifeTime, const bool depthTest);
     void (*Draw_Sphere)(gvec3_cref_t origin, const float radius, const rgba_t &color, const float lifeTime, const bool depthTest);
     void (*Draw_OrientedWorldText)(gvec3_cref_t origin, const char * text, const rgba_t &color, const float size, const float lifeTime, const bool depthTest);
-    void (*Draw_StaticWorldText )(gvec3_cref_t origin, gvec3_cref_t angles, const char * text, const rgba_t & color, const float size, const float lifeTime, const bool depthTest);
+    void (*Draw_StaticWorldText)(gvec3_cref_t origin, gvec3_cref_t angles, const char * text, const rgba_t & color, const float size, const float lifeTime, const bool depthTest);
     void (*Draw_Cylinder)(gvec3_cref_t origin, const float halfHeight, const float radius, const rgba_t &color, const float lifeTime, const bool depthTest);
     void (*Draw_Ray)(gvec3_cref_t origin, gvec3_cref_t direction, const float length, const float size, const rgba_t &color, const float lifeTime, const bool depthTest);
+    void (*Draw_Arrow)(gvec3_cref_t start, gvec3_cref_t end, const float size, const rgba_t & lineColor, const rgba_t & arrowColor, const float lifeTime, const bool depthTest);
 
     // scoreboard
     void (*ReportMatchDetails_Multicast)(bool is_end);
@@ -2139,6 +2139,8 @@ struct game_export_t
     void    (*Bot_TriggerEdict)(edict_t * botEdict, edict_t * edict);
     void    (*Bot_UseItem)(edict_t * botEdict, const int32_t itemID);
     int32_t (*Bot_GetItemID)(const char * classname);
+    void    (*Edict_ForceLookAtPoint)(edict_t * edict, gvec3_cref_t point);
+    bool    (*Bot_PickedUpItem )(edict_t * botEdict, edict_t * itemEdict);
 
     // [KEX]: Checks entity visibility instancing
     bool (*Entity_IsVisibleToPlayer)(edict_t* ent, edict_t* player);
@@ -2167,7 +2169,7 @@ struct cg_server_data_t
     std::array<int16_t, MAX_ITEMS> inventory;
 };
 
-constexpr int32_t PROTOCOL_VERSION_3XX = 34;
+constexpr int32_t PROTOCOL_VERSION_3XX   = 34;
 constexpr int32_t PROTOCOL_VERSION_DEMOS = 2022;
 constexpr int32_t PROTOCOL_VERSION       = 2023;
 
@@ -2260,7 +2262,7 @@ struct cgame_export_t
     int         apiversion;
 
     // the init/shutdown functions will be called between levels/connections
-    // (cgame does not run in menus)
+    // and when the client initially loads.
     void (*Init)();
     void (*Shutdown)();
 

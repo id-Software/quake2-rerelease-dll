@@ -248,9 +248,6 @@ void Item_UpdateState( edict_t * item ) {
 		}
 	}
 
-	// track who has picked us up so far...
-	item->sv.pickedup_list = item->item_picked_up_by;
-
 	const item_id_t itemID = item->item->id;
 	if ( itemID == IT_FLAG1 || itemID == IT_FLAG2 ) {
 		item->sv.ent_flags |= SVFL_IS_OBJECTIVE;

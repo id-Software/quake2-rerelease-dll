@@ -91,25 +91,25 @@ inline item_id_t FindSubstituteItem(edict_t *ent)
 		if (!itflags || (itflags & (IF_NOT_GIVEABLE | IF_TECH | IF_NOT_RANDOM)) || !it->pickup || !it->world_model)
 			continue;
 
-		itflags = GetSubstituteItemFlags(i);
-
 		// don't respawn spheres if they're dmflag disabled.
 		if (g_no_spheres->integer)
 		{
-			if (ent->item->id == IT_ITEM_SPHERE_VENGEANCE ||
-				ent->item->id == IT_ITEM_SPHERE_HUNTER ||
-				ent->item->id == IT_ITEM_SPHERE_DEFENDER)
+			if (i == IT_ITEM_SPHERE_VENGEANCE ||
+				i == IT_ITEM_SPHERE_HUNTER ||
+				i == IT_ITEM_SPHERE_DEFENDER)
 			{
 				continue;
 			}
 		}
 
-		if (g_no_nukes->integer && ent->item->id == IT_AMMO_NUKE)
+		if (g_no_nukes->integer && i == IT_AMMO_NUKE)
 			continue;
 
 		if (g_no_mines->integer &&
-			(ent->item->id == IT_AMMO_PROX || ent->item->id == IT_AMMO_TESLA || ent->item->id == IT_AMMO_TRAP))
+			(i == IT_AMMO_PROX || i == IT_AMMO_TESLA || i == IT_AMMO_TRAP || i == IT_WEAPON_PROXLAUNCHER))
 			continue;
+
+		itflags = GetSubstituteItemFlags(i);
 
 		if ((itflags & IF_TYPE_MASK) == (myflags & IF_TYPE_MASK))
 			possible_items[possible_item_count++] = i;

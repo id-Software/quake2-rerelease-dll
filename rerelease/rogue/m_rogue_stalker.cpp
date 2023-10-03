@@ -12,12 +12,12 @@ stalker
 #include "m_rogue_stalker.h"
 #include <float.h>
 
-static int sound_pain;
-static int sound_die;
-static int sound_sight;
-static int sound_punch_hit1;
-static int sound_punch_hit2;
-static int sound_idle;
+static cached_soundindex sound_pain;
+static cached_soundindex sound_die;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_punch_hit1;
+static cached_soundindex sound_punch_hit2;
+static cached_soundindex sound_idle;
 
 bool stalker_do_pounce(edict_t *self, const vec3_t &dest);
 void stalker_walk(edict_t *self);
@@ -979,12 +979,12 @@ void SP_monster_stalker(edict_t *self)
 		return;
 	}
 
-	sound_pain = gi.soundindex("stalker/pain.wav");
-	sound_die = gi.soundindex("stalker/death.wav");
-	sound_sight = gi.soundindex("stalker/sight.wav");
-	sound_punch_hit1 = gi.soundindex("stalker/melee1.wav");
-	sound_punch_hit2 = gi.soundindex("stalker/melee2.wav");
-	sound_idle = gi.soundindex("stalker/idle.wav");
+	sound_pain.assign("stalker/pain.wav");
+	sound_die.assign("stalker/death.wav");
+	sound_sight.assign("stalker/sight.wav");
+	sound_punch_hit1.assign("stalker/melee1.wav");
+	sound_punch_hit2.assign("stalker/melee2.wav");
+	sound_idle.assign("stalker/idle.wav");
 
 	// PMM - precache bolt2
 	gi.modelindex("models/objects/laser/tris.md2");

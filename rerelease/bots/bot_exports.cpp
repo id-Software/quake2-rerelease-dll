@@ -149,3 +149,40 @@ int32_t Bot_GetItemID( const char * classname ) {
 
 	return Item_Invalid;
 }
+
+/*
+================
+Edict_ForceLookAtPoint
+================
+*/
+void Edict_ForceLookAtPoint( edict_t * edict, gvec3_cref_t point ) {
+	vec3_t viewOrigin = edict->s.origin;
+	if ( edict->client != nullptr ) {
+		viewOrigin += edict->client->ps.viewoffset;
+	}
+
+	const vec3_t ideal = ( point - viewOrigin ).normalized();
+	
+	vec3_t viewAngles = vectoangles( ideal );
+	if ( viewAngles.x < -180.0f ) {
+		viewAngles.x = anglemod( viewAngles.x + 360.0f );
+	}
+	
+	if ( edict->client != nullptr ) {
+		edict->client->ps.pmove.delta_angles = ( viewAngles - edict->client->resp.cmd_angles );
+		edict->client->ps.viewangles = {};
+		edict->client->v_angle = {};
+		edict->s.angles = {};
+	}
+}
+
+/*
+================
+Bot_PickedUpItem
+
+Check if the given bot has picked up the given item or not.
+================
+*/
+bool Bot_PickedUpItem( edict_t * bot, edict_t * item ) {
+	return item->item_picked_up_by[ ( bot->s.number - 1 ) ];
+}

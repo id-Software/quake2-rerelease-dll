@@ -12,18 +12,18 @@ GLADIATOR
 #include "m_gladiator.h"
 #include "m_flash.h"
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_die;
-static int sound_die2;
-static int sound_gun;
-static int sound_gunb;
-static int sound_cleaver_swing;
-static int sound_cleaver_hit;
-static int sound_cleaver_miss;
-static int sound_idle;
-static int sound_search;
-static int sound_sight;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_die;
+static cached_soundindex sound_die2;
+static cached_soundindex sound_gun;
+static cached_soundindex sound_gunb;
+static cached_soundindex sound_cleaver_swing;
+static cached_soundindex sound_cleaver_hit;
+static cached_soundindex sound_cleaver_miss;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_search;
+static cached_soundindex sound_sight;
 
 MONSTERINFO_IDLE(gladiator_idle) (edict_t *self) -> void
 {
@@ -397,16 +397,16 @@ void SP_monster_gladiator(edict_t *self)
 		return;
 	}
 
-	sound_pain1 = gi.soundindex("gladiator/pain.wav");
-	sound_pain2 = gi.soundindex("gladiator/gldpain2.wav");
-	sound_die = gi.soundindex("gladiator/glddeth2.wav");
-	sound_die2 = gi.soundindex("gladiator/death.wav");
-	sound_cleaver_swing = gi.soundindex("gladiator/melee1.wav");
-	sound_cleaver_hit = gi.soundindex("gladiator/melee2.wav");
-	sound_cleaver_miss = gi.soundindex("gladiator/melee3.wav");
-	sound_idle = gi.soundindex("gladiator/gldidle1.wav");
-	sound_search = gi.soundindex("gladiator/gldsrch1.wav");
-	sound_sight = gi.soundindex("gladiator/sight.wav");
+	sound_pain1.assign("gladiator/pain.wav");
+	sound_pain2.assign("gladiator/gldpain2.wav");
+	sound_die.assign("gladiator/glddeth2.wav");
+	sound_die2.assign("gladiator/death.wav");
+	sound_cleaver_swing.assign("gladiator/melee1.wav");
+	sound_cleaver_hit.assign("gladiator/melee2.wav");
+	sound_cleaver_miss.assign("gladiator/melee3.wav");
+	sound_idle.assign("gladiator/gldidle1.wav");
+	sound_search.assign("gladiator/gldsrch1.wav");
+	sound_sight.assign("gladiator/sight.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
@@ -421,7 +421,7 @@ void SP_monster_gladiator(edict_t *self)
 	// RAFAEL
 	if (strcmp(self->classname, "monster_gladb") == 0)
 	{
-		sound_gunb = gi.soundindex("weapons/plasshot.wav");
+		sound_gunb.assign("weapons/plasshot.wav");
 
 		self->health = 250 * st.health_multiplier;
 		self->mass = 350;
@@ -440,7 +440,7 @@ void SP_monster_gladiator(edict_t *self)
 	else
 	{
 		// RAFAEL
-		sound_gun = gi.soundindex("gladiator/railgun.wav");
+		sound_gun.assign("gladiator/railgun.wav");
 
 		self->health = 400 * st.health_multiplier;
 		self->mass = 400;

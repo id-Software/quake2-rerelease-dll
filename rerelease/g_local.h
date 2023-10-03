@@ -1177,6 +1177,7 @@ struct level_locals_t
 	bool		respawn_intermission; // only set once for respawning players
 
 	int32_t pic_health;
+	int32_t pic_ping;
 
 	int32_t total_secrets;
 	int32_t found_secrets;
@@ -1256,6 +1257,8 @@ struct shadow_light_temp_t
 	shadow_light_data_t data;
 	const char	*lightstyletarget = nullptr;
 };
+
+void G_LoadShadowLights();
 
 #include <unordered_set>
 
@@ -1341,6 +1344,82 @@ DEFINE_DATA_FUNC(moveinfo_blocked, MOVEINFO_BLOCKED, void, edict_t *self, edict_
 #define MOVEINFO_BLOCKED(n) \
 	SAVE_DATA_FUNC(n, MOVEINFO_BLOCKED, void, edict_t *self, edict_t *other)
 
+// a struct that can store type-safe allocations
+// of a fixed amount of data. it self-destructs when
+// re-assigned. TODO: because edicts are still kind of
+// managed like C memory, the destructor may not be
+// called for a freed entity if this is stored as a member.
+template<typename T, int32_t tag>
+struct savable_allocated_memory_t
+{
+	T		*ptr;
+	size_t	count;
+
+	constexpr savable_allocated_memory_t(T *ptr, size_t count) :
+		ptr(ptr),
+		count(count)
+	{
+	}
+
+	inline ~savable_allocated_memory_t()
+	{
+		release();
+	}
+
+	// no copy
+	constexpr savable_allocated_memory_t(const savable_allocated_memory_t &) = delete;
+	constexpr savable_allocated_memory_t &operator=(const savable_allocated_memory_t &) = delete;
+
+	// free move
+	constexpr savable_allocated_memory_t(savable_allocated_memory_t &&move)
+	{
+		ptr = move.ptr;
+		count = move.count;
+
+		move.ptr = nullptr;
+		move.count = 0;
+	}
+
+	constexpr savable_allocated_memory_t &operator=(savable_allocated_memory_t &&move)
+	{
+		ptr = move.ptr;
+		count = move.count;
+
+		move.ptr = nullptr;
+		move.count = 0;
+
+		return *this;
+	}
+
+	inline void release()
+	{
+		if (ptr)
+		{
+			gi.TagFree(ptr);
+			count = 0;
+			ptr = nullptr;
+		}
+	}
+
+	constexpr explicit operator T *() { return ptr; }
+	constexpr explicit operator const T *() const { return ptr; }
+
+	constexpr std::add_lvalue_reference_t<T> operator[](const size_t index) { return ptr[index]; }
+	constexpr const std::add_lvalue_reference_t<T> operator[](const size_t index) const { return ptr[index]; }
+
+	constexpr size_t size() const { return count * sizeof(T); }
+	constexpr operator bool() const { return !!ptr; }
+};
+
+template<typename T, int32_t tag>
+inline savable_allocated_memory_t<T, tag> make_savable_memory(size_t count)
+{
+	if (!count)
+		return { nullptr, 0 };
+
+	return { reinterpret_cast<T *>(gi.TagMalloc(sizeof(T) * count, tag)), count };
+}
+
 struct moveinfo_t
 {
 	// fixed data
@@ -1372,6 +1451,13 @@ struct moveinfo_t
 	float		 decel_distance;
 	save_moveinfo_endfunc_t endfunc;
 	save_moveinfo_blocked_t blocked;
+
+	// [Paril-KEX] new accel state
+	vec3_t  curve_ref;
+	savable_allocated_memory_t<float, TAG_LEVEL> curve_positions;
+	size_t	curve_frame;
+	uint8_t	subframe, num_subframes;
+	size_t  num_frames_done;
 };
 
 struct mframe_t
@@ -1692,9 +1778,6 @@ extern game_locals_t  game;
 extern level_locals_t level;
 extern game_export_t  globals;
 extern spawn_temp_t	  st;
-
-extern int sm_meat_index;
-extern int snd_fry;
 
 extern edict_t *g_edicts;
 
@@ -2223,7 +2306,8 @@ void HuntTarget(edict_t *self, bool animate_state = true);
 bool infront(edict_t *self, edict_t *other);
 bool visible(edict_t *self, edict_t *other, bool through_glass = true);
 bool FacingIdeal(edict_t *self);
-
+// [Paril-KEX] generic function
+bool M_CheckAttack_Base(edict_t *self, float stand_ground_chance, float melee_chance, float near_chance, float mid_chance, float far_chance, float strafe_scalar);
 
 //
 // g_weapon.c
@@ -2731,6 +2815,9 @@ constexpr gtime_t LADDER_SOUND_TIME = 300_ms;
 // time after damage that we can't respawn on a player for
 constexpr gtime_t COOP_DAMAGE_RESPAWN_TIME = 2000_ms;
 
+// time after firing that we can't respawn on a player for
+constexpr gtime_t COOP_DAMAGE_FIRING_TIME = 2500_ms;
+
 // this structure is cleared on each PutClientInServer(),
 // except for 'client->pers'
 struct gclient_t
@@ -2917,6 +3004,8 @@ struct gclient_t
 	height_fog_t heightfog;
 
 	gtime_t	 last_attacker_time;
+	// saved - for coop; last time we were in a firing state
+	gtime_t	 last_firing_time;
 };
 
 // ==========================================
@@ -3498,3 +3587,63 @@ inline void pierce_args_t::restore()
 
 	num_pierced = 0;
 }
+
+// [Paril-KEX] these are to fix a legacy bug with cached indices
+// in save games. these can *only* be static/globals!
+template<auto T>
+struct cached_assetindex
+{
+	static cached_assetindex<T> *head;
+
+	const char				*name;
+	int32_t					index = 0;
+	cached_assetindex		*next = nullptr;
+
+	inline cached_assetindex()
+	{
+		next = head;
+		cached_assetindex<T>::head = this;
+	}
+	constexpr operator int32_t() const { return index; }
+
+	// assigned from spawn functions
+	inline void assign(const char *name) { this->name = name; index = (gi.*T)(name); }
+	// cleared before SpawnEntities
+	constexpr void clear() { index = 0; }
+	// re-find the index for the given cached entry, if we were cached
+	// by the regular map load
+	inline void reset() { if (index) index = (gi.*T)(this->name); }
+
+	static void reset_all()
+	{
+		auto asset = head;
+
+		while (asset)
+		{
+			asset->reset();
+			asset = asset->next;
+		}
+	}
+
+	static void clear_all()
+	{
+		auto asset = head;
+
+		while (asset)
+		{
+			asset->clear();
+			asset = asset->next;
+		}
+	}
+};
+
+using cached_soundindex = cached_assetindex<&local_game_import_t::soundindex>;
+using cached_modelindex = cached_assetindex<&local_game_import_t::modelindex>;
+using cached_imageindex = cached_assetindex<&local_game_import_t::imageindex>;
+
+template<> cached_soundindex *cached_soundindex::head;
+template<> cached_modelindex *cached_modelindex::head;
+template<> cached_imageindex *cached_imageindex::head;
+
+extern cached_modelindex sm_meat_index;
+extern cached_soundindex snd_fry;

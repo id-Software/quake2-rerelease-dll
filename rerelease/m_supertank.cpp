@@ -16,14 +16,14 @@ constexpr spawnflags_t SPAWNFLAG_SUPERTANK_POWERSHIELD = 8_spawnflag;
 // n64
 constexpr spawnflags_t SPAWNFLAG_SUPERTANK_LONG_DEATH = 16_spawnflag;
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_pain3;
-static int sound_death;
-static int sound_search1;
-static int sound_search2;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_pain3;
+static cached_soundindex sound_death;
+static cached_soundindex sound_search1;
+static cached_soundindex sound_search2;
 
-static int tread_sound;
+static cached_soundindex tread_sound;
 
 void TreadSound(edict_t *self)
 {
@@ -640,14 +640,14 @@ void SP_monster_supertank(edict_t *self)
 		return;
 	}
 
-	sound_pain1 = gi.soundindex("bosstank/btkpain1.wav");
-	sound_pain2 = gi.soundindex("bosstank/btkpain2.wav");
-	sound_pain3 = gi.soundindex("bosstank/btkpain3.wav");
-	sound_death = gi.soundindex("bosstank/btkdeth1.wav");
-	sound_search1 = gi.soundindex("bosstank/btkunqv1.wav");
-	sound_search2 = gi.soundindex("bosstank/btkunqv2.wav");
+	sound_pain1.assign("bosstank/btkpain1.wav");
+	sound_pain2.assign("bosstank/btkpain2.wav");
+	sound_pain3.assign("bosstank/btkpain3.wav");
+	sound_death.assign("bosstank/btkdeth1.wav");
+	sound_search1.assign("bosstank/btkunqv1.wav");
+	sound_search2.assign("bosstank/btkunqv2.wav");
 
-	tread_sound = gi.soundindex("bosstank/btkengn1.wav");
+	tread_sound.assign("bosstank/btkengn1.wav");
 
 	gi.soundindex("gunner/gunatck3.wav");
 	gi.soundindex("infantry/infatck1.wav");

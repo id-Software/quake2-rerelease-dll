@@ -13,19 +13,19 @@ mutant
 
 constexpr spawnflags_t SPAWNFLAG_MUTANT_NOJUMPING = 8_spawnflag;
 
-static int sound_swing;
-static int sound_hit;
-static int sound_hit2;
-static int sound_death;
-static int sound_idle;
-static int sound_pain1;
-static int sound_pain2;
-static int sound_sight;
-static int sound_search;
-static int sound_step1;
-static int sound_step2;
-static int sound_step3;
-static int sound_thud;
+static cached_soundindex sound_swing;
+static cached_soundindex sound_hit;
+static cached_soundindex sound_hit2;
+static cached_soundindex sound_death;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_search;
+static cached_soundindex sound_step1;
+static cached_soundindex sound_step2;
+static cached_soundindex sound_step3;
+static cached_soundindex sound_thud;
 
 //
 // SOUNDS
@@ -286,7 +286,8 @@ TOUCH(mutant_jump_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool
 
 	if (self->style == 1 && other->takedamage)
 	{
-		if (self->velocity.length() > 400)
+		// [Paril-KEX] only if we're actually moving fast enough to hurt
+		if (self->velocity.length() > 30)
 		{
 			vec3_t point;
 			vec3_t normal;
@@ -321,8 +322,8 @@ void mutant_jump_takeoff(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 	AngleVectors(self->s.angles, forward, nullptr, nullptr);
 	self->s.origin[2] += 1;
-	self->velocity = forward * 400;
-	self->velocity[2] = 150;
+	self->velocity = forward * 425;
+	self->velocity[2] = 160;
 	self->groundentity = nullptr;
 	self->monsterinfo.aiflags |= AI_DUCKED;
 	self->monsterinfo.attack_finished = level.time + 3_sec;
@@ -506,15 +507,6 @@ MONSTERINFO_SETSKIN(mutant_setskin) (edict_t *self) -> void
 // DEATH
 //
 
-// FIXME: expanded dead box a bit, but rotation of dead body
-// means it'll never always fit unless you move the whole box based on angle
-void mutant_dead(edict_t *self)
-{
-	self->mins = { 0, -48, -24 };
-	self->maxs = { 64, 16, -8 };
-	monster_dead(self);
-}
-
 void mutant_shrink(edict_t *self)
 {
 	self->maxs[2] = 0;
@@ -522,32 +514,43 @@ void mutant_shrink(edict_t *self)
 	gi.linkentity(self);
 }
 
+// [Paril-KEX]
+static void ai_move_slide_right(edict_t *self, float dist)
+{
+	M_walkmove(self, self->s.angles[YAW] + 90, dist);
+}
+
+static void ai_move_slide_left(edict_t *self, float dist)
+{
+	M_walkmove(self, self->s.angles[YAW] - 90, dist);
+}
+
 mframe_t mutant_frames_death1[] = {
-	{ ai_move },
-	{ ai_move },
-	{ ai_move },
-	{ ai_move },
-	{ ai_move },
-	{ ai_move, 0, mutant_shrink },
-	{ ai_move },
-	{ ai_move },
-	{ ai_move }
+	{ ai_move_slide_right },
+	{ ai_move_slide_right },
+	{ ai_move_slide_right },
+	{ ai_move_slide_right, 2 },
+	{ ai_move_slide_right, 5 },
+	{ ai_move_slide_right, 7, mutant_shrink },
+	{ ai_move_slide_right, 6 },
+	{ ai_move_slide_right, 2 },
+	{ ai_move_slide_right }
 };
-MMOVE_T(mutant_move_death1) = { FRAME_death101, FRAME_death109, mutant_frames_death1, mutant_dead };
+MMOVE_T(mutant_move_death1) = { FRAME_death101, FRAME_death109, mutant_frames_death1, monster_dead };
 
 mframe_t mutant_frames_death2[] = {
-	{ ai_move },
-	{ ai_move },
-	{ ai_move },
-	{ ai_move },
-	{ ai_move, 0, mutant_shrink },
-	{ ai_move },
-	{ ai_move },
-	{ ai_move },
-	{ ai_move },
-	{ ai_move }
+	{ ai_move_slide_left },
+	{ ai_move_slide_left },
+	{ ai_move_slide_left },
+	{ ai_move_slide_left, 1 },
+	{ ai_move_slide_left, 3, mutant_shrink },
+	{ ai_move_slide_left, 6 },
+	{ ai_move_slide_left, 8 },
+	{ ai_move_slide_left, 5 },
+	{ ai_move_slide_left, 2 },
+	{ ai_move_slide_left }
 };
-MMOVE_T(mutant_move_death2) = { FRAME_death201, FRAME_death210, mutant_frames_death2, mutant_dead };
+MMOVE_T(mutant_move_death2) = { FRAME_death201, FRAME_death210, mutant_frames_death2, monster_dead };
 
 DIE(mutant_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t &point, const mod_t &mod) -> void
 {
@@ -676,19 +679,19 @@ void SP_monster_mutant(edict_t *self)
 		return;
 	}
 
-	sound_swing = gi.soundindex("mutant/mutatck1.wav");
-	sound_hit = gi.soundindex("mutant/mutatck2.wav");
-	sound_hit2 = gi.soundindex("mutant/mutatck3.wav");
-	sound_death = gi.soundindex("mutant/mutdeth1.wav");
-	sound_idle = gi.soundindex("mutant/mutidle1.wav");
-	sound_pain1 = gi.soundindex("mutant/mutpain1.wav");
-	sound_pain2 = gi.soundindex("mutant/mutpain2.wav");
-	sound_sight = gi.soundindex("mutant/mutsght1.wav");
-	sound_search = gi.soundindex("mutant/mutsrch1.wav");
-	sound_step1 = gi.soundindex("mutant/step1.wav");
-	sound_step2 = gi.soundindex("mutant/step2.wav");
-	sound_step3 = gi.soundindex("mutant/step3.wav");
-	sound_thud = gi.soundindex("mutant/thud1.wav");
+	sound_swing.assign("mutant/mutatck1.wav");
+	sound_hit.assign("mutant/mutatck2.wav");
+	sound_hit2.assign("mutant/mutatck3.wav");
+	sound_death.assign("mutant/mutdeth1.wav");
+	sound_idle.assign("mutant/mutidle1.wav");
+	sound_pain1.assign("mutant/mutpain1.wav");
+	sound_pain2.assign("mutant/mutpain2.wav");
+	sound_sight.assign("mutant/mutsght1.wav");
+	sound_search.assign("mutant/mutsrch1.wav");
+	sound_step1.assign("mutant/step1.wav");
+	sound_step2.assign("mutant/step2.wav");
+	sound_step3.assign("mutant/step3.wav");
+	sound_thud.assign("mutant/thud1.wav");
 
 	self->monsterinfo.aiflags |= AI_STINKY;
 

@@ -27,7 +27,7 @@ bool G_CheckInfiniteAmmo(gitem_t *item)
 	if (item->flags & IF_NO_INFINITE_AMMO)
 		return false;
 
-	return g_infinite_ammo->integer || g_instagib->integer;
+	return g_infinite_ammo->integer || (deathmatch->integer && g_instagib->integer);
 }
 
 //========
@@ -456,7 +456,7 @@ void G_RemoveAmmo(edict_t *ent)
 // [Paril-KEX] get time per animation frame
 inline gtime_t Weapon_AnimationTime(edict_t *ent)
 {
-	if (g_quick_weapon_switch->integer && (gi.tick_rate == 20 || gi.tick_rate == 40) &&
+	if (g_quick_weapon_switch->integer && (gi.tick_rate >= 20) &&
 		(ent->client->weaponstate == WEAPON_ACTIVATING || ent->client->weaponstate == WEAPON_DROPPING))
 		ent->client->ps.gunrate = 20;
 	else
@@ -635,6 +635,10 @@ Drop_Weapon
 */
 void Drop_Weapon(edict_t *ent, gitem_t *item)
 {
+	// [Paril-KEX]
+	if (deathmatch->integer && g_dm_weapons_stay->integer)
+		return;
+
 	item_id_t index = item->id;
 	// see if we're already using it
 	if (((item == ent->client->pers.weapon) || (item == ent->client->newweapon)) && (ent->client->pers.inventory[index] == 1))
@@ -817,6 +821,7 @@ inline weapon_ready_state_t Weapon_HandleReady(edict_t *ent, int FRAME_FIRE_FIRS
 				(ent->client->pers.inventory[ent->client->pers.weapon->ammo] >= ent->client->pers.weapon->quantity))
 			{
 				ent->client->weaponstate = WEAPON_FIRING;
+				ent->client->last_firing_time = level.time + COOP_DAMAGE_FIRING_TIME;
 				return READY_FIRING;
 			}
 			else
@@ -928,6 +933,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, 
 
 	if (ent->client->weaponstate == WEAPON_FIRING && ent->client->weapon_think_time <= level.time)
 	{
+		ent->client->last_firing_time = level.time + COOP_DAMAGE_FIRING_TIME;
 		ent->client->ps.gunframe++;
 		Weapon_HandleFiring(ent, FRAME_IDLE_FIRST, [&]() {
 			for (int n = 0; fire_frames[n]; n++)
@@ -963,6 +969,7 @@ void Weapon_Repeating(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST
 
 	if (ent->client->weaponstate == WEAPON_FIRING && ent->client->weapon_think_time <= level.time)
 	{
+		ent->client->last_firing_time = level.time + COOP_DAMAGE_FIRING_TIME;
 		Weapon_HandleFiring(ent, FRAME_IDLE_FIRST, [&]() { fire(ent); });
 
 		if (ent->client->weapon_thunk)
@@ -1092,6 +1099,8 @@ void Throw_Generic(edict_t *ent, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int F
 
 	if (ent->client->weaponstate == WEAPON_FIRING)
 	{
+		ent->client->last_firing_time = level.time + COOP_DAMAGE_FIRING_TIME;
+
 		if (ent->client->weapon_think_time <= level.time)
 		{
 			if (prime_sound && ent->client->ps.gunframe == FRAME_PRIME_SOUND)
@@ -1108,12 +1117,10 @@ void Throw_Generic(edict_t *ent, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int F
 			if (ent->client->ps.gunframe == FRAME_THROW_HOLD)
 			{
 				if (!ent->client->grenade_time && !ent->client->grenade_finished_time)
-				{
 					ent->client->grenade_time = level.time + GRENADE_TIMER + 200_ms;
 
-					if (primed_sound)
-						ent->client->weapon_sound = gi.soundindex(primed_sound);
-				}
+				if (primed_sound && !ent->client->grenade_blew_up)
+					ent->client->weapon_sound = gi.soundindex(primed_sound);
 
 				// they waited too long, detonate it in their hand
 				if (EXPLODE && !ent->client->grenade_blew_up && level.time >= ent->client->grenade_time)
@@ -1775,8 +1782,19 @@ RAILGUN
 
 void weapon_railgun_fire(edict_t *ent)
 {
-	int damage = 100;
-	int kick = 200;
+	int damage, kick;
+	
+	// normal damage too extreme for DM
+	if (deathmatch->integer)
+	{
+		damage = 100;
+		kick = 200;
+	}
+	else
+	{
+		damage = 125;
+		kick = 225;
+	}
 
 	if (is_quad)
 	{

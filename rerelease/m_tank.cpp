@@ -16,14 +16,14 @@ void tank_refire_rocket(edict_t *self);
 void tank_doattack_rocket(edict_t *self);
 void tank_reattack_blaster(edict_t *self);
 
-static int sound_thud;
-static int sound_pain, sound_pain2;
-static int sound_idle;
-static int sound_die;
-static int sound_step;
-static int sound_sight;
-static int sound_windup;
-static int sound_strike;
+static cached_soundindex sound_thud;
+static cached_soundindex sound_pain, sound_pain2;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_die;
+static cached_soundindex sound_step;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_windup;
+static cached_soundindex sound_strike;
 
 constexpr spawnflags_t SPAWNFLAG_TANK_COMMANDER_GUARDIAN = 8_spawnflag;
 constexpr spawnflags_t SPAWNFLAG_TANK_COMMANDER_HEAT_SEEKING = 16_spawnflag;
@@ -612,7 +612,9 @@ void tank_reattack_blaster(edict_t *self)
 void tank_poststrike(edict_t *self)
 {
 	self->enemy = nullptr;
-	tank_run(self);
+	// [Paril-KEX]
+	self->monsterinfo.pausetime = HOLD_FOREVER;
+	self->monsterinfo.stand(self);
 }
 
 mframe_t tank_frames_attack_strike[] = {
@@ -1041,13 +1043,13 @@ void SP_monster_tank(edict_t *self)
 	gi.modelindex("models/monsters/tank/gibs/foot.md2");
 	gi.modelindex("models/monsters/tank/gibs/thigh.md2");
 
-	sound_thud = gi.soundindex("tank/tnkdeth2.wav");
-	sound_idle = gi.soundindex("tank/tnkidle1.wav");
-	sound_die = gi.soundindex("tank/death.wav");
-	sound_step = gi.soundindex("tank/step.wav");
-	sound_windup = gi.soundindex("tank/tnkatck4.wav");
-	sound_strike = gi.soundindex("tank/tnkatck5.wav");
-	sound_sight = gi.soundindex("tank/sight1.wav");
+	sound_thud.assign("tank/tnkdeth2.wav");
+	sound_idle.assign("tank/tnkidle1.wav");
+	sound_die.assign("tank/death.wav");
+	sound_step.assign("tank/step.wav");
+	sound_windup.assign("tank/tnkatck4.wav");
+	sound_strike.assign("tank/tnkatck5.wav");
+	sound_sight.assign("tank/sight1.wav");
 
 	gi.soundindex("tank/tnkatck1.wav");
 	gi.soundindex("tank/tnkatk2a.wav");
@@ -1062,13 +1064,13 @@ void SP_monster_tank(edict_t *self)
 		self->health = 1000 * st.health_multiplier;
 		self->gib_health = -225;
 		self->count = 1;
-		sound_pain2 = gi.soundindex("tank/pain.wav");
+		sound_pain2.assign("tank/pain.wav");
 	}
 	else
 	{
 		self->health = 750 * st.health_multiplier;
 		self->gib_health = -200;
-		sound_pain = gi.soundindex("tank/tnkpain2.wav");
+		sound_pain.assign("tank/tnkpain2.wav");
 	}
 
 	self->monsterinfo.scale = MODEL_SCALE;

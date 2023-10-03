@@ -450,13 +450,6 @@ retry:
 
 		if (!obstacle->inuse)
 			goto retry;
-
-		// the move failed, bump all nextthink times and back out moves
-		for (mv = ent; mv; mv = mv->teamchain)
-		{
-			if (mv->nextthink > 0_ms)
-				mv->nextthink += FRAME_TIME_S;
-		}
 	}
 	else
 	{
@@ -849,7 +842,11 @@ void SV_Physics_Step(edict_t *ent)
 		ent->gravity = 1.0;
 		// ========
 
-		G_TouchTriggers(ent);
+		// [Paril-KEX] this is something N64 does to avoid doors opening
+		// at the start of a level, which triggers some monsters to spawn.
+		if (!level.is_n64 || level.time > FRAME_TIME_S)
+			G_TouchTriggers(ent);
+
 		if (!ent->inuse)
 			return;
 

@@ -11,14 +11,14 @@ FLIPPER
 #include "g_local.h"
 #include "m_flipper.h"
 
-static int sound_chomp;
-static int sound_attack;
-static int sound_pain1;
-static int sound_pain2;
-static int sound_death;
-static int sound_idle;
-static int sound_search;
-static int sound_sight;
+static cached_soundindex sound_chomp;
+static cached_soundindex sound_attack;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_death;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_search;
+static cached_soundindex sound_sight;
 
 mframe_t flipper_frames_stand[] = {
 	{ ai_stand }
@@ -343,14 +343,14 @@ void SP_monster_flipper(edict_t *self)
 		return;
 	}
 
-	sound_pain1 = gi.soundindex("flipper/flppain1.wav");
-	sound_pain2 = gi.soundindex("flipper/flppain2.wav");
-	sound_death = gi.soundindex("flipper/flpdeth1.wav");
-	sound_chomp = gi.soundindex("flipper/flpatck1.wav");
-	sound_attack = gi.soundindex("flipper/flpatck2.wav");
-	sound_idle = gi.soundindex("flipper/flpidle1.wav");
-	sound_search = gi.soundindex("flipper/flpsrch1.wav");
-	sound_sight = gi.soundindex("flipper/flpsght1.wav");
+	sound_pain1.assign("flipper/flppain1.wav");
+	sound_pain2.assign("flipper/flppain2.wav");
+	sound_death.assign("flipper/flpdeth1.wav");
+	sound_chomp.assign("flipper/flpatck1.wav");
+	sound_attack.assign("flipper/flpatck2.wav");
+	sound_idle.assign("flipper/flpidle1.wav");
+	sound_search.assign("flipper/flpsrch1.wav");
+	sound_sight.assign("flipper/flpsght1.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

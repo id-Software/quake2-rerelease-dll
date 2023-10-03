@@ -8,7 +8,7 @@
 
 // defines
 
-constexpr spawnflags_t SPAWNFLAG_DBALL_GOAL_TEAM1 = 0x0001_spawnflag;
+[[maybe_unused]] constexpr spawnflags_t SPAWNFLAG_DBALL_GOAL_TEAM1 = 0x0001_spawnflag;
 // unused; assumed by not being team1
 // constexpr uint32_t SPAWNFLAG_DBALL_GOAL_TEAM2	= 0x0002;
 

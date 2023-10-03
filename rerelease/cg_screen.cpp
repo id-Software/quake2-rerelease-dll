@@ -1050,7 +1050,7 @@ static void CG_ExecuteLayoutString (const char *s, vrect_t hud_vrect, vrect_t hu
                 width = 3;
                 value = ps->stats[STAT_AMMO];
 
-                int32_t min_ammo = cgi.CL_GetWarnAmmoCount(ps->stats[STAT_ACTIVE_WHEEL_WEAPON]);
+                int32_t min_ammo = cgi.CL_GetWarnAmmoCount(ps->stats[STAT_ACTIVE_WEAPON]);
 
                 if (!min_ammo)
                     min_ammo = 5; // back compat
@@ -1702,7 +1702,6 @@ static void CG_DrawInventory(const player_state_t *ps, const std::array<int16_t,
         else
         {
             const char *string = G_Fmt("{}", inventory[item]).data();
-            vec2_t strSz = cgi.SCR_MeasureFontString(string, scale);
             cgi.SCR_DrawFontString(string, x + (216 * scale) - (16 * scale), y - (font_y_offset * scale), scale, (item == selected) ? alt_color : rgba_white, true, text_align_t::RIGHT);
 
             string = cgi.Localize(cgi.get_configstring(CS_ITEMS + item), nullptr, 0);

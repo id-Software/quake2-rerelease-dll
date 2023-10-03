@@ -447,8 +447,13 @@ void G_TouchTriggers(edict_t *ent)
 // to see if we need to collide against them
 void G_TouchProjectiles(edict_t *ent, vec3_t previous_origin)
 {
+	struct skipped_projectile
+	{
+		edict_t		*projectile;
+		int32_t		spawn_count;
+	};
 	// a bit ugly, but we'll store projectiles we are ignoring here.
-	static std::vector<edict_t *> skipped;
+	static std::vector<skipped_projectile> skipped;
 
 	while (true)
 	{
@@ -462,7 +467,7 @@ void G_TouchProjectiles(edict_t *ent, vec3_t previous_origin)
 		// always skip this projectile since certain conditions may cause the projectile
 		// to not disappear immediately
 		tr.ent->svflags &= ~SVF_PROJECTILE;
-		skipped.push_back(tr.ent);
+		skipped.push_back({ tr.ent, tr.ent->spawn_count });
 
 		// if we're both players and it's coop, allow the projectile to "pass" through
 		if (ent->client && tr.ent->owner && tr.ent->owner->client && !G_ShouldPlayersCollide(true))
@@ -472,7 +477,8 @@ void G_TouchProjectiles(edict_t *ent, vec3_t previous_origin)
 	}
 
 	for (auto &skip : skipped)
-		skip->svflags |= SVF_PROJECTILE;
+		if (skip.projectile->inuse && skip.projectile->spawn_count == skip.spawn_count)
+			skip.projectile->svflags |= SVF_PROJECTILE;
 
 	skipped.clear();
 }
@@ -526,7 +532,7 @@ bool KillBox(edict_t *ent, bool from_spawning, mod_id_t mod, bool bsp_clipping)
 
 		if (hit == ent)
 			continue;
-		else if (!hit->inuse || !hit->takedamage || !hit->solid || hit->solid == SOLID_TRIGGER)
+		else if (!hit->inuse || !hit->takedamage || !hit->solid || hit->solid == SOLID_TRIGGER || hit->solid == SOLID_BSP)
 			continue;
 		else if (hit->client && !(mask & CONTENTS_PLAYER))
 			continue;
@@ -537,6 +543,16 @@ bool KillBox(edict_t *ent, bool from_spawning, mod_id_t mod, bool bsp_clipping)
 
 			if (clip.fraction == 1.0f)
 				continue;
+		}
+
+		// [Paril-KEX] don't allow telefragging of friends in coop.
+		// the player that is about to be telefragged will have collision
+		// disabled until another time.
+		if (ent->client && hit->client && coop->integer)
+		{
+			hit->clipmask &= ~CONTENTS_PLAYER;
+			ent->clipmask &= ~CONTENTS_PLAYER;
+			continue;
 		}
 
 		T_Damage(hit, ent, ent, vec3_origin, ent->s.origin, vec3_origin, 100000, 0, DAMAGE_NO_PROTECTION, mod);

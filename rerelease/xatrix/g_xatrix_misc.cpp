@@ -117,7 +117,7 @@ void SP_misc_transport(edict_t *ent)
 /*QUAKED misc_amb4 (1 0 0) (-16 -16 -16) (16 16 16)
 Mal's amb4 loop entity
 */
-static int amb4sound;
+static cached_soundindex amb4sound;
 
 THINK(amb4_think) (edict_t *ent) -> void
 {
@@ -129,7 +129,7 @@ void SP_misc_amb4(edict_t *ent)
 {
 	ent->think = amb4_think;
 	ent->nextthink = level.time + 1_sec;
-	amb4sound = gi.soundindex("world/amb4.wav");
+	amb4sound.assign("world/amb4.wav");
 	gi.linkentity(ent);
 }
 

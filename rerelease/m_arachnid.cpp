@@ -12,9 +12,9 @@ TANK
 #include "m_arachnid.h"
 #include "m_flash.h"
 
-static int sound_pain;
-static int sound_death;
-static int sound_sight;
+static cached_soundindex sound_pain;
+static cached_soundindex sound_death;
+static cached_soundindex sound_sight;
 
 MONSTERINFO_SIGHT(arachnid_sight) (edict_t *self, edict_t *other) -> void
 {
@@ -51,7 +51,7 @@ MONSTERINFO_STAND(arachnid_stand) (edict_t *self) -> void
 // walk
 //
 
-static int sound_step;
+static cached_soundindex sound_step;
 
 void arachnid_footstep(edict_t *self)
 {
@@ -148,7 +148,7 @@ PAIN(arachnid_pain) (edict_t *self, edict_t *other, float kick, int damage, cons
 		M_SetAnimation(self, &arachnid_move_pain2);
 }
 
-static int sound_charge;
+static cached_soundindex sound_charge;
 
 void arachnid_charge_rail(edict_t *self)
 {
@@ -229,7 +229,7 @@ mframe_t arachnid_frames_attack_up1[] = {
 };
 MMOVE_T(arachnid_attack_up1) = { FRAME_rails_up1, FRAME_rails_up16, arachnid_frames_attack_up1, arachnid_run };
 
-static int sound_melee, sound_melee_hit;
+static cached_soundindex sound_melee, sound_melee_hit;
 
 void arachnid_melee_charge(edict_t *self)
 {
@@ -348,13 +348,13 @@ void SP_monster_arachnid(edict_t *self)
 		return;
 	}
 
-	sound_step = gi.soundindex("insane/insane11.wav");
-	sound_charge = gi.soundindex("gladiator/railgun.wav");
-	sound_melee = gi.soundindex("gladiator/melee3.wav");
-	sound_melee_hit = gi.soundindex("gladiator/melee2.wav");
-	sound_pain = gi.soundindex("arachnid/pain.wav");
-	sound_death = gi.soundindex("arachnid/death.wav");
-	sound_sight = gi.soundindex("arachnid/sight.wav");
+	sound_step.assign("insane/insane11.wav");
+	sound_charge.assign("gladiator/railgun.wav");
+	sound_melee.assign("gladiator/melee3.wav");
+	sound_melee_hit.assign("gladiator/melee2.wav");
+	sound_pain.assign("arachnid/pain.wav");
+	sound_death.assign("arachnid/death.wav");
+	sound_sight.assign("arachnid/sight.wav");
 
 	self->s.modelindex = gi.modelindex("models/monsters/arachnid/tris.md2");
 	self->mins = { -48, -48, -20 };

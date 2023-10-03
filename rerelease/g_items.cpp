@@ -137,6 +137,9 @@ THINK(DoRespawn) (edict_t *ent) -> void
 		else
 		{
 			// ZOID
+			ent->svflags |= SVF_NOCLIENT;
+			ent->solid = SOLID_NOT;
+			gi.linkentity(ent);
 
 			for (count = 0, ent = master; ent; ent = ent->chain, count++)
 				;
@@ -243,7 +246,7 @@ bool Pickup_Powerup(edict_t *ent, edict_t *other)
 
 	if (deathmatch->integer)
 	{
-		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED))
+		if (!(ent->spawnflags & SPAWNFLAG_ITEM_DROPPED) && !is_dropped_from_death)
 			SetRespawn(ent, gtime_t::from_sec(ent->item->quantity));
 	}
 
@@ -307,7 +310,7 @@ void G_CheckPowerArmor(edict_t *ent)
 	if (!ent->client->pers.inventory[IT_AMMO_CELLS])
 		has_enough_cells = false;
 	else if (ent->client->pers.autoshield >= AUTO_SHIELD_AUTO)
-		has_enough_cells = !(ent->flags & FL_WANTS_POWER_ARMOR) || ent->client->pers.inventory[IT_AMMO_CELLS] > ent->client->pers.autoshield;
+		has_enough_cells = (ent->flags & FL_WANTS_POWER_ARMOR) && ent->client->pers.inventory[IT_AMMO_CELLS] > ent->client->pers.autoshield;
 	else
 		has_enough_cells = true;
 
@@ -612,6 +615,10 @@ bool Pickup_Ammo(edict_t *ent, edict_t *other)
 
 void Drop_Ammo(edict_t *ent, gitem_t *item)
 {
+	// [Paril-KEX]
+	if (G_CheckInfiniteAmmo(item))
+		return;
+
 	item_id_t index = item->id;
 	edict_t *dropped = Drop_Item(ent, item);
 	dropped->spawnflags |= SPAWNFLAG_ITEM_DROPPED_PLAYER;
@@ -638,7 +645,11 @@ void Drop_Ammo(edict_t *ent, gitem_t *item)
 
 THINK(MegaHealth_think) (edict_t *self) -> void
 {
-	if (self->owner->health > self->owner->max_health)
+	if (self->owner->health > self->owner->max_health
+		//ZOID
+		&& !CTFHasRegeneration(self->owner)
+		//ZOID
+		)
 	{
 		self->nextthink = level.time + 1_sec;
 		self->owner->health -= 1;
@@ -668,13 +679,22 @@ bool Pickup_Health(edict_t *ent, edict_t *other)
 
 	other->health += count;
 
+	//ZOID
+	if (ctf->integer && other->health > 250 && count > 25)
+		other->health = 250;
+	//ZOID
+
 	if (!(health_flags & HEALTH_IGNORE_MAX))
 	{
 		if (other->health > other->max_health)
 			other->health = other->max_health;
 	}
 
-	if (ent->item->tag & HEALTH_TIMED)
+	if ((ent->item->tag & HEALTH_TIMED)
+		//ZOID
+		&& !CTFHasRegeneration(other)
+		//ZOID
+		)
 	{
 		if (!deathmatch->integer)
 		{
@@ -735,6 +755,9 @@ bool Pickup_Armor(edict_t *ent, edict_t *other)
 
 	old_armor_index = ArmorIndex(other);
 
+	// [Paril-KEX] for g_start_items
+	int32_t base_count = ent->count ? ent->count : newinfo ? newinfo->base_count : 0;
+
 	// handle armor shards specially
 	if (ent->item->id == IT_ARMOR_SHARD)
 	{
@@ -743,11 +766,10 @@ bool Pickup_Armor(edict_t *ent, edict_t *other)
 		else
 			other->client->pers.inventory[old_armor_index] += 2;
 	}
-
 	// if player has no armor, just use it
 	else if (!old_armor_index)
 	{
-		other->client->pers.inventory[ent->item->id] = newinfo->base_count;
+		other->client->pers.inventory[ent->item->id] = base_count;
 	}
 
 	// use the better armor
@@ -766,7 +788,7 @@ bool Pickup_Armor(edict_t *ent, edict_t *other)
 			// calc new armor values
 			salvage = oldinfo->normal_protection / newinfo->normal_protection;
 			salvagecount = (int) (salvage * other->client->pers.inventory[old_armor_index]);
-			newcount = newinfo->base_count + salvagecount;
+			newcount = base_count + salvagecount;
 			if (newcount > newinfo->max_count)
 				newcount = newinfo->max_count;
 
@@ -780,7 +802,7 @@ bool Pickup_Armor(edict_t *ent, edict_t *other)
 		{
 			// calc new armor values
 			salvage = newinfo->normal_protection / oldinfo->normal_protection;
-			salvagecount = (int) (salvage * newinfo->base_count);
+			salvagecount = (int) (salvage * base_count);
 			newcount = other->client->pers.inventory[old_armor_index] + salvagecount;
 			if (newcount > oldinfo->max_count)
 				newcount = oldinfo->max_count;
@@ -1291,7 +1313,9 @@ void SpawnItem(edict_t *ent, gitem_t *item)
 		{
 			if (item->pickup == Pickup_Armor || item->pickup == Pickup_PowerArmor ||
 				item->pickup == Pickup_Powerup || item->pickup == Pickup_Sphere || item->pickup == Pickup_Doppleganger ||
-				(item->flags & IF_HEALTH) || (item->flags & IF_AMMO) || item->pickup == Pickup_Weapon || item->pickup == Pickup_Pack)
+				(item->flags & IF_HEALTH) || (item->flags & IF_AMMO) || item->pickup == Pickup_Weapon || item->pickup == Pickup_Pack ||
+				item->id == IT_ITEM_BANDOLIER || item->id == IT_ITEM_PACK ||
+				item->id == IT_AMMO_NUKE)
 			{
 				G_FreeEdict(ent);
 				return;
@@ -2970,7 +2994,10 @@ gives +1 to maximum health
 		/* use_name */  "Bandolier",
 		/* pickup_name */  "$item_bandolier",
 		/* pickup_name_definite */ "$item_bandolier_def",
-		/* quantity */ 60
+		/* quantity */ 60,
+		/* ammo */ IT_NULL,
+		/* chain */ IT_NULL,
+		/* flags */ IF_POWERUP
 	},
 
 /*QUAKED item_pack (.3 .3 1) (-16 -16 -16) (16 16 16)
@@ -2991,6 +3018,9 @@ gives +1 to maximum health
 		/* pickup_name */  "$item_ammo_pack",
 		/* pickup_name_definite */ "$item_ammo_pack_def",
 		/* quantity */ 180,
+		/* ammo */ IT_NULL,
+		/* chain */ IT_NULL,
+		/* flags */ IF_POWERUP
 	},
 
 
@@ -3931,12 +3961,18 @@ void InitItems()
 			if (!P_UseCoopInstancedItems() && (it.flags & IF_STAY_COOP))
 				it.drop = nullptr;
 		}
-		else if (deathmatch->integer)
-		{
-			if (g_dm_weapons_stay->integer && it.drop == Drop_Weapon)
-				it.drop = nullptr;
-		}
 	}
+}
+
+// [Paril-KEX]
+inline bool G_CanDropItem(const gitem_t &item)
+{
+	if (!item.drop)
+		return false;
+	else if ((item.flags & IF_WEAPON) && !(item.flags & IF_AMMO) && deathmatch->integer && g_dm_weapons_stay->integer)
+		return false;
+
+	return true;
 }
 
 /*
@@ -3988,7 +4024,7 @@ void SetItemNames()
 			(itemlist[i].flags & IF_POWERUP_WHEEL) ? 1 : 0,
 			itemlist[i].sort_id,
 			itemlist[i].quantity_warn,
-			itemlist[i].drop != nullptr ? 1 : 0
+			G_CanDropItem(itemlist[i]) ? 1 : 0
 		).data());
 		itemlist[i].weapon_wheel_index = cs_index;
 		cs_index++;
@@ -4010,7 +4046,7 @@ void SetItemNames()
 			gi.imageindex(itemlist[i].icon),
 			(itemlist[i].flags & IF_POWERUP_ONOFF) ? 1 : 0,
 			itemlist[i].sort_id,
-			itemlist[i].drop != nullptr ? 1 : 0,
+			G_CanDropItem(itemlist[i]) ? 1 : 0,
 			itemlist[i].ammo ? GetItemByIndex(itemlist[i].ammo)->ammo_wheel_index : -1
 		).data());
 		itemlist[i].powerup_wheel_index = cs_index;

@@ -60,7 +60,7 @@ USE(stationarymonster_triggered_spawn_use) (edict_t *self, edict_t *other, edict
 	// we have a one frame delay here so we don't telefrag the guy who activated us
 	self->think = stationarymonster_triggered_spawn;
 	self->nextthink = level.time + FRAME_TIME_S;
-	if (activator->client)
+	if (activator && activator->client)
 		self->enemy = activator;
 	self->use = monster_use;
 }

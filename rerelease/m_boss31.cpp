@@ -14,20 +14,20 @@ jorg
 
 void SP_monster_makron(edict_t *self);
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_pain3;
-static int sound_idle;
-static int sound_death;
-static int sound_search1;
-static int sound_search2;
-static int sound_search3;
-static int sound_attack1, sound_attack1_loop, sound_attack1_end;
-static int sound_attack2, sound_bfg_fire;
-static int sound_firegun;
-static int sound_step_left;
-static int sound_step_right;
-static int sound_death_hit;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_pain3;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_death;
+static cached_soundindex sound_search1;
+static cached_soundindex sound_search2;
+static cached_soundindex sound_search3;
+static cached_soundindex sound_attack1, sound_attack1_loop, sound_attack1_end;
+static cached_soundindex sound_attack2, sound_bfg_fire;
+static cached_soundindex sound_firegun;
+static cached_soundindex sound_step_left;
+static cached_soundindex sound_step_right;
+static cached_soundindex sound_death_hit;
 
 void MakronToss(edict_t *self);
 
@@ -559,88 +559,10 @@ DIE(jorg_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage,
 	M_SetAnimation(self, &jorg_move_death);
 }
 
+// [Paril-KEX] use generic function
 MONSTERINFO_CHECKATTACK(Jorg_CheckAttack) (edict_t *self) -> bool
 {
-	vec3_t	spot1, spot2;
-	vec3_t	temp;
-	float	chance;
-	trace_t tr;
-	float	enemy_yaw;
-
-	if (self->enemy->health > 0)
-	{
-		// see if any entities are in the way of the shot
-		spot1 = self->s.origin;
-		spot1[2] += self->viewheight;
-		spot2 = self->enemy->s.origin;
-		spot2[2] += self->enemy->viewheight;
-
-		tr = gi.traceline(spot1, spot2, self, CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_PLAYER | CONTENTS_SLIME | CONTENTS_LAVA);
-
-		// do we have a clear shot?
-		if (tr.ent != self->enemy && !(tr.ent->svflags & SVF_PLAYER))
-			return false;
-	}
-
-	float enemy_range = range_to(self, self->enemy);
-	temp = self->enemy->s.origin - self->s.origin;
-	enemy_yaw = vectoyaw(temp);
-
-	self->ideal_yaw = enemy_yaw;
-
-	// melee attack
-	if (enemy_range <= RANGE_MELEE)
-	{
-		if (self->monsterinfo.melee)
-			self->monsterinfo.attack_state = AS_MELEE;
-		else
-			self->monsterinfo.attack_state = AS_MISSILE;
-		return true;
-	}
-
-	// missile attack
-	if (!self->monsterinfo.attack)
-		return false;
-
-	if (level.time < self->monsterinfo.attack_finished)
-		return false;
-
-	if (enemy_range > RANGE_MID)
-		return false;
-
-	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
-	{
-		chance = 0.4f;
-	}
-	else if (enemy_range <= RANGE_MELEE)
-	{
-		chance = 0.8f;
-	}
-	else if (enemy_range <= RANGE_NEAR)
-	{
-		chance = 0.4f;
-	}
-	else
-	{
-		chance = 0.2f;
-	}
-
-	if (frandom() < chance)
-	{
-		self->monsterinfo.attack_state = AS_MISSILE;
-		self->monsterinfo.attack_finished = level.time + random_time(2_sec);
-		return true;
-	}
-
-	if (self->flags & FL_FLY)
-	{
-		if (frandom() < 0.3f)
-			self->monsterinfo.attack_state = AS_SLIDING;
-		else
-			self->monsterinfo.attack_state = AS_STRAIGHT;
-	}
-
-	return false;
+	return M_CheckAttack_Base(self, 0.4f, 0.8f, 0.4f, 0.2f, 0.0f, 0.f);
 }
 
 void MakronPrecache();
@@ -654,23 +576,23 @@ void SP_monster_jorg(edict_t *self)
 		return;
 	}
 
-	sound_pain1 = gi.soundindex("boss3/bs3pain1.wav");
-	sound_pain2 = gi.soundindex("boss3/bs3pain2.wav");
-	sound_pain3 = gi.soundindex("boss3/bs3pain3.wav");
-	sound_death = gi.soundindex("boss3/bs3deth1.wav");
-	sound_attack1 = gi.soundindex("boss3/bs3atck1.wav");
-	sound_attack1_loop = gi.soundindex("boss3/bs3atck1_loop.wav");
-	sound_attack1_end = gi.soundindex("boss3/bs3atck1_end.wav");
-	sound_attack2 = gi.soundindex("boss3/bs3atck2.wav");
-	sound_search1 = gi.soundindex("boss3/bs3srch1.wav");
-	sound_search2 = gi.soundindex("boss3/bs3srch2.wav");
-	sound_search3 = gi.soundindex("boss3/bs3srch3.wav");
-	sound_idle = gi.soundindex("boss3/bs3idle1.wav");
-	sound_step_left = gi.soundindex("boss3/step1.wav");
-	sound_step_right = gi.soundindex("boss3/step2.wav");
-	sound_firegun = gi.soundindex("boss3/xfire.wav");
-	sound_death_hit = gi.soundindex("boss3/d_hit.wav");
-	sound_bfg_fire = gi.soundindex("makron/bfg_fire.wav");
+	sound_pain1.assign("boss3/bs3pain1.wav");
+	sound_pain2.assign("boss3/bs3pain2.wav");
+	sound_pain3.assign("boss3/bs3pain3.wav");
+	sound_death.assign("boss3/bs3deth1.wav");
+	sound_attack1.assign("boss3/bs3atck1.wav");
+	sound_attack1_loop.assign("boss3/bs3atck1_loop.wav");
+	sound_attack1_end.assign("boss3/bs3atck1_end.wav");
+	sound_attack2.assign("boss3/bs3atck2.wav");
+	sound_search1.assign("boss3/bs3srch1.wav");
+	sound_search2.assign("boss3/bs3srch2.wav");
+	sound_search3.assign("boss3/bs3srch3.wav");
+	sound_idle.assign("boss3/bs3idle1.wav");
+	sound_step_left.assign("boss3/step1.wav");
+	sound_step_right.assign("boss3/step2.wav");
+	sound_firegun.assign("boss3/xfire.wav");
+	sound_death_hit.assign("boss3/d_hit.wav");
+	sound_bfg_fire.assign("makron/bfg_fire.wav");
 
 	MakronPrecache();
 

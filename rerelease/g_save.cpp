@@ -205,7 +205,8 @@ enum save_type_id_t
 	ST_TIME,		 // serialized as milliseconds
 	ST_DATA,		 // serialized as name of data ptr from global list; `tag` = list tag
 	ST_INVENTORY,	 // serialized as classname => number key/value pairs
-	ST_REINFORCEMENTS // serialized as array of data
+	ST_REINFORCEMENTS, // serialized as array of data
+	ST_SAVABLE_DYNAMIC // serialized similar to ST_FIXED_ARRAY but includes count
 };
 
 struct save_struct_t;
@@ -495,6 +496,21 @@ struct save_type_deducer<std::array<T, N>>
 	}
 };
 
+// savable_allocated_memory_t
+template<typename T, int32_t Tag>
+struct save_type_deducer<savable_allocated_memory_t<T, Tag>>
+{
+	static constexpr save_field_t get_save_type(const char *name, size_t offset)
+	{
+		auto type = save_type_deducer<std::remove_extent_t<T>>::get_save_type(nullptr, 0).type;
+
+		if (type.id <= ST_BOOL || type.id >= ST_DOUBLE)
+			return { name, offset, { ST_SAVABLE_DYNAMIC, ST_INVALID, Tag, []() { return save_type_deducer<std::remove_extent_t<T>>::get_save_type(nullptr, 0).type; } } };
+
+		return { name, offset, { ST_SAVABLE_DYNAMIC, type.id, Tag } };
+	}
+};
+
 // save_data_ref<T>
 template<typename T, size_t Tag>
 struct save_type_deducer<save_data_t<T, Tag>>
@@ -681,6 +697,7 @@ SAVE_STRUCT_START
 	FIELD_AUTO(intermission_angle),
 
 	// pic_health is set by worldspawn
+	// pic_ping is set by worldspawn
 			
 	FIELD_AUTO(total_secrets),
 	FIELD_AUTO(found_secrets),
@@ -910,6 +927,8 @@ SAVE_STRUCT_START
 	FIELD_AUTO(sound_entity_time),
 	FIELD_AUTO(sound2_entity),
 	FIELD_AUTO(sound2_entity_time),
+
+	FIELD_AUTO(last_firing_time),
 SAVE_STRUCT_END
 #undef DECLARE_SAVE_STRUCT
 // clang-format on
@@ -1107,6 +1126,13 @@ SAVE_STRUCT_START
 	FIELD_AUTO(moveinfo.endfunc),
 	FIELD_AUTO(moveinfo.blocked),
 
+	FIELD_AUTO(moveinfo.curve_ref),
+	FIELD_AUTO(moveinfo.curve_positions),
+	FIELD_AUTO(moveinfo.curve_frame),
+	FIELD_AUTO(moveinfo.subframe),
+	FIELD_AUTO(moveinfo.num_subframes),
+	FIELD_AUTO(moveinfo.num_frames_done),
+
 	// monsterinfo_t
 	FIELD_AUTO(monsterinfo.active_move),
 	FIELD_AUTO(monsterinfo.next_move),
@@ -1281,7 +1307,7 @@ SAVE_STRUCT_END
 #undef DECLARE_SAVE_STRUCT
 // clang-format on
 
-size_t get_simple_type_size(save_type_id_t id)
+inline size_t get_simple_type_size(save_type_id_t id, bool fatal = true)
 {
 	switch (id)
 	{
@@ -1309,8 +1335,12 @@ size_t get_simple_type_size(save_type_id_t id)
 		return sizeof(size_t);
 	case ST_ITEM_INDEX:
 		return sizeof(uint32_t);
+	case ST_SAVABLE_DYNAMIC:
+		return sizeof(savable_allocated_memory_t<void *, 0>);
 	default:
-		gi.Com_ErrorFmt("Can't calculate static size for type ID {}", (int32_t) id);
+		if (fatal)
+			gi.Com_ErrorFmt("Can't calculate static size for type ID {}", (int32_t) id);
+		break;
 	}
 
 	return 0;
@@ -1319,8 +1349,8 @@ size_t get_simple_type_size(save_type_id_t id)
 size_t get_complex_type_size(const save_type_t &type)
 {
 	// these are simple types
-	if ((type.id >= ST_BOOL && type.id <= ST_DOUBLE) || (type.id >= ST_ENTITY && type.id <= ST_TIME))
-		return get_simple_type_size(type.id);
+	if (auto simple = get_simple_type_size(type.id, false))
+		return simple;
 
 	switch (type.id)
 	{
@@ -1448,7 +1478,7 @@ void read_save_type_json(const Json::Value &json, void *data, const save_type_t 
 		else if (json.asInt() < INT8_MIN || json.asInt() > INT8_MAX)
 			json_print_error(field, "int8 out of range", false);
 		else
-			*((int8_t *) data) = json.isInt();
+			*((int8_t *) data) = json.asInt();
 		return;
 	case ST_INT16:
 		if (!json.isInt())
@@ -1619,6 +1649,40 @@ void read_save_type_json(const Json::Value &json, void *data, const save_type_t 
 				const Json::Value &v = json[i];
 				read_save_type_json(v, element, &element_type,
 									fmt::format("[{}]", i).c_str());
+			}
+		}
+
+		return;
+	case ST_SAVABLE_DYNAMIC:
+		if (!json.isArray())
+			json_print_error(field, "expected array", false);
+		else
+		{
+			savable_allocated_memory_t<void, 0> *savptr = (savable_allocated_memory_t<void, 0> *) data;
+			size_t			  element_size;
+			save_type_t       element_type;
+
+			if (type->type_resolver)
+			{
+				element_type = type->type_resolver();
+				element_size = get_complex_type_size(element_type);
+			}
+			else
+			{
+				element_size = get_simple_type_size((save_type_id_t) type->tag);
+				element_type = { (save_type_id_t) type->tag };
+			}
+
+			savptr->count = json.size();
+			savptr->ptr = gi.TagMalloc(element_size * savptr->count, type->count);
+
+			byte *out_element = (byte *) savptr->ptr;
+
+			for (Json::Value::ArrayIndex i = 0; i < savptr->count; i++, out_element += element_size)
+			{
+				const Json::Value &v = json[i];
+				read_save_type_json(v, out_element, &element_type,
+					fmt::format("[{}]", i).c_str());
 			}
 		}
 
@@ -2005,7 +2069,62 @@ bool write_save_type_json(const void *data, const save_type_t *type, bool null_f
 			v.append(std::move(value));
 		}
 
-		output = v;
+		output = std::move(v);
+		return true;
+	}
+	case ST_SAVABLE_DYNAMIC: {
+		const savable_allocated_memory_t<void, 0> *savptr = (const savable_allocated_memory_t<void, 0> *) data;
+		size_t			  i;
+		size_t			  element_size;
+		save_type_t       element_type;
+
+		if (type->type_resolver)
+		{
+			element_type = type->type_resolver();
+			element_size = get_complex_type_size(element_type);
+		}
+		else
+		{
+			element_size = get_simple_type_size((save_type_id_t) type->tag);
+			element_type = { (save_type_id_t) type->tag };
+		}
+
+		const uint8_t *element = (const uint8_t *) savptr->ptr;
+
+		if (null_for_empty)
+		{
+			if (type->is_empty)
+			{
+				if (type->is_empty(data))
+					return false;
+			}
+			else
+			{
+				for (i = 0; i < savptr->count; i++, element += element_size)
+				{
+					Json::Value value;
+					bool valid_value = write_save_type_json(element, &element_type, !element_type.never_empty, value);
+
+					if (valid_value)
+						break;
+				}
+
+				if (i == savptr->count)
+					return false;
+			}
+		}
+
+		element = (const uint8_t *) savptr->ptr;
+		Json::Value v(Json::arrayValue);
+
+		for (i = 0; i < savptr->count; i++, element += element_size)
+		{
+			Json::Value value;
+			write_save_type_json(element, &element_type, false, value);
+			v.append(std::move(value));
+		}
+
+		output = std::move(v);
 		return true;
 	}
 	case ST_BITSET:
@@ -2020,7 +2139,7 @@ bool write_save_type_json(const void *data, const save_type_t *type, bool null_f
 		if (null_for_empty && (!valid_value || !obj.size()))
 			return false;
 
-		output = obj;
+		output = std::move(obj);
 		return true;
 	}
 	case ST_ENTITY: {
@@ -2134,7 +2253,7 @@ bool write_save_type_json(const void *data, const save_type_t *type, bool null_f
 		if (null_for_empty && inventory.empty())
 			return false;
 
-		output = inventory;
+		output = std::move(inventory);
 		return true;
 	}
 	case ST_REINFORCEMENTS: {
@@ -2165,7 +2284,7 @@ bool write_save_type_json(const void *data, const save_type_t *type, bool null_f
 			reinforcements[i] = obj;
 		}
 
-		output = reinforcements;
+		output = std::move(reinforcements);
 		return true;
 	}
 	default:
@@ -2194,7 +2313,7 @@ bool write_save_struct_json(const void *data, const save_struct_t *structure, bo
 	if (null_for_empty && obj.empty())
 		return false;
 
-	output = obj;
+	output = std::move(obj);
 	return true;
 }
 
@@ -2458,6 +2577,13 @@ void ReadLevelJson(const char *jsonString)
 	}
 
 	G_PrecacheInventoryItems();
+
+	// clear cached indices
+	cached_soundindex::reset_all();
+	cached_modelindex::reset_all();
+	cached_imageindex::reset_all();
+
+	G_LoadShadowLights();
 }
 
 // [Paril-KEX]
@@ -2468,6 +2594,16 @@ bool G_CanSave()
         gi.LocClient_Print(&g_edicts[1], PRINT_CENTER, "$g_no_save_dead");
         return false;
     }
+	// don't allow saving during cameras/intermissions as this
+	// causes the game to act weird when these are loaded
+	else if (level.intermissiontime)
+	{
+		return false;
+	}
 
 	return true;
 }
+
+/*static*/ template<> cached_soundindex *cached_soundindex::head = nullptr;
+/*static*/ template<> cached_modelindex *cached_modelindex::head = nullptr;
+/*static*/ template<> cached_imageindex *cached_imageindex::head = nullptr;

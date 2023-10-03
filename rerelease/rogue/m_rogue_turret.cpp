@@ -28,7 +28,7 @@ void turret_run(edict_t *self);
 extern const mmove_t turret_move_fire;
 extern const mmove_t turret_move_fire_blind;
 
-static int sound_moved, sound_moving;
+static cached_soundindex sound_moved, sound_moving;
 
 void TurretAim(edict_t *self)
 {
@@ -399,18 +399,10 @@ void TurretFire(edict_t *self)
 
 	chance = frandom();
 
-	// rockets fire less often than the others do.
 	if (self->spawnflags.has(SPAWNFLAG_TURRET_ROCKET))
-	{
-		chance = chance * 3;
-
 		rocketSpeed = 650;
-	}
 	else if (self->spawnflags.has(SPAWNFLAG_TURRET_BLASTER))
-	{
 		rocketSpeed = 800;
-		chance = chance * 2;
-	}
 	else
 		rocketSpeed = 0;
 
@@ -500,16 +492,11 @@ void TurretFireBlind(edict_t *self)
 		return;
 
 	if (self->spawnflags.has(SPAWNFLAG_TURRET_ROCKET))
-	{
-		if (skill->integer == 2)
-		{
-			rocketSpeed += (int) frandom(200);
-		}
-		else if (skill->integer == 3)
-		{
-			rocketSpeed += (int) frandom(100, 300);
-		}
-	}
+		rocketSpeed = 650;
+	else if (self->spawnflags.has(SPAWNFLAG_TURRET_BLASTER))
+		rocketSpeed = 800;
+	else
+		rocketSpeed = 0;
 
 	start = self->s.origin;
 	end = self->monsterinfo.blind_fire_target;
@@ -524,9 +511,9 @@ void TurretFireBlind(edict_t *self)
 	dir.normalize();
 
 	if (self->spawnflags.has(SPAWNFLAG_TURRET_BLASTER))
-		monster_fire_blaster(self, start, dir, 20, 1000, MZ2_TURRET_BLASTER, EF_BLASTER);
+		monster_fire_blaster(self, start, dir, TURRET_BLASTER_DAMAGE, rocketSpeed, MZ2_TURRET_BLASTER, EF_BLASTER);
 	else if (self->spawnflags.has(SPAWNFLAG_TURRET_ROCKET))
-		monster_fire_rocket(self, start, dir, 50, rocketSpeed, MZ2_TURRET_ROCKET);
+		monster_fire_rocket(self, start, dir, 40, rocketSpeed, MZ2_TURRET_ROCKET);
 }
 // pmm
 
@@ -623,7 +610,7 @@ DIE(turret_die) (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 	if (self->teamchain)
 	{
 		base = self->teamchain;
-		base->solid = SOLID_BBOX;
+		base->solid = SOLID_NOT;
 		base->takedamage = false;
 		base->movetype = MOVETYPE_NONE;
 		base->teammaster = base;
@@ -937,8 +924,8 @@ void SP_monster_turret(edict_t *self)
 	}
 
 	// pre-caches
-	sound_moved = gi.soundindex("turret/moved.wav");
-	sound_moving = gi.soundindex("turret/moving.wav");
+	sound_moved.assign("turret/moved.wav");
+	sound_moving.assign("turret/moving.wav");
 	gi.modelindex("models/objects/debris1/tris.md2");
 
 	self->s.modelindex = gi.modelindex("models/monsters/turret/tris.md2");

@@ -965,6 +965,10 @@ Called by the bot subsystem to use an item.
 
 Fetch an item ID by a classname; for the bot subsystem.
 
+### Edict_ForceLookAtPoint
+
+Force the player to look at the given point - used for the nav editor.
+
 ### Entity_IsVisibleToPlayer
 
 This function is for item instancing; the rerelease of Quake II supports instanced items, which will display only for the players who haven't picked it up yet. For online players, this simply removes the item if you've gotten it, but for split screen players it will show a ghost where the entity was on players that have already picked it up.

@@ -14,13 +14,13 @@ GUNNER
 
 constexpr spawnflags_t SPAWNFLAG_GUNCMDR_NOJUMPING = 8_spawnflag;
 
-static int sound_pain;
-static int sound_pain2;
-static int sound_death;
-static int sound_idle;
-static int sound_open;
-static int sound_search;
-static int sound_sight;
+static cached_soundindex sound_pain;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_death;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_open;
+static cached_soundindex sound_search;
+static cached_soundindex sound_sight;
 
 void guncmdr_idlesound(edict_t *self)
 {
@@ -1326,7 +1326,7 @@ MONSTERINFO_DUCK(guncmdr_duck) (edict_t *self, gtime_t eta) -> bool
 
 	if ((self->monsterinfo.active_move == &guncmdr_move_fire_chain_dodge_left) ||
 		(self->monsterinfo.active_move == &guncmdr_move_fire_chain_dodge_right) ||
-		(self->monsterinfo.active_move == &guncmdr_move_attack_grenade_back_dodge_right) ||
+		(self->monsterinfo.active_move == &guncmdr_move_attack_grenade_back_dodge_left) ||
 		(self->monsterinfo.active_move == &guncmdr_move_attack_grenade_back_dodge_right) ||
 		(self->monsterinfo.active_move == &guncmdr_move_attack_mortar_dodge))
 	{
@@ -1404,13 +1404,13 @@ void SP_monster_guncmdr(edict_t *self)
 		return;
 	}
 
-	sound_death = gi.soundindex("guncmdr/gcdrdeath1.wav");
-	sound_pain = gi.soundindex("guncmdr/gcdrpain2.wav");
-	sound_pain2 = gi.soundindex("guncmdr/gcdrpain1.wav");
-	sound_idle = gi.soundindex("guncmdr/gcdridle1.wav");
-	sound_open = gi.soundindex("guncmdr/gcdratck1.wav");
-	sound_search = gi.soundindex("guncmdr/gcdrsrch1.wav");
-	sound_sight = gi.soundindex("guncmdr/sight1.wav");
+	sound_death.assign("guncmdr/gcdrdeath1.wav");
+	sound_pain.assign("guncmdr/gcdrpain2.wav");
+	sound_pain2.assign("guncmdr/gcdrpain1.wav");
+	sound_idle.assign("guncmdr/gcdridle1.wav");
+	sound_open.assign("guncmdr/gcdratck1.wav");
+	sound_search.assign("guncmdr/gcdrsrch1.wav");
+	sound_sight.assign("guncmdr/sight1.wav");
 
 	gi.soundindex("guncmdr/gcdratck2.wav");
 	gi.soundindex("guncmdr/gcdratck3.wav");

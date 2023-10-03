@@ -791,6 +791,26 @@ void monster_dead(edict_t *self)
 	gi.linkentity(self);
 }
 
+/*
+=============
+infront
+
+returns 1 if the entity is in front (in sight) of self
+=============
+*/
+static bool projectile_infront(edict_t *self, edict_t *other)
+{
+	vec3_t vec;
+	float  dot;
+	vec3_t forward;
+
+	AngleVectors(self->s.angles, forward, nullptr, nullptr);
+	vec = other->s.origin - self->s.origin;
+	vec.normalize();
+	dot = vec.dot(forward);
+	return dot > 0.35f;
+}
+
 static BoxEdictsResult_t M_CheckDodge_BoxEdictsFilter(edict_t *ent, void *data)
 {
 	edict_t *self = (edict_t *) data;
@@ -804,7 +824,7 @@ static BoxEdictsResult_t M_CheckDodge_BoxEdictsFilter(edict_t *ent, void *data)
 		return BoxEdictsResult_t::Skip;
 
 	// projectile is behind us, we can't see it
-	if (!infront(self, ent))
+	if (!projectile_infront(self, ent))
 		return BoxEdictsResult_t::Skip;
 
 	// will it hit us within 1 second? gives us enough time to dodge
@@ -1065,7 +1085,7 @@ USE(monster_triggered_spawn_use) (edict_t *self, edict_t *other, edict_t *activa
 	// we have a one frame delay here so we don't telefrag the guy who activated us
 	self->think = monster_triggered_spawn;
 	self->nextthink = level.time + FRAME_TIME_S;
-	if (activator->client && !(self->hackflags & HACKFLAG_END_CUTSCENE))
+	if (activator && activator->client && !(self->hackflags & HACKFLAG_END_CUTSCENE))
 		self->enemy = activator;
 	self->use = monster_use;
 

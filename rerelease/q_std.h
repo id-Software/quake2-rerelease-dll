@@ -114,7 +114,7 @@ using std::clamp;
 template<typename T>
 constexpr T lerp(T from, T to, float t)
 {
-	return t * from + (1.f - t) * to;
+	return (to * t) + (from * (1.f - t));
 }
 
 // angle indexes
